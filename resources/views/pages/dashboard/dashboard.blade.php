@@ -1,594 +1,594 @@
 <x-app-layout>
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
 
-        <!-- Business Operations Banner -->
-        <div class="relative bg-gray-800 p-4 sm:p-6 rounded-sm overflow-hidden mb-8 border-l-4 border-blue-500 sticky top-0 z-10">
-            {{-- relative bg-gray-800 p-4 sm:p-6 rounded-sm overflow-hidden mb-8 border-l-4 border-blue-500 --}}
-            <!-- Background Image -->
-            <div class="absolute inset-0 bg-cover bg-center opacity-20"
-                style="background-image: url('{{ asset('images/dashboard.avif') }}')">
-            </div>
+        <!-- Dashboard Banner -->
+        <div class="relative bg-cover bg-center p-4 sm:p-6 rounded-xl overflow-hidden mb-8 shadow-lg"
+            style="background-image: url('{{ asset('images/0fd3416c.jpeg') }}')">
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-gray-900/70"></div>
 
             <!-- Content -->
-            <div class="relative ">
-                <h1 class="text-2xl md:text-3xl text-white font-bold mb-1">
-                    BUSINESS OPERATIONS DASHBOARD
-                </h1>
-                <p class="text-blue-300 font-medium">Welcome to {{ $globalTitle }}, {{ Auth::user()->name }}</p>
+            <div class="relative">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl text-white font-bold mb-1">
+                            MANAGEMENT DASHBOARD
+                        </h1>
+                        <p class="text-blue-100 font-medium">Welcome back, {{ Auth::user()->name }}</p>
+                    </div>
 
-                <div class="mt-4 flex flex-wrap gap-2">
-                    @can('purchasing')
-                        <span class="px-3 py-1 bg-blue-600/80 text-white text-sm rounded-full">Purchasing</span>
-                    @endcan
-                    @can('sales')
-                        <span class="px-3 py-1 bg-green-600/80 text-white text-sm rounded-full">Sales</span>
-                    @endcan
-                    @can('warehouse')
-                        <span class="px-3 py-1 bg-yellow-600/80 text-white text-sm rounded-full">Warehouse</span>
-                    @endcan
-                    @can('accounting')
-                        <span class="px-3 py-1 bg-purple-600/80 text-white text-sm rounded-full">Accounting</span>
-                    @endcan
-                    @can('finance')
-                        <span class="px-3 py-1 bg-red-600/80 text-white text-sm rounded-full">Finance</span>
-                    @endcan
-                    @can('tax')
-                        <span class="px-3 py-1 bg-indigo-600/80 text-white text-sm rounded-full">Tax</span>
-                    @endcan
-                    @can('human_resource')
-                        <span class="px-3 py-1 bg-pink-600/80 text-white text-sm rounded-full">HR</span>
-                    @endcan
-                    @can('general_affairs')
-                        <span class="px-3 py-1 bg-teal-600/80 text-white text-sm rounded-full">General Affairs</span>
-                    @endcan
-                    @can('logistics')
-                        <span class="px-3 py-1 bg-orange-600/80 text-white text-sm rounded-full">Logistic</span>
-                    @endcan
-                    @can('aju')
-                        <span class="px-3 py-1 bg-gray-600/80 text-white text-sm rounded-full">Archive</span>
-                    @endcan
-                </div>
-
-                <div class="mt-6 pt-4 border-t border-gray-700/50">
-                    <div class="flex items-center text-gray-300 text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 animate-pulse text-green-400"
-                            viewBox="0 0 20 20" fill="currentColor">
+                    <div class="mt-4 md:mt-0 flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300 mr-2" viewBox="0 0 20 20"
+                            fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <span>Live Data: Monthly revenue $1.2M | 84 pending purchase orders | 32 shipments today</span>
+                        <span class="text-white text-sm font-medium">Last updated:
+                            {{ now()->format('M d, Y H:i') }}</span>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Occupancy Rate -->
+                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-blue-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-blue-100 text-sm font-medium">Occupancy Rate</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">78%</h3>
+                                <p class="text-green-200 text-xs mt-1 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    5.2% from yesterday
+                                </p>
+                            </div>
+                            <div class="bg-blue-500/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-200" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Check-ins -->
+                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-green-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-blue-100 text-sm font-medium">Today's Check-ins</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">24</h3>
+                                <p class="text-blue-200 text-xs mt-1">8 pending arrivals</p>
+                            </div>
+                            <div class="bg-green-500/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-200" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue -->
+                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-yellow-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-blue-100 text-sm font-medium">Today's Revenue</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">$12,845</h3>
+                                <p class="text-green-200 text-xs mt-1 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    12% from yesterday
+                                </p>
+                            </div>
+                            <div class="bg-yellow-500/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-200" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Maintenance Requests -->
+                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-red-300">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-blue-100 text-sm font-medium">Active Requests</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">5</h3>
+                                <p class="text-red-200 text-xs mt-1">2 high priority</p>
+                            </div>
+                            <div class="bg-red-500/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-200" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Department Stats Grid - First Row -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            @can('purchasing')
-                <!-- Purchasing -->
-                <div class="bg-white p-4 rounded shadow border-t-4 border-blue-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-gray-500 text-sm font-medium">Pending POs</h3>
-                            <p class="text-2xl font-bold">84</p>
-                            <p class="text-red-500 text-sm">↑ 12% from last week</p>
-                        </div>
-                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Purchasing</span>
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Recent Bookings -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="font-semibold text-gray-800">Recent Bookings</h2>
+                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800">View All</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Booking ID</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Guest</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Room</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#BK-10245
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">John Smith</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Deluxe Suite (305)
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Checked
+                                            In</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900">Details</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#BK-10244
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sarah Johnson</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Executive Room (412)
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900">Details</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#BK-10243
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Robert Chen</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Presidential Suite
+                                        (801)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Confirmed</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900">Details</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#BK-10242
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maria Garcia</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Standard Room (207)
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Cancelled</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900">Details</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            @endcan
 
-            @can('sales')
-                <!-- Sales -->
-                <div class="bg-white p-4 rounded shadow border-t-4 border-green-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-gray-500 text-sm font-medium">Monthly Sales</h3>
-                            <p class="text-2xl font-bold">$1.2M</p>
-                            <p class="text-green-500 text-sm">↑ 8% from last month</p>
-                        </div>
-                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Sales</span>
+                <!-- Room Availability -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-5 py-4 border-b border-gray-200">
+                        <h2 class="font-semibold text-gray-800">Room Availability (Next 7 Days)</h2>
                     </div>
-                </div>
-            @endcan
+                    <div class="p-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Room Type 1 -->
+                            <div class="border rounded-lg p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-medium text-gray-800">Deluxe Suite</h3>
+                                        <p class="text-sm text-gray-500">Total: 12 rooms</p>
+                                    </div>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Popular</span>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-gray-600">Available</span>
+                                        <span class="font-medium">8</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 66%"></div>
+                                    </div>
+                                </div>
+                            </div>
 
-            @can('warehouse')
-                <!-- Warehouse -->
-                <div class="bg-white p-4 rounded shadow border-t-4 border-yellow-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-gray-500 text-sm font-medium">Inventory Value</h3>
-                            <p class="text-2xl font-bold">$850K</p>
-                            <p class="text-yellow-500 text-sm">↓ 5% from target</p>
-                        </div>
-                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">Warehouse</span>
-                    </div>
-                </div>
-            @endcan
+                            <!-- Room Type 2 -->
+                            <div class="border rounded-lg p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-medium text-gray-800">Executive Room</h3>
+                                        <p class="text-sm text-gray-500">Total: 20 rooms</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-gray-600">Available</span>
+                                        <span class="font-medium">15</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-600 h-2 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
 
-            @can('accounting')
-                <!-- Accounting -->
-                <div class="bg-white p-4 rounded shadow border-t-4 border-purple-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-gray-500 text-sm font-medium">AR Aging</h3>
-                            <p class="text-2xl font-bold">$320K</p>
-                            <p class="text-purple-500 text-sm">15% > 30 days</p>
+                            <!-- Room Type 3 -->
+                            <div class="border rounded-lg p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-medium text-gray-800">Standard Room</h3>
+                                        <p class="text-sm text-gray-500">Total: 30 rooms</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-gray-600">Available</span>
+                                        <span class="font-medium">12</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-yellow-600 h-2 rounded-full" style="width: 40%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Room Type 4 -->
+                            <div class="border rounded-lg p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-medium text-gray-800">Presidential Suite</h3>
+                                        <p class="text-sm text-gray-500">Total: 2 rooms</p>
+                                    </div>
+                                    <span
+                                        class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Luxury</span>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-gray-600">Available</span>
+                                        <span class="font-medium">1</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 50%"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Accounting</span>
                     </div>
                 </div>
-            @endcan
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-8">
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-5 py-4 border-b border-gray-200">
+                        <h2 class="font-semibold text-gray-800">Quick Actions</h2>
+                    </div>
+                    <div class="p-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="#"
+                                class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="bg-blue-100 p-3 rounded-full mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">New Booking</span>
+                            </a>
+                            <a href="#"
+                                class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="bg-green-100 p-3 rounded-full mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Check In</span>
+                            </a>
+                            <a href="#"
+                                class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="bg-yellow-100 p-3 rounded-full mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Check Out</span>
+                            </a>
+                            <a href="#"
+                                class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="bg-purple-100 p-3 rounded-full mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Add Room</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Reviews -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="px-5 py-4 border-b border-gray-200">
+                        <h2 class="font-semibold text-gray-800">Recent Guest Reviews</h2>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <!-- Review 1 -->
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                    <span class="text-indigo-600 font-medium">JD</span>
+                                </div>
+                            </div>
+                            <div class="ml-3">
+                                <div class="flex items-center">
+                                    <div class="flex items-center">
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <svg class="text-gray-300 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-2 text-sm text-gray-500">2 days ago</div>
+                                </div>
+                                <div class="mt-1 text-sm font-medium text-gray-900">John Doe</div>
+                                <div class="mt-1 text-sm text-gray-600">"The Deluxe Suite was amazing! Great view and
+                                    excellent service."</div>
+                            </div>
+                        </div>
+
+                        <!-- Review 2 -->
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center">
+                                    <span class="text-pink-600 font-medium">SM</span>
+                                </div>
+                            </div>
+                            <div class="ml-3">
+                                <div class="flex items-center">
+                                    <div class="flex items-center">
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <svg class="text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-2 text-sm text-gray-500">1 week ago</div>
+                                </div>
+                                <div class="mt-1 text-sm font-medium text-gray-900">Sarah Miller</div>
+                                <div class="mt-1 text-sm text-gray-600">"Absolutely perfect stay! The staff went above
+                                    and beyond to make our anniversary special."</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-5 py-3 border-t border-gray-200 text-center">
+                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800">View all
+                            reviews</a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Department Stats Grid - Second Row -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            @can('finance')
-                <!-- Finance -->
-                <div class="bg-white p-4 rounded shadow border-t-4 border-red-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-gray-500 text-sm font-medium">Cash Position</h3>
-                            <p class="text-2xl font-bold">$2.4M</p>
-                            <p class="text-green-500 text-sm">↑ 12% YoY</p>
-                        </div>
-                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">Finance</span>
+        <!-- Calendar & Upcoming Events -->
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Calendar -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 lg:col-span-2">
+                <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="font-semibold text-gray-800">Booking Calendar</h2>
+                    <div class="flex items-center space-x-2">
+                        <button class="p-1 rounded-lg hover:bg-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <span class="text-sm font-medium text-gray-700">May 2023</span>
+                        <button class="p-1 rounded-lg hover:bg-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
-            @endcan
+                <div class="p-5">
+                    <div class="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-500 mb-2">
+                        <div class="py-1">Sun</div>
+                        <div class="py-1">Mon</div>
+                        <div class="py-1">Tue</div>
+                        <div class="py-1">Wed</div>
+                        <div class="py-1">Thu</div>
+                        <div class="py-1">Fri</div>
+                        <div class="py-1">Sat</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1">
+                        <!-- Calendar days would be generated dynamically in a real app -->
+                        <div class="py-2 text-center text-gray-400">30</div>
+                        <div class="py-2 text-center">1</div>
+                        <div class="py-2 text-center">2</div>
+                        <div class="py-2 text-center">3</div>
+                        <div class="py-2 text-center">4</div>
+                        <div class="py-2 text-center">5</div>
+                        <div class="py-2 text-center">6</div>
+                        <div class="py-2 text-center">7</div>
+                        <div class="py-2 text-center">8</div>
+                        <div class="py-2 text-center">9</div>
+                        <div class="py-2 text-center">10</div>
+                        <div class="py-2 text-center">11</div>
+                        <div class="py-2 text-center">12</div>
+                        <div class="py-2 text-center">13</div>
+                        <div class="py-2 text-center">14</div>
+                        <div class="py-2 text-center">15</div>
+                        <div class="py-2 text-center">16</div>
+                        <div class="py-2 text-center">17</div>
+                        <div class="py-2 text-center">18</div>
+                        <div class="py-2 text-center">19</div>
+                        <div class="py-2 text-center">20</div>
+                        <div class="py-2 text-center">21</div>
+                        <div class="py-2 text-center">22</div>
+                        <div class="py-2 text-center">23</div>
+                        <div class="py-2 text-center">24</div>
+                        <div class="py-2 text-center">25</div>
+                        <div class="py-2 text-center">26</div>
+                        <div class="py-2 text-center">27</div>
+                        <div class="py-2 text-center">28</div>
+                        <div class="py-2 text-center">29</div>
+                        <div class="py-2 text-center">30</div>
+                        <div class="py-2 text-center">31</div>
+                        <div class="py-2 text-center text-gray-400">1</div>
+                    </div>
+                </div>
+            </div>
 
-            @can('tax')
-                <!-- Tax -->
-                <div class="bg-white p-4 rounded shadow border-t-4 border-indigo-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-gray-500 text-sm font-medium">Tax Liability</h3>
-                            <p class="text-2xl font-bold">$185K</p>
-                            <p class="text-indigo-500 text-sm">Due in 23 days</p>
-                        </div>
-                        <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded">Tax</span>
-                    </div>
+            <!-- Upcoming Events -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200">
+                    <h2 class="font-semibold text-gray-800">Upcoming Events</h2>
                 </div>
-            @endcan
+                <div class="p-5">
+                    <div class="space-y-4">
+                        <!-- Event 1 -->
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Wedding Reception</p>
+                                <p class="text-sm text-gray-500">May 20, 2023 • 6:00 PM</p>
+                                <p class="mt-1 text-sm text-gray-600">Johnson-Miller wedding. 120 guests. Ballroom
+                                    reserved.</p>
+                            </div>
+                        </div>
 
-            @can('human_resource')
-                <!-- HR -->
-                <div class="bg-white p-4 rounded shadow border-t-4 border-pink-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-gray-500 text-sm font-medium">Employees</h3>
-                            <p class="text-2xl font-bold">142</p>
-                            <p class="text-pink-500 text-sm">3 open positions</p>
+                        <!-- Event 2 -->
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="h-2 w-2 bg-green-500 rounded-full"></div>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Corporate Conference</p>
+                                <p class="text-sm text-gray-500">May 22-24, 2023 • All day</p>
+                                <p class="mt-1 text-sm text-gray-600">TechCorp annual meeting. 15 rooms blocked.</p>
+                            </div>
                         </div>
-                        <span class="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded">HR</span>
-                    </div>
-                </div>
-            @endcan
 
-            @can('general_affairs')
-                <!-- General Affairs -->
-                <div class="bg-white p-4 rounded shadow border-t-4 border-teal-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-gray-500 text-sm font-medium">Facility Issues</h3>
-                            <p class="text-2xl font-bold">7</p>
-                            <p class="text-teal-500 text-sm">2 high priority</p>
+                        <!-- Event 3 -->
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="h-2 w-2 bg-purple-500 rounded-full"></div>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">Spa Maintenance</p>
+                                <p class="text-sm text-gray-500">May 25, 2023 • 8:00 AM - 2:00 PM</p>
+                                <p class="mt-1 text-sm text-gray-600">Spa will be closed for routine maintenance.</p>
+                            </div>
                         </div>
-                        <span class="px-2 py-1 bg-teal-100 text-teal-800 text-xs rounded">GA</span>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <a href="#"
+                            class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
+                            View all events
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
-            @endcan
+            </div>
         </div>
-
-        <!-- Combined Department Sections -->
-        @if (auth()->user()->canAny(['purchasing', 'warehouse', 'sales', 'finance']))
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                @can('purchasing', 'warehouse')
-                    <!-- Purchasing & Warehouse -->
-                    <div class="bg-white p-6 rounded shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-gray-800">Procurement & Inventory</h2>
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Purchasing &
-                                Warehouse</span>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="p-3 bg-blue-50 rounded">
-                                <p class="text-sm text-gray-600">Open POs</p>
-                                <p class="text-xl font-bold">84</p>
-                            </div>
-                            <div class="p-3 bg-blue-50 rounded">
-                                <p class="text-sm text-gray-600">Avg. Lead Time</p>
-                                <p class="text-xl font-bold">5.2 days</p>
-                            </div>
-                            <div class="p-3 bg-yellow-50 rounded">
-                                <p class="text-sm text-gray-600">Stock Alerts</p>
-                                <p class="text-xl font-bold">12 items</p>
-                            </div>
-                            <div class="p-3 bg-yellow-50 rounded">
-                                <p class="text-sm text-gray-600">Inventory Turns</p>
-                                <p class="text-xl font-bold">4.2x</p>
-                            </div>
-                        </div>
-
-                        <div class="h-64 bg-gray-50 rounded flex items-center justify-center text-gray-400">
-                            <canvas id="inventoryChart"></canvas>
-                        </div>
-                    </div>
-                @endcan
-
-                @can('sales', 'finance')
-                    <!-- Sales & Finance -->
-                    <div class="bg-white p-6 rounded shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-gray-800">Revenue & Finance</h2>
-                            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Sales & Finance</span>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="p-3 bg-green-50 rounded">
-                                <p class="text-sm text-gray-600">MTD Sales</p>
-                                <p class="text-xl font-bold">$420K</p>
-                            </div>
-                            <div class="p-3 bg-green-50 rounded">
-                                <p class="text-sm text-gray-600">Open Quotes</p>
-                                <p class="text-xl font-bold">$1.1M</p>
-                            </div>
-                            <div class="p-3 bg-red-50 rounded">
-                                <p class="text-sm text-gray-600">Cash Flow</p>
-                                <p class="text-xl font-bold">$240K</p>
-                            </div>
-                            <div class="p-3 bg-red-50 rounded">
-                                <p class="text-sm text-gray-600">Outstanding AR</p>
-                                <p class="text-xl font-bold">$320K</p>
-                            </div>
-                        </div>
-
-                        <div class="h-64 bg-gray-50 rounded flex items-center justify-center text-gray-400">
-                            <canvas id="salesChart"></canvas>
-                        </div>
-                    </div>
-                @endcan
-            </div>
-        @endif
-
-        <!-- Additional Department Sections -->
-        @if (auth()->user()->canAny(['human_resource', 'general_affairs', 'logistics', 'tax', 'accounting']))
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                @can('human_resource', 'general_affairs')
-                    <!-- HR & General Affairs -->
-                    <div class="bg-white p-6 rounded shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-gray-800">People & Facilities</h2>
-                            <span class="px-3 py-1 bg-pink-100 text-pink-800 text-sm rounded-full">HR & GA</span>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Total Employees</span>
-                                <span class="font-medium">142</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Open Positions</span>
-                                <span class="font-medium">3</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">On Leave</span>
-                                <span class="font-medium">5</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Active Facilities Tickets</span>
-                                <span class="font-medium">7</span>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 h-40 bg-gray-50 rounded flex items-center justify-center text-gray-400">
-                            [Headcount Chart]
-                        </div>
-                    </div>
-                @endcan
-
-                @can('logistics')
-                    <!-- Logistics -->
-                    <div class="bg-white p-6 rounded shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-gray-800">Logistics</h2>
-                            <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">Shipping &
-                                Receiving</span>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="p-3 bg-orange-50 rounded">
-                                <p class="text-sm text-gray-600">Today's Shipments</p>
-                                <p class="text-xl font-bold">32</p>
-                            </div>
-                            <div class="p-3 bg-orange-50 rounded">
-                                <p class="text-sm text-gray-600">On-Time Rate</p>
-                                <p class="text-xl font-bold">94%</p>
-                            </div>
-                            <div class="p-3 bg-orange-50 rounded">
-                                <p class="text-sm text-gray-600">Inbound Today</p>
-                                <p class="text-xl font-bold">18</p>
-                            </div>
-                            <div class="p-3 bg-orange-50 rounded">
-                                <p class="text-sm text-gray-600">Freight Costs</p>
-                                <p class="text-xl font-bold">$8.2K</p>
-                            </div>
-                        </div>
-                    </div>
-                @endcan
-
-                @can('tax', 'accounting')
-                    <!-- Tax & Accounting -->
-                    <div class="bg-white p-6 rounded shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-gray-800">Finance & Compliance</h2>
-                            <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full">Tax &
-                                Accounting</span>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Current Tax Liability</span>
-                                <span class="font-medium">$185K</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">AP Due This Week</span>
-                                <span class="font-medium">$42K</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">AR Over 60 Days</span>
-                                <span class="font-medium">$48K</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Month-End Status</span>
-                                <span class="font-medium text-green-600">On Track</span>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 h-40 bg-gray-50 rounded flex items-center justify-center text-gray-400">
-                            [Financial Compliance Status]
-                        </div>
-                    </div>
-                @endcan
-            </div>
-        @endif
-
-        @can('aju')
-            <!-- Archive Section -->
-            <div class="bg-white p-6 rounded shadow mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold text-gray-800">Document Archive</h2>
-                    <span class="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">Records Management</span>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="p-3 bg-gray-50 rounded text-center">
-                        <p class="text-sm text-gray-600">Total Documents</p>
-                        <p class="text-xl font-bold">12,842</p>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded text-center">
-                        <p class="text-sm text-gray-600">This Month</p>
-                        <p class="text-xl font-bold">147</p>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded text-center">
-                        <p class="text-sm text-gray-600">Pending Review</p>
-                        <p class="text-xl font-bold">23</p>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded text-center">
-                        <p class="text-sm text-gray-600">Storage Used</p>
-                        <p class="text-xl font-bold">78%</p>
-                    </div>
-                </div>
-            </div>
-        @endcan
     </div>
-
-    @section('js-page')
-        <script>
-            const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
-            const inventoryChart = new Chart(inventoryCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                    datasets: [{
-                        label: 'Inventory Value',
-                        data: [125, 132, 118, 145, 152, 138, 142],
-                        borderColor: 'rgba(99, 102, 241, 1)',
-                        backgroundColor: 'rgba(99, 102, 241, 0.08)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
-                        pointRadius: 3,
-                        pointHoverRadius: 6,
-                        tension: 0.4,
-                        fill: true
-                    }, {
-                        label: 'Stock Alerts',
-                        data: [8, 10, 12, 15, 11, 9, 12],
-                        borderColor: 'rgba(245, 158, 11, 1)',
-                        backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                        borderWidth: 2,
-                        borderDash: [4, 4],
-                        pointBackgroundColor: 'rgba(245, 158, 11, 1)',
-                        pointRadius: 3,
-                        pointHoverRadius: 6,
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: {
-                                    family: 'Inter, sans-serif'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            bodyFont: {
-                                family: 'Inter, sans-serif'
-                            },
-                            usePointStyle: true,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.dataset.label === 'Inventory Value') {
-                                        label += '$' + context.raw + 'K';
-                                    } else {
-                                        label += context.raw + ' items';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: {
-                                drawBorder: false,
-                                color: 'rgba(226, 232, 240, 0.5)'
-                            },
-                            ticks: {
-                                font: {
-                                    family: 'Inter, sans-serif'
-                                },
-                                callback: function(value) {
-                                    return '$' + value + 'K';
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                font: {
-                                    family: 'Inter, sans-serif'
-                                }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    animations: {
-                        tension: {
-                            duration: 1000,
-                            easing: 'linear',
-                            from: 0.5,
-                            to: 0.4,
-                            loop: false
-                        }
-                    }
-                }
-            });
-
-            const salesCtx = document.getElementById('salesChart').getContext('2d');
-            const salesChart = new Chart(salesCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                    datasets: [{
-                        label: 'Closed Sales',
-                        data: [380, 420, 395, 450, 480, 410, 440],
-                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                        hoverBackgroundColor: 'rgba(16, 185, 129, 1)',
-                        borderRadius: 6,
-                        borderSkipped: false
-                    }, {
-                        label: 'Quotes',
-                        data: [520, 580, 540, 600, 620, 590, 610],
-                        backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                        hoverBackgroundColor: 'rgba(99, 102, 241, 1)',
-                        borderRadius: 6,
-                        borderSkipped: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: {
-                                    family: 'Inter, sans-serif'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            bodyFont: {
-                                family: 'Inter, sans-serif'
-                            },
-                            usePointStyle: true,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += '$' + context.raw + 'K';
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                drawBorder: false,
-                                color: 'rgba(226, 232, 240, 0.5)'
-                            },
-                            ticks: {
-                                font: {
-                                    family: 'Inter, sans-serif'
-                                },
-                                callback: function(value) {
-                                    return '$' + value + 'K';
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                font: {
-                                    family: 'Inter, sans-serif'
-                                }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    animation: {
-                        delay: function(context) {
-                            return context.dataIndex * 100;
-                        }
-                    }
-                }
-            });
-        </script>
-    @endsection
 </x-app-layout>

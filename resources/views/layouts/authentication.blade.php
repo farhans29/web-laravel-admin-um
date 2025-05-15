@@ -19,6 +19,34 @@
     <!-- Styles -->
     @livewireStyles
 
+    <style>
+        body {
+            background-image: url('/images/workspace.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        /* Optional: Add a dark overlay to improve text readability */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+
+        /* Ensure content stays above the overlay */
+        main {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+
     <script>
         if (localStorage.getItem('dark-mode') === 'false' || !('dark-mode' in localStorage)) {
             document.querySelector('html').classList.remove('dark');
@@ -30,44 +58,24 @@
     </script>
 </head>
 
-<body class="font-inter antialiased bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400">
+<body class="font-inter antialiased text-white">
 
-    <main class="bg-white dark:bg-gray-900">
+    <main class="min-h-screen flex items-center justify-center p-4">
 
-        <div class="relative flex">
-
-            <!-- Content -->
-            <div class="w-full md:w-1/2">
-
-                <div class="min-h-[100dvh] h-full flex flex-col after:flex-1">
-
-                    <!-- Header -->
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-                            <!-- Logo -->
-                            <a class="block" href="{{ route('dashboard') }}">
-                                <img src="/images/Logo.png" alt="" class='w-10 h-10'>
-                            </a>
-                        </div>
+        <div class="w-full max-w-md transform transition-all">
+            <!-- Logo Container -->
+            <div class="flex justify-center mb-8">
+                <a class="block" href="{{ route('dashboard') }}">
+                    <div class="bg-white p-3 rounded-full shadow-lg">
+                        <img src="/images/apple-touch-icon.png" alt="Logo" class="w-12 h-12">
                     </div>
-
-                    <div class="max-w-sm mx-auto w-full px-4 py-8">
-                        {{ $slot }}
-                    </div>
-
-                </div>
-
+                </a>
             </div>
 
-            <!-- Image -->
-            <div class="hidden md:block absolute top-0 bottom-0 right-0 md:w-1/2" aria-hidden="true">
-                <img class="object-cover object-center w-full h-full" src="{{ asset('images/AIGIF.gif') }}"
-                    width="760" height="1024" alt="Authentication image" />
-                <img class="absolute top-1/4 left-0 -translate-x-1/2 ml-8 hidden lg:block"
-                    src="{{ asset('images/auth-decoration.png') }}" width="218" height="224"
-                    alt="Authentication decoration" />
+            <!-- Content Card -->
+            <div>
+                {{ $slot }}
             </div>
-
         </div>
 
     </main>
