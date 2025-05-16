@@ -115,7 +115,56 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                      
+                        @foreach ($bookings as $booking)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->order_id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->user_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->property_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->room_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->check_in_at }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->check_out_at }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->status }}</td>
+                                @if($booking->status == "Waiting for Check-In")
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
+                                        <!-- Trigger Button -->
+                                        <button @click="open = true"
+                                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none">
+                                            <!-- Heroicon: door-open -->
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1"></path>
+                                            </svg>
+                                            Check-In
+                                        </button>
+                                    
+                                        <!-- Modal -->
+                                        <div x-show="open"
+                                            x-cloak
+                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+                                            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mt-20 text-left">
+                                                <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Check-In</h2>
+                                                <p class="mb-6 text-sm text-gray-600">Are you sure you want to check-in this guest?</p>
+                                                <div class="flex justify-end gap-3">
+                                                    <button @click="open = false"
+                                                            class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
+                                                        Cancel
+                                                    </button>
+                                                    <form method="POST" action="{{ route('bookings.checkin', $booking->idrec) }}">
+                                                        @csrf
+                                                        <button type="submit"
+                                                                class="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
+                                                            Yes, Check-In
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>                                                               
+                                @endif
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

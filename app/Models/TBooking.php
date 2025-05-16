@@ -10,6 +10,8 @@ class TBooking extends Model
     protected $primaryKey = 'idrec';
     public $timestamps = false; // Karena kita pakai manual untuk created_at dan updated_at
 
+    protected $appends = ['status'];
+
     protected $fillable = [
         'idrec',
         'property_id',
@@ -23,4 +25,20 @@ class TBooking extends Model
         'updated_at',
         'activeyn',
     ];
+
+    public function transactions()
+    {
+        return $this->belongsTo(Transaction::class, 'order_id', 'order_id');
+    }
+
+    public function getStatusAttribute()
+    {
+        if (is_null($this->check_in_at)) {
+            return 'Waiting for Check-In';
+        } elseif (is_null($this->check_out_at)) {
+            return 'Checked-In';
+        } else {
+            return 'Checked-Out';
+        }
+    }
 }
