@@ -19,12 +19,10 @@ class CheckInController extends Controller
         $perPage = $request->input('per_page', 10);
 
         // Start building the query
-        $bookings = Booking::with(['transaction', 'property', 'room'])
+        $query = Booking::with(['transaction', 'property', 'room'])
             ->whereHas('transaction', function ($q) {
-                $q->where('status', 1);
-            })
-            ->get();
-        dd($bookings);
+                $q->where('status', 1); // Tetap hanya tampilkan transaksi completed
+            });
 
         // Apply filters hanya jika ada parameter
         if ($propertyType) {

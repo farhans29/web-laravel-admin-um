@@ -8,7 +8,7 @@ class TransactionFactory extends Factory
 {
     public function definition()
     {
-        $currentYear = date('Y');
+         $currentYear = date('Y');
         $randomNumber = str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT);
         return [
             'property_id' => $this->faker->randomNumber(5),
@@ -33,7 +33,7 @@ class TransactionFactory extends Factory
             'transaction_type' => $this->faker->randomElement(['Booking', 'Refund', 'Cancellation']),
             'transaction_code' => $this->faker->uuid,
             'transaction_status' => $this->faker->randomElement(['Pending', 'Completed', 'Failed']),
-            'status' => $this->faker->randomElement(['Active', 'Inactive']),
+            'status' => $this->faker->randomElement([1, 0]),
             'paid_at' => $this->faker->optional()->dateTimeThisYear,
         ];
     }
