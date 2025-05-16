@@ -14,17 +14,13 @@ class RolesTableSeeder extends Seeder
     public function run(): void
     {
         Role::insert([
-            ['name' => 'admin', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'user', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'purchasing', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'sales', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'warehouse', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'accounting', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'finance', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'tax', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'hr', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'ga', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'logistics', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Owner', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Manager', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Front Desk', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Finance', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'CS', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Sales', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Property Owner', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
         ]);
     }
 }

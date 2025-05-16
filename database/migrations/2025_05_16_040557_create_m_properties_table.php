@@ -1,0 +1,47 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('m_properties', function (Blueprint $table) {
+            $table->integer('idrec')->primary();
+            $table->string('slug', 200)->nullable();
+            $table->string('tags', 100)->nullable();
+            $table->string('name', 200)->nullable();
+            $table->text('description')->nullable();
+            $table->string('province', 200)->nullable();
+            $table->string('city', 100)->nullable();
+            $table->string('subdistrict', 100)->nullable();
+            $table->string('village', 100)->nullable();
+            $table->string('postal_code', 50)->nullable();
+            $table->string('address', 250)->nullable();
+            $table->string('location', 500)->nullable();
+            $table->string('distance', 255)->nullable();
+            $table->longText('price')->nullable();
+            $table->longText('features')->nullable();
+            $table->longText('attributes')->nullable();
+            $table->binary('image')->nullable();
+            $table->integer('status')->default(1);
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->string('created_by', 100)->nullable();
+            $table->string('updated_by', 100)->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('m_properties');
+    }
+};

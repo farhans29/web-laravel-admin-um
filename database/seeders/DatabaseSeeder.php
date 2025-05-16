@@ -18,13 +18,15 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AccountAdminSeeder::class,
             GlobalTitleSeeder::class,
-            MInventorySeeder::class,
-            MWarehouseSeeder::class,
             PermissionsTableSeeder::class,
             RolesTableSeeder::class,
             SidebarItemsTableSeeder::class,
             RolesAndPermissionsSeeder::class,
-            TAjuSeeder::class,
+            TransactionSeeder::class,
+            BookingSeeder::class,
+            MPromoBannerSeeder::class,
+            MPropertiesSeeder::class,
+            MRoomsSeeder::class,       
         ]);
     }
 }

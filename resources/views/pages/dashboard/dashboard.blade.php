@@ -327,7 +327,7 @@
                                 </div>
                                 <span class="text-sm font-medium text-gray-700">New Booking</span>
                             </a>
-                            <a href="#"
+                            <a href="{{ route('checkin.index') }}"
                                 class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                                 <div class="bg-green-100 p-3 rounded-full mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600"
@@ -338,7 +338,7 @@
                                 </div>
                                 <span class="text-sm font-medium text-gray-700">Check In</span>
                             </a>
-                            <a href="#"
+                            <a href="{{ route('checkout.index') }}"
                                 class="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                                 <div class="bg-yellow-100 p-3 rounded-full mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600"

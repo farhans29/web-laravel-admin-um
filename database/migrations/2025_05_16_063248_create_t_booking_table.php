@@ -11,18 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('t_bookings', function (Blueprint $table) {
-            $table->increments('idrec');
+        Schema::create('t_booking', function (Blueprint $table) {
+            $table->id('idrec');
             $table->integer('property_id')->nullable();
-            $table->string('order_id');
-            $table->string('room_id');
+            $table->string('order_id', 100); // Sesuaikan panjang dengan t_transactions
+            $table->string('room_id', 255);
             $table->dateTime('check_in_at');
             $table->dateTime('check_out_at')->nullable();
             $table->integer('created_by');
-            $table->timestamp('created_at')->useCurrent();
             $table->integer('updated_by');
-            $table->timestamp('updated_at')->useCurrent();
-            $table->tinyInteger('activeyn');
+            $table->tinyInteger('status');
+            $table->timestamps();
         });
     }
 
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('t_bookings');
+        Schema::dropIfExists('t_booking');
     }
 };

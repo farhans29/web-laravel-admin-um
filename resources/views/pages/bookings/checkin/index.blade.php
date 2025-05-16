@@ -9,21 +9,10 @@
                 </h1>
                 <p class="text-gray-500 mt-2">Manage all property check-ins (hotel, kos, apartment)</p>
             </div>
-            <div>
-                <button onclick="openCheckinModal()" class="btn bg-indigo-600 hover:bg-indigo-700 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    New Check-in
-                </button>
-            </div>
         </div>
 
         <!-- Filters -->
-        <div
-            class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
@@ -70,7 +59,7 @@
                 class="flex flex-col md:flex-row md:items-center md:justify-between px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-800">Current Stays</h2>
                 <div class="flex items-center space-x-4 mt-4 md:mt-0">
-                    <span class="text-sm text-gray-600">Total: guests</span>
+                    <span class="text-sm text-gray-600">Total: {{ $bookings->total() }} guests</span>
                     <form method="GET" class="flex items-center">
                         <label for="per_page" class="text-sm text-gray-600 mr-2">Show:</label>
                         <select name="per_page" id="per_page" onchange="this.form.submit()"
@@ -115,14 +104,101 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                      
+                        @forelse ($bookings as $booking)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ $booking->order_id }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $booking->transaction->customer_name ?? 'Guest' }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ $booking->transaction->customer_phone ?? 'N/A' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $booking->property->name ?? 'N/A' }}</div>
+                                    <div class="text-sm text-gray-500 capitalize">{{ $booking->property->type ?? '' }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $booking->room->name ?? 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $booking->check_in_at->format('M d, Y H:i') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $booking->check_out_at->format('M d, Y H:i') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @php
+                                        $statusClass = '';
+                                        if ($booking->check_in_at <= now() && $booking->check_out_at >= now()) {
+                                            $status = 'Active';
+                                            $statusClass = 'bg-green-100 text-green-800';
+                                        } elseif ($booking->check_in_at > now()) {
+                                            $status = 'Upcoming';
+                                            $statusClass = 'bg-blue-100 text-blue-800';
+                                        } else {
+                                            $status = 'Completed';
+                                            $statusClass = 'bg-gray-100 text-gray-800';
+                                        }
+                                    @endphp
+                                    <span
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
+                                        {{ $status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-2">
+                                        @if ($booking->check_in_at <= now() && $booking->check_out_at >= now())
+                                            <button onclick="openCheckoutModal('{{ $booking->idrec }}')"
+                                                class="text-red-600 hover:text-red-900">
+                                                Check-out
+                                            </button>
+                                        @elseif ($booking->check_in_at > now())
+                                            <button onclick="openCheckinModal('{{ $booking->idrec }}')"
+                                                class="text-indigo-600 hover:text-indigo-900">
+                                                Check-in
+                                            </button>
+                                        @endif
+                                        <button onclick="openDetailsModal('{{ $booking->idrec }}')"
+                                            class="text-gray-600 hover:text-gray-900">
+                                            Details
+                                        </button>
+                                        <button onclick="openEditModal('{{ $booking->idrec }}')"
+                                            class="text-yellow-600 hover:text-yellow-900">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    No bookings found
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                {{-- {{ $bookings->links() }} --}}
+                {{ $bookings->links() }}
             </div>
         </div>
     </div>
