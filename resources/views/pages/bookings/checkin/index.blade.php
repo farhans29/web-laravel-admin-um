@@ -106,84 +106,52 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse ($bookings as $booking)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ $booking->order_id }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->order_id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->user_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->property_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->room_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->check_in_at }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->check_out_at }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->status }}</td>
+                                @if($booking->status == "Waiting for Check-In")
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
+                                        <!-- Trigger Button -->
+                                        <button @click="open = true"
+                                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none">
+                                            <!-- Heroicon: door-open -->
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1"></path>
                                             </svg>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                {{ $booking->transaction->customer_name ?? 'Guest' }}
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                {{ $booking->transaction->customer_phone ?? 'N/A' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $booking->property->name ?? 'N/A' }}</div>
-                                    <div class="text-sm text-gray-500 capitalize">{{ $booking->property->type ?? '' }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $booking->room->name ?? 'N/A' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $booking->check_in_at->format('M d, Y H:i') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $booking->check_out_at->format('M d, Y H:i') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @php
-                                        $statusClass = '';
-                                        if ($booking->check_in_at <= now() && $booking->check_out_at >= now()) {
-                                            $status = 'Active';
-                                            $statusClass = 'bg-green-100 text-green-800';
-                                        } elseif ($booking->check_in_at > now()) {
-                                            $status = 'Upcoming';
-                                            $statusClass = 'bg-blue-100 text-blue-800';
-                                        } else {
-                                            $status = 'Completed';
-                                            $statusClass = 'bg-gray-100 text-gray-800';
-                                        }
-                                    @endphp
-                                    <span
-                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
-                                        {{ $status }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div class="flex justify-end space-x-2">
-                                        @if ($booking->check_in_at <= now() && $booking->check_out_at >= now())
-                                            <button onclick="openCheckoutModal('{{ $booking->idrec }}')"
-                                                class="text-red-600 hover:text-red-900">
-                                                Check-out
-                                            </button>
-                                        @elseif ($booking->check_in_at > now())
-                                            <button onclick="openCheckinModal('{{ $booking->idrec }}')"
-                                                class="text-indigo-600 hover:text-indigo-900">
-                                                Check-in
-                                            </button>
-                                        @endif
-                                        <button onclick="openDetailsModal('{{ $booking->idrec }}')"
-                                            class="text-gray-600 hover:text-gray-900">
-                                            Details
+                                            Check-In
                                         </button>
-                                        <button onclick="openEditModal('{{ $booking->idrec }}')"
-                                            class="text-yellow-600 hover:text-yellow-900">
-                                            Edit
-                                        </button>
-                                    </div>
-                                </td>
+                                    
+                                        <!-- Modal -->
+                                        <div x-show="open"
+                                            x-cloak
+                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+                                            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mt-20 text-left">
+                                                <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Check-In</h2>
+                                                <p class="mb-6 text-sm text-gray-600">Are you sure you want to check-in this guest?</p>
+                                                <div class="flex justify-end gap-3">
+                                                    <button @click="open = false"
+                                                            class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
+                                                        Cancel
+                                                    </button>
+                                                    <form method="POST" action="{{ route('bookings.checkin', $booking->idrec) }}">
+                                                        @csrf
+                                                        <button type="submit"
+                                                                class="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
+                                                            Yes, Check-In
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>                                                               
+                                @endif
                             </tr>
                         @empty
                             <tr>

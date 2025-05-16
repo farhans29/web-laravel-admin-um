@@ -12,6 +12,8 @@ class Booking extends Model
     protected $table = 't_booking';
     protected $primaryKey = 'idrec';
 
+    protected $appends = ['status'];
+
     protected $fillable = [
         'property_id',
         'order_id',
@@ -19,8 +21,7 @@ class Booking extends Model
         'check_in_at',
         'check_out_at',
         'created_by',
-        'updated_by',
-        'status'
+        'updated_by'
     ];
 
     protected $casts = [
@@ -42,5 +43,16 @@ class Booking extends Model
     public function transaction()
     {
         return $this->belongsTo(Transaction::class, 'order_id', 'idrec');
+    }
+
+    public function getStatusAttribute()
+    {
+        if (is_null($this->check_in_at)) {
+            return 'Waiting for Check-In';
+        } elseif (is_null($this->check_out_at)) {
+            return 'Checked-In';
+        } else {
+            return 'Checked-Out';
+        }
     }
 }
