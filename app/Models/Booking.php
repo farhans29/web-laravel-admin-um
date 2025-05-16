@@ -42,7 +42,7 @@ class Booking extends Model
 
     public function transaction()
     {
-        return $this->belongsTo(Transaction::class, 'order_id', 'idrec');
+        return $this->belongsTo(Transaction::class, 'order_id', 'order_id');
     }
 
     public function getStatusAttribute()

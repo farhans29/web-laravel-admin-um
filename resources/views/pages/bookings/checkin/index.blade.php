@@ -55,7 +55,7 @@
         <div
             class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <!-- Card Header -->
-            <div
+            {{-- <div
                 class="flex flex-col md:flex-row md:items-center md:justify-between px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-800">Current Stays</h2>
                 <div class="flex items-center space-x-4 mt-4 md:mt-0">
@@ -70,7 +70,7 @@
                         </select>
                     </form>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Table Container -->
             <div class="overflow-x-auto">
@@ -107,9 +107,9 @@
                         @forelse ($bookings as $booking)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->order_id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->user_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->property_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transactions->room_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transaction->user_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transaction->property_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transaction->room_name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->check_in_at }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->check_out_at }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->status }}</td>
@@ -165,9 +165,9 @@
             </div>
 
             <!-- Pagination -->
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            {{-- <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 {{ $bookings->links() }}
-            </div>
+            </div> --}}
         </div>
     </div>
 

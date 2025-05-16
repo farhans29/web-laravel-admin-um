@@ -11,7 +11,8 @@ class CheckInController extends Controller
 {
     public function index(Request $request)
     {
-        $bookings = Booking::with('transactions')->get(); // or use a model if you have one
+        $bookings = Booking::with('transaction')->get(); // or use a model if you have one
+        // dd($bookings);
         return view('pages.bookings.checkin.index', compact('bookings'));
     }
 
