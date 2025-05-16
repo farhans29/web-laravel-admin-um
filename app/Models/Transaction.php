@@ -10,12 +10,11 @@ class Transaction extends Model
     use HasFactory;
 
     protected $table = 't_transactions';
-    protected $primaryKey = 'order_id';
+    protected $primaryKey = 'idrec';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'idrec',
         'property_id',
         'room_id',
         'order_id',
