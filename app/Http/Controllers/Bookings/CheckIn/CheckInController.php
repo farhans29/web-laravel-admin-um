@@ -10,6 +10,9 @@ class CheckInController extends Controller
 {
     public function index(Request $request)
     {
+        // $bookings = Booking::with('transaction')->get(); // or use a model if you have one
+        // dd($bookings);
+
         // Get filter parameters from the request
         $propertyType = $request->input('property_type');
         $status = $request->input('status');
@@ -30,15 +33,15 @@ class CheckInController extends Controller
         // Apply status filter
         if ($status) {
             switch ($status) {
-                case 'active':
+                case 'checkin':
                     $query->whereNotNull('check_in_at')
                         ->whereNull('check_out_at');
                     break;
-                case 'upcoming':
+                case 'waiting':
                     $query->whereNull('check_in_at')
                         ->whereNull('check_out_at');
                     break;
-                case 'completed':
+                case 'checkout':
                     $query->whereNotNull('check_in_at')
                         ->whereNotNull('check_out_at');
                     break;
@@ -65,6 +68,16 @@ class CheckInController extends Controller
         $bookings = $query->orderBy('check_in_at', 'desc')
             ->paginate($perPage);
 
-        return view('pages.bookings.checkin.index', compact('bookings'));
+        return view('pages.bookings.checkin.index');
     }
+
+    public function checkIn($id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->check_in_at = now();
+        $booking->save();
+
+        return redirect()->back()->with('success', 'Guest successfully checked in.');
+    }
+
 }

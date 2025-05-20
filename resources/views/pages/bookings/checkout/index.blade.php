@@ -7,11 +7,12 @@
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                     Guest Check-out
                 </h1>
+                {{-- <p class="text-gray-500 mt-2">Process check-outs and finalize guest stays</p> --}}
             </div>
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {{-- <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -72,7 +73,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Card Container -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -112,13 +113,16 @@
                         <tr>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Booking ID</th>
+                                Order ID</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Guest</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Property/Room</th>
+                                Property</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Room</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Check-in</th>
@@ -158,7 +162,9 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">Grand Hotel</div>
-                                <div class="text-sm text-gray-500">Room 305 (Deluxe)</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">Room 301</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">15 Jun 2023</div>
@@ -174,73 +180,180 @@
                                     Pending
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onclick="openCheckoutModal('1042')"
-                                    class="text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded-md text-sm font-medium inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                            clip-rule="evenodd" />
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" x-data="{ open: false }">
+                                @if (true)
+                                <!-- Trigger Button -->
+                                <button @click="open = true"
+                                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none">
+                                    <!-- Heroicon: door-open -->
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                        stroke-width="2" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2">
+                                        </path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1">
+                                        </path>
                                     </svg>
-                                    Check-out
+                                    Check-Out
                                 </button>
-                            </td>
-                        </tr>
 
-                        <!-- Sample Data Row 2 (Late check-out) -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-indigo-600">#BK-2023-0589</div>
-                                <div class="text-sm text-gray-500">ID: 1043</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
+                                <!-- Modal -->
+                                <div x-show="open" x-cloak
+                                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
                                     <div
-                                        class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">Sarah Johnson</div>
-                                        <div class="text-sm text-gray-500">sarah@example.com</div>
+                                        class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mt-20 text-left">
+                                        <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Check-In
+                                        </h2>
+                                        <p class="mb-6 text-sm text-gray-600">Are you sure you want to check-in
+                                            this guest?</p>
+                                        <div class="flex justify-end gap-3">
+                                            <button @click="open = false"
+                                                class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
+                                                Cancel
+                                            </button>
+                                            <form method="POST"
+                                                action="{{ route('bookings.checkin', '1') }}">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="px-4 py-2 text-sm text-white bg-purple-600 rounded hover:bg-purple-700">
+                                                    Yes, Check-In
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">Sunset Kos</div>
-                                <div class="text-sm text-gray-500">Room B12</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">10 Jun 2023</div>
-                                <div class="text-sm text-gray-500">13:00</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-red-600">Yesterday, 11:00</div>
-                                <div class="text-sm text-gray-500">Overdue</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span
-                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                    Late
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onclick="openCheckoutModal('1043', true)"
-                                    class="text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md text-sm font-medium inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Process Late
-                                </button>
+                            @endif
                             </td>
                         </tr>
+                        @forelse ($bookings as $booking)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-indigo-600">{{ $booking->order_id }}</div>
+                                    <div class="text-sm text-gray-500">ID: {{ $booking->transaction->user_id }}</div>
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div
+                                            class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $booking->transaction->user_name }}</div>
+                                            <div class="text-sm text-gray-500">{{ $booking->transaction->user_email }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $booking->transaction->property_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $booking->transaction->room_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if ($booking->check_in_at)
+                                        <div class="text-sm text-gray-900">
+                                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}
+                                        </div>
+                                    @else
+                                        <div class="text-sm text-gray-500 italic">Not Checked-In Yet</div>
+                                    @endif
+                                </td>
+                                
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if ($booking->check_out_at)
+                                        <div class="text-sm text-gray-900">
+                                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}
+                                        </div>
+                                    @else
+                                        <div class="text-sm text-gray-500 italic">Not Checked-Out Yet</div>
+                                    @endif
+                                </td>                                    
+
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if ($booking->check_in_at)
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Checked-In
+                                        </span>
+                                    @elseif ($booking->check_out_at)
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            Checked-Out
+                                        </span>
+                                    @else
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Waiting for Check-In
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
+                                    @if (($booking->check_in_at) && is_null($booking->check_out_at))
+                                        <!-- Trigger Button -->
+                                        <button @click="open = true"
+                                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none">
+                                            <!-- Heroicon: door-open -->
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                stroke-width="2" viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2">
+                                                </path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1">
+                                                </path>
+                                            </svg>
+                                            Check-Out
+                                        </button>
+
+                                        <!-- Modal -->
+                                        <div x-show="open" x-cloak
+                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+                                            <div
+                                                class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mt-20 text-left">
+                                                <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Check-Out
+                                                </h2>
+                                                <p class="mb-6 text-sm text-gray-600">Are you sure you want to check-out
+                                                    this guest?</p>
+                                                <div class="flex justify-end gap-3">
+                                                    <button @click="open = false"
+                                                        class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
+                                                        Cancel
+                                                    </button>
+                                                    <form method="POST"
+                                                        action="{{ route('bookings.checkout', $booking->idrec) }}">
+                                                        @csrf
+                                                        <button type="submit"
+                                                            class="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">
+                                                            Yes, Check-Out
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    No bookings found
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

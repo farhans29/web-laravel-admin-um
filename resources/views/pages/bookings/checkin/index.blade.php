@@ -7,52 +7,15 @@
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                     Guest Check-in
                 </h1>
-              
+                {{-- <p class="text-gray-500 mt-2">Manage all property check-ins (hotel, kos, apartment)</p> --}}
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
-                    <select class="w-full border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">All Properties</option>
-                        <option value="hotel">Hotel</option>
-                        <option value="kos">Kos-kosan</option>
-                        <option value="apartment">Apartment</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select class="w-full border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="active">Active Stays</option>
-                        <option value="upcoming">Upcoming</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Check-in Date</label>
-                    <input type="date"
-                        class="w-full border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                    <div class="relative">
-                        <input type="text" placeholder="Search guest or order..."
-                            class="w-full pl-10 border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <livewire:check-in-table />
 
         <!-- Card Container -->
-        <div
+        {{-- <div
             class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <!-- Card Header -->
             <div
@@ -134,18 +97,31 @@
                                     {{ $booking->transaction->property_name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $booking->transaction->room_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">
-                                        {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}</div>
-                                    <div class="text-sm text-gray-500">
-                                        {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">
-                                        {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}</div>
-                                    <div class="text-sm text-gray-500">
-                                        {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}</div>
-                                </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if ($booking->check_in_at)
+                                            <div class="text-sm text-gray-900">
+                                                {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}
+                                            </div>
+                                        @else
+                                            <div class="text-sm text-gray-500 italic">Not Checked-In Yet</div>
+                                        @endif
+                                    </td>
+                                    
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if ($booking->check_out_at)
+                                            <div class="text-sm text-gray-900">
+                                                {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}
+                                            </div>
+                                        @else
+                                            <div class="text-sm text-gray-500 italic">Not Checked-Out Yet</div>
+                                        @endif
+                                    </td>                                    
 
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->status }}
                                 </td>
@@ -210,7 +186,7 @@
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 {{ $bookings->links() }}
             </div>
-        </div>
+        </div> --}}
     </div>
 
     <!-- Check-in Modal -->
