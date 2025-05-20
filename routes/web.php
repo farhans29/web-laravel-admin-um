@@ -65,7 +65,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('properties')->group(function () {
         Route::get('/m-properties', [ManajementPropertiesController::class, 'index'])->name('properties.index');
-        Route::patch('/property/toggle-status/{idrec}', [ManajementPropertiesController::class, 'toggleStatus'])->name('property.toggleStatus');
+        Route::patch('/m-property/toggle-status/{idrec}', [ManajementPropertiesController::class, 'toggleStatus'])->name('properties.toggleStatus');
+        Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store');
 
         Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
     });
