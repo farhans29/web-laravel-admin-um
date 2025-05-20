@@ -11,7 +11,7 @@
         "laravel/jetstream": "^5.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
-        "livewire/livewire": "^3.4",
+        "livewire/livewire": "*",
         "spatie/laravel-permission": "^6.15",
         "yajra/laravel-datatables-oracle": "^11.1"
     },

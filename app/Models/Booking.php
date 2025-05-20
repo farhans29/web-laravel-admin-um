@@ -47,12 +47,14 @@ class Booking extends Model
 
     public function getStatusAttribute()
     {
-        if (is_null($this->check_in_at)) {
+        if (is_null($this->check_in_at) && is_null($this->check_out_at)) {
             return 'Waiting for Check-In';
-        } elseif (is_null($this->check_out_at)) {
+        } elseif (!is_null($this->check_in_at) && is_null($this->check_out_at)) {
             return 'Checked-In';
-        } else {
+        } elseif (!is_null($this->check_in_at) && !is_null($this->check_out_at)) {
             return 'Checked-Out';
         }
+    
+        return 'Unknown';
     }
 }

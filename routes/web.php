@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/check-in/{id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
 
         Route::get('/checkout', [CheckOutController::class, 'index'])->name('checkout.index');        
+        Route::post('/check-out/{id}', [CheckOutController::class, 'checkOut'])->name('bookings.checkout');
     });
 
     Route::prefix('warehouse')->group(function () {
