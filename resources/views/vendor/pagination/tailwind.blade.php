@@ -23,28 +23,32 @@
             {{-- Pagination Elements --}}
             <ul class="inline-flex text-sm font-medium -space-x-px rounded-lg shadow-xs">
                 @foreach ($elements as $element)
-                    {{-- "Three Dots" Separator --}}
-                    @if (is_string($element))
-                        <li aria-disabled="true">
-                            <span class="inline-flex items-center justify-center leading-5 px-3.5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/60 text-gray-400 dark:text-gray-500">{{ $element }}</span>
-                        </li>
-                    @endif
-
-                    {{-- Array Of Links --}}
-                    @if (is_array($element))
+                @if (is_string($element))
+                    <span class="px-2">...</span>
+                @endif
+            
+                @if (is_array($element))
                     @foreach ($element as $page => $url)
+                        @if (
+                            $page == 1 ||
+                            $page == $paginator->lastPage() ||
+                            abs($page - $paginator->currentPage()) <= 0
+                        )
                             @if ($page == $paginator->currentPage())
-                                <li aria-current="page">
-                                    <span class="inline-flex items-center justify-center leading-5 px-3.5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/60 text-violet-500 @if($page === 1){{ 'rounded-l-lg' }}@elseif($page === $paginator->lastPage()){{ 'rounded-r-lg' }}@endif">{{ $page }}</span>
-                                </li>
+                                <span class="px-3 py-1 bg-indigo-500 text-white rounded">{{ $page }}</span>
                             @else
-                                <li>
-                                    <a href="{{ $url }}" class="inline-flex items-center justify-center leading-5 px-3.5 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-700/60 text-gray-600 dark:text-gray-300 @if($page === 1){{ 'rounded-l-lg' }}@elseif($page === $paginator->lastPage()){{ 'rounded-r-lg' }}@endif">{{ $page }}</a>
-                                </li>
+                                <a href="{{ $url }}" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-indigo-100">{{ $page }}</a>
                             @endif
-                        @endforeach
-                    @endif
-                @endforeach
+                        @elseif (
+                            $page == $paginator->currentPage() - 1 ||
+                            $page == $paginator->currentPage() + 1
+                        )
+                            <span class="px-2">...</span>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
+            
             </ul>
 
             {{-- Next Page Link --}}

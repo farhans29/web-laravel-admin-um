@@ -5,9 +5,8 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Guest Check-out Management
+                    Guest Check-out
                 </h1>
-                <p class="text-gray-500 mt-2">Process check-outs and finalize guest stays</p>
             </div>
         </div>
 

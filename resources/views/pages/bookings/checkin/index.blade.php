@@ -5,9 +5,9 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Guest Check-in Management
+                    Guest Check-in
                 </h1>
-                <p class="text-gray-500 mt-2">Manage all property check-ins (hotel, kos, apartment)</p>
+              
             </div>
         </div>
 
@@ -55,7 +55,7 @@
         <div
             class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <!-- Card Header -->
-            {{-- <div
+            <div
                 class="flex flex-col md:flex-row md:items-center md:justify-between px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-800">Current Stays</h2>
                 <div class="flex items-center space-x-4 mt-4 md:mt-0">
@@ -70,7 +70,7 @@
                         </select>
                     </form>
                 </div>
-            </div> --}}
+            </div>
 
             <!-- Table Container -->
             <div class="overflow-x-auto">
@@ -106,51 +106,93 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse ($bookings as $booking)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->order_id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transaction->user_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transaction->property_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->transaction->room_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->check_in_at }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->check_out_at }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->status }}</td>
-                                @if($booking->status == "Waiting for Check-In")
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-indigo-600">{{ $booking->order_id }}</div>
+                                    <div class="text-sm text-gray-500">ID: {{ $booking->transaction->user_id }}</div>
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div
+                                            class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $booking->transaction->user_name }}</div>
+                                            <div class="text-sm text-gray-500">{{ $booking->transaction->user_email }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $booking->transaction->property_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $booking->transaction->room_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">
+                                        {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}</div>
+                                    <div class="text-sm text-gray-500">
+                                        {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">
+                                        {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}</div>
+                                    <div class="text-sm text-gray-500">
+                                        {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}</div>
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $booking->status }}
+                                </td>
+                                @if ($booking->status == 'Waiting for Check-In')
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
                                         <!-- Trigger Button -->
                                         <button @click="open = true"
                                             class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none">
                                             <!-- Heroicon: door-open -->
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                stroke-width="2" viewBox="0 0 24 24"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1"></path>
+                                                    d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2">
+                                                </path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1">
+                                                </path>
                                             </svg>
                                             Check-In
                                         </button>
-                                    
+
                                         <!-- Modal -->
-                                        <div x-show="open"
-                                            x-cloak
+                                        <div x-show="open" x-cloak
                                             class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-                                            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mt-20 text-left">
-                                                <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Check-In</h2>
-                                                <p class="mb-6 text-sm text-gray-600">Are you sure you want to check-in this guest?</p>
+                                            <div
+                                                class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mt-20 text-left">
+                                                <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Check-In
+                                                </h2>
+                                                <p class="mb-6 text-sm text-gray-600">Are you sure you want to check-in
+                                                    this guest?</p>
                                                 <div class="flex justify-end gap-3">
                                                     <button @click="open = false"
-                                                            class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
+                                                        class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
                                                         Cancel
                                                     </button>
-                                                    <form method="POST" action="{{ route('bookings.checkin', $booking->idrec) }}">
+                                                    <form method="POST"
+                                                        action="{{ route('bookings.checkin', $booking->idrec) }}">
                                                         @csrf
                                                         <button type="submit"
-                                                                class="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
+                                                            class="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
                                                             Yes, Check-In
                                                         </button>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
-                                    </td>                                                               
+                                    </td>
                                 @endif
                             </tr>
                         @empty
@@ -165,9 +207,9 @@
             </div>
 
             <!-- Pagination -->
-            {{-- <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 {{ $bookings->links() }}
-            </div> --}}
+            </div>
         </div>
     </div>
 

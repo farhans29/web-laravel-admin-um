@@ -8,7 +8,9 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Bookings\CheckIn\CheckInController;
 use App\Http\Controllers\Bookings\CheckOut\CheckOutController;
-
+use App\Http\Controllers\Rooms\ChangeRoomController;
+use App\Http\Controllers\Properties\ManajementPropertiesController;
+use App\Http\Controllers\Properties\ManajementRoomsController;
 
 // Route::redirect('/', 'login');
 
@@ -52,19 +54,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
         Route::post('/check-in/{id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
 
-        Route::get('/checkout', [CheckOutController::class, 'index'])->name('checkout.index');        
+        Route::get('/checkout', [CheckOutController::class, 'index'])->name('checkout.index');
     });
 
-    Route::prefix('warehouse')->group(function () {
-     
+    Route::prefix('rooms')->group(function () {
+        Route::get('/change-room', [ChangeRoomController::class, 'index'])->name('changerooom.index');
+        Route::get('/change-room/available-rooms', [ChangeRoomController::class, 'getAvailableRooms']);
     });
 
-    Route::prefix('archive')->group(function () {
+    Route::prefix('properties')->group(function () {
+        Route::get('/m-properties', [ManajementPropertiesController::class, 'index'])->name('properties.index');
+        Route::patch('/property/toggle-status/{idrec}', [ManajementPropertiesController::class, 'toggleStatus'])->name('property.toggleStatus');
 
-      
+        Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
     });
 
-    Route::prefix('master')->group(function () {
-     
-    });
+    Route::prefix('master')->group(function () {});
 });

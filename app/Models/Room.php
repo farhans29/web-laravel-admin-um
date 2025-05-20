@@ -30,4 +30,15 @@ class Room extends Model
         'updated_by',
         'status',
     ];
+
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'room_id', 'idrec');
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'room_id', 'idrec');
+    }
 }

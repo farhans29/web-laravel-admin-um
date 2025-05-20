@@ -9,15 +9,18 @@ class BookingFactory extends Factory
 {
     public function definition()
     {
+        // Generate satu data transaksi
+        $transaction = Transaction::factory()->create();
+
         return [
-            'property_id' => $this->faker->randomNumber(5),
-            'order_id' => Transaction::factory(),
-            'room_id' => $this->faker->randomNumber(5),
-            'check_in_at' => $this->faker->dateTimeBetween('now', '+1 month'),
-            'check_out_at' => $this->faker->dateTimeBetween('+1 month', '+2 months'),
-            'created_by' => $this->faker->randomNumber(5),
-            'updated_by' => $this->faker->randomNumber(5),
-            'status' => $this->faker->boolean(90), // 90% chance of being active
+            'property_id' => $transaction->property_id,
+            'order_id' => $transaction->order_id,
+            'room_id' => $transaction->room_id,
+            'check_in_at' => $transaction->check_in,
+            'check_out_at' => $transaction->check_out,
+            'created_by' => $transaction->user_id,
+            'updated_by' => $transaction->user_id,
+            'status' => $transaction->status,
         ];
     }
 }

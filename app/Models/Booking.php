@@ -15,9 +15,7 @@ class Booking extends Model
     protected $appends = ['status'];
 
     protected $fillable = [
-        'property_id',
         'order_id',
-        'room_id',
         'check_in_at',
         'check_out_at',
         'created_by',
@@ -30,15 +28,16 @@ class Booking extends Model
         'status' => 'boolean',
     ];
 
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id', 'idrec');
+    }
+
     public function property()
     {
         return $this->belongsTo(Property::class, 'property_id', 'idrec');
     }
 
-    public function room()
-    {
-        return $this->belongsTo(Room::class, 'room_id', 'idrec');
-    }
 
     public function transaction()
     {
@@ -54,5 +53,17 @@ class Booking extends Model
         } else {
             return 'Checked-Out';
         }
+    }
+
+    public function user()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            Transaction::class,
+            'order_id',      // Foreign key di Transaction
+            'id',            // Foreign key di User
+            'order_id',      // Local key di Booking
+            'user_id'        // Local key di Transaction
+        );
     }
 }

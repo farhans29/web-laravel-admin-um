@@ -96,10 +96,9 @@
                     </li>
 
 
-                    <!-- Properties -->
-                    <li x-data="{ open: false }">
+                    <li x-data="{ open: @json(Route::is('properties.index', 'rooms.index')) }">
                         <a @click="open = !open"
-                            class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer">
+                            class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer @if (Route::is('properties.index', 'rooms.index')) bg-indigo-900 @endif">
                             <div class="flex items-center gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -117,39 +116,15 @@
                         </a>
                         <ul x-show="open" class="pl-8 mt-1 space-y-1">
                             <li>
-                                <a href="#"
-                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors">
-                                    <span class="text-xs">All Properties</span>
+                                <a href="{{ route('properties.index') }}"
+                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('properties.index')) bg-indigo-900 @endif">
+                                    <span class="text-xs">Master Properties</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="#"
-                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors">
-                                    <span class="text-xs">Houses</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors">
-                                    <span class="text-xs">Hotels</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors">
-                                    <span class="text-xs">Apartments</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors">
-                                    <span class="text-xs">Villas</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors">
-                                    <span class="text-xs">Add New</span>
+                                <a href="{{ route('rooms.index') }}"
+                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('rooms.index')) bg-indigo-900 @endif">
+                                    <span class="text-xs">Master Rooms</span>
                                 </a>
                             </li>
                         </ul>
@@ -157,8 +132,8 @@
 
                     <!-- Rooms/Units -->
                     <li>
-                        <a href="#"
-                            class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                        <a href="{{ route('changerooom.index') }}"
+                            class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors @if (Route::is('changerooom.index')) bg-indigo-900 @endif">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

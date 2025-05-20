@@ -8,13 +8,14 @@ class TransactionFactory extends Factory
 {
     public function definition()
     {
-         $currentYear = date('Y');
+        $currentYear = date('Y');
         $randomNumber = str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT);
+
         return [
-            'property_id' => $this->faker->randomNumber(5),
-            'room_id' => $this->faker->randomNumber(5),
+            'property_id' => $this->faker->numberBetween(1, 7),
+            'room_id' => $this->faker->numberBetween(1, 7),
             'order_id' => '#bk-' . $currentYear . '-' . $randomNumber,
-            'user_id' => $this->faker->randomNumber(5),
+            'user_id' => $this->faker->numberBetween(1, 22),
             'user_name' => $this->faker->name,
             'user_phone_number' => $this->faker->phoneNumber,
             'property_name' => $this->faker->company,
