@@ -1,6 +1,5 @@
 <div>
-
-    <div class="p-4 text-green-700 font-semibold bg-green-100 rounded">
+    {{-- <div class="p-4 text-green-700 font-semibold bg-green-100 rounded">
         Livewire Component Loaded
     </div>
     
@@ -35,7 +34,7 @@
                 <input type="text" wire:model.debounce.500ms="search" placeholder="Search guest or order..." class="w-full border-gray-200 rounded-lg">
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Results Table -->
     <div class="overflow-x-auto">
@@ -190,7 +189,7 @@
         {{ $bookings->links() }}
     </div>
 
-    <div class="text-sm text-gray-500">
+    {{-- <div class="text-sm text-gray-500">
         Debug: {{ $status }}, {{ $propertyType }}, {{ $checkInDate }}
-    </div>
+    </div> --}}
 </div>

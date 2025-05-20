@@ -98,6 +98,7 @@
     @livewireScriptConfig
 
     @yield('js-page')
+    @vite(['resources/js/app.js'])
 </body>
 
 </html>

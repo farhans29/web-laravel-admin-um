@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Bookings\CheckIn;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
 use App\Models\Booking;
 
 class CheckInController extends Controller

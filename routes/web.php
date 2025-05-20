@@ -68,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/property/toggle-status/{idrec}', [ManajementPropertiesController::class, 'toggleStatus'])->name('property.toggleStatus');
 
         Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
+        Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
     });
 
     Route::prefix('master')->group(function () {});

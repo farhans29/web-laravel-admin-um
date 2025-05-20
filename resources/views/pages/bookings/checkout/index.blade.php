@@ -139,7 +139,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <!-- Sample Data Row 1 -->
-                        <tr class="hover:bg-gray-50">
+                        {{-- <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-indigo-600">#BK-2023-0567</div>
                                 <div class="text-sm text-gray-500">ID: 1042</div>
@@ -225,7 +225,7 @@
                                 </div>
                             @endif
                             </td>
-                        </tr>
+                        </tr> --}}
                         @forelse ($bookings as $booking)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">

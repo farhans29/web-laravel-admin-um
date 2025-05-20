@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Transaction;
+use App\Models\Room;
+
 class Booking extends Model
 {
     use HasFactory;

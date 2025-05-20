@@ -35,4 +35,9 @@ class Property extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function room_type()
+    {
+        return $this->hasMany(RoomType::class, 'idrec', 'property_id');
+    }
 }

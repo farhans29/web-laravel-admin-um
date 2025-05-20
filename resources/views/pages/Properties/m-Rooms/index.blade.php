@@ -4,15 +4,96 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Manajemen Kamar</h1>
             <div class="mt-4 md:mt-0">
-                <a href=""
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    Tambah Kamar
-                </a>
+                <!-- AlpineJS Wrapper -->
+                <div x-data="{ open: false, step: 1 }">
+
+                    <!-- Add Room Button -->
+                    <button @click="open = true"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Tambah Kamar
+                    </button>
+
+                    <!-- Modal -->
+                    <div x-show="open" x-cloak class="fixed inset-0 bg-gray-900 bg-opacity-30 flex items-center justify-center z-50" wire:ignore.self>
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 relative">
+                            <!-- Close Button -->
+                            <button @click="open = false" class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl">&times;</button>
+
+                            <!-- Form -->
+                            <form @submit.prevent="if(step === 2) $refs.submitBtn.click()" method="POST" action="{{ route('rooms.store') }}" enctype="multipart/form-data">
+                                @csrf
+
+                                <!-- Step 1 -->
+                                <div x-show="step === 1" x-transition>
+                                    <h2 class="text-xl font-semibold mb-4">Informasi Kamar</h2>
+
+                                    @livewire('property-room-selector')
+
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium">Nama Kamar</label>
+                                        <input type="text" name="room_name" class="w-full border rounded p-2" placeholder="Nama Kamar" required>
+                                    </div>
+                                    
+                                    <div class="flex gap-4 mb-4">
+                                        <div class="w-full">
+                                            <label class="block text-sm font-medium">Deskripsi Kamar</label>
+                                            <textarea name="description_id" class="w-full border rounded p-2" placeholder="Deskripsi Kamar" required></textarea>
+                                        </div>
+                                        {{-- <div class="w-1/2">
+                                            <label class="block text-sm font-medium">Deskripsi Kamar English</label>
+                                            <textarea name="description_en" class="w-full border rounded p-2" placeholder="Deskripsi Kamar"></textarea>
+                                        </div> --}}
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium">Foto Kamar</label>
+                                        <input type="file" name="photo" class="w-full border rounded p-2" required>
+                                    </div>
+
+                                    <div class="flex justify-end gap-2 mt-4">
+                                        <button type="button" @click="open = false" class="bg-red-600 text-white px-4 py-2 rounded">Tutup</button>
+                                        <button type="button" @click="step = 2" class="bg-green-600 text-white px-4 py-2 rounded">Selanjutnya</button>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div x-show="step === 2" x-transition>
+                                    <h2 class="text-xl font-semibold mb-4">Harga Kamar</h2>
+
+                                    <div class="grid grid-cols-3 gap-4 mb-4">
+                                        <div></div>
+                                        <div class="font-bold">Harga Original</div>
+                                        <div class="font-bold">Harga Diskon</div>
+
+                                        <div class="font-medium">Harian</div>
+                                        <input type="number" name="daily_price" class="border p-2 rounded" />
+                                        <input type="number" name="daily_discount_price" class="border p-2 rounded" />
+
+                                        <div class="font-medium">Bulanan</div>
+                                        <input type="number" name="monthly_price" class="border p-2 rounded" />
+                                        <input type="number" name="monthly_discount_price" class="border p-2 rounded" />
+                                    </div>
+
+                                    <div class="flex justify-end gap-2 mt-4">
+                                        <button type="button" @click="step = 1" class="bg-gray-500 text-white px-4 py-2 rounded">Kembali</button>
+                                        <button type="submit" x-ref="submitBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <style>
+                        [x-cloak] {
+                            display: none !important;
+                        }
+                    </style>
+                </div>
             </div>
         </div>
 
@@ -95,17 +176,7 @@
                                     {{ $room->created_by }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <form class="toggle-status-form">
-                                        @csrf
-                                        <input type="hidden" name="idrec" value="{{ $room->idrec }}">
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="status" class="sr-only peer"
-                                                {{ $room->status == 1 ? 'checked' : '' }} value="1">
-                                            <div
-                                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                            </div>
-                                        </label>
-                                    </form>
+                                    @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status])
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
