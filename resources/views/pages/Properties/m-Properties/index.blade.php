@@ -435,7 +435,6 @@
                 step: 1,
 
                 init() {
-                    // Initialize province and city dropdown
                     const provinces = [{
                             name: 'DKI Jakarta',
                             cities: ['Jakarta Pusat', 'Jakarta Selatan', 'Jakarta Barat',
