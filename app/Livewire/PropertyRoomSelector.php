@@ -24,7 +24,7 @@ class PropertyRoomSelector extends Component
     public function updatedSelectedProperty($value)
     {
         // logger("UPDATED selectedProperty = " . $value); // Write to laravel.log
-        
+
         $property = Property::where('idrec', $value)->first();
 
         if ($property) {
@@ -37,6 +37,19 @@ class PropertyRoomSelector extends Component
 
         $this->selectedLevel = null;
         $this->selectedRoomType = null;
+        
+        // Livewire 3: Correct browser event dispatch
+        $this->dispatch('property-changed', [
+            'property' => $this->selectedProperty,
+            'level' => $this->selectedLevel,
+            'roomType' => $this->selectedRoomType,
+        ]);
+    }
+
+    public function getSelectedPropertyNameProperty()
+    {
+        $property = collect($this->properties)->firstWhere('idrec', $this->selectedProperty);
+        return $property ? $property['name'] : '';
     }
 
     public function render()

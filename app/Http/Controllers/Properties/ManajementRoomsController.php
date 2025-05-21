@@ -18,11 +18,14 @@ class ManajementRoomsController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request);
         // Validate and store room
         $validated = $request->validate([
             'room_name' => 'required|string|max:255',
             'level' => 'required|numeric',
             'property_id' => 'required|numeric',
+            'property_name' => 'required|string',
+            'room_type' => 'required|string',
             'description_id' => 'nullable|string',
             'description_en' => 'nullable|string',
             'photo' => 'nullable|image|max:2048',
@@ -30,29 +33,67 @@ class ManajementRoomsController extends Controller
             'daily_discount_price' => 'nullable|numeric',
             'monthly_price' => 'nullable|numeric',
             'monthly_discount_price' => 'nullable|numeric',
+            'facilities' => 'nullable|string',
         ]);
 
+        //Convert to base-64 and then limit image size to 10 MB
         if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')->store('room_photos', 'public');
+            $photo = $request->file('photo');
+            $photoContents = file_get_contents($photo->getRealPath());
+            $base64Photo = base64_encode($photoContents);
+
+            $validated['photo'] = $base64Photo; // Save this in the DB or send to API
         }
         
-        $data = [
-            'room_name' => $validated['room_name'],
-            'level' => $validated['level'],
-            'property_id' => $validated['property_id'],
-            'description_id' => $validated['description_id'],
-            'photo' => $validated['photo'] ?? null, // Use photo from $validated if available
-            'price_original_daily' => $validated['daily_price'] ?? 100,
-            'price_original_monthly' => $validated['daily_discount_price'] ?? 80,
-            'price_discounted_daily' => $validated['monthly_price'] ?? 3000,
-            'price_discounted_monthly' => $validated['monthly_discount_price'] ?? 2500,
+        $facilities = [
+            'wifi' => $request->has('wifi'),
+            'tv' => $request->has('tv'),
+            'ac' => $request->has('ac'),
+            'bathroom' => $request->has('bathroom'),
         ];
 
-        Room::create($data);
+        $validated['facilities'] = json_encode($facilities);
 
-        Room::create($validated); // Adjust based on your model
+        $dailyAvailable = !($request->daily_price == 0 && $request->daily_discount_price == 0);
+        $monthlyAvailable = !($request->monthly_price == 0 && $request->monthly_discount_price == 0);
 
-        return redirect()->back()->with('success', 'Room added successfully.');
+        $validated['availability'] = json_encode([
+            'daily' => $dailyAvailable,
+            'monthly' => $monthlyAvailable,
+        ]);
+
+        $data = [
+            'property_id' => $validated['property_id'],
+            'property_name' => $validated['property_name'],
+            'name' => $validated['room_name'],
+            'slug' => 'slug_test',
+            'level' => $validated['level'],
+            'type' => $validated['room_type'],
+            'descriptions' => $validated['description_id'],
+            'attachment' => $validated['photo'] ?? null, // Use photo from $validated if available
+            'price_original_daily' => $validated['daily_price'] ?? 0,
+            'price_original_monthly' => $validated['daily_discount_price'] ?? 0,
+            'price_discounted_daily' => $validated['monthly_price'] ?? 0,
+            'price_discounted_monthly' => $validated['monthly_discount_price'] ?? 0,
+            'facility' => $validated['facilities'],
+            'periode' => $validated['availability'],
+            'created_at' => now(),
+            'updated_at' => now(),
+            'created_by' => 'admin',
+            'updated_by' => 'admin',
+            'status' => '1',
+        ];
+
+        // dd($data);
+        $success = Room::create($data);
+        // dd($success);
+        // Room::create($validated); // Adjust based on your model
+
+        if ($success) {
+            return redirect()->route('rooms.index')->with('success', 'Kamar berhasil disimpan.');
+        } else {
+            return redirect()->back()->with('error', 'Gagal menyimpan kamar.');
+        }
     }
 
 }

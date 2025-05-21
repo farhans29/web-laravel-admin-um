@@ -12,7 +12,6 @@ class Room extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'idrec',
         'property_id',
         'property_name',
         'slug',
