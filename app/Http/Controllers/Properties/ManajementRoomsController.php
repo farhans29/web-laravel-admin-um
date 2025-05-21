@@ -34,6 +34,7 @@ class ManajementRoomsController extends Controller
             'monthly_price' => 'nullable|numeric',
             'monthly_discount_price' => 'nullable|numeric',
             'facilities' => 'nullable|string',
+            'availability' => 'nullable|string',
         ]);
 
         //Convert to base-64 and then limit image size to 10 MB
