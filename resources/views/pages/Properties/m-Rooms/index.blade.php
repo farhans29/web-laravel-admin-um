@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container mx-auto px-4 py-6">
-
+{{-- 
         <!-- ✅ Flash message block -->
         @if (session()->has('success') || session()->has('error'))
             <div 
@@ -20,6 +20,16 @@
                         {{ session('error') }}
                     </div>
                 @endif
+            </div>
+        @endif --}}
+
+        @if (session()->has('success'))
+            <div class="bg-green-500 text-white px-4 py-2 rounded shadow-md mb-2">
+                {{ session('success') }}
+            </div>
+            @elseif (session()->has('error'))
+            <div class="bg-red-500 text-white px-4 py-2 rounded shadow-md">
+                {{ session('error') }}
             </div>
         @endif
 

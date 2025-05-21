@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ManajementRoomsController extends Controller
 {
@@ -62,19 +63,18 @@ class ManajementRoomsController extends Controller
             'daily' => $dailyAvailable,
             'monthly' => $monthlyAvailable,
         ]);
-
+        
         $data = [
             'property_id' => $validated['property_id'],
             'property_name' => $validated['property_name'],
             'name' => $validated['room_name'],
-            'slug' => 'slug_test',
             'level' => $validated['level'],
             'type' => $validated['room_type'],
             'descriptions' => $validated['description_id'],
             'attachment' => $validated['photo'] ?? null, // Use photo from $validated if available
             'price_original_daily' => $validated['daily_price'] ?? 0,
-            'price_original_monthly' => $validated['daily_discount_price'] ?? 0,
-            'price_discounted_daily' => $validated['monthly_price'] ?? 0,
+            'price_discounted_daily' => $validated['daily_discount_price'] ?? 0,
+            'price_original_monthly' => $validated['monthly_price'] ?? 0,
             'price_discounted_monthly' => $validated['monthly_discount_price'] ?? 0,
             'facility' => $validated['facilities'],
             'periode' => $validated['availability'],

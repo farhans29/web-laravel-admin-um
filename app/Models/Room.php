@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Room extends Model
 {
@@ -33,6 +34,34 @@ class Room extends Model
         'status',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($room) {
+            // Get property initials
+            $property = Property::find($room->property_id);
+            $propertyInitials = $property
+                ? Str::upper($property->initial)
+                : 'UNK'; // fallback if property not found
+
+            // Room name initials (e.g. "Ini Ruangan Loh" → IRL)
+            $roomNameInitials = Str::upper(collect(explode(' ', $room->name))->map(fn($word) => Str::substr($word, 0, 1))->implode(''));
+
+            // Room type initials (e.g. "Super Deluxe Room" → SDR)
+            $roomTypeInitials = Str::upper(collect(explode(' ', $room->type))->map(fn($word) => Str::substr($word, 0, 1))->implode(''));
+
+            // Level
+            $level = $room->level ?? '0';
+
+            // Next ID
+            $nextId = static::max('idrec') + 1;
+
+            // Random 3-digit number
+            $randomDigits = rand(100, 999);
+
+            // Final code
+            $room->slug = "{$propertyInitials}_{$roomNameInitials}_{$level}_{$roomTypeInitials}_{$nextId}_{$randomDigits}";
+        });
+    }
 
     public function transactions()
     {
