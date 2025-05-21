@@ -8,11 +8,11 @@ class Property extends Model
 {
     protected $table = 'm_properties';
     protected $primaryKey = 'idrec';
-    public $incrementing = false;
+    public $incrementing = true; 
+    protected $keyType = 'int';  
     public $timestamps = false;
 
     protected $fillable = [
-        'idrec',
         'slug',
         'tags',
         'name',
@@ -35,6 +35,11 @@ class Property extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
     public function room_type()
     {
