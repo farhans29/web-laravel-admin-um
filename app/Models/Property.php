@@ -8,7 +8,8 @@ class Property extends Model
 {
     protected $table = 'm_properties';
     protected $primaryKey = 'idrec';
-    public $incrementing = false;
+    public $incrementing = true; 
+    protected $keyType = 'int';  
     public $timestamps = false;
 
     protected $fillable = [
