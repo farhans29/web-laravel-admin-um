@@ -1,5 +1,5 @@
 <div>
-    {{-- <div class="p-4 text-green-700 font-semibold bg-green-100 rounded">
+    <div class="p-4 text-green-700 font-semibold bg-green-100 rounded">
         Livewire Component Loaded
     </div>
     
@@ -8,17 +8,18 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
-                <select wire:model="propertyType" class="w-full border-gray-200 rounded-lg">
+                <select wire:model.lazy="propertyType" class="w-full border-gray-200 rounded-lg">
                     <option value="">All Properties</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="hotel">Hotel</option>
-                    <option value="house">House</option>
-                    <option value="villa">Villa</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="Hotel">Hotel</option>
+                    <option value="House">House</option>
+                    <option value="Villa">Villa</option>
                 </select>
+                <div class="text-xs mt-1 text-gray-500">Selected Property: {{ $propertyType }}</div>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select wire:model="status" class="w-full border-gray-200 rounded-lg">
+                <select wire:model.lazy="status" class="w-full border-gray-200 rounded-lg">
                     <option value="">All Statuses</option>
                     <option value="waiting">Waiting for Check-In</option>
                     <option value="checkin">Checked-In</option>
@@ -27,14 +28,14 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Check-in Date</label>
-                <input type="date" wire:model="checkInDate" class="w-full border-gray-200 rounded-lg">
+                <input type="date" wire:model.lazy="checkInDate" class="w-full border-gray-200 rounded-lg">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                <input type="text" wire:model.debounce.500ms="search" placeholder="Search guest or order..." class="w-full border-gray-200 rounded-lg">
+                <input type="text" wire:model.lazy.debounce.500ms="search" placeholder="Search guest or order..." class="w-full border-gray-200 rounded-lg">
             </div>
         </div>
-    </div> --}}
+    </div>
 
     <!-- Results Table -->
     <div class="overflow-x-auto">
