@@ -52,7 +52,7 @@
                     </button>
 
                     <!-- Modal -->
-                    <div x-show="open" x-cloak class="fixed inset-0 bg-gray-900 bg-opacity-30 flex items-center justify-center z-50">
+                    <div x-show="open" x-cloak  class="fixed inset-0 backdrop-blur bg-opacity-30 flex items-center justify-center z-50 transition-opacity"                    >
                         <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 relative">
                             <!-- Close Button -->
                             <button @click="open = false" class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl">&times;</button>
