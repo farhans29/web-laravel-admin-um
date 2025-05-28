@@ -4,7 +4,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Manajemen Properti</h1>
             <div class="mt-4 md:mt-0">
-                <div x-data="modal()">
+                <div x-data="modalProperty()">
                     <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
                         type="button" @click.prevent="modalOpenDetail = true;" aria-controls="feedback-modal1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
@@ -324,7 +324,6 @@
                 </form>
             </div>
 
-            <!-- Table -->
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -406,354 +405,326 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div class="flex justify-center items-center space-x-3">
-                                        <!-- View -->
-                                        <div x-data="modal()" class="relative group">
-                                            @php
-                                                $features = json_encode(
-                                                    $property->features,
-                                                    JSON_HEX_APOS | JSON_HEX_QUOT,
-                                                );
-                                                $attributes = json_encode(
-                                                    $property->attributes,
-                                                    JSON_HEX_APOS | JSON_HEX_QUOT,
-                                                );
-                                            @endphp
-
-                                            <button
-                                                class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
-                                                type="button"
-                                                @click.prevent='openModal({
-                                                                    name: @json($property->name),
-                                                                    city: @json($property->city),
-                                                                    province: @json($property->province),
-                                                                    description: @json($property->description),
-                                                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
-                                                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
-                                                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
-                                                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                                                    image: @json($firstImage),
-                                                                    location: @json($property->location),
-                                                                    distance: @json($property->distance),
-                                                                    features: {!! $features !!},
-                                                                    attributes: {!! $attributes !!}
-                                                                })'
-                                                aria-controls="property-detail-modal" title="View Details">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                        <div x-data="modal({{ $property }})" class="flex justify-center space-x-2">
+                                            <button @click="modalOpenDetail = true"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200">
+                                                Edit
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </button>
 
-                                            <!-- Modal backdrop -->
-                                            <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity"
-                                                x-show="modalOpenDetail"
-                                                x-transition:enter="transition ease-out duration-200"
+                                            <!-- Modern Modal -->
+                                            <div class="fixed inset-0 z-50 overflow-y-auto" x-show="modalOpenDetail"
+                                                x-cloak x-transition:enter="transition ease-out duration-300"
                                                 x-transition:enter-start="opacity-0"
                                                 x-transition:enter-end="opacity-100"
-                                                x-transition:leave="transition ease-out duration-100"
+                                                x-transition:leave="transition ease-in duration-200"
                                                 x-transition:leave-start="opacity-100"
-                                                x-transition:leave-end="opacity-0" aria-hidden="true" x-cloak>
-                                            </div>
+                                                x-transition:leave-end="opacity-0">
 
-                                            <!-- Modal dialog -->
-                                            <div id="property-detail-modal"
-                                                class="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4"
-                                                role="dialog" aria-modal="true" x-show="modalOpenDetail"
-                                                x-transition:enter="transition ease-in-out duration-200"
-                                                x-transition:enter-start="opacity-0 scale-95"
-                                                x-transition:enter-end="opacity-100 scale-100"
-                                                x-transition:leave="transition ease-in-out duration-200"
-                                                x-transition:leave-start="opacity-100 scale-100"
-                                                x-transition:leave-end="opacity-0 scale-95" x-cloak>
+                                                <!-- Modal backdrop with blur effect -->
+                                                <div class="fixed inset-0 bg-black/30 backdrop-blur-sm"
+                                                    aria-hidden="true" @click="modalOpenDetail = false"></div>
 
-                                                <div class="bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-2xl max-h-[90vh] flex flex-col"
-                                                    @click.outside="modalOpenDetail = false"
-                                                    @keydown.escape.window="modalOpenDetail = false">
+                                                <!-- Modal container -->
+                                                <div class="flex min-h-screen items-center justify-center p-4">
+                                                    <!-- Modal dialog -->
+                                                    <div class="relative w-full max-w-4xl rounded-2xl bg-white shadow-2xl transition-all"
+                                                        @click.stop x-show="modalOpenDetail"
+                                                        x-transition:enter="transition ease-out duration-300"
+                                                        x-transition:enter-start="opacity-0 scale-95"
+                                                        x-transition:enter-end="opacity-100 scale-100"
+                                                        x-transition:leave="transition ease-in duration-200"
+                                                        x-transition:leave-start="opacity-100 scale-100"
+                                                        x-transition:leave-end="opacity-0 scale-95">
 
-                                                    <!-- Modal header -->
-                                                    <div
-                                                        class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                                                        <div class="text-left">
-                                                            <h3 class="text-xl font-bold text-gray-900"
-                                                                x-text="selectedProperty.name"></h3>
-                                                            <p class="text-gray-500"
-                                                                x-text="selectedProperty.city + ', ' + selectedProperty.province">
-                                                            </p>
-                                                        </div>
-                                                        <button type="button"
-                                                            class="text-gray-400 hover:text-gray-500 transition-colors duration-200"
-                                                            @click="modalOpenDetail = false">
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-
-                                                    <!-- Modal content -->
-                                                    <div class="overflow-y-auto flex-1">
-                                                        <div class="relative">
-                                                            <img :src="selectedProperty.image" alt="Property Image"
-                                                                class="w-full h-64 object-cover object-center">
-                                                            <div
-                                                                class="absolute bottom-4 left-4 bg-white/90 px-3 py-1 rounded-full">
-                                                                <span
-                                                                    :class="selectedProperty && selectedProperty
-                                                                        .status === 'Active' ?
-                                                                        'text-green-600 font-medium' :
-                                                                        'text-red-600 font-medium'"
-                                                                    class="text-sm flex items-center">
-                                                                    <span class="w-2 h-2 rounded-full mr-1 block"
-                                                                        :class="selectedProperty && selectedProperty
-                                                                            .status === 'Active' ?
-                                                                            'bg-green-500' :
-                                                                            'bg-red-500'"></span>
-                                                                    <span
-                                                                        x-text="selectedProperty && selectedProperty.status ? selectedProperty.status : ''"></span>
-                                                                </span>
-                                                            </div>
+                                                        <!-- Modal header -->
+                                                        <div
+                                                            class="flex items-center justify-between p-6 border-b border-gray-200">
+                                                            <h3 class="text-xl font-semibold text-gray-900">Edit
+                                                                Document
+                                                            </h3>
+                                                            <button type="button"
+                                                                class="text-gray-400 hover:text-gray-500 rounded-full p-1"
+                                                                @click="modalOpenDetail = false">
+                                                                <svg class="h-6 w-6" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M6 18L18 6M6 6l12 12" />
+                                                                </svg>
+                                                            </button>
                                                         </div>
 
-                                                        <div class="p-6 space-y-4">
-                                                            <div class="text-center">
-                                                                <p class="text-gray-700 whitespace-pre-line"
-                                                                    x-text="selectedProperty.description"></p>
-                                                            </div>
+                                                        <!-- Modal content -->
+                                                        <div class="p-6 overflow-y-auto max-h-[70vh]">
+                                                            <form method="POST"
+                                                                action="{{ route('properties.update', $property->idrec) }}"
+                                                                enctype="multipart/form-data">
+                                                                @csrf
+                                                                @method('PUT')
 
-                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                <div class="space-y-2">
-                                                                    <div>
-                                                                        <p
-                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                                            Added</p>
-                                                                        <p class="text-gray-700"
-                                                                            x-text="selectedProperty.created_at"></p>
+                                                                <!-- Grid layout -->
+                                                                <div class="grid gap-6 mb-6 md:grid-cols-2">
+                                                                    <!-- Date input -->
+                                                                    <div class="relative">
+                                                                        <input type="date" name="date"
+                                                                            id="date" required
+                                                                            class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                                                            value="{{ old('date', $property->date) }}" />
+                                                                        <label for="date"
+                                                                            class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                                                                            Select Date
+                                                                        </label>
                                                                     </div>
-                                                                    <div>
-                                                                        <p
-                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                                            Last Updated</p>
-                                                                        <p class="text-gray-700"
-                                                                            x-text="selectedProperty.updated_at"></p>
-                                                                    </div>
-                                                                    <div>
-                                                                        <p
-                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                                            Distance</p>
-                                                                        <p class="text-gray-700"
-                                                                            x-text="selectedProperty.distance || 'N/A'">
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="space-y-2">
-                                                                    <div>
-                                                                        <p
-                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                                            Added By</p>
-                                                                        <p class="text-gray-700"
-                                                                            x-text="selectedProperty.creator"></p>
-                                                                    </div>
-                                                                    <div>
-                                                                        <p
-                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                                            Location</p>
-                                                                        <p class="text-gray-700"
-                                                                            x-text="selectedProperty.location || selectedProperty.city + ', ' + selectedProperty.province">
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
 
-                                                            <!-- Features Section -->
-                                                            <div
-                                                                x-show="selectedProperty.features && selectedProperty.features.length > 0">
-                                                                <h4
-                                                                    class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-                                                                    Features</h4>
-                                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                                    <template
-                                                                        x-for="feature in selectedProperty.features">
-                                                                        <div class="flex items-center space-x-2">
-                                                                            <!-- Icons for each feature -->
-                                                                            <template
-                                                                                x-if="feature === 'High-speed WiFi'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-blue-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-                                                                                </svg>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="feature === '24/7 Security'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-green-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                                                                </svg>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="feature === 'Shared Kitchen'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-orange-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M3 3h18v4H3V3zm0 6h18v12H3V9zm5 4h2v2H8v-2zm4 0h2v2h-2v-2z" />
-                                                                                </svg>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="feature === 'Laundry Service'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-purple-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2zm5 14a5 5 0 100-10 5 5 0 000 10zm4-10h.01M15 8h.01" />
-                                                                                </svg>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="feature === 'Parking Area'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-yellow-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                                                                                </svg>
-                                                                            </template>
-                                                                            <template x-if="feature === 'Common Area'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-indigo-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                                                                </svg>
-                                                                            </template>
-
-                                                                            <span x-text="feature"
-                                                                                class="text-gray-700 text-sm"></span>
+                                                                    <!-- Document number -->
+                                                                    <div class="relative flex items-center">
+                                                                        <div class="relative flex-1">
+                                                                            <input name="id_document" id="id_document"
+                                                                                required
+                                                                                class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                                                                placeholder=" "
+                                                                                value="{{ old('document', $property->no_document) }}"
+                                                                                onkeypress="return event.key !== ' '"
+                                                                                oninput="this.value = this.value.replace(/\s/g, '')" />
+                                                                            <label for="id_document"
+                                                                                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                                                                                Document Number
+                                                                            </label>
                                                                         </div>
-                                                                    </template>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
 
-                                                            <!-- Attributes Section -->
-                                                            <div
-                                                                x-show="selectedProperty.attributes && selectedProperty.attributes.length > 0">
-                                                                <h4
-                                                                    class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-                                                                    Attributes</h4>
-                                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                                    <template
-                                                                        x-for="attribute in selectedProperty.attributes">
-                                                                        <div class="flex items-center space-x-2">
-                                                                            <!-- Icons for each attribute -->
-                                                                            <template
-                                                                                x-if="attribute === 'No Smoking'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-red-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                                                                                </svg>
-                                                                            </template>
-                                                                            <template x-if="attribute === 'No Pets'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-red-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M6 18L18 6M6 6l12 12" />
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M15 9a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                                </svg>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="attribute === 'ID Card Required'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-blue-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                                                                                </svg>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="attribute === 'Deposit Required'">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    class="h-5 w-5 text-yellow-500"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke="currentColor">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                                </svg>
-                                                                            </template>
+                                                                <!-- Second row -->
+                                                                <div class="grid gap-6 mb-6 md:grid-cols-4">
+                                                                    <!-- Department dropdown -->
+                                                                    <div class="relative">
+                                                                        <select name="dep" id="dep" required
+                                                                            class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer">
+                                                                            <option value="" selected>Select
+                                                                                Department</option>
+                                                                            {{-- @foreach ($deps as $department)
+                                                                                <option value="{{ $department->id }}"
+                                                                                    @if (isset($property->subDepartment) && $department->id == $property->subDepartment->parent->id) selected @endif>
+                                                                                    {{ $department->name }}
+                                                                                </option>
+                                                                            @endforeach --}}
+                                                                        </select>
+                                                                        <label for="dep"
+                                                                            class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                                                                            Department
+                                                                        </label>
+                                                                    </div>
 
-                                                                            <span x-text="attribute"
-                                                                                class="text-gray-700 text-sm"></span>
+                                                                    <!-- Sub Department dropdown -->
+                                                                    <div class="relative">
+                                                                        <select name="sub_dep" id="sub_dep" required
+                                                                            class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer">
+                                                                            <option value="" disabled selected>
+                                                                                Select
+                                                                                Sub Department</option>
+                                                                            @if (isset($property->subDepartment) && isset($subDeps))
+                                                                                @foreach ($subDeps as $subDep)
+                                                                                    <option
+                                                                                        value="{{ $subDep->id }}"
+                                                                                        @if ($property->subDepartment->id == $subDep->id) selected @endif>
+                                                                                        {{ $subDep->name }}
+                                                                                    </option>
+                                                                                @endforeach
+                                                                            @endif
+                                                                        </select>
+                                                                        <label for="sub_dep"
+                                                                            class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                                                                            Sub Department
+                                                                        </label>
+                                                                    </div>
+
+                                                                    <!-- Document type dropdown -->
+                                                                    <div class="relative">
+                                                                        <select name="type_docs_modal"
+                                                                            id="type_docs_modal" required
+                                                                            class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer">
+                                                                            <option value="" data-code="">
+                                                                                Select
+                                                                                Document Type</option>
+                                                                            {{-- @foreach ($documentTypes as $docType)
+                                                                                <option value="{{ $docType->name }}"
+                                                                                    data-code="{{ $docType->code }}"
+                                                                                    {{ old('type_docs_modal', $property->doc_type ?? '') == $docType->name ? 'selected' : '' }}>
+                                                                                    {{ $docType->name }}
+                                                                                </option>
+                                                                            @endforeach --}}
+                                                                        </select>
+                                                                        <label for="type_docs_modal"
+                                                                            class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                                                                            Type Document
+                                                                        </label>
+                                                                    </div>
+
+                                                                    <!-- User email dropdown -->
+                                                                    <div class="relative">
+                                                                        <select name="user_email" id="user_email"
+                                                                            required
+                                                                            class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer">
+                                                                            <option value="" disabled selected>
+                                                                                Select
+                                                                                User Email</option>
+                                                                            {{-- @foreach ($users as $user)
+                                                                                <option value="{{ $user->id }}"
+                                                                                    @if ($property->created_by == $user->id) selected @endif>
+                                                                                    {{ $user->name }}
+                                                                                    ({{ $user->email }})
+                                                                                </option>
+                                                                            @endforeach --}}
+                                                                        </select>
+                                                                        <label for="user_email"
+                                                                            class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                                                                            User Email
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Description input -->
+                                                                <div class="mb-6">
+                                                                    <div class="relative">
+                                                                        <textarea name="description" id="description" required rows="3"
+                                                                            class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                                                            placeholder=" ">{{ old('description', $property->description) }}</textarea>
+                                                                        <label for="description"
+                                                                            class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-7 peer-placeholder-shown:top-6 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                                                                            Description
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- File upload with drag and drop -->
+                                                                <input type="hidden" name="file_names"
+                                                                    id="file_names_input" x-model="fileNames">
+                                                                <!-- File upload section -->
+                                                                <div class="mb-6">
+                                                                    <!-- Show dropzone only if no files are uploaded -->
+                                                                    <div x-show="files.length === 0"
+                                                                        class="relative group">
+                                                                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-200 hover:border-blue-400 hover:bg-blue-50/50"
+                                                                            id="dropzone" @dragover.prevent
+                                                                            @dragenter.prevent @dragleave.prevent
+                                                                            @drop.prevent="handleDrop($event)"
+                                                                            x-bind:class="{ 'border-blue-500 bg-blue-50/50': isDragging }">
+                                                                            <input type="file" name="files[]"
+                                                                                id="files" class="hidden" multiple
+                                                                                @change="handleFiles($event)"
+                                                                                accept="application/pdf, image/jpeg, image/jpg" />
+                                                                            <div
+                                                                                class="flex flex-col items-center justify-center space-y-3">
+                                                                                <div
+                                                                                    class="p-3 bg-blue-100 rounded-full">
+                                                                                    <svg class="w-8 h-8 text-blue-600"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                                                    </svg>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="flex text-sm text-gray-600">
+                                                                                    <label for="files"
+                                                                                        class="relative cursor-pointer font-medium text-blue-600 hover:text-blue-500">
+                                                                                        <span>Upload a file</span>
+                                                                                        <input id="files"
+                                                                                            name="files[]"
+                                                                                            type="file"
+                                                                                            class="sr-only" multiple>
+                                                                                    </label>
+                                                                                    <p class="pl-1">or drag and drop
+                                                                                    </p>
+                                                                                </div>
+                                                                                <p class="text-xs text-gray-500">
+                                                                                    PDF, JPG up to 25MB
+                                                                                </p>
+                                                                            </div>
                                                                         </div>
-                                                                    </template>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                                    </div>
 
-                                                    <!-- Modal footer -->
-                                                    <div
-                                                        class="px-6 py-3 border-t border-gray-100 bg-gray-50 flex justify-end">
-                                                        <button @click="modalOpenDetail = false"
-                                                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors duration-200 font-medium">
-                                                            Close
-                                                        </button>
+                                                                    <!-- Show uploaded files -->
+                                                                    <div id="file-names" class="mt-4 space-y-2">
+                                                                        <template x-for="(file, index) in files"
+                                                                            :key="index">
+                                                                            <div
+                                                                                class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                                                                <div
+                                                                                    class="flex items-center space-x-3">
+                                                                                    <svg class="w-6 h-6 text-blue-500"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                                                    </svg>
+                                                                                    <span
+                                                                                        class="text-sm font-medium text-gray-700 truncate max-w-xs"
+                                                                                        x-text="file.name"></span>
+                                                                                </div>
+                                                                                <button type="button"
+                                                                                    class="text-red-500 hover:text-red-700"
+                                                                                    @click="removeFile(index)">
+                                                                                    <svg class="w-5 h-5"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                    </svg>
+                                                                                </button>
+                                                                            </div>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Form actions -->
+                                                                <div
+                                                                    class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                                                                    <button type="button"
+                                                                        @click="modalOpenDetail = false"
+                                                                        class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                                                        Cancel
+                                                                    </button>
+                                                                    <button type="submit"
+                                                                        class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 flex items-center">
+                                                                        <svg x-show="isSubmitting"
+                                                                            class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            fill="none" viewBox="0 0 24 24">
+                                                                            <circle class="opacity-25" cx="12"
+                                                                                cy="12" r="10"
+                                                                                stroke="currentColor"
+                                                                                stroke-width="4">
+                                                                            </circle>
+                                                                            <path class="opacity-75"
+                                                                                fill="currentColor"
+                                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                            </path>
+                                                                        </svg>
+                                                                        <span>Update Document</span>
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Edit Button -->
-                                        <button type="button"
-                                            class="text-yellow-500 hover:text-yellow-700 transition-colors duration-200"
-                                            title="Edit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                viewBox="0 0 20 20" fill="currentColor">
-                                                <path
-                                                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                            </svg>
-                                        </button>
-
                                     </div>
                                 </td>
                             </tr>
@@ -777,7 +748,7 @@
 
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('modal', () => ({
+            Alpine.data('modalProperty', () => ({
                 selectedProperty: {},
                 modalOpenDetail: false,
                 openModal(property) {
@@ -983,6 +954,116 @@
                     }
 
                     return isValid;
+                }
+            }));
+        });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('modal', (document) => ({
+                modalOpenDetail: false,
+                files: [],
+                isDragging: false,
+                fileUploaded: false,
+                document: document,
+                fileNames: document.pdfblob ? [document.file_name] : [],
+                isSubmitting: false,
+
+                init() {
+                    // Jika dokumen sudah memiliki file, tambahkan ke array files
+                    if (document.file_name) {
+                        this.files.push({
+                            name: document.file_name
+                        });
+                    }
+                },
+
+                handleFiles(event) {
+                    const files = event.target.files;
+                    this.processFiles(files);
+                },
+
+                handleDrop(event) {
+                    event.preventDefault();
+                    const files = event.dataTransfer.files;
+                    this.processFiles(files);
+                    this.isDragging = false;
+                },
+
+                processFiles(files) {
+                    if (this.files.length === 0) {
+                        for (let file of files) {
+                            if (file.type === 'application/pdf' && file.size <= 25 * 1024 * 1024) {
+                                this.files.push(file);
+                                this.fileUploaded = true;
+                                this.updateFileNames();
+
+                                Toastify({
+                                    text: "File uploaded successfully!",
+                                    duration: 3000,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    style: {
+                                        background: "#4CAF50"
+                                    }
+                                }).showToast();
+
+                                break;
+                            } else {
+                                Toastify({
+                                    text: `File ${file.name} invalid or exceeds 25MB.`,
+                                    duration: 3000,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    style: {
+                                        background: "#FF5733"
+                                    }
+                                }).showToast();
+                            }
+                        }
+                    } else {
+                        Toastify({
+                            text: "Only one file can be uploaded.",
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: {
+                                background: "#FFC107"
+                            }
+                        }).showToast();
+                    }
+                },
+
+                removeFile(index) {
+                    this.files.splice(index, 1);
+                    if (this.files.length === 0) {
+                        this.fileUploaded = false;
+                    }
+                    this.updateFileNames();
+
+                    Toastify({
+                        text: "File deleted.",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "#607D8B"
+                        }
+                    }).showToast();
+                },
+
+                updateFileNames() {
+                    const fileNames = this.files.map(file => file.name).join(',');
+                    this.fileNames = fileNames;
+                    document.getElementById('file_names_input').value = fileNames;
+                },
+
+                submitForm() {
+                    this.isSubmitting = true;
+                    // Your form submission logic here
                 }
             }));
         });

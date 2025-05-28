@@ -42,8 +42,6 @@ class ManajementPropertiesController extends Controller
         ]);
     }
 
-
-
     public function updateStatus(Property $property, Request $request)
     {
         $request->validate([
@@ -85,7 +83,7 @@ class ManajementPropertiesController extends Controller
             $imageData = file_get_contents($image->getRealPath());
             $base64 = base64_encode($imageData);
             $mime = $image->getMimeType();
-            $imageBase64Arr[] = "data:$mime;base64,$base64";
+            $imageBase64Arr[] = $base64;
         }
 
         // Definisikan kategori fasilitas
