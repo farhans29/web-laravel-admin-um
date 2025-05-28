@@ -116,7 +116,8 @@
                                         </div>
                                         <div class="flex justify-between">
                                             <span class="text-gray-600">Room Rate:</span>
-                                            <span class="font-medium" id="roomRate">{{ $booking->room->price_discounted_daily ?? '-' }}</span>
+                                            <span class="font-medium"
+                                                id="roomRate">{{ $booking->room->price_discounted_daily ?? '-' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -337,7 +338,10 @@
             const priceDifference = newRoomPrice - currentRoomPrice;
 
             document.getElementById('selectedNewRoom').textContent = selectedOption.text;
-            document.getElementById('roomAvailability').textContent = 'Available';
+
+            const availabilityElement = document.getElementById('roomAvailability');
+            availabilityElement.textContent = 'Available';
+            availabilityElement.classList.add('text-green-600'); 
 
             const rateDifferenceElement = document.getElementById('rateDifference');
             rateDifferenceElement.textContent = priceDifference.toFixed(2);

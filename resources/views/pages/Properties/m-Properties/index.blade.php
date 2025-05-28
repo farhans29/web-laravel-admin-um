@@ -1,9 +1,4 @@
 <x-app-layout>
-    <!-- Modal Detail Properti -->
-    <div id="propertyModal" class="hidden fixed inset-0 overflow-y-auto z-50">
-        <!-- Modal content remains the same -->
-    </div>
-
     <div class="container mx-auto px-4 py-6">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -411,319 +406,354 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div class="flex justify-center items-center space-x-3">
-                                        <!-- Edit -->
-                                        <div x-data="modalEdit()" x-init="init()">
-                                            <button type="button"
-                                                class="text-yellow-600 hover:text-yellow-900 edit-property-btn"
-                                                @click.prevent="openModalEdit({{ json_encode($property) }})"
-                                                title="Edit" aria-controls="feedback-modal1">
+                                        <!-- View -->
+                                        <div x-data="modal()" class="relative group">
+                                            @php
+                                                $features = json_encode(
+                                                    $property->features,
+                                                    JSON_HEX_APOS | JSON_HEX_QUOT,
+                                                );
+                                                $attributes = json_encode(
+                                                    $property->attributes,
+                                                    JSON_HEX_APOS | JSON_HEX_QUOT,
+                                                );
+                                            @endphp
+
+                                            <button
+                                                class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+                                                type="button"
+                                                @click.prevent='openModal({
+                                                                    name: @json($property->name),
+                                                                    city: @json($property->city),
+                                                                    province: @json($property->province),
+                                                                    description: @json($property->description),
+                                                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
+                                                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
+                                                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
+                                                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
+                                                                    image: @json($firstImage),
+                                                                    location: @json($property->location),
+                                                                    distance: @json($property->distance),
+                                                                    features: {!! $features !!},
+                                                                    attributes: {!! $attributes !!}
+                                                                })'
+                                                aria-controls="property-detail-modal" title="View Details">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path
-                                                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </button>
+
                                             <!-- Modal backdrop -->
-                                            <div class="fixed inset-0 backdrop-blur bg-opacity-30 z-50 transition-opacity"
-                                                x-show="openModalEdit"
+                                            <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity"
+                                                x-show="modalOpenDetail"
                                                 x-transition:enter="transition ease-out duration-200"
                                                 x-transition:enter-start="opacity-0"
                                                 x-transition:enter-end="opacity-100"
                                                 x-transition:leave="transition ease-out duration-100"
                                                 x-transition:leave-start="opacity-100"
-                                                x-transition:leave-end="opacity-0" aria-hidden="true" x-cloak></div>
+                                                x-transition:leave-end="opacity-0" aria-hidden="true" x-cloak>
+                                            </div>
 
                                             <!-- Modal dialog -->
-                                            <div id="feedback-modal1"
-                                                class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
-                                                role="dialog" aria-modal="true" x-show="openModalEdit"
+                                            <div id="property-detail-modal"
+                                                class="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4"
+                                                role="dialog" aria-modal="true" x-show="modalOpenDetail"
                                                 x-transition:enter="transition ease-in-out duration-200"
-                                                x-transition:enter-start="opacity-0 translate-y-4"
-                                                x-transition:enter-end="opacity-100 translate-y-0"
+                                                x-transition:enter-start="opacity-0 scale-95"
+                                                x-transition:enter-end="opacity-100 scale-100"
                                                 x-transition:leave="transition ease-in-out duration-200"
-                                                x-transition:leave-start="opacity-100 translate-y-0"
-                                                x-transition:leave-end="opacity-0 translate-y-4" x-cloak>
-                                                <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full"
-                                                    @click.outside="openModalEdit = false"
-                                                    @keydown.escape.window="openModalEdit = false">
+                                                x-transition:leave-start="opacity-100 scale-100"
+                                                x-transition:leave-end="opacity-0 scale-95" x-cloak>
+
+                                                <div class="bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-2xl max-h-[90vh] flex flex-col"
+                                                    @click.outside="modalOpenDetail = false"
+                                                    @keydown.escape.window="modalOpenDetail = false">
+
                                                     <!-- Modal header -->
-                                                    <div class="px-5 py-3 border-b border-slate-200"
-                                                        id="modalAddLpjDetail">
-                                                        <div class="flex justify-between items-center">
-                                                            <div class="font-semibold text-slate-800">Edit
-                                                                Properti</div>
-                                                            <button type="button"
-                                                                class="text-slate-400 hover:text-slate-500"
-                                                                @click="openModalEdit = false">
-                                                                <div class="sr-only">Close</div>
-                                                                <svg class="w-4 h-4 fill-current">
-                                                                    <path
-                                                                        d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
-                                                                </svg>
-                                                            </button>
+                                                    <div
+                                                        class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                                        <div class="text-left">
+                                                            <h3 class="text-xl font-bold text-gray-900"
+                                                                x-text="selectedProperty.name"></h3>
+                                                            <p class="text-gray-500"
+                                                                x-text="selectedProperty.city + ', ' + selectedProperty.province">
+                                                            </p>
+                                                        </div>
+                                                        <button type="button"
+                                                            class="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+                                                            @click="modalOpenDetail = false">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+
+                                                    <!-- Modal content -->
+                                                    <div class="overflow-y-auto flex-1">
+                                                        <div class="relative">
+                                                            <img :src="selectedProperty.image" alt="Property Image"
+                                                                class="w-full h-64 object-cover object-center">
+                                                            <div
+                                                                class="absolute bottom-4 left-4 bg-white/90 px-3 py-1 rounded-full">
+                                                                <span
+                                                                    :class="selectedProperty && selectedProperty
+                                                                        .status === 'Active' ?
+                                                                        'text-green-600 font-medium' :
+                                                                        'text-red-600 font-medium'"
+                                                                    class="text-sm flex items-center">
+                                                                    <span class="w-2 h-2 rounded-full mr-1 block"
+                                                                        :class="selectedProperty && selectedProperty
+                                                                            .status === 'Active' ?
+                                                                            'bg-green-500' :
+                                                                            'bg-red-500'"></span>
+                                                                    <span
+                                                                        x-text="selectedProperty && selectedProperty.status ? selectedProperty.status : ''"></span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="p-6 space-y-4">
+                                                            <div class="text-center">
+                                                                <p class="text-gray-700 whitespace-pre-line"
+                                                                    x-text="selectedProperty.description"></p>
+                                                            </div>
+
+                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <div class="space-y-2">
+                                                                    <div>
+                                                                        <p
+                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                                                            Added</p>
+                                                                        <p class="text-gray-700"
+                                                                            x-text="selectedProperty.created_at"></p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p
+                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                                                            Last Updated</p>
+                                                                        <p class="text-gray-700"
+                                                                            x-text="selectedProperty.updated_at"></p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p
+                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                                                            Distance</p>
+                                                                        <p class="text-gray-700"
+                                                                            x-text="selectedProperty.distance || 'N/A'">
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="space-y-2">
+                                                                    <div>
+                                                                        <p
+                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                                                            Added By</p>
+                                                                        <p class="text-gray-700"
+                                                                            x-text="selectedProperty.creator"></p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p
+                                                                            class="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                                                            Location</p>
+                                                                        <p class="text-gray-700"
+                                                                            x-text="selectedProperty.location || selectedProperty.city + ', ' + selectedProperty.province">
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Features Section -->
+                                                            <div
+                                                                x-show="selectedProperty.features && selectedProperty.features.length > 0">
+                                                                <h4
+                                                                    class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
+                                                                    Features</h4>
+                                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                                    <template
+                                                                        x-for="feature in selectedProperty.features">
+                                                                        <div class="flex items-center space-x-2">
+                                                                            <!-- Icons for each feature -->
+                                                                            <template
+                                                                                x-if="feature === 'High-speed WiFi'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-blue-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+                                                                                </svg>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="feature === '24/7 Security'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-green-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                                                </svg>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="feature === 'Shared Kitchen'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-orange-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M3 3h18v4H3V3zm0 6h18v12H3V9zm5 4h2v2H8v-2zm4 0h2v2h-2v-2z" />
+                                                                                </svg>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="feature === 'Laundry Service'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-purple-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2zm5 14a5 5 0 100-10 5 5 0 000 10zm4-10h.01M15 8h.01" />
+                                                                                </svg>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="feature === 'Parking Area'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-yellow-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                                                </svg>
+                                                                            </template>
+                                                                            <template x-if="feature === 'Common Area'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-indigo-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                                                                </svg>
+                                                                            </template>
+
+                                                                            <span x-text="feature"
+                                                                                class="text-gray-700 text-sm"></span>
+                                                                        </div>
+                                                                    </template>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Attributes Section -->
+                                                            <div
+                                                                x-show="selectedProperty.attributes && selectedProperty.attributes.length > 0">
+                                                                <h4
+                                                                    class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
+                                                                    Attributes</h4>
+                                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                                    <template
+                                                                        x-for="attribute in selectedProperty.attributes">
+                                                                        <div class="flex items-center space-x-2">
+                                                                            <!-- Icons for each attribute -->
+                                                                            <template
+                                                                                x-if="attribute === 'No Smoking'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-red-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                                                </svg>
+                                                                            </template>
+                                                                            <template x-if="attribute === 'No Pets'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-red-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M6 18L18 6M6 6l12 12" />
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M15 9a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                                </svg>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="attribute === 'ID Card Required'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-blue-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                                                                </svg>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="attribute === 'Deposit Required'">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    class="h-5 w-5 text-yellow-500"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke="currentColor">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                </svg>
+                                                                            </template>
+
+                                                                            <span x-text="attribute"
+                                                                                class="text-gray-700 text-sm"></span>
+                                                                        </div>
+                                                                    </template>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <!-- Modal content -->
-                                                    <div class="modal-content text-xs px-5 py-4">
-                                                        <form id="editPropertyForm" method="POST"
-                                                            action="{{ route('properties.update', ['idrec' => $property->idrec]) }}"
-                                                            enctype="multipart/form-data">
-                                                            @csrf
-                                                            @method('PUT')
 
-                                                            <!-- Step 1: Basic Information -->
-                                                            <div x-show="step === 1">
-                                                                <div
-                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Nama
-                                                                            Properti</label>
-                                                                        <input type="text" name="name"
-                                                                            x-model="property.name"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                    </div>
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Tipe
-                                                                            Properti</label>
-                                                                        <select name="type" x-model="property.type"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                            <option value="rumah">Rumah</option>
-                                                                            <option value="apartemen">Apartemen
-                                                                            </option>
-                                                                            <option value="villa">Villa</option>
-                                                                            <option value="kantor">Kantor</option>
-                                                                            <option value="tanah">Tanah</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div
-                                                                    class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Harga
-                                                                            (Rp)
-                                                                        </label>
-                                                                        <input type="number" name="price"
-                                                                            x-model="property.price"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                    </div>
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Luas
-                                                                            Tanah (m²)</label>
-                                                                        <input type="number" name="land_size"
-                                                                            x-model="property.land_size"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                    </div>
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Luas
-                                                                            Bangunan (m²)</label>
-                                                                        <input type="number" name="building_size"
-                                                                            x-model="property.building_size"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="mb-4">
-                                                                    <label
-                                                                        class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                                                                    <textarea name="description" x-model="property.description" rows="3"
-                                                                        class="w-full border border-gray-300 rounded-md px-3 py-2"></textarea>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Step 2: Location Information -->
-                                                            <div x-show="step === 2">
-                                                                <div
-                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Provinsi</label>
-                                                                        <select name="province"
-                                                                            x-model="property.province"
-                                                                            id="editProvince"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                            <option value="">Pilih Provinsi
-                                                                            </option>
-                                                                            <option value="DKI Jakarta">DKI Jakarta
-                                                                            </option>
-                                                                            <option value="Jawa Barat">Jawa Barat
-                                                                            </option>
-                                                                            <option value="Jawa Tengah">Jawa Tengah
-                                                                            </option>
-                                                                            <option value="Jawa Timur">Jawa Timur
-                                                                            </option>
-                                                                            <option value="Bali">Bali</option>
-                                                                        </select>
-                                                                    </div>
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Kota</label>
-                                                                        <select name="city" x-model="property.city"
-                                                                            id="editCity"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                            <option value="">Pilih Kota</option>
-                                                                            <template
-                                                                                x-if="property.province === 'DKI Jakarta'">
-                                                                                <option value="Jakarta Pusat">Jakarta
-                                                                                    Pusat</option>
-                                                                                <option value="Jakarta Selatan">Jakarta
-                                                                                    Selatan</option>
-                                                                                <option value="Jakarta Barat">Jakarta
-                                                                                    Barat</option>
-                                                                                <option value="Jakarta Timur">Jakarta
-                                                                                    Timur</option>
-                                                                                <option value="Jakarta Utara">Jakarta
-                                                                                    Utara</option>
-                                                                            </template>
-                                                                            <!-- Add other cities based on province -->
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div
-                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
-                                                                        <input type="text" name="district"
-                                                                            x-model="property.district"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                    </div>
-                                                                    <div>
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-1">Kelurahan</label>
-                                                                        <input type="text" name="village"
-                                                                            x-model="property.village"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="mb-4">
-                                                                    <label
-                                                                        class="block text-sm font-medium text-gray-700 mb-1">Alamat
-                                                                        Lengkap</label>
-                                                                    <textarea name="full_address" x-model="property.full_address" rows="2"
-                                                                        class="w-full border border-gray-300 rounded-md px-3 py-2"></textarea>
-                                                                </div>
-
-                                                                <div class="mb-4">
-                                                                    <label
-                                                                        class="block text-sm font-medium text-gray-700 mb-1">Koordinat</label>
-                                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                        <input type="text" name="latitude"
-                                                                            x-model="property.latitude"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2"
-                                                                            placeholder="Latitude">
-                                                                        <input type="text" name="longitude"
-                                                                            x-model="property.longitude"
-                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2"
-                                                                            placeholder="Longitude">
-                                                                    </div>
-                                                                    <div class="mt-2 h-64 bg-gray-100 rounded-md"
-                                                                        id="editMap"></div>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Step 3: Images -->
-                                                            <div x-show="step === 3">
-                                                                <div class="mb-4">
-                                                                    <label
-                                                                        class="block text-sm font-medium text-gray-700 mb-1">Gambar
-                                                                        Properti</label>
-                                                                    <input type="file" name="images[]"
-                                                                        id="editPropertyImages" multiple
-                                                                        class="w-full border border-gray-300 rounded-md px-3 py-2"
-                                                                        accept="image/*">
-
-                                                                    <!-- Current Images Preview -->
-                                                                    <div class="mt-4">
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-2">Gambar
-                                                                            Saat Ini</label>
-                                                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4"
-                                                                            id="currentImagesPreview">
-                                                                            <template
-                                                                                x-for="(image, index) in property.images"
-                                                                                :key="index">
-                                                                                <div class="relative">
-                                                                                    <img :src="image"
-                                                                                        class="h-32 w-full object-cover rounded">
-                                                                                    <button type="button"
-                                                                                        @click="removeImage(index)"
-                                                                                        class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1">
-                                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                            class="h-4 w-4"
-                                                                                            fill="none"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            stroke="currentColor">
-                                                                                            <path
-                                                                                                stroke-linecap="round"
-                                                                                                stroke-linejoin="round"
-                                                                                                stroke-width="2"
-                                                                                                d="M6 18L18 6M6 6l12 12" />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                    <input type="hidden"
-                                                                                        name="existing_images[]"
-                                                                                        :value="image">
-                                                                                </div>
-                                                                            </template>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- New Images Preview -->
-                                                                    <div class="mt-4 hidden" id="newImagesPreview">
-                                                                        <label
-                                                                            class="block text-sm font-medium text-gray-700 mb-2">Gambar
-                                                                            Baru</label>
-                                                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4"
-                                                                            id="newImagesContainer"></div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Navigation Buttons -->
-                                                            <div class="flex justify-between mt-6">
-                                                                <button type="button" x-show="step > 1"
-                                                                    @click="step--"
-                                                                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">
-                                                                    Kembali
-                                                                </button>
-                                                                <button type="button" x-show="step < 3"
-                                                                    @click="if(validateStep(step)) step++"
-                                                                    class="px-4 py-2 bg-blue-600 text-white rounded-md ml-auto">
-                                                                    Lanjut
-                                                                </button>
-                                                                <button type="submit" x-show="step === 3"
-                                                                    class="px-4 py-2 bg-green-600 text-white rounded-md ml-auto">
-                                                                    Simpan Perubahan
-                                                                </button>
-                                                            </div>
-                                                        </form>
+                                                    <!-- Modal footer -->
+                                                    <div
+                                                        class="px-6 py-3 border-t border-gray-100 bg-gray-50 flex justify-end">
+                                                        <button @click="modalOpenDetail = false"
+                                                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors duration-200 font-medium">
+                                                            Close
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Delete -->
-                                        <form action="#" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900"
-                                                title="Delete" onclick="return confirm('Are you sure?')">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a2 2 0 012 2v0a2 2 0 01-2 2H7a2 2 0 01-2-2v0a2 2 0 012-2h10z" />
-                                                </svg>
-                                            </button>
-                                        </form>
+                                        <!-- Edit Button -->
+                                        <button type="button"
+                                            class="text-yellow-500 hover:text-yellow-700 transition-colors duration-200"
+                                            title="Edit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                viewBox="0 0 20 20" fill="currentColor">
+                                                <path
+                                                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                            </svg>
+                                        </button>
+
                                     </div>
                                 </td>
                             </tr>
@@ -957,16 +987,17 @@
             }));
         });
 
+        // Function to close the modal
+        function closeModal() {
+            const modal = document.getElementById('propertyModal');
+            modal.classList.add('hidden');
+        }
 
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('modalEdit', () => ({
-                property: {},
-                step: 1,
-                modalOpenDetail: false,
-               
-
-            }));
-        });
+        // Function to change main image when clicking thumbnails
+        function changeMainImage(thumbnail) {
+            const mainImage = document.getElementById('modalPropertyImage');
+            mainImage.src = thumbnail.src;
+        }
 
         // Listen for filter changes and submit form
         document.getElementById('statusFilter').addEventListener('change', function() {
