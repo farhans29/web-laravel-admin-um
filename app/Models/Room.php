@@ -22,6 +22,7 @@ class Room extends Model
         'type',
         'level',
         'facility',
+        'discount_percentage',
         'price_original_daily',
         'price_discounted_daily',
         'price_original_monthly',

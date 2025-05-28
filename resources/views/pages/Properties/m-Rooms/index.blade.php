@@ -1,27 +1,5 @@
 <x-app-layout>
     <div class="container mx-auto px-4 py-6">
-{{-- 
-        <!-- ✅ Flash message block -->
-        @if (session()->has('success') || session()->has('error'))
-            <div 
-                x-data="{ show: true }" 
-                x-show="show" 
-                x-init="setTimeout(() => show = false, 3000)" 
-                class="fixed top-4 right-4 z-50"
-            >
-                @if (session()->has('success'))
-                    <div class="bg-green-500 text-white px-4 py-2 rounded shadow-md mb-2">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if (session()->has('error'))
-                    <div class="bg-red-500 text-white px-4 py-2 rounded shadow-md">
-                        {{ session('error') }}
-                    </div>
-                @endif
-            </div>
-        @endif --}}
 
         @if (session()->has('success'))
             <div class="bg-green-500 text-white px-4 py-2 rounded shadow-md mb-2">
@@ -52,174 +30,233 @@
                     </button>
 
                     <!-- Modal -->
-                    <div x-show="open" x-cloak  class="fixed inset-0 backdrop-blur bg-opacity-30 flex items-center justify-center z-50 transition-opacity"                    >
-                        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 relative">
-                            <!-- Close Button -->
-                            <button @click="open = false" class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl">&times;</button>
+                    <div x-show="open" x-cloak class="fixed inset-0 backdrop-blur bg-opacity-30 flex items-center justify-center z-50 transition-opacity">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl relative overflow-hidden">
+                            <!-- Modal Header -->
+                            <div class="flex justify-between items-center px-6 py-4 border-b">
+                                <div>
+                                    <h2 x-show="step === 1" class="text-xl font-semibold text-slate-800">Informasi Kamar</h2>
+                                    <h2 x-show="step === 2" class="text-xl font-semibold text-slate-800">Fasilitas</h2>
+                                </div>
+                                <button @click="open = false" class="text-gray-600 hover:text-black text-2xl">&times;</button>
+                            </div>
 
-                            <!-- Form -->
-                            <form
-                                x-ref="roomForm"
-                                @submit.prevent="
-                                    if (step === 2) {
-                                        const requireds = $refs.step2Form.querySelectorAll('[required]');
-                                        let step2Valid = true;
+                            <!-- Modal Body -->
+                            <div class="p-6 max-h-[80vh] overflow-y-auto">
+                                <!-- Form -->
+                                <form
+                                    x-ref="roomForm"
+                                    @submit.prevent="
+                                        if (step === 2) {
+                                            const requireds = $refs.step2Form.querySelectorAll('[required]');
+                                            let step2Valid = true;
 
-                                        requireds.forEach(input => {
-                                            if (!input.value) {
-                                                input.classList.add('border-red-500');
-                                                step2Valid = false;
+                                            requireds.forEach(input => {
+                                                if (!input.value) {
+                                                    input.classList.add('border-red-500');
+                                                    step2Valid = false;
+                                                } else {
+                                                    input.classList.remove('border-red-500');
+                                                }
+                                            });
+
+                                            if (step2Valid) {
+                                                $refs.roomForm.submit(); // Submit to rooms.store
                                             } else {
-                                                input.classList.remove('border-red-500');
+                                                isValidStep2 = false;
                                             }
-                                        });
-
-                                        if (step2Valid) {
-                                            $refs.roomForm.submit(); // Submit to rooms.store
-                                        } else {
-                                            isValidStep2 = false;
                                         }
-                                    }
-                                "
-                                x-data="{ open: false, step: 1, isValid: true, isValidStep2: true }"
-                                method="POST"
-                                action="{{ route('rooms.store') }}"
-                                enctype="multipart/form-data"
-                            >
-                                @csrf
+                                    "
+                                    x-data="{ open: false, step: 1, isValid: true, isValidStep2: true }"
+                                    method="POST"
+                                    action="{{ route('rooms.store') }}"
+                                    enctype="multipart/form-data"
+                                >
+                                    @csrf
 
-                                <!-- Step 1 -->
-                                <div x-show="step === 1" x-transition x-ref="step1Form">
-                                    <h2 class="text-xl font-semibold mb-4">Informasi Kamar</h2>
+                                    <!-- Step 1 -->
+                                    <div x-show="step === 1" x-transition x-ref="step1Form">
+                                        @livewire('property-room-selector')
 
-                                    <!-- Livewire component -->
-                                    @livewire('property-room-selector')
-
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium">Nama Kamar</label>
-                                        <input type="text" name="room_name" required class="w-full border rounded p-2" placeholder="Nama Kamar">
-                                    </div>
-
-                                    {{-- <!-- Checkbox For Periode -->
-                                    <div class="mb-4">
-                                        <div class="flex items-center gap-6">
-                                            <label class="inline-flex items-center">
-                                                <input type="checkbox" name="available_daily" class="form-checkbox text-blue-600" />
-                                                <span class="ml-2">Daily</span>
-                                            </label>
-                                            <label class="inline-flex items-center">
-                                                <input type="checkbox" name="available_monthly" class="form-checkbox text-blue-600" />
-                                                <span class="ml-2">Monthly</span>
-                                            </label>
-                                        </div>
-                                    </div> --}}
-
-                                    <div class="grid grid-cols-2 gap-6 mb-4">
-                                        <!-- Daily Pricing -->
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium">Harga Original Harian</label>
-                                                <input type="number" name="daily_price" required class="w-full border rounded p-2" placeholder="Harga Harian" />
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium">Harga Diskon Harian</label>
-                                                <input type="number" name="daily_discount_price" required class="w-full border rounded p-2" placeholder="Harga Diskon Harian" />
-                                            </div>
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium">Nama Kamar</label>
+                                            <input type="text" name="room_name" required class="w-full border rounded p-2" placeholder="">
                                         </div>
 
-                                        <!-- Monthly Pricing -->
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium">Harga Original Bulanan</label>
-                                                <input type="number" name="monthly_price" required class="w-full border rounded p-2" placeholder="Harga Bulanan" />
+                                        {{-- Pricing with discount for each period --}}
+                                        {{-- <div x-data="{
+                                            dailyOriginal: 0,
+                                            dailyPercentage: 0,
+                                            monthlyOriginal: 0,
+                                            monthlyPercentage: 0,
+                                            get dailyDiscount() {
+                                                return Math.max(0, this.dailyOriginal - (this.dailyOriginal * this.dailyPercentage / 100));
+                                            },
+                                            get monthlyDiscount() {
+                                                return Math.max(0, this.monthlyOriginal - (this.monthlyOriginal * this.monthlyPercentage / 100));
+                                            }
+                                        }" class="grid grid-cols-2 gap-6 mb-4">
+                                            <!-- Daily Pricing -->
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Harga Original Harian</label>
+                                                    <input type="number" name="daily_price" x-model.number="dailyOriginal" min="0"
+                                                        class="w-full border rounded p-2" placeholder="Harga Harian" required />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium">Diskon (%) Harian</label>
+                                                    <input type="number" x-model.number="dailyPercentage" min="0" max="100"
+                                                        class="w-full border rounded p-2" placeholder="Diskon Harian" />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium">Harga Setelah Diskon Harian</label>
+                                                    <input type="number" name="daily_discount_price" :value="dailyDiscount.toFixed(0)" readonly
+                                                        class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
+                                                </div>
                                             </div>
-                                            <div>
-                                                <label class="block text-sm font-medium">Harga Diskon Bulanan</label>
-                                                <input type="number" name="monthly_discount_price" required class="w-full border rounded p-2" placeholder="Harga Diskon Bulanan" />
+
+                                            <!-- Monthly Pricing -->
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Harga Original Bulanan</label>
+                                                    <input type="number" name="monthly_price" x-model.number="monthlyOriginal" min="0"
+                                                        class="w-full border rounded p-2" placeholder="Harga Bulanan" required />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium">Diskon (%) Bulanan</label>
+                                                    <input type="number" x-model.number="monthlyPercentage" min="0" max="100"
+                                                        class="w-full border rounded p-2" placeholder="Diskon Bulanan" />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium">Harga Setelah Diskon Bulanan</label>
+                                                    <input type="number" name="monthly_discount_price" :value="monthlyDiscount.toFixed(0)" readonly
+                                                        class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Note -->
-                                    <p class="text-sm text-gray-600 italic mb-4">
-                                        Masukkan harga jika kamar tersedia pada periode tersebut. (Jika tidak tersedia, maka input 0 pada original dan diskon)
-                                    </p>
-
-                                    <div class="flex gap-4 mb-4">
-                                        <div class="w-full">
-                                            <label class="block text-sm font-medium">Deskripsi Kamar Indonesia</label>
-                                            <textarea name="description_id" required class="w-full border rounded p-2" placeholder="Deskripsi Kamar"></textarea>
-                                        </div>
-                                        {{-- <div class="w-1/2">
-                                            <label class="block text-sm font-medium">Deskripsi Kamar English</label>
-                                            <textarea name="description_en" required class="w-full border rounded p-2" placeholder="Deskripsi Kamar"></textarea>
                                         </div> --}}
+
+                                        {{-- One discount percentage --}}
+                                        <div x-data="{
+                                            dailyOriginal: 0,
+                                            monthlyOriginal: 0,
+                                            discountPercentage: 0,
+
+                                            get dailyDiscount() {
+                                                return Math.max(0, this.dailyOriginal - (this.dailyOriginal * this.discountPercentage / 100));
+                                            },
+                                            get monthlyDiscount() {
+                                                return Math.max(0, this.monthlyOriginal - (this.monthlyOriginal * this.discountPercentage / 100));
+                                            }
+                                        }" class="grid grid-cols-2 gap-6 mb-4">
+                                            <!-- Daily Pricing -->
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Harga Original Harian</label>
+                                                    <input type="number" name="daily_price" x-model.number="dailyOriginal" min="0"
+                                                        class="w-full border rounded p-2" placeholder="Harga Harian" required />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium">Harga Setelah Diskon Harian</label>
+                                                    <input type="number" name="daily_discount_price" :value="dailyDiscount.toFixed(0)" readonly
+                                                        class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
+                                                </div>
+                                            </div>
+
+                                            <!-- Monthly Pricing -->
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Harga Original Bulanan</label>
+                                                    <input type="number" name="monthly_price" x-model.number="monthlyOriginal" min="0"
+                                                        class="w-full border rounded p-2" placeholder="Harga Bulanan" required />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium">Harga Setelah Diskon Bulanan</label>
+                                                    <input type="number" name="monthly_discount_price" :value="monthlyDiscount.toFixed(0)" readonly
+                                                        class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
+                                                </div>
+                                            </div>
+
+                                            <!-- Shared Discount Percentage -->
+                                            <div class="col-span-2">
+                                                <label class="block text-sm font-medium">Diskon (%) (untuk Harian & Bulanan)</label>
+                                                <input type="number" name="discount_percentage" min="0" max="100" x-model.number="discountPercentage"
+                                                    class="w-full border rounded p-2" placeholder="Masukkan persentase diskon" />
+                                            </div>
+                                        </div>
+
+                                        <p class="text-sm text-gray-600 italic mb-4">
+                                            Masukkan harga jika kamar tersedia pada periode tersebut. (Jika periode tidak tersedia, maka input 0 pada kolom harga original)
+                                        </p>
+
+                                        <div class="flex gap-4 mb-4">
+                                            <div class="w-full">
+                                                <label class="block text-sm font-medium">Deskripsi Kamar Indonesia</label>
+                                                <textarea name="description_id" required class="w-full border rounded p-2" placeholder=""></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium">Foto Kamar</label>
+                                            <input type="file" name="photo" accept="image/*" class="w-full border rounded p-2">
+                                        </div>
+
+                                        <!-- Validation message -->
+                                        <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
+
+                                        <div class="flex justify-end gap-2 mt-4">
+                                            <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button>
+                                            <button type="button"
+                                                @click="
+                                                    const inputs = $refs.step1Form.querySelectorAll('[required]');
+                                                    isValid = true;
+                                                    inputs.forEach(input => {
+                                                        if (!input.value) {
+                                                            input.classList.add('border-red-500');
+                                                            isValid = false;
+                                                        } else {
+                                                            input.classList.remove('border-red-500');
+                                                        }
+                                                    });
+                                                    if (isValid) step = 2;
+                                                "
+                                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                Selanjutnya
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium">Foto Kamar</label>
-                                        <input type="file" name="photo" accept="image/*" class="w-full border rounded p-2">
+                                    <!-- Step 2 -->
+                                    <div x-show="step === 2" x-transition x-ref="step2Form">
+                                        <div class="col-span-2 mb-2">
+                                            <h3 class="text-lg font-medium border-gray-300 pb-1">Fasilitas</h3>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-4 mb-4">
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="wifi" class="form-checkbox text-blue-600" />
+                                                <span class="ml-2">WiFi</span>
+                                            </label>
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="tv" class="form-checkbox text-blue-600" />
+                                                <span class="ml-2">TV</span>
+                                            </label>
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="ac" class="form-checkbox text-blue-600" />
+                                                <span class="ml-2">AC</span>
+                                            </label>
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="bathroom" class="form-checkbox text-blue-600" />
+                                                <span class="ml-2">Bathroom</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="flex justify-end gap-2 mt-4">
+                                            <button type="button" @click="step = 1" class="bg-gray-500  hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-white px-4 py-2 rounded">Kembali</button>
+                                            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Simpan</button>
+                                        </div>
                                     </div>
-
-                                    <!-- Validation message -->
-                                    <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
-
-                                    <div class="flex justify-end gap-2 mt-4">
-                                        <button type="button" @click="open = false" class="bg-red-600 text-white px-4 py-2 rounded">Tutup</button>
-
-                                        <!-- VALIDATE and go to Step 2 -->
-                                        <button type="button"
-                                            @click="
-                                                const inputs = $refs.step1Form.querySelectorAll('[required]');
-                                                isValid = true;
-                                                inputs.forEach(input => {
-                                                    if (!input.value) {
-                                                        input.classList.add('border-red-500');
-                                                        isValid = false;
-                                                    } else {
-                                                        input.classList.remove('border-red-500');
-                                                    }
-                                                });
-                                                if (isValid) step = 2;
-                                            "
-                                            class="bg-green-600 text-white px-4 py-2 rounded">
-                                            Selanjutnya
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Step 2 -->
-                                <div x-show="step === 2" x-transition x-ref="step2Form">
-                                    <h2 class="text-xl font-semibold mb-4">Fasilitas</h2>
-
-                                    <div class="grid grid-cols-2 gap-4 mb-4">
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="wifi" class="form-checkbox text-blue-600" />
-                                            <span class="ml-2">WiFi</span>
-                                        </label>
-
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="tv" class="form-checkbox text-blue-600" />
-                                            <span class="ml-2">TV</span>
-                                        </label>
-
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="ac" class="form-checkbox text-blue-600" />
-                                            <span class="ml-2">AC</span>
-                                        </label>
-
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="bathroom" class="form-checkbox text-blue-600" />
-                                            <span class="ml-2">Bathroom</span>
-                                        </label>
-                                    </div>
-
-                                    <div class="flex justify-end gap-2 mt-4">
-                                        <button type="button" @click="step = 1" class="bg-gray-500 text-white px-4 py-2 rounded">Kembali</button>
-                                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
 
@@ -315,14 +352,224 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
-                                        <a href=""
-                                            class="text-blue-600 hover:text-blue-900" title="Edit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path
-                                                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                            </svg>
-                                        </a>
+                                        <!-- AlpineJS Wrapper -->
+                                        <div x-data="{ open: false, step: 1, isValid: true }">
+
+                                            <!-- Add Room Button -->
+                                            <button @click="open = true"
+                                                class="text-blue-600 hover:text-blue-900" title="Edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                                    fill="currentColor">
+                                                    <path
+                                                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Modal -->
+                                            <div x-show="open" x-cloak class="fixed inset-0 backdrop-blur bg-opacity-30 flex items-center justify-center z-50 transition-opacity">
+                                                <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl relative overflow-hidden">
+                                                    <!-- Modal Header -->
+                                                    <div class="flex justify-between items-center px-6 py-4 border-b">
+                                                        <div>
+                                                            <h2 x-show="step === 1" class="text-xl font-semibold text-slate-800">Edit Informasi Kamar</h2>
+                                                            <h2 x-show="step === 2" class="text-xl font-semibold text-slate-800">Edit Fasilitas</h2>
+                                                        </div>
+                                                        <button @click="open = false" class="text-gray-600 hover:text-black text-2xl">&times;</button>
+                                                    </div>
+
+                                                    <!-- Modal Body -->
+                                                    <div class="p-6 max-h-[80vh] overflow-y-auto">
+                                                        <!-- Form -->
+                                                        <form
+                                                            x-ref="roomForm"
+                                                            @submit.prevent="
+                                                                if (step === 2) {
+                                                                    const requireds = $refs.step2Form.querySelectorAll('[required]');
+                                                                    let step2Valid = true;
+
+                                                                    requireds.forEach(input => {
+                                                                        if (!input.value) {
+                                                                            input.classList.add('border-red-500');
+                                                                            step2Valid = false;
+                                                                        } else {
+                                                                            input.classList.remove('border-red-500');
+                                                                        }
+                                                                    });
+
+                                                                    if (step2Valid) {
+                                                                        $refs.roomForm.submit(); // Submit to rooms.store
+                                                                    } else {
+                                                                        isValidStep2 = false;
+                                                                    }
+                                                                }
+                                                            "
+                                                            x-data="{ open: false, step: 1, isValid: true, isValidStep2: true }"
+                                                            method="POST"
+                                                            action="{{ route('rooms.store') }}"
+                                                            enctype="multipart/form-data"
+                                                        >
+                                                            @csrf
+
+                                                            <!-- Step 1 -->
+                                                            <div x-show="step === 1" x-transition x-ref="step1Form">
+                                                                <div>
+                                                                    <!-- Property Select -->
+                                                                    <div class="mb-4">
+                                                                        <label class="block text-sm font-medium">Pilih Properti</label>
+                                                                        <input type="text" name="room_property" required class="w-full border rounded p-2 bg-gray-100 text-gray-700" value="{{ e($room->name) }}" readonly>
+                                                                </div>
+
+                                                                    <div class="flex gap-4 mb-4">
+                                                                        <!-- Level -->
+                                                                        <div class="w-1/2">
+                                                                            <label class="block text-sm font-medium">Lantai</label>
+                                                                            <input type="text" name="room_floor" required class="w-full border rounded p-2 bg-gray-100 text-gray-700" value="{{ e($room->name) }}" readonly>
+                                                                </div>
+
+                                                                        <!-- Room Type -->
+                                                                        <div class="w-1/2">
+                                                                            <label class="block text-sm font-medium">Jenis Kamar</label>
+                                                                            <input type="text" name="room_type" required class="w-full border rounded p-2 bg-gray-100 text-gray-700" value="{{ e($room->name) }}" readonly>
+                                                                </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="mb-4">
+                                                                    <label class="block text-sm font-medium">Nama Kamar</label>
+                                                                    <input type="text" name="edit_room_name" required class="w-full border rounded p-2" value="{{ e($room->name) }}">
+                                                                </div>
+
+                                                                {{-- One discount percentage --}}
+                                                                <div x-data="{
+                                                                    dailyOriginal: 0,
+                                                                    monthlyOriginal: 0,
+                                                                    discountPercentage: 0,
+
+                                                                    get dailyDiscount() {
+                                                                        return Math.max(0, this.dailyOriginal - (this.dailyOriginal * this.discountPercentage / 100));
+                                                                    },
+                                                                    get monthlyDiscount() {
+                                                                        return Math.max(0, this.monthlyOriginal - (this.monthlyOriginal * this.discountPercentage / 100));
+                                                                    }
+                                                                }" class="grid grid-cols-2 gap-6 mb-4">
+                                                                    <!-- Daily Pricing -->
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Harga Original Harian</label>
+                                                                            <input type="number" name="daily_price" x-model.number="dailyOriginal" min="0"
+                                                                                class="w-full border rounded p-2" placeholder="Harga Harian" required />
+                                                                        </div>
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Harga Setelah Diskon Harian</label>
+                                                                            <input type="number" name="daily_discount_price" :value="dailyDiscount.toFixed(0)" readonly
+                                                                                class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Monthly Pricing -->
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Harga Original Bulanan</label>
+                                                                            <input type="number" name="monthly_price" x-model.number="monthlyOriginal" min="0"
+                                                                                class="w-full border rounded p-2" placeholder="Harga Bulanan" required />
+                                                                        </div>
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Harga Setelah Diskon Bulanan</label>
+                                                                            <input type="number" name="monthly_discount_price" :value="monthlyDiscount.toFixed(0)" readonly
+                                                                                class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Shared Discount Percentage -->
+                                                                    <div class="col-span-2">
+                                                                        <label class="block text-sm font-medium">Diskon (%) (untuk Harian & Bulanan)</label>
+                                                                        <input type="number" name="discount_percentage" min="0" max="100" x-model.number="discountPercentage"
+                                                                            class="w-full border rounded p-2" placeholder="Masukkan persentase diskon" />
+                                                                    </div>
+                                                                </div>
+
+                                                                <p class="text-sm text-gray-600 italic mb-4">
+                                                                    Masukkan harga jika kamar tersedia pada periode tersebut. (Jika periode tidak tersedia, maka input 0 pada kolom harga original)
+                                                                </p>
+
+                                                                <div class="flex gap-4 mb-4">
+                                                                    <div class="w-full">
+                                                                        <label class="block text-sm font-medium">Deskripsi Kamar Indonesia</label>
+                                                                        <textarea name="description_id" required class="w-full border rounded p-2" placeholder=""></textarea>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="mb-4">
+                                                                    <label class="block text-sm font-medium">Foto Kamar</label>
+                                                                    <input type="file" name="photo" accept="image/*" class="w-full border rounded p-2">
+                                                                </div>
+
+                                                                <!-- Validation message -->
+                                                                <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
+
+                                                                <div class="flex justify-end gap-2 mt-4">
+                                                                    <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button>
+                                                                    <button type="button"
+                                                                        @click="
+                                                                            const inputs = $refs.step1Form.querySelectorAll('[required]');
+                                                                            isValid = true;
+                                                                            inputs.forEach(input => {
+                                                                                if (!input.value) {
+                                                                                    input.classList.add('border-red-500');
+                                                                                    isValid = false;
+                                                                                } else {
+                                                                                    input.classList.remove('border-red-500');
+                                                                                }
+                                                                            });
+                                                                            if (isValid) step = 2;
+                                                                        "
+                                                                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                                        Selanjutnya
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Step 2 -->
+                                                            <div x-show="step === 2" x-transition x-ref="step2Form">
+                                                                <div class="col-span-2 mb-2">
+                                                                    <h3 class="text-lg font-medium border-gray-300 pb-1">Fasilitas</h3>
+                                                                </div>
+                                                                
+                                                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                                                    <label class="inline-flex items-center">
+                                                                        <input type="checkbox" name="wifi" class="form-checkbox text-blue-600" />
+                                                                        <span class="ml-2">WiFi</span>
+                                                                    </label>
+                                                                    <label class="inline-flex items-center">
+                                                                        <input type="checkbox" name="tv" class="form-checkbox text-blue-600" />
+                                                                        <span class="ml-2">TV</span>
+                                                                    </label>
+                                                                    <label class="inline-flex items-center">
+                                                                        <input type="checkbox" name="ac" class="form-checkbox text-blue-600" />
+                                                                        <span class="ml-2">AC</span>
+                                                                    </label>
+                                                                    <label class="inline-flex items-center">
+                                                                        <input type="checkbox" name="bathroom" class="form-checkbox text-blue-600" />
+                                                                        <span class="ml-2">Bathroom</span>
+                                                                    </label>
+                                                                </div>
+
+                                                                <div class="flex justify-end gap-2 mt-4">
+                                                                    <button type="button" @click="step = 1" class="bg-gray-500  hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-white px-4 py-2 rounded">Kembali</button>
+                                                                    <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Simpan</button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <style>
+                                                [x-cloak] {
+                                                    display: none !important;
+                                                }
+                                            </style>
+                                        </div>                                        
                                         <form action="" method="POST"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus kamar ini?')">
                                             @csrf
