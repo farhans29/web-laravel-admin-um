@@ -114,7 +114,10 @@
                                             <span class="text-gray-600">Check-out:</span>
                                             <span class="font-medium" id="checkOut">-</span>
                                         </div>
-
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Room Rate:</span>
+                                            <span class="font-medium" id="roomRate">{{ $booking->room->price_discounted_daily ?? '-' }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -131,8 +134,7 @@
                                             <option value="" disabled selected>Select new room</option>
                                             @foreach ($availableRooms as $room)
                                                 <option value="{{ $room->idrec }}">
-                                                    {{ $room->name }} - {{ $room->type }} -
-                                                    {{ $room->descriptions }}
+                                                    {{ $room->name }} - {{ $room->type }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -188,236 +190,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="container mx-auto">
-                    <!-- Recent Transfers -->
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-gray-800">Recent Transfers</h2>
-                            <div class="flex space-x-2">
-                                <button
-                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-filter"></i>
-                                    Filter
-                                </button>
-                                <button
-                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-download"></i>
-                                    Export
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Transfer ID</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Guest</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            From</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            To</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Date</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Reason</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            TR-20230518-001</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Michael Brown
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">205
-                                            (Standard)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">302 (Deluxe)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">18 May 2023
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Guest Request
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Completed
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-gray-600 hover:text-gray-900">
-                                                <i class="fas fa-print"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            TR-20230517-003</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Emily Wilson
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">108
-                                            (Standard)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">109
-                                            (Standard)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">17 May 2023
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maintenance
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Completed
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-gray-600 hover:text-gray-900">
-                                                <i class="fas fa-print"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            TR-20230516-002</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Robert Garcia
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">401 (Suite)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">405 (Suite)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">16 May 2023
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Room Issue
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Completed
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-gray-600 hover:text-gray-900">
-                                                <i class="fas fa-print"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            TR-20230515-001</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Jessica Lee
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">210
-                                            (Standard)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">310 (Deluxe)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15 May 2023
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Upgrade</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Completed
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-gray-600 hover:text-gray-900">
-                                                <i class="fas fa-print"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            TR-20230514-004</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">David Kim
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">502 (Suite)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">501 (Suite)
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">14 May 2023
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">View
-                                            Preference
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Completed
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-gray-600 hover:text-gray-900">
-                                                <i class="fas fa-print"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="flex items-center justify-between border-t border-gray-200 mt-4 pt-4">
-                            <div class="text-sm text-gray-700">
-                                Showing <span class="font-medium">1</span> to <span class="font-medium">5</span>
-                                of
-                                <span class="font-medium">24</span> transfers
-                            </div>
-                            <div class="flex space-x-2">
-                                <button
-                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    Previous
-                                </button>
-                                <button
-                                    class="px-3 py-1 border border-indigo-300 bg-indigo-50 text-indigo-600 rounded-md">
-                                    1
-                                </button>
-                                <button
-                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    2
-                                </button>
-                                <button
-                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    3
-                                </button>
-                                <button
-                                    class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -427,26 +199,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const searchForm = document.getElementById('searchForm');
-            const searchResults = document.getElementById('searchResults');
-            const paginationLinks = document.getElementById('paginationLinks');
-            let timer;
-
-            // Auto-search functionality
-            searchInput.addEventListener('input', function() {
-                clearTimeout(timer);
-                timer = setTimeout(function() {
-                    performSearch(searchInput.value);
-                }, 500); // 500ms delay after typing stops
-            });
-
-            // Handle form submission (prevent default and use AJAX)
-            searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                performSearch(searchInput.value);
-            });
-
             function performSearch(query) {
                 const url = new URL('{{ route('changerooom.index') }}');
                 url.searchParams.append('search', query);
@@ -518,32 +270,87 @@
             document.getElementById('bookingDetails').classList.remove('hidden');
 
             // Enable form controls
-            document.querySelector('select[name="new_room"]').disabled = false;
-            document.querySelector('select[name="reason"]').disabled = false;
-            document.querySelector('textarea[name="notes"]').disabled = false;
+            document.getElementById('newRoomSelect').disabled = false;
+            document.getElementById('transferReasonSelect').disabled = false;
+            document.getElementById('transferNotes').disabled = false;
 
-            // Fetch available rooms for the selected property
-            fetchAvailableRooms(bookingData.property);
+            // Fetch available rooms for the selected property and dates
+            fetchAvailableRooms(
+                bookingData.property,
+                bookingData.check_in,
+                bookingData.check_out,
+                bookingData.room_number // exclude current room
+            );
         }
 
-        function fetchAvailableRooms(propertyName) {
-            // You might need to adjust this URL based on your routes
-            fetch(`/rooms/change-room/available-rooms?property=${encodeURIComponent(propertyName)}`)
-                .then(response => response.json())
+        function fetchAvailableRooms(propertyName, checkInDate, checkOutDate, currentRoomNumber) {
+            // Construct the URL with query parameters
+            const url = new URL('/rooms/change-room/available-rooms', window.location.origin);
+            url.searchParams.append('property', propertyName);
+            url.searchParams.append('check_in', checkInDate);
+            url.searchParams.append('check_out', checkOutDate);
+            url.searchParams.append('exclude_room', currentRoomNumber);
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(rooms => {
                     const select = document.getElementById('newRoomSelect');
                     select.innerHTML = '<option value="" disabled selected>Select new room</option>';
 
-                    rooms.forEach(room => {
+                    if (rooms.length === 0) {
                         const option = document.createElement('option');
-                        option.value = room.idrec;
-                        option.textContent = `${room.name} - ${room.type} - ${room.descriptions}`;
+                        option.value = '';
+                        option.textContent = 'No available rooms found';
+                        option.disabled = true;
                         select.appendChild(option);
+                    } else {
+                        rooms.forEach(room => {
+                            const option = document.createElement('option');
+                            option.value = room.idrec;
+                            option.textContent = `${room.name} - ${room.type}`;
+                            option.setAttribute('data-price', room.price_discounted_daily);
+                            select.appendChild(option);
+                        });
+                    }
+
+                    // Add event listener to show room details when selected
+                    select.addEventListener('change', function() {
+                        updateNewRoomDetails(this);
                     });
                 })
                 .catch(error => {
                     console.error('Error fetching available rooms:', error);
+                    const select = document.getElementById('newRoomSelect');
+                    select.innerHTML = '<option value="" disabled selected>Error loading rooms</option>';
                 });
+        }
+
+        function updateNewRoomDetails(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const currentRoomPrice = parseFloat(document.getElementById('roomRate').textContent) || 0;
+            const newRoomPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+            const priceDifference = newRoomPrice - currentRoomPrice;
+
+            document.getElementById('selectedNewRoom').textContent = selectedOption.text;
+            document.getElementById('roomAvailability').textContent = 'Available';
+
+            const rateDifferenceElement = document.getElementById('rateDifference');
+            rateDifferenceElement.textContent = priceDifference.toFixed(2);
+
+            if (priceDifference > 0) {
+                rateDifferenceElement.classList.add('text-green-600');
+                rateDifferenceElement.classList.remove('text-red-600');
+            } else if (priceDifference < 0) {
+                rateDifferenceElement.classList.add('text-red-600');
+                rateDifferenceElement.classList.remove('text-green-600');
+            } else {
+                rateDifferenceElement.classList.remove('text-green-600', 'text-red-600');
+            }
         }
     </script>
 </x-app-layout>

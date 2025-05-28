@@ -90,7 +90,7 @@
             </button>
         </form>
 
-        <x-validation-errors class="!mt-6 bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-red-600 dark:text-red-400" />
+        <x-validation-errors />
 
         <!-- Footer Links -->
         <div class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-3">

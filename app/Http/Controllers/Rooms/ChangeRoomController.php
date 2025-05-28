@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Room;
+use Carbon\Carbon;
 
 class ChangeRoomController extends Controller
 {
@@ -43,21 +44,40 @@ class ChangeRoomController extends Controller
 
     public function getAvailableRooms(Request $request)
     {
-        $currentDate = now()->format('Y-m-d');
         $propertyName = $request->input('property');
+        $checkIn = $request->input('check_in');
+        $checkOut = $request->input('check_out');
+        $excludeRoom = $request->input('exclude_room');
 
-        $query = Room::whereDoesntHave('bookings', function ($query) use ($currentDate) {
-            $query->where('status', 1)
-                ->whereDate('check_in_at', '<=', $currentDate)
-                ->whereDate('check_out_at', '>=', $currentDate);
+        // Convert dates to proper format
+        $checkInDate = Carbon::parse($checkIn);
+        $checkOutDate = Carbon::parse($checkOut);
+
+        // Get all rooms in the property
+        $rooms = Room::where('property_name', $propertyName)
+            ->where('status', 'active')
+            ->when($excludeRoom, function ($query) use ($excludeRoom) {
+                return $query->where('name', '!=', $excludeRoom);
+            })
+            ->get();
+
+        // Filter rooms that are available during the requested period
+        $availableRooms = $rooms->filter(function ($room) use ($checkInDate, $checkOutDate) {
+            // Check if the room has any bookings that overlap with the requested dates
+            $conflictingBookings = Booking::where('room_id', $room->idrec)
+                ->where(function ($query) use ($checkInDate, $checkOutDate) {
+                    $query->whereBetween('check_in_at', [$checkInDate, $checkOutDate])
+                        ->orWhereBetween('check_out_at', [$checkInDate, $checkOutDate])
+                        ->orWhere(function ($query) use ($checkInDate, $checkOutDate) {
+                            $query->where('check_in_at', '<=', $checkInDate)
+                                ->where('check_out_at', '>=', $checkOutDate);
+                        });
+                })
+                ->exists();
+
+            return !$conflictingBookings;
         });
 
-        if ($propertyName) {
-            $query->whereHas('property', function ($q) use ($propertyName) {
-                $q->where('name', $propertyName);
-            });
-        }
-
-        return $query->get();
+        return response()->json($availableRooms->values());
     }
 }

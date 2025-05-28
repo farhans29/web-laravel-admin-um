@@ -1,4 +1,9 @@
 <x-app-layout>
+    <!-- Modal Detail Properti -->
+    <div id="propertyModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+        <!-- Modal content remains the same -->
+    </div>
+
     <div class="container mx-auto px-4 py-6">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -268,36 +273,70 @@
             </div>
         </div>
 
-        <!-- Search and Filter Section -->
-        <div class="bg-white rounded-lg shadow p-4 mb-6">
-            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                <div class="flex-1">
-                    <input type="text" placeholder="Search properties..."
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <select
-                        class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                    Filter
-                </button>
-            </div>
-        </div>
-
         <!-- Property Table -->
         <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Search and Filter Section -->
+            <div class="p-4 border-b border-gray-200">
+                <form id="searchForm" method="GET" action="">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <!-- Search Input -->
+                        <div class="w-full md:w-1/3">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <input type="text" name="search" id="searchInput"
+                                    value="{{ request('search') }}"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="Cari properti...">
+                            </div>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-600">Status:</span>
+                            <select name="status" id="statusFilter"
+                                class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                <option value="">Semua</option>
+                                <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Items per Page -->
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-600 mr-2">Per halaman:</span>
+                            <select name="per_page" id="perPageSelect" onchange="this.form.submit()"
+                                class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                <option value="5" {{ request('per_page', 5) == 5 ? 'selected' : '' }}>5</option>
+                                <option value="10" {{ request('per_page', 5) == 10 ? 'selected' : '' }}>10
+                                </option>
+                                <option value="15" {{ request('per_page', 5) == 15 ? 'selected' : '' }}>15
+                                </option>
+                                <option value="20" {{ request('per_page', 5) == 20 ? 'selected' : '' }}>20
+                                </option>
+                                <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>Semua
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table -->
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col"
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Name</th>
+                                Nama</th>
                             <th scope="col"
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Provinsi</th>
@@ -314,18 +353,22 @@
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Status</th>
                             <th scope="col"
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Action</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($properties as $property)
+                        @forelse ($properties as $property)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <img class="h-10 w-10 rounded-full" src="{{ $property->image ?? '' }}"
-                                                alt="">
+                                            @php
+                                                $images = json_decode($property->image);
+                                                $firstImage = $images[0] ?? 'https://via.placeholder.com/150';
+                                            @endphp
+                                            <img class="h-10 w-10 rounded-full object-cover"
+                                                src="{{ $firstImage }}" alt="{{ $property->name }}">
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">{{ $property->name }}</div>
@@ -350,80 +393,354 @@
                                         <div>-</div>
                                     @endif
                                 </td>
-
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
-                                    {{ $property->creator->username }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <form class="toggle-status-form">
-                                        @csrf
-                                        <input type="hidden" name="idrec" value="{{ $property->idrec }}">
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="status" class="sr-only peer"
-                                                {{ $property->status == 1 ? 'checked' : '' }} value="1">
-                                            <div
-                                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                            </div>
-                                        </label>
-                                    </form>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    {{ $property->creator->username ?? 'Unknown' }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div class="flex justify-end space-x-2">
-                                        <a href="" class="text-blue-600 hover:text-blue-900">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                viewBox="0 0 20 20" fill="currentColor">
-                                                <path
-                                                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                            </svg>
-                                        </a>
-                                        <form action="" method="POST"
-                                            onsubmit="return confirm('Are you sure?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer"
+                                            data-id="{{ $property->idrec }}" {{ $property->status ? 'checked' : '' }}
+                                            onchange="toggleStatus(this)">
+                                        <div
+                                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                        </div>
+                                        <span class="ml-3 text-sm font-medium text-gray-900">
+                                            {{ $property->status ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </label>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                    <div class="flex justify-center items-center space-x-3">
+                                        <!-- Edit -->
+                                        <div x-data="modalEdit()" x-init="init()">
+                                            <button type="button"
+                                                class="text-yellow-600 hover:text-yellow-900 edit-property-btn"
+                                                @click.prevent="openModalEdit({{ json_encode($property) }})"
+                                                title="Edit" aria-controls="feedback-modal1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                     viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                        clip-rule="evenodd" />
+                                                    <path
+                                                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                </svg>
+                                            </button>
+                                            <!-- Modal backdrop -->
+                                            <div class="fixed inset-0 backdrop-blur bg-opacity-30 z-50 transition-opacity"
+                                                x-show="openModalEdit"
+                                                x-transition:enter="transition ease-out duration-200"
+                                                x-transition:enter-start="opacity-0"
+                                                x-transition:enter-end="opacity-100"
+                                                x-transition:leave="transition ease-out duration-100"
+                                                x-transition:leave-start="opacity-100"
+                                                x-transition:leave-end="opacity-0" aria-hidden="true" x-cloak></div>
+
+                                            <!-- Modal dialog -->
+                                            <div id="feedback-modal1"
+                                                class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
+                                                role="dialog" aria-modal="true" x-show="openModalEdit"
+                                                x-transition:enter="transition ease-in-out duration-200"
+                                                x-transition:enter-start="opacity-0 translate-y-4"
+                                                x-transition:enter-end="opacity-100 translate-y-0"
+                                                x-transition:leave="transition ease-in-out duration-200"
+                                                x-transition:leave-start="opacity-100 translate-y-0"
+                                                x-transition:leave-end="opacity-0 translate-y-4" x-cloak>
+                                                <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full"
+                                                    @click.outside="openModalEdit = false"
+                                                    @keydown.escape.window="openModalEdit = false">
+                                                    <!-- Modal header -->
+                                                    <div class="px-5 py-3 border-b border-slate-200"
+                                                        id="modalAddLpjDetail">
+                                                        <div class="flex justify-between items-center">
+                                                            <div class="font-semibold text-slate-800">Edit
+                                                                Properti</div>
+                                                            <button type="button"
+                                                                class="text-slate-400 hover:text-slate-500"
+                                                                @click="openModalEdit = false">
+                                                                <div class="sr-only">Close</div>
+                                                                <svg class="w-4 h-4 fill-current">
+                                                                    <path
+                                                                        d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Modal content -->
+                                                    <div class="modal-content text-xs px-5 py-4">
+                                                        <form id="editPropertyForm" method="POST"
+                                                            action="{{ route('properties.update', ['idrec' => $property->idrec]) }}"
+                                                            enctype="multipart/form-data">
+                                                            @csrf
+                                                            @method('PUT')
+
+                                                            <!-- Step 1: Basic Information -->
+                                                            <div x-show="step === 1">
+                                                                <div
+                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Nama
+                                                                            Properti</label>
+                                                                        <input type="text" name="name"
+                                                                            x-model="property.name"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                    </div>
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Tipe
+                                                                            Properti</label>
+                                                                        <select name="type" x-model="property.type"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                            <option value="rumah">Rumah</option>
+                                                                            <option value="apartemen">Apartemen
+                                                                            </option>
+                                                                            <option value="villa">Villa</option>
+                                                                            <option value="kantor">Kantor</option>
+                                                                            <option value="tanah">Tanah</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div
+                                                                    class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Harga
+                                                                            (Rp)
+                                                                        </label>
+                                                                        <input type="number" name="price"
+                                                                            x-model="property.price"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                    </div>
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Luas
+                                                                            Tanah (m²)</label>
+                                                                        <input type="number" name="land_size"
+                                                                            x-model="property.land_size"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                    </div>
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Luas
+                                                                            Bangunan (m²)</label>
+                                                                        <input type="number" name="building_size"
+                                                                            x-model="property.building_size"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="mb-4">
+                                                                    <label
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                                                                    <textarea name="description" x-model="property.description" rows="3"
+                                                                        class="w-full border border-gray-300 rounded-md px-3 py-2"></textarea>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Step 2: Location Information -->
+                                                            <div x-show="step === 2">
+                                                                <div
+                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Provinsi</label>
+                                                                        <select name="province"
+                                                                            x-model="property.province"
+                                                                            id="editProvince"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                            <option value="">Pilih Provinsi
+                                                                            </option>
+                                                                            <option value="DKI Jakarta">DKI Jakarta
+                                                                            </option>
+                                                                            <option value="Jawa Barat">Jawa Barat
+                                                                            </option>
+                                                                            <option value="Jawa Tengah">Jawa Tengah
+                                                                            </option>
+                                                                            <option value="Jawa Timur">Jawa Timur
+                                                                            </option>
+                                                                            <option value="Bali">Bali</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Kota</label>
+                                                                        <select name="city" x-model="property.city"
+                                                                            id="editCity"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                            <option value="">Pilih Kota</option>
+                                                                            <template
+                                                                                x-if="property.province === 'DKI Jakarta'">
+                                                                                <option value="Jakarta Pusat">Jakarta
+                                                                                    Pusat</option>
+                                                                                <option value="Jakarta Selatan">Jakarta
+                                                                                    Selatan</option>
+                                                                                <option value="Jakarta Barat">Jakarta
+                                                                                    Barat</option>
+                                                                                <option value="Jakarta Timur">Jakarta
+                                                                                    Timur</option>
+                                                                                <option value="Jakarta Utara">Jakarta
+                                                                                    Utara</option>
+                                                                            </template>
+                                                                            <!-- Add other cities based on province -->
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div
+                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
+                                                                        <input type="text" name="district"
+                                                                            x-model="property.district"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                    </div>
+                                                                    <div>
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-1">Kelurahan</label>
+                                                                        <input type="text" name="village"
+                                                                            x-model="property.village"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="mb-4">
+                                                                    <label
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">Alamat
+                                                                        Lengkap</label>
+                                                                    <textarea name="full_address" x-model="property.full_address" rows="2"
+                                                                        class="w-full border border-gray-300 rounded-md px-3 py-2"></textarea>
+                                                                </div>
+
+                                                                <div class="mb-4">
+                                                                    <label
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">Koordinat</label>
+                                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                        <input type="text" name="latitude"
+                                                                            x-model="property.latitude"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                                            placeholder="Latitude">
+                                                                        <input type="text" name="longitude"
+                                                                            x-model="property.longitude"
+                                                                            class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                                            placeholder="Longitude">
+                                                                    </div>
+                                                                    <div class="mt-2 h-64 bg-gray-100 rounded-md"
+                                                                        id="editMap"></div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Step 3: Images -->
+                                                            <div x-show="step === 3">
+                                                                <div class="mb-4">
+                                                                    <label
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">Gambar
+                                                                        Properti</label>
+                                                                    <input type="file" name="images[]"
+                                                                        id="editPropertyImages" multiple
+                                                                        class="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                                        accept="image/*">
+
+                                                                    <!-- Current Images Preview -->
+                                                                    <div class="mt-4">
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-2">Gambar
+                                                                            Saat Ini</label>
+                                                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4"
+                                                                            id="currentImagesPreview">
+                                                                            <template
+                                                                                x-for="(image, index) in property.images"
+                                                                                :key="index">
+                                                                                <div class="relative">
+                                                                                    <img :src="image"
+                                                                                        class="h-32 w-full object-cover rounded">
+                                                                                    <button type="button"
+                                                                                        @click="removeImage(index)"
+                                                                                        class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1">
+                                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                            class="h-4 w-4"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M6 18L18 6M6 6l12 12" />
+                                                                                        </svg>
+                                                                                    </button>
+                                                                                    <input type="hidden"
+                                                                                        name="existing_images[]"
+                                                                                        :value="image">
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- New Images Preview -->
+                                                                    <div class="mt-4 hidden" id="newImagesPreview">
+                                                                        <label
+                                                                            class="block text-sm font-medium text-gray-700 mb-2">Gambar
+                                                                            Baru</label>
+                                                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4"
+                                                                            id="newImagesContainer"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Navigation Buttons -->
+                                                            <div class="flex justify-between mt-6">
+                                                                <button type="button" x-show="step > 1"
+                                                                    @click="step--"
+                                                                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">
+                                                                    Kembali
+                                                                </button>
+                                                                <button type="button" x-show="step < 3"
+                                                                    @click="if(validateStep(step)) step++"
+                                                                    class="px-4 py-2 bg-blue-600 text-white rounded-md ml-auto">
+                                                                    Lanjut
+                                                                </button>
+                                                                <button type="submit" x-show="step === 3"
+                                                                    class="px-4 py-2 bg-green-600 text-white rounded-md ml-auto">
+                                                                    Simpan Perubahan
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Delete -->
+                                        <form action="#" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-900"
+                                                title="Delete" onclick="return confirm('Are you sure?')">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a2 2 0 012 2v0a2 2 0 01-2 2H7a2 2 0 01-2-2v0a2 2 0 012-2h10z" />
                                                 </svg>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    Tidak ada data properti ditemukan
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
-            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div class="flex-1 flex justify-between sm:hidden">
-                    <a href="#"
-                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Previous
-                    </a>
-                    <a href="#"
-                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Next
-                    </a>
-                </div>
-                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                        <p class="text-sm text-gray-700">
-                            Showing
-                            <span class="font-medium">{{ $properties->firstItem() }}</span>
-                            to
-                            <span class="font-medium">{{ $properties->lastItem() }}</span>
-                            of
-                            <span class="font-medium">{{ $properties->total() }}</span>
-                            results
-                        </p>
-                    </div>
-                    <div>
-                        {{ $properties->links() }}
-                    </div>
-                </div>
+            <div class="bg-gray-50 rounded p-4">
+                {{ $properties->appends(request()->input())->links() }}
             </div>
         </div>
     </div>
@@ -431,7 +748,12 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('modal', () => ({
+                selectedProperty: {},
                 modalOpenDetail: false,
+                openModal(property) {
+                    this.selectedProperty = property;
+                    this.modalOpenDetail = true;
+                },
                 step: 1,
 
                 init() {
@@ -634,5 +956,73 @@
                 }
             }));
         });
+
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('modalEdit', () => ({
+                property: {},
+                step: 1,
+                modalOpenDetail: false,
+               
+
+            }));
+        });
+
+        // Listen for filter changes and submit form
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            document.getElementById('searchForm').submit();
+        });
+
+        // Optional: Debounce search input to prevent too many requests
+        let searchTimer;
+        document.getElementById('searchInput').addEventListener('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                document.getElementById('searchForm').submit();
+            }, 500);
+        });
+
+        function toggleStatus(checkbox) {
+            const propertyId = checkbox.getAttribute('data-id');
+            const newStatus = checkbox.checked ? 1 : 0;
+
+            fetch(`/properties/m-properties/${propertyId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const statusText = checkbox.nextElementSibling.nextElementSibling;
+                    statusText.textContent = newStatus ? 'Active' : 'Inactive';
+
+                    Toastify({
+                        text: "Status properti berhasil diperbarui",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "#4CAF50"
+                        },
+                        stopOnFocus: true
+                    }).showToast();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    checkbox.checked = !checkbox.checked;
+                    alert('Gagal memperbarui status properti');
+                });
+        }
     </script>
 </x-app-layout>

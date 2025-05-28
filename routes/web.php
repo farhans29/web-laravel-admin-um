@@ -54,7 +54,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
         Route::post('/check-in/{id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
 
-        Route::get('/checkout', [CheckOutController::class, 'index'])->name('checkout.index');        
+        Route::get('/checkout', [CheckOutController::class, 'index'])->name('checkout.index');
         Route::post('/check-out/{id}', [CheckOutController::class, 'checkOut'])->name('bookings.checkout');
     });
 
@@ -65,8 +65,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('properties')->group(function () {
         Route::get('/m-properties', [ManajementPropertiesController::class, 'index'])->name('properties.index');
-        Route::patch('/m-property/toggle-status/{idrec}', [ManajementPropertiesController::class, 'toggleStatus'])->name('properties.toggleStatus');
+        Route::put('/m-properties/{property}/status', [ManajementPropertiesController::class, 'updateStatus'])->name('properties.updateStatus');
         Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store');
+        Route::get('/m-properties/{propertyId}', [ManajementPropertiesController::class, 'edit'])->name('properties.edit');
+        Route::post('/m-properties/{idrec}/update', [ManajementPropertiesController::class, 'update'])->name('properties.update');
 
         Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
