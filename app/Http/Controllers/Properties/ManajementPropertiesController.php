@@ -73,20 +73,41 @@ class ManajementPropertiesController extends Controller
             'latitude' => 'required',
             'longitude' => 'required',
             'property_images' => 'required|array|min:1',
-            'property_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
             'facilities' => 'nullable|array',
         ]);
 
-        // Encode images to base64
         $imageBase64Arr = [];
-        foreach ($request->file('property_images') as $image) {
-            $imageData = file_get_contents($image->getRealPath());
-            $base64 = base64_encode($imageData);
-            $mime = $image->getMimeType();
+        foreach ($request->file('property_images') as $file) {
+            // Validate file type
+            $validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!in_array($file->getMimeType(), $validTypes)) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Invalid file type. Please upload a JPEG or PNG image.'
+                    ], 400);
+                }
+                return back()->with('error', 'Invalid file type. Please upload a JPEG or PNG image.');
+            }
+
+            // Validate file size (5MB)
+            if ($file->getSize() > 5 * 1024 * 1024) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'File is too large. Maximum size is 5MB.'
+                    ], 400);
+                }
+                return back()->with('error', 'File is too large. Maximum size is 5MB.');
+            }
+
+            // Read file contents and convert to base64
+            $fileContents = file_get_contents($file->getRealPath());
+            $base64 = base64_encode($fileContents);
             $imageBase64Arr[] = $base64;
         }
 
-        // Definisikan kategori fasilitas
+        // Rest of your code remains the same...
         $amenities = [
             'High-speed WiFi',
             '24/7 Security',
@@ -105,22 +126,14 @@ class ManajementPropertiesController extends Controller
 
         // Pisahkan fasilitas berdasarkan kategori
         $facilitiesData = [
-            'amenities' => [],
-            'rules' => []
+            'amenities' => array_intersect($request->input('facilities', []), $amenities),
+            'rules' => array_intersect($request->input('facilities', []), $rules)
         ];
-
-        foreach ($request->input('facilities', []) as $facility) {
-            if (in_array($facility, $amenities)) {
-                $facilitiesData['amenities'][] = $facility;
-            } elseif (in_array($facility, $rules)) {
-                $facilitiesData['rules'][] = $facility;
-            }
-        }
 
         // Generate idrec baru
         $idrec = Property::max('idrec') + 1;
 
-        // Generate slug: 3 huruf pertama tag + inisial nama + idrec
+        // Generate slug
         $tagShort = strtolower(substr($request->property_type, 0, 3));
         $nameShort = strtolower(collect(explode(' ', $request->property_name))->map(function ($word) {
             return substr($word, 0, 1);
@@ -149,22 +162,124 @@ class ManajementPropertiesController extends Controller
         $property->created_by = Auth::id();
         $property->save();
 
-        return response()->json(['success' => true]);
+        return redirect()->route('properties.index')->with('success', 'Property created successfully!');
     }
 
-    public function edit($propertyId)
+    // public function uploadAttachment(Request $request, $id)
+    // {
+    //     try {
+    //         $request->validate([
+    //             'attachment_file' => 'required|file|mimes:jpg,jpeg,png|max:10240', // 10MB max
+    //         ]);
+
+    //         // Find the booking
+    //         $booking = DB::table('t_transactions')
+    //             ->where('idrec', $id)
+    //             ->where('user_id', Auth::id())
+    //             ->first();
+
+    //         if (!$booking) {
+    //             if ($request->wantsJson()) {
+    //                 return response()->json([
+    //                     'status' => 'error',
+    //                     'message' => 'Booking not found.'
+    //                 ], 404);
+    //             }
+    //             return back()->with('error', 'Booking not found.');
+    //         }
+
+    //         // Handle file upload
+    //         if ($request->hasFile('attachment_file') && $request->file('attachment_file')->isValid()) {
+    //             $file = $request->file('attachment_file');
+
+    //             // Validate file type
+    //             $validTypes = ['image/jpeg', 'image/png'];
+    //             if (!in_array($file->getMimeType(), $validTypes)) {
+    //                 if ($request->wantsJson()) {
+    //                     return response()->json([
+    //                         'status' => 'error',
+    //                         'message' => 'Invalid file type. Please upload a JPEG or PNG image.'
+    //                     ], 400);
+    //                 }
+    //                 return back()->with('error', 'Invalid file type. Please upload a JPEG or PNG image.');
+    //             }
+
+    //             // Validate file size (10MB)
+    //             if ($file->getSize() > 10 * 1024 * 1024) {
+    //                 if ($request->wantsJson()) {
+    //                     return response()->json([
+    //                         'status' => 'error',
+    //                         'message' => 'File is too large. Maximum size is 10MB.'
+    //                     ], 400);
+    //                 }
+    //                 return back()->with('error', 'File is too large. Maximum size is 10MB.');
+    //             }
+
+
+    //             // Read file contents and convert to base64
+    //             $fileContents = file_get_contents($file->getRealPath());
+    //             $base64 = base64_encode($fileContents);
+
+    //             // Update the booking with the new attachment
+    //             $updated = DB::table('t_transactions')
+    //                 ->where('idrec', $id)
+    //                 ->update([
+    //                     'attachment' => $base64,
+    //                     'updated_at' => now(),
+    //                 ]);
+
+    //             if ($updated) {
+    //                 if ($request->wantsJson()) {
+    //                     return response()->json([
+    //                         'status' => 'success',
+    //                         'message' => 'Payment proof uploaded successfully.',
+    //                         'data' => [
+    //                             'booking_id' => $id,
+    //                             'has_attachment' => true
+    //                         ]
+    //                     ]);
+    //                 }
+    //                 return back()->with('success', 'Payment proof uploaded successfully.');
+    //             }
+
+
+    //             if ($request->wantsJson()) {
+    //                 return response()->json([
+    //                     'status' => 'error',
+    //                     'message' => 'Failed to update booking with attachment.'
+    //                 ], 500);
+    //             }
+    //             return back()->with('error', 'Failed to update booking with attachment.');
+    //         } else {
+    //             if ($request->wantsJson()) {
+    //                 return response()->json([
+    //                     'status' => 'error',
+    //                     'message' => 'Invalid file upload.'
+    //                 ], 400);
+    //             }
+    //             return back()->with('error', 'Invalid file upload.');
+    //         }
+    //     } catch (\Exception $e) {
+    //         \Log::error('Error uploading attachment: ' . $e->getMessage(), [
+    //             'booking_id' => $id,
+    //             'user_id' => Auth::id(),
+    //             'exception' => $e
+    //         ]);
+
+    //         if ($request->wantsJson()) {
+    //             return response()->json([
+    //                 'status' => 'error',
+    //                 'message' => 'An error occurred while uploading the file.',
+    //                 'error' => config('app.debug') ? $e->getMessage() : null
+    //             ], 500);
+    //         }
+    //         return back()->with('error', 'An error occurred while uploading the file. Please try again.');
+    //     }
+    // }
+
+    public function update(Request $request, $id)
     {
-        $property = Property::findOrFail($propertyId);
-
-        $property->image = json_decode($property->image, true);
-        $property->features = is_array($property->features) ? $property->features : json_decode($property->features, true);
-        $property->attributes = is_array($property->attributes) ? $property->attributes : json_decode($property->attributes, true);
-
-        return view('properties.edit', compact('property'));
-    }
-
-    public function update(Request $request, $idrec)
-    {
+        dd($request->all());
         $validated = $request->validate([
             'property_name' => 'required|string|max:255',
             'property_type' => 'required|string',
@@ -182,10 +297,11 @@ class ManajementPropertiesController extends Controller
             'existing_images.*' => 'nullable|string',
             'property_images' => 'nullable|array',
             'property_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
-            'facilities' => 'nullable|array',
+            'features' => 'nullable|array',
+            'attributes' => 'nullable|array',
         ]);
 
-        $property = Property::findOrFail($idrec);
+        $property = Property::findOrFail($id);
 
         // Handle image update
         $existingImages = $request->input('existing_images', []);
@@ -195,60 +311,33 @@ class ManajementPropertiesController extends Controller
             foreach ($request->file('property_images') as $image) {
                 $imageData = file_get_contents($image->getRealPath());
                 $base64 = base64_encode($imageData);
-                $mime = $image->getMimeType();
-                $newImages[] = "data:$mime;base64,$base64";
+                $newImages[] = $base64;
             }
         }
 
+        // Combine existing and new images
         $allImages = array_merge($existingImages, $newImages);
 
-        // Pisahkan fasilitas
-        $amenities = [
-            'High-speed WiFi',
-            '24/7 Security',
-            'Shared Kitchen',
-            'Laundry Service',
-            'Parking Area',
-            'Common Area'
-        ];
-
-        $rules = [
-            'No Smoking',
-            'No Pets',
-            'ID Card Required',
-            'Deposit Required'
-        ];
-
-        $facilitiesData = [
-            'amenities' => [],
-            'rules' => []
-        ];
-
-        foreach ($request->input('facilities', []) as $facility) {
-            if (in_array($facility, $amenities)) {
-                $facilitiesData['amenities'][] = $facility;
-            } elseif (in_array($facility, $rules)) {
-                $facilitiesData['rules'][] = $facility;
-            }
-        }
-
-        // Update data property
-        $property->name = $request->property_name;
-        $property->tags = $request->property_type;
-        $property->province = $request->province;
-        $property->city = $request->city;
-        $property->subdistrict = $request->district;
-        $property->village = $request->village;
-        $property->postal_code = $request->postal_code;
-        $property->address = $request->full_address;
-        $property->description = $request->description;
-        $property->distance = $request->distance;
-        $property->location = $request->latitude . ',' . $request->longitude;
-        $property->image = json_encode($allImages);
-        $property->features = $facilitiesData['amenities'];
-        $property->attributes = $facilitiesData['rules'];
-        $property->updated_by = Auth::id(); 
-        $property->save();
+        // Update property data
+        $property->update([
+            'name' => $validated['property_name'],
+            'tags' => $validated['property_type'],
+            'province' => $validated['province'],
+            'city' => $validated['city'],
+            'subdistrict' => $validated['district'],
+            'village' => $validated['village'],
+            'postal_code' => $validated['postal_code'],
+            'address' => $validated['full_address'],
+            'description' => $validated['description'],
+            'distance' => $validated['distance'],
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+            'location' => $validated['latitude'] . ',' . $validated['longitude'],
+            'image' => json_encode($allImages),
+            'features' => $validated['features'] ?? [],
+            'attributes' => $validated['attributes'] ?? [],
+            'updated_by' => Auth::id(),
+        ]);
 
         return redirect()->route('properties.index')
             ->with('success', 'Properti berhasil diperbarui');

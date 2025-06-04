@@ -19,10 +19,15 @@ class Booking extends Model
 
     protected $fillable = [
         'order_id',
+        'room_id',
+        'property_id',
         'check_in_at',
         'check_out_at',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'status',
+        'reason',
+        'description',
     ];
 
     protected $casts = [

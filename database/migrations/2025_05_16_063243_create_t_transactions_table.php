@@ -12,11 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('t_transactions', function (Blueprint $table) {
-            $table->id('idrec'); // ini otomatis PRIMARY + AUTO_INCREMENT
-        
+            $table->id('idrec'); 
             $table->string('property_id', 11)->nullable();
             $table->string('room_id', 11)->nullable();
-            $table->string('order_id', 100); // tidak lagi primary
+            $table->string('order_id', 100); 
             $table->integer('user_id');
             $table->string('user_name', 150)->nullable();
             $table->string('user_phone_number', 150)->nullable();

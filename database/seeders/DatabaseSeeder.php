@@ -22,11 +22,8 @@ class DatabaseSeeder extends Seeder
             RolesTableSeeder::class,
             SidebarItemsTableSeeder::class,
             RolesAndPermissionsSeeder::class,
-            TransactionSeeder::class,
-            BookingSeeder::class,
+            PropertySystemSeeder::class,            
             MPromoBannerSeeder::class,
-            MPropertiesSeeder::class,
-            MRoomsSeeder::class,       
         ]);
     }
 }

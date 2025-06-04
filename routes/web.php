@@ -61,14 +61,15 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('rooms')->group(function () {
         Route::get('/change-room', [ChangeRoomController::class, 'index'])->name('changerooom.index');
         Route::get('/change-room/available-rooms', [ChangeRoomController::class, 'getAvailableRooms']);
+        Route::post('/change-room/store', [ChangeRoomController::class, 'store'])->name('changeroom.store');
     });
 
     Route::prefix('properties')->group(function () {
         Route::get('/m-properties', [ManajementPropertiesController::class, 'index'])->name('properties.index');
         Route::put('/m-properties/{property}/status', [ManajementPropertiesController::class, 'updateStatus'])->name('properties.updateStatus');
-        Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store');
-        Route::get('/m-properties/{propertyId}', [ManajementPropertiesController::class, 'edit'])->name('properties.edit');
-        Route::post('/m-properties/update/{id}', [ManajementPropertiesController::class, 'update'])->name('properties.update');
+        Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store'); 
+        Route::put('/m-properties/update/{id}', [ManajementPropertiesController::class, 'update'])->name('properties.update');
+
 
         Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
