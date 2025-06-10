@@ -72,75 +72,46 @@ class ManajementPropertiesController extends Controller
             'distance' => 'nullable|string',
             'latitude' => 'required',
             'longitude' => 'required',
-            'property_images' => 'required|array|min:1',
+            'property_images' => 'required|array|size:3',
+            'property_images.*' => 'required|image|mimes:jpeg,jpg,png|max:5120',
             'facilities' => 'nullable|array',
         ]);
 
-        $imageBase64Arr = [];
-        foreach ($request->file('property_images') as $file) {
-            // Validate file type
-            $validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-            if (!in_array($file->getMimeType(), $validTypes)) {
-                if ($request->wantsJson()) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Invalid file type. Please upload a JPEG or PNG image.'
-                    ], 400);
-                }
-                return back()->with('error', 'Invalid file type. Please upload a JPEG or PNG image.');
-            }
-
-            // Validate file size (5MB)
-            if ($file->getSize() > 5 * 1024 * 1024) {
-                if ($request->wantsJson()) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'File is too large. Maximum size is 5MB.'
-                    ], 400);
-                }
-                return back()->with('error', 'File is too large. Maximum size is 5MB.');
-            }
-
-            // Read file contents and convert to base64
-            $fileContents = file_get_contents($file->getRealPath());
-            $base64 = base64_encode($fileContents);
-            $imageBase64Arr[] = $base64;
+        if (count($request->file('property_images')) !== 3) {
+            return back()->withErrors(['property_images' => 'Exactly 3 images are required.']);
         }
 
-        // Rest of your code remains the same...
-        $amenities = [
-            'High-speed WiFi',
-            '24/7 Security',
-            'Shared Kitchen',
-            'Laundry Service',
-            'Parking Area',
-            'Common Area'
-        ];
+        $imageBase64Array = [];
 
-        $rules = [
-            'No Smoking',
-            'No Pets',
-            'ID Card Required',
-            'Deposit Required'
-        ];
+        foreach ($request->file('property_images') as $file) {
+            if (!$file->isValid()) {
+                return back()->withErrors(['property_images' => 'Invalid file uploaded.']);
+            }
 
-        // Pisahkan fasilitas berdasarkan kategori
+            $fileContents = file_get_contents($file->getRealPath());
+            $imageBase64Array[] = base64_encode($fileContents);
+        }
+
+        if (count($imageBase64Array) !== 3) {
+            abort(400, 'Exactly 3 images are required.');
+        }
+
+        $features = array_merge(
+            ['High-speed WiFi', 'Parking', 'Swimming Pool', 'Gym', 'Restaurant', '24/7 Security', 'Concierge', 'Laundry Service', 'Room Service']
+        );
+
         $facilitiesData = [
-            'amenities' => array_intersect($request->input('facilities', []), $amenities),
-            'rules' => array_intersect($request->input('facilities', []), $rules)
+            'features' => array_intersect($request->input('facilities', []), $features),
         ];
 
-        // Generate idrec baru
         $idrec = Property::max('idrec') + 1;
 
-        // Generate slug
         $tagShort = strtolower(substr($request->property_type, 0, 3));
         $nameShort = strtolower(collect(explode(' ', $request->property_name))->map(function ($word) {
             return substr($word, 0, 1);
         })->implode(''));
         $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
 
-        // Simpan data properti
         $property = new Property();
         $property->idrec = $idrec;
         $property->slug = $slug;
@@ -155,131 +126,25 @@ class ManajementPropertiesController extends Controller
         $property->description = $request->description;
         $property->distance = $request->distance;
         $property->location = $request->latitude . ',' . $request->longitude;
-        $property->image = json_encode($imageBase64Arr);
-        $property->features = $facilitiesData['amenities'];
-        $property->attributes = $facilitiesData['rules'];
+
+        $property->image = $imageBase64Array[0];
+        $property->image2 = $imageBase64Array[1];
+        $property->image3 = $imageBase64Array[2];
+
+        $property->features = json_encode($facilitiesData['features']);
         $property->status = '1';
         $property->created_by = Auth::id();
+
         $property->save();
 
-        return redirect()->route('properties.index')->with('success', 'Property created successfully!');
+        return $request->wantsJson()
+            ? response()->json(['status' => 'success', 'message' => 'Property created successfully!', 'data' => $property], 201)
+            : redirect()->route('properties.index')->with('success', 'Property created successfully!');
     }
 
-    // public function uploadAttachment(Request $request, $id)
-    // {
-    //     try {
-    //         $request->validate([
-    //             'attachment_file' => 'required|file|mimes:jpg,jpeg,png|max:10240', // 10MB max
-    //         ]);
-
-    //         // Find the booking
-    //         $booking = DB::table('t_transactions')
-    //             ->where('idrec', $id)
-    //             ->where('user_id', Auth::id())
-    //             ->first();
-
-    //         if (!$booking) {
-    //             if ($request->wantsJson()) {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Booking not found.'
-    //                 ], 404);
-    //             }
-    //             return back()->with('error', 'Booking not found.');
-    //         }
-
-    //         // Handle file upload
-    //         if ($request->hasFile('attachment_file') && $request->file('attachment_file')->isValid()) {
-    //             $file = $request->file('attachment_file');
-
-    //             // Validate file type
-    //             $validTypes = ['image/jpeg', 'image/png'];
-    //             if (!in_array($file->getMimeType(), $validTypes)) {
-    //                 if ($request->wantsJson()) {
-    //                     return response()->json([
-    //                         'status' => 'error',
-    //                         'message' => 'Invalid file type. Please upload a JPEG or PNG image.'
-    //                     ], 400);
-    //                 }
-    //                 return back()->with('error', 'Invalid file type. Please upload a JPEG or PNG image.');
-    //             }
-
-    //             // Validate file size (10MB)
-    //             if ($file->getSize() > 10 * 1024 * 1024) {
-    //                 if ($request->wantsJson()) {
-    //                     return response()->json([
-    //                         'status' => 'error',
-    //                         'message' => 'File is too large. Maximum size is 10MB.'
-    //                     ], 400);
-    //                 }
-    //                 return back()->with('error', 'File is too large. Maximum size is 10MB.');
-    //             }
-
-
-    //             // Read file contents and convert to base64
-    //             $fileContents = file_get_contents($file->getRealPath());
-    //             $base64 = base64_encode($fileContents);
-
-    //             // Update the booking with the new attachment
-    //             $updated = DB::table('t_transactions')
-    //                 ->where('idrec', $id)
-    //                 ->update([
-    //                     'attachment' => $base64,
-    //                     'updated_at' => now(),
-    //                 ]);
-
-    //             if ($updated) {
-    //                 if ($request->wantsJson()) {
-    //                     return response()->json([
-    //                         'status' => 'success',
-    //                         'message' => 'Payment proof uploaded successfully.',
-    //                         'data' => [
-    //                             'booking_id' => $id,
-    //                             'has_attachment' => true
-    //                         ]
-    //                     ]);
-    //                 }
-    //                 return back()->with('success', 'Payment proof uploaded successfully.');
-    //             }
-
-
-    //             if ($request->wantsJson()) {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Failed to update booking with attachment.'
-    //                 ], 500);
-    //             }
-    //             return back()->with('error', 'Failed to update booking with attachment.');
-    //         } else {
-    //             if ($request->wantsJson()) {
-    //                 return response()->json([
-    //                     'status' => 'error',
-    //                     'message' => 'Invalid file upload.'
-    //                 ], 400);
-    //             }
-    //             return back()->with('error', 'Invalid file upload.');
-    //         }
-    //     } catch (\Exception $e) {
-    //         \Log::error('Error uploading attachment: ' . $e->getMessage(), [
-    //             'booking_id' => $id,
-    //             'user_id' => Auth::id(),
-    //             'exception' => $e
-    //         ]);
-
-    //         if ($request->wantsJson()) {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'An error occurred while uploading the file.',
-    //                 'error' => config('app.debug') ? $e->getMessage() : null
-    //             ], 500);
-    //         }
-    //         return back()->with('error', 'An error occurred while uploading the file. Please try again.');
-    //     }
-    // }
 
     public function update(Request $request, $id)
     {
-        dd($request->all());
         $validated = $request->validate([
             'property_name' => 'required|string|max:255',
             'property_type' => 'required|string',

@@ -3,15 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Property extends Model
 {
+    use HasFactory;
+
     protected $table = 'm_properties';
     protected $primaryKey = 'idrec';
     public $incrementing = true;
     protected $keyType = 'int';
     public $timestamps = true;
 
+    /**
+     * Mass assignable attributes.
+     */
     protected $fillable = [
         'slug',
         'tags',
@@ -38,6 +44,8 @@ class Property extends Model
         'room_facilities',
         'rules',
         'image',
+        'image2',
+        'image3',
         'status',
         'created_at',
         'updated_at',
@@ -45,6 +53,9 @@ class Property extends Model
         'updated_by',
     ];
 
+    /**
+     * Type casting to native types.
+     */
     protected $casts = [
         'price' => 'array',
         'features' => 'array',
@@ -54,13 +65,19 @@ class Property extends Model
         'rules' => 'array',
     ];
 
+    /**
+     * Get the user who created the property.
+     */
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * Get the room types associated with the property.
+     */
     public function roomTypes()
-    {        
+    {
         return $this->hasMany(RoomType::class, 'property_id', 'idrec');
     }
 }
