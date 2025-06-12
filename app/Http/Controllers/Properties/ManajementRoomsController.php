@@ -19,9 +19,14 @@ class ManajementRoomsController extends Controller
     {
         $rooms = Room::where('status', '!=', '2')
                 ->with('transactions', 'bookings', 'property', 'creator')
+                ->where('property_id', Auth::user()->property_id)
                 ->orderBy('created_at', 'desc')
                 ->paginate(5);
-        $properties = Property::orderBy('name', 'asc')->get();
+        if (Auth::user()->property_id == 0) {
+            $properties = Property::orderBy('name', 'asc')->get();
+        } else {
+            $properties = Property::where('idrec', Auth::user()->property_id)->first();
+        }
         return view('pages.Properties.m-Rooms.index', compact('rooms', 'properties'));
     }
 
@@ -34,6 +39,9 @@ class ManajementRoomsController extends Controller
             'property_id' => 'required|numeric',
             'property_name' => 'required|string',
             'room_type' => 'nullable|string',
+            'room_size' => 'required|numeric',
+            'room_bed' => 'required|numeric',
+            'room_capacity' => 'required|numeric',
             'description_id' => 'nullable|string',
             'description_en' => 'nullable|string',
             'photo' => 'nullable|image|max:2048',
@@ -72,8 +80,11 @@ class ManajementRoomsController extends Controller
             'name' => $validated['room_name'],
             'level' => "",
             'type' => "",
+            'size' => $validated['room_size'],
+            'bed_count' => $validated['room_bed'],
+            'capacity' => $validated['room_capacity'],
             'descriptions' => $validated['description_id'],
-            'attachment' => $validated['photo'] ?? null, // Use photo from $validated if available
+            'image' => $validated['photo'] ?? null, // Use photo from $validated if available
             'discount_percent' => 0,
             'price_original_daily' => $validated['daily_price'] ?? 0,
             'price_discounted_daily' => 0,
@@ -131,6 +142,9 @@ class ManajementRoomsController extends Controller
 
         $validated = $request->validate([
             'edit_room_name' => 'required|string|max:255',
+            'edit_room_size' => 'required|numeric',
+            'edit_room_bed' => 'required|numeric',
+            'edit_room_capacity' => 'required|numeric',
             'description_id' => 'nullable|string',
             'photo' => 'nullable|image|max:2048',
             'daily_price' => 'nullable|numeric',
@@ -165,7 +179,10 @@ class ManajementRoomsController extends Controller
         $data = [
             'name' => $validated['edit_room_name'],
             'descriptions' => $validated['description_id'],
-            'attachment' => $validated['photo'] ?? null, // Use photo from $validated if available
+            'size' => $validated['edit_room_size'],
+            'bed_count' => $validated['edit_room_bed'],
+            'capacity' => $validated['edit_room_capacity'],
+            'image' => $validated['photo'] ?? null, // Use photo from $validated if available
             'price_original_daily' => $validated['daily_price'] ?? 0,
             'price_original_monthly' => $validated['monthly_price'] ?? 0,
             'facility' => $validated['facilities'],

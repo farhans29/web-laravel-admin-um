@@ -129,7 +129,11 @@
                         </td>
 
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
-                            @if (is_null($booking->check_in_at) && is_null($booking->check_out_at))
+                            @php
+                                use Carbon\Carbon;
+                            @endphp
+
+                            @if ((is_null($booking->check_in_at) && is_null($booking->check_out_at)) && Carbon::parse($booking->check_in)->isToday())
                                 <!-- Trigger Button -->
                                 <button @click="open = true"
                                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none">

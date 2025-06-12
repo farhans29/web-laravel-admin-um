@@ -94,6 +94,29 @@
                                             </div>
                                         </div>
 
+                                        <div class="grid grid-cols-3 gap-6 mb-4">
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Ukuran Kamar</label>
+                                                    <input type="number" name="room_size" required class="w-full border rounded p-2" placeholder="">
+                                                </div>
+                                            </div>
+
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Jumlah Kasur</label>
+                                                    <input type="number" name="room_bed" required class="w-full border rounded p-2" placeholder="">
+                                                </div>
+                                            </div>
+
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Kapasitas (Pax)</label>
+                                                    <input type="number" name="room_capacity" required class="w-full border rounded p-2" placeholder="">
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div 
                                             x-data="{
                                                 mode: null,
@@ -250,13 +273,18 @@
         <div class="bg-white rounded-lg shadow p-4 mb-6">
             <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                 <div>
-                    <select id="room-filter"
-                        class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Semua Properti</option>
-                        @foreach ($properties as $property)
-                            <option value="{{ $property->idrec }}">{{ $property->name }}</option>
-                        @endforeach
-                    </select>
+                    @if (auth::user()->property_id == 0)
+                        <select id="room-filter"
+                            class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <option value="" hidden>Pilih Properti</option>
+                            @foreach ($properties as $property)
+                                <option value="{{ $property->idrec }}">{{ $property->name }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <input type="hidden" id="room-filter" class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" value="{{ $properties->idrec }}" readonly>
+                        <input type="text" id="room-filter" class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-center" value="{{ $properties->name }}" readonly>
+                    @endif
                 </div>
                 <div>
                     <select id="status-filter"
@@ -313,7 +341,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">{{ $room->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $room->no }}</div>
+                                    <div class="text-sm text-gray-500">Room {{ $room->no }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ \Carbon\Carbon::parse($room->created_at)->format('d M Y') }}
@@ -389,9 +417,43 @@
 
                                                             <!-- Step 1 -->
                                                             <div x-show="step === 1" x-transition x-ref="step1Form">
-                                                                <div class="mb-4">
-                                                                    <label class="block text-sm font-medium">Nama Kamar</label>
-                                                                    <input type="text" name="edit_room_name" required class="w-full border rounded p-2" value="{{ e($room->name) }}">
+                                                                <div class="grid grid-cols-2 gap-6 mb-4">
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Nomor Kamar</label>
+                                                                            <input type="text" name="edit_room_no" required class="w-full border rounded p-2 bg-gray-50" value="{{ e($room->no) }}" readonly>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Nama Kamar</label>
+                                                                            <input type="text" name="edit_room_name" required class="w-full border rounded p-2" value="{{ e($room->name) }}">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div class="grid grid-cols-3 gap-6 mb-4">
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Ukuran Kamar</label>
+                                                                            <input type="number" name="edit_room_size" required class="w-full border rounded p-2" value="{{ e($room->size) }}">
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Jumlah Kasur</label>
+                                                                            <input type="number" name="edit_room_bed" required class="w-full border rounded p-2" value="{{ e($room->bed_count) }}">
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Kapasitas (Pax)</label>
+                                                                            <input type="number" name="edit_room_capacity" required class="w-full border rounded p-2" value="{{ e($room->capacity) }}">
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
 
                                                                 <div 
