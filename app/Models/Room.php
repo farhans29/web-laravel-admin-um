@@ -9,8 +9,9 @@ class Room extends Model
 {
     protected $table = 'm_rooms';
     protected $primaryKey = 'idrec';
-    public $incrementing = false;
+    public $incrementing = true;
     public $timestamps = false;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'property_id',
@@ -34,6 +35,33 @@ class Room extends Model
         'updated_by',
         'status',
     ];
+
+    public function getFacilityAttribute($value)
+    {
+        // Handle null or empty
+        if (empty($value)) {
+            $decoded = [];
+        } else {
+            // First decode
+            $decoded = json_decode($value, true);
+
+            // If still a string after decode, decode again
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+            }
+
+            // Fallback if somehow still not array
+            if (!is_array($decoded)) {
+                $decoded = [];
+            }
+        }
+
+        $allFacilities = ['wifi', 'tv', 'ac', 'bathroom'];
+
+        return collect($allFacilities)->mapWithKeys(function ($key) use ($decoded) {
+            return [$key => in_array($key, $decoded)];
+        })->toArray();
+    }
 
     protected static function booted()
     {
@@ -72,5 +100,20 @@ class Room extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class, 'room_id', 'idrec');
+    }
+    
+    public function property()
+    {
+        return $this->belongsTo(Property::class, 'property_id', 'idrec');
+    }
+
+    public function dailyPrices()
+    {
+        return $this->hasMany(RoomPrices::class, 'idrec', 'room_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

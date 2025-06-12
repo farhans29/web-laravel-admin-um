@@ -9,6 +9,7 @@ use App\Models\RoomType;
 class PropertyRoomSelector extends Component
 {
     public $properties;
+    public $userProperty;
     public $selectedProperty = null;
     public $levelOptions = [];
     public $roomTypes = [];
@@ -18,7 +19,21 @@ class PropertyRoomSelector extends Component
 
     public function mount()
     {
-        $this->properties = Property::all(); // Load all properties at start
+        if ($this->userProperty != 0) {
+            $this->properties = Property::where('idrec', $this->userProperty)->get();
+        } else {
+            $this->properties = Property::orderBy('name', 'asc')->get();
+        }
+
+        if ($this->properties->isNotEmpty()) {
+            $first = $this->properties->first();
+
+            $this->selectedProperty = $first->idrec;
+
+            // Set levelOptions and roomTypes based on the first property
+            $this->levelOptions = range(1, $first->level_count);
+            $this->roomTypes = RoomType::where('property_id', $first->idrec)->get();
+        }
     }
 
     public function updatedSelectedProperty($value)

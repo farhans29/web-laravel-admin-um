@@ -76,117 +76,90 @@
 
                                     <!-- Step 1 -->
                                     <div x-show="step === 1" x-transition x-ref="step1Form">
-                                        @livewire('property-room-selector')
+                                        @livewire('property-room-selector', ['userProperty' => Auth::user()->property_id])
 
-                                        <div class="mb-4">
-                                            <label class="block text-sm font-medium">Nama Kamar</label>
-                                            <input type="text" name="room_name" required class="w-full border rounded p-2" placeholder="">
-                                        </div>
-
-                                        {{-- Pricing with discount for each period --}}
-                                        {{-- <div x-data="{
-                                            dailyOriginal: 0,
-                                            dailyPercentage: 0,
-                                            monthlyOriginal: 0,
-                                            monthlyPercentage: 0,
-                                            get dailyDiscount() {
-                                                return Math.max(0, this.dailyOriginal - (this.dailyOriginal * this.dailyPercentage / 100));
-                                            },
-                                            get monthlyDiscount() {
-                                                return Math.max(0, this.monthlyOriginal - (this.monthlyOriginal * this.monthlyPercentage / 100));
-                                            }
-                                        }" class="grid grid-cols-2 gap-6 mb-4">
-                                            <!-- Daily Pricing -->
+                                        <div class="grid grid-cols-2 gap-6 mb-4">
                                             <div class="space-y-4">
                                                 <div>
-                                                    <label class="block text-sm font-medium">Harga Original Harian</label>
-                                                    <input type="number" name="daily_price" x-model.number="dailyOriginal" min="0"
-                                                        class="w-full border rounded p-2" placeholder="Harga Harian" required />
-                                                </div>
-                                                <div>
-                                                    <label class="block text-sm font-medium">Diskon (%) Harian</label>
-                                                    <input type="number" x-model.number="dailyPercentage" min="0" max="100"
-                                                        class="w-full border rounded p-2" placeholder="Diskon Harian" />
-                                                </div>
-                                                <div>
-                                                    <label class="block text-sm font-medium">Harga Setelah Diskon Harian</label>
-                                                    <input type="number" name="daily_discount_price" :value="dailyDiscount.toFixed(0)" readonly
-                                                        class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
+                                                    <label class="block text-sm font-medium">Nomor Kamar</label>
+                                                    <input type="text" name="room_no" required class="w-full border rounded p-2" placeholder="">
                                                 </div>
                                             </div>
 
-                                            <!-- Monthly Pricing -->
                                             <div class="space-y-4">
                                                 <div>
-                                                    <label class="block text-sm font-medium">Harga Original Bulanan</label>
-                                                    <input type="number" name="monthly_price" x-model.number="monthlyOriginal" min="0"
-                                                        class="w-full border rounded p-2" placeholder="Harga Bulanan" required />
+                                                    <label class="block text-sm font-medium">Nama Kamar</label>
+                                                    <input type="text" name="room_name" required class="w-full border rounded p-2" placeholder="">
                                                 </div>
-                                                <div>
-                                                    <label class="block text-sm font-medium">Diskon (%) Bulanan</label>
-                                                    <input type="number" x-model.number="monthlyPercentage" min="0" max="100"
-                                                        class="w-full border rounded p-2" placeholder="Diskon Bulanan" />
-                                                </div>
-                                                <div>
-                                                    <label class="block text-sm font-medium">Harga Setelah Diskon Bulanan</label>
-                                                    <input type="number" name="monthly_discount_price" :value="monthlyDiscount.toFixed(0)" readonly
-                                                        class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
-                                                </div>
-                                            </div>
-                                        </div> --}}
-
-                                        {{-- One discount percentage --}}
-                                        <div x-data="{
-                                            dailyOriginal: 0,
-                                            monthlyOriginal: 0,
-                                            discountPercentage: 0,
-
-                                            get dailyDiscount() {
-                                                return Math.max(0, this.dailyOriginal - (this.dailyOriginal * this.discountPercentage / 100));
-                                            },
-                                            get monthlyDiscount() {
-                                                return Math.max(0, this.monthlyOriginal - (this.monthlyOriginal * this.discountPercentage / 100));
-                                            }
-                                        }" class="grid grid-cols-2 gap-6 mb-4">
-                                            <!-- Daily Pricing -->
-                                            <div class="space-y-4">
-                                                <div>
-                                                    <label class="block text-sm font-medium">Harga Original Harian</label>
-                                                    <input type="number" name="daily_price" x-model.number="dailyOriginal" min="0"
-                                                        class="w-full border rounded p-2" placeholder="Harga Harian" required />
-                                                </div>
-                                                <div>
-                                                    <label class="block text-sm font-medium">Harga Setelah Diskon Harian</label>
-                                                    <input type="number" name="daily_discount_price" :value="dailyDiscount.toFixed(0)" readonly
-                                                        class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
-                                                </div>
-                                            </div>
-
-                                            <!-- Monthly Pricing -->
-                                            <div class="space-y-4">
-                                                <div>
-                                                    <label class="block text-sm font-medium">Harga Original Bulanan</label>
-                                                    <input type="number" name="monthly_price" x-model.number="monthlyOriginal" min="0"
-                                                        class="w-full border rounded p-2" placeholder="Harga Bulanan" required />
-                                                </div>
-                                                <div>
-                                                    <label class="block text-sm font-medium">Harga Setelah Diskon Bulanan</label>
-                                                    <input type="number" name="monthly_discount_price" :value="monthlyDiscount.toFixed(0)" readonly
-                                                        class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
-                                                </div>
-                                            </div>
-
-                                            <!-- Shared Discount Percentage -->
-                                            <div class="col-span-2">
-                                                <label class="block text-sm font-medium">Diskon (%) (untuk Harian & Bulanan)</label>
-                                                <input type="number" name="discount_percentage" min="0" max="100" x-model.number="discountPercentage"
-                                                    class="w-full border rounded p-2" placeholder="Masukkan persentase diskon" />
                                             </div>
                                         </div>
 
-                                        <p class="text-sm text-gray-600 italic mb-4">
-                                            Masukkan harga jika kamar tersedia pada periode tersebut. (Jika periode tidak tersedia, maka input 0 pada kolom harga original)
-                                        </p>
+                                        <div 
+                                            x-data="{
+                                                mode: null,
+                                                dailyOriginal: 0,
+                                                monthlyOriginal: 0,
+
+                                                get priceLabel() {
+                                                    if (this.mode === 'daily') return 'Harga Original Harian';
+                                                    if (this.mode === 'monthly') return 'Harga Original Bulanan';
+                                                    return '';
+                                                },
+
+                                                get priceNotes() {
+                                                    if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
+                                                    if (this.mode === 'monthly') return '';
+                                                    return '';
+                                                },
+
+                                                get currentPrice() {
+                                                    return this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
+                                                },
+
+                                                set currentPrice(value) {
+                                                    if (this.mode === 'daily') {
+                                                        this.dailyOriginal = value;
+                                                    } else if (this.mode === 'monthly') {
+                                                        this.monthlyOriginal = value;
+                                                    }
+                                                },
+                                            }" 
+                                            class="space-y-4"
+                                        >
+                                            <div class="col-span-2 mb-2">
+                                                <h3 class="text-md font-medium border-gray-300 pb-1">Jenis Kamar</h3>
+                                            </div>
+
+                                            <!-- Mode selector -->
+                                            <div class="flex space-x-6">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" value="daily" x-model="mode" class="form-radio text-blue-600">
+                                                    <span class="ml-2">Harian</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" value="monthly" x-model="mode" class="form-radio text-blue-600">
+                                                    <span class="ml-2">Bulanan</span>
+                                                </label>
+                                            </div>
+
+                                            <!-- Price input shown only if mode is selected -->
+                                            <div x-show="mode" x-transition>
+                                                <label class="block text-sm font-medium" x-text="priceLabel"></label>
+                                                <!-- Hidden field to submit the selected mode -->
+                                                <input type="hidden" name="mode" x-model="mode">
+
+                                                <!-- Price input -->
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    x-model.number="currentPrice"
+                                                    :name="mode === 'daily' ? 'daily_price' : 'monthly_price'"
+                                                    class="w-full border rounded p-2 mt-1"
+                                                    required
+                                                />                                              
+                                                <p class="text-sm text-red-600 italic mb-4" x-html="priceNotes"></p>
+                                            </div>
+                                        </div>
 
                                         <div class="flex gap-4 mb-4">
                                             <div class="w-full">
@@ -199,6 +172,10 @@
                                             <label class="block text-sm font-medium">Foto Kamar</label>
                                             <input type="file" name="photo" accept="image/*" class="w-full border rounded p-2">
                                         </div>
+
+                                        <p class="text-sm text-gray-600 italic mb-4">
+                                            Gambar ini akan dijadikan thumbnail kamar. Untuk menambahkan gambar lebih bisa setelah kamar sudah disimpan.
+                                        </p>
 
                                         <!-- Validation message -->
                                         <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
@@ -272,9 +249,14 @@
         <!-- Search and Filter Section -->
         <div class="bg-white rounded-lg shadow p-4 mb-6">
             <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                <div class="flex-1">
-                    <input type="text" id="search-input" placeholder="Cari kamar..."
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                <div>
+                    <select id="room-filter"
+                        class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Properti</option>
+                        @foreach ($properties as $property)
+                            <option value="{{ $property->idrec }}">{{ $property->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <select id="status-filter"
@@ -284,14 +266,9 @@
                         <option value="0">Nonaktif</option>
                     </select>
                 </div>
-                <div>
-                    <select id="room-filter"
-                        class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Semua Properti</option>
-                        @foreach ($rooms as $room)
-                            <option value="{{ $room->idrec }}">{{ $room->name }}</option>
-                        @endforeach
-                    </select>
+                <div class="flex-1">
+                    <input type="text" id="search-input" placeholder="Cari kamar..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <button id="filter-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
                     Filter
@@ -336,7 +313,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">{{ $room->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $room->type }}</div>
+                                    <div class="text-sm text-gray-500">{{ $room->no }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ \Carbon\Carbon::parse($room->created_at)->format('d M Y') }}
@@ -345,7 +322,7 @@
                                     {{ $room->updated_at ? \Carbon\Carbon::parse($room->updated_at)->format('d M Y') : '-' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $room->created_by }}
+                                    {{ $room->creator->username }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status])
@@ -378,7 +355,7 @@
                                                     </div>
 
                                                     <!-- Modal Body -->
-                                                    <div class="p-6 max-h-[80vh] overflow-y-auto">
+                                                    <div class="p-6 max-h-[80vh] overflow-y-auto text-left">
                                                         <!-- Form -->
                                                         <form
                                                             x-ref="roomForm"
@@ -405,97 +382,89 @@
                                                             "
                                                             x-data="{ open: false, step: 1, isValid: true, isValidStep2: true }"
                                                             method="POST"
-                                                            action="{{ route('rooms.store') }}"
+                                                            action="{{ route('rooms.update', ['idrec' => $room->idrec]) }}"
                                                             enctype="multipart/form-data"
                                                         >
                                                             @csrf
 
                                                             <!-- Step 1 -->
                                                             <div x-show="step === 1" x-transition x-ref="step1Form">
-                                                                <div>
-                                                                    <!-- Property Select -->
-                                                                    <div class="mb-4">
-                                                                        <label class="block text-sm font-medium">Pilih Properti</label>
-                                                                        <input type="text" name="room_property" required class="w-full border rounded p-2 bg-gray-100 text-gray-700" value="{{ e($room->name) }}" readonly>
-                                                                </div>
-
-                                                                    <div class="flex gap-4 mb-4">
-                                                                        <!-- Level -->
-                                                                        <div class="w-1/2">
-                                                                            <label class="block text-sm font-medium">Lantai</label>
-                                                                            <input type="text" name="room_floor" required class="w-full border rounded p-2 bg-gray-100 text-gray-700" value="{{ e($room->name) }}" readonly>
-                                                                </div>
-
-                                                                        <!-- Room Type -->
-                                                                        <div class="w-1/2">
-                                                                            <label class="block text-sm font-medium">Jenis Kamar</label>
-                                                                            <input type="text" name="room_type" required class="w-full border rounded p-2 bg-gray-100 text-gray-700" value="{{ e($room->name) }}" readonly>
-                                                                </div>
-                                                                    </div>
-                                                                </div>
-
                                                                 <div class="mb-4">
                                                                     <label class="block text-sm font-medium">Nama Kamar</label>
                                                                     <input type="text" name="edit_room_name" required class="w-full border rounded p-2" value="{{ e($room->name) }}">
                                                                 </div>
 
-                                                                {{-- One discount percentage --}}
-                                                                <div x-data="{
-                                                                    dailyOriginal: 0,
-                                                                    monthlyOriginal: 0,
-                                                                    discountPercentage: 0,
+                                                                <div 
+                                                                    x-data="() => ({
+                                                                        mode: '{{ e($room->periode) }}',
+                                                                        dailyOriginal: {{ e($room->price_original_daily) }},
+                                                                        monthlyOriginal: {{ e($room->price_original_monthly) }},
 
-                                                                    get dailyDiscount() {
-                                                                        return Math.max(0, this.dailyOriginal - (this.dailyOriginal * this.discountPercentage / 100));
-                                                                    },
-                                                                    get monthlyDiscount() {
-                                                                        return Math.max(0, this.monthlyOriginal - (this.monthlyOriginal * this.discountPercentage / 100));
-                                                                    }
-                                                                }" class="grid grid-cols-2 gap-6 mb-4">
-                                                                    <!-- Daily Pricing -->
-                                                                    <div class="space-y-4">
-                                                                        <div>
-                                                                            <label class="block text-sm font-medium">Harga Original Harian</label>
-                                                                            <input type="number" name="daily_price" x-model.number="dailyOriginal" min="0"
-                                                                                class="w-full border rounded p-2" placeholder="Harga Harian" required />
-                                                                        </div>
-                                                                        <div>
-                                                                            <label class="block text-sm font-medium">Harga Setelah Diskon Harian</label>
-                                                                            <input type="number" name="daily_discount_price" :value="dailyDiscount.toFixed(0)" readonly
-                                                                                class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
-                                                                        </div>
+                                                                        get priceLabel() {
+                                                                            if (this.mode === 'daily') return 'Harga Original Harian';
+                                                                            if (this.mode === 'monthly') return 'Harga Original Bulanan';
+                                                                            return '';
+                                                                        },
+
+                                                                        get priceNotes() {
+                                                                            if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
+                                                                            if (this.mode === 'monthly') return '';
+                                                                            return '';
+                                                                        },
+
+                                                                        get currentPrice() {
+                                                                            return this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
+                                                                        },
+
+                                                                        set currentPrice(value) {
+                                                                            if (this.mode === 'daily') {
+                                                                                this.dailyOriginal = value;
+                                                                            } else if (this.mode === 'monthly') {
+                                                                                this.monthlyOriginal = value;
+                                                                            }
+                                                                        },
+                                                                    })"
+                                                                    class="space-y-4"
+                                                                >
+                                                                    <div class="col-span-2 mb-2">
+                                                                        <h3 class="text-md font-medium border-gray-300 pb-1">Jenis Kamar</h3>
                                                                     </div>
 
-                                                                    <!-- Monthly Pricing -->
-                                                                    <div class="space-y-4">
-                                                                        <div>
-                                                                            <label class="block text-sm font-medium">Harga Original Bulanan</label>
-                                                                            <input type="number" name="monthly_price" x-model.number="monthlyOriginal" min="0"
-                                                                                class="w-full border rounded p-2" placeholder="Harga Bulanan" required />
-                                                                        </div>
-                                                                        <div>
-                                                                            <label class="block text-sm font-medium">Harga Setelah Diskon Bulanan</label>
-                                                                            <input type="number" name="monthly_discount_price" :value="monthlyDiscount.toFixed(0)" readonly
-                                                                                class="w-full border rounded p-2 bg-gray-100 text-gray-700" />
-                                                                        </div>
+                                                                    <!-- Mode selector -->
+                                                                    <div class="flex space-x-6">
+                                                                        <label class="inline-flex items-center">
+                                                                            <input type="radio" value="daily" x-model="mode" class="form-radio text-blue-600">
+                                                                            <span class="ml-2">Harian</span>
+                                                                        </label>
+                                                                        <label class="inline-flex items-center">
+                                                                            <input type="radio" value="monthly" x-model="mode" class="form-radio text-blue-600">
+                                                                            <span class="ml-2">Bulanan</span>
+                                                                        </label>
                                                                     </div>
 
-                                                                    <!-- Shared Discount Percentage -->
-                                                                    <div class="col-span-2">
-                                                                        <label class="block text-sm font-medium">Diskon (%) (untuk Harian & Bulanan)</label>
-                                                                        <input type="number" name="discount_percentage" min="0" max="100" x-model.number="discountPercentage"
-                                                                            class="w-full border rounded p-2" placeholder="Masukkan persentase diskon" />
+                                                                    <!-- Price input shown only if mode is selected -->
+                                                                    <div x-show="mode" x-transition>
+                                                                        <label class="block text-sm font-medium" x-text="priceLabel"></label>
+                                                                        <!-- Hidden field to submit the selected mode -->
+                                                                        <input type="hidden" name="mode" x-model="mode">
+
+                                                                        <!-- Price input -->
+                                                                        <input
+                                                                            type="number"
+                                                                            min="0"
+                                                                            x-model.number="currentPrice"
+                                                                            :name="mode === 'daily' ? 'daily_price' : 'monthly_price'"
+                                                                            class="w-full border rounded p-2 mt-1"
+                                                                            required
+                                                                        />                                              
+                                                                        <p class="text-sm text-red-600 italic mb-4" x-html="priceNotes"></p>
                                                                     </div>
                                                                 </div>
-
-                                                                <p class="text-sm text-gray-600 italic mb-4">
-                                                                    Masukkan harga jika kamar tersedia pada periode tersebut. (Jika periode tidak tersedia, maka input 0 pada kolom harga original)
-                                                                </p>
 
                                                                 <div class="flex gap-4 mb-4">
                                                                     <div class="w-full">
                                                                         <label class="block text-sm font-medium">Deskripsi Kamar Indonesia</label>
-                                                                        <textarea name="description_id" required class="w-full border rounded p-2" placeholder=""></textarea>
+                                                                        <textarea name="description_id" required class="w-full border rounded p-2" value="{{ e($room->descriptions) }}">{{ e($room->descriptions) }}</textarea>
                                                                     </div>
                                                                 </div>
 
@@ -503,6 +472,10 @@
                                                                     <label class="block text-sm font-medium">Foto Kamar</label>
                                                                     <input type="file" name="photo" accept="image/*" class="w-full border rounded p-2">
                                                                 </div>
+
+                                                                <p class="text-sm text-gray-600 italic mb-4">
+                                                                    Gambar ini akan dijadikan thumbnail kamar. Untuk menambahkan gambar lebih bisa setelah kamar sudah disimpan.
+                                                                </p>
 
                                                                 <!-- Validation message -->
                                                                 <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
@@ -537,19 +510,26 @@
                                                                 
                                                                 <div class="grid grid-cols-2 gap-4 mb-4">
                                                                     <label class="inline-flex items-center">
-                                                                        <input type="checkbox" name="wifi" class="form-checkbox text-blue-600" />
+                                                                        <input type="checkbox" name="wifi" class="form-checkbox text-blue-600"
+                                                                            value="1" {{ ($room->facility['wifi'] ?? false) == true ? 'checked' : '' }}>
                                                                         <span class="ml-2">WiFi</span>
                                                                     </label>
+
                                                                     <label class="inline-flex items-center">
-                                                                        <input type="checkbox" name="tv" class="form-checkbox text-blue-600" />
+                                                                        <input type="checkbox" name="tv" class="form-checkbox text-blue-600"
+                                                                            value="1" {{ ($room->facility['tv'] ?? false) == true ? 'checked' : '' }}>
                                                                         <span class="ml-2">TV</span>
                                                                     </label>
+
                                                                     <label class="inline-flex items-center">
-                                                                        <input type="checkbox" name="ac" class="form-checkbox text-blue-600" />
+                                                                        <input type="checkbox" name="ac" class="form-checkbox text-blue-600"
+                                                                            value="1" {{ ($room->facility['ac'] ?? false) == true ? 'checked' : '' }}>
                                                                         <span class="ml-2">AC</span>
                                                                     </label>
+
                                                                     <label class="inline-flex items-center">
-                                                                        <input type="checkbox" name="bathroom" class="form-checkbox text-blue-600" />
+                                                                        <input type="checkbox" name="bathroom" class="form-checkbox text-blue-600"
+                                                                            value="1" {{ ($room->facility['bathroom'] ?? false) == true ? 'checked' : '' }}>
                                                                         <span class="ml-2">Bathroom</span>
                                                                     </label>
                                                                 </div>
@@ -569,7 +549,148 @@
                                                     display: none !important;
                                                 }
                                             </style>
-                                        </div>                                        
+                                        </div>
+                                                                        
+                                        <!-- Edit Price Button -->
+                                        <div x-data="{ priceModalOpen: false }">
+                                            <!-- Trigger Button -->
+                                            <a href="#" class="text-green-600 hover:text-green-900" title="Edit Harga" @click.prevent="priceModalOpen = true">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M4 3a1 1 0 000 2h12a1 1 0 100-2H4zm1 4a1 1 0 000 2h10a1 1 0 100-2H5zm-1 4a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm1 3a1 1 0 000 2h6a1 1 0 100-2H5z"/>
+                                                </svg>
+                                            </a>
+
+                                            <!-- Modal -->
+                                            <div x-show="priceModalOpen" x-cloak x-transition class="fixed inset-0 flex items-center justify-center backdrop-blur bg-opacity-30 z-50 text-left">
+                                                <div x-data="{
+                                                    startDate: '',
+                                                    endDate: '',
+                                                    dateRangePrice: '',
+                                                    setPrice: '',
+                                                    async fetchPricesForRange(start, end) {
+                                                        const dates = [];
+                                                        let current = new Date(start);
+                                                        while (current <= new Date(end)) {
+                                                            dates.push(current.toLocaleDateString('en-CA'));
+                                                            current.setDate(current.getDate() + 1);
+                                                        }
+
+                                                        const priceList = [];
+
+                                                        for (let date of dates) {
+                                                            const res = await fetch(`/properties/rooms/{{ $room->idrec }}/price?date=${date}`);
+                                                            const data = await res.json();
+                                                            priceList.push(data.price ?? null);
+                                                        }
+
+                                                        const uniquePrices = [...new Set(priceList)];
+
+                                                        this.dateRangePrice = uniquePrices.length === 1 && uniquePrices[0] !== null
+                                                            ? uniquePrices[0]
+                                                            : '-';
+                                                    },
+                                                    init() {
+                                                        flatpickr(this.$el.querySelector('.inline-calendar'), {
+                                                            inline: true,
+                                                            mode: 'range',
+                                                            dateFormat: 'Y-m-d',
+                                                            onChange: async (dates) => {
+                                                                if (dates.length > 0) {
+                                                                    this.startDate = dates[0].toLocaleDateString('en-CA');
+                                                                    this.endDate = dates[1]
+                                                                        ? dates[1].toLocaleDateString('en-CA')
+                                                                        : dates[0].toLocaleDateString('en-CA');
+
+                                                                    await this.fetchPricesForRange(this.startDate, this.endDate);
+                                                                }
+                                                            }
+                                                        });
+                                                    },
+                                                    async updatePrice() {
+                                                        try {
+                                                            const res = await fetch(`/properties/rooms/{{ $room->idrec }}/update-price`, {
+                                                                method: 'POST',
+                                                                headers: {
+                                                                    'Content-Type': 'application/json',
+                                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                                },
+                                                                body: JSON.stringify({
+                                                                    start_date: this.startDate,
+                                                                    end_date: this.endDate,
+                                                                    price: this.setPrice
+                                                                })
+                                                            });
+
+                                                            const data = await res.json();
+
+                                                            if (res.ok) {
+                                                                alert(data.message || 'Harga berhasil diperbarui!');
+                                                            } else {
+                                                                alert(data.message || 'Gagal memperbarui harga.');
+                                                            }
+                                                        } catch (error) {
+                                                            console.error('Unexpected error:', error);
+                                                            alert('Terjadi kesalahan saat memperbarui harga.');
+                                                        }
+                                                    }
+                                                }" x-init="init"
+                                                class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative space-y-6 overflow-y-auto max-h-[90vh]">
+
+                                                    <!-- Header -->
+                                                    <div class="flex justify-between items-center border-b pb-3">
+                                                        <h2 class="text-lg font-semibold text-gray-800">Edit Harga</h2>
+                                                        <button @click="priceModalOpen = false" class="text-gray-500 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+                                                    </div>
+
+                                                    <!-- Content Grid -->
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <!-- LEFT: Calendar -->
+                                                        <div class="text-center space-y-4">
+                                                            <div class="p-2 inline-block" style="position: relative;">
+                                                                <style>.inline-calendar input { display: none; }</style>
+                                                                <div class="inline-calendar"></div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- RIGHT: Form -->
+                                                        <div class="space-y-4">
+                                                            <div class="grid grid-cols-2 gap-4">
+                                                                <div>
+                                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Awal</label>
+                                                                    <input type="text" :value="startDate" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
+                                                                </div>
+                                                                <div>
+                                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Akhir</label>
+                                                                    <input type="text" :value="endDate" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
+                                                                </div>
+                                                            </div>
+                                                            <div class="w-full space-y-1">
+                                                                <label class="block text-sm font-medium text-gray-700">Harga pada rentang tanggal</label>
+                                                                <input type="text" :value="dateRangePrice" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
+                                                                <p class="text-xs text-gray-500 mt-1 w-full break-words whitespace-normal">
+                                                                    Jika harga menunjukkan "-", maka ada harga yang berbeda atau harga yang kosong.
+                                                                </p>
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Baru</label>
+                                                                <input type="number" x-model="setPrice" class="border border-gray-300 px-4 py-2 rounded w-full" placeholder="Masukkan Harga">
+                                                            </div>
+                                                            <div class="flex justify-between pt-2">
+                                                                <button @click="updatePrice" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Update</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Flatpickr & Alpine -->
+                                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+                                        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                                        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+                                        
+                                        <!-- Delete Button -->
                                         <form action="" method="POST"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus kamar ini?')">
                                             @csrf
