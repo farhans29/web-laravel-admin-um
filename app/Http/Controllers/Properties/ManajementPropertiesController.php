@@ -59,6 +59,7 @@ class ManajementPropertiesController extends Controller
 
     public function store(Request $request)
     {
+        
         $validated = $request->validate([
             'property_name' => 'required',
             'property_type' => 'required',
@@ -100,8 +101,10 @@ class ManajementPropertiesController extends Controller
             ['High-speed WiFi', 'Parking', 'Swimming Pool', 'Gym', 'Restaurant', '24/7 Security', 'Concierge', 'Laundry Service', 'Room Service']
         );
 
+        
+
         $facilitiesData = [
-            'features' => array_intersect($request->input('facilities', []), $features),
+            'features' => array_intersect($request->input('facilities', []), $features),            
         ];
 
         $idrec = Property::max('idrec') + 1;
@@ -124,14 +127,15 @@ class ManajementPropertiesController extends Controller
         $property->postal_code = $request->postal_code;
         $property->address = $request->full_address;
         $property->description = $request->description;
-        $property->distance = $request->distance;
+        
         $property->location = $request->latitude . ',' . $request->longitude;
 
         $property->image = $imageBase64Array[0];
         $property->image2 = $imageBase64Array[1];
         $property->image3 = $imageBase64Array[2];
-
-        $property->features = json_encode($facilitiesData['features']);
+        
+        $property->features = $facilitiesData['features'];
+                
         $property->status = '1';
         $property->created_by = Auth::id();
 
