@@ -97,4 +97,23 @@ class ManajementRoomsController extends Controller
         }
     }
 
+    public function updateStatus(Room $room, Request $request)
+    {
+        try {
+            $room->update([
+                'status' => $request->status
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status kamar berhasil diperbarui',
+                'status' => $request->status
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui status kamar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

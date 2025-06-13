@@ -311,7 +311,10 @@
                                     {{ $room->created_by }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status])
+                                    <div class="flex items-center">
+                                        @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status])
+                                    </div>
+                                    
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
@@ -379,6 +382,29 @@
 
     @push('scripts')
         <script>
+            // Reusable success toast notification
+            function showSuccessToast(message) {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "#4CAF50",
+                        color: "#FFFFFF",
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                        borderRadius: "0.375rem",
+                        padding: "0.75rem 1rem",
+                        fontSize: "0.875rem",
+                        fontWeight: "500",
+                        display: "flex",
+                        alignItems: "center"
+                    },
+                    stopOnFocus: true
+                }).showToast();
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 // Toggle status
            

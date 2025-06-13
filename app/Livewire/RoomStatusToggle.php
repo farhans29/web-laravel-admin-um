@@ -23,12 +23,34 @@ class RoomStatusToggle extends Component
         Room::where('idrec', $this->roomId)->update(['status' => $value ? 1 : 0]);
     }
 
-    public function toggleStatus($isChecked)
+    public function toggleStatus()
     {
-        $this->status = $isChecked ? 1 : 0;
-
-        Room::where('idrec', $this->roomId)
-            ->update(['status' => $this->status]);
+        try {
+            // Toggle the status
+            $newStatus = $this->status ? 0 : 1;
+            
+            // Update the room status
+            Room::where('idrec', $this->roomId)->update(['status' => $newStatus]);
+            
+            // Update the local status
+            $this->status = (bool)$newStatus;
+            
+            // Emit success event
+            $this->dispatch('show-toast', [
+                'type' => 'success',
+                'message' => 'Status kamar berhasil diperbarui'
+            ]);
+            
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Error updating room status: ' . $e->getMessage());
+            
+            // Emit error event
+            $this->dispatch('show-toast', [
+                'type' => 'error',
+                'message' => 'Gagal memperbarui status kamar: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function render()
