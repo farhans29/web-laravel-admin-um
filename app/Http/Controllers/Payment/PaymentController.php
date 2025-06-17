@@ -14,7 +14,8 @@ class PaymentController extends Controller
     public function index()
     {
         $transactions = Transaction::with(['booking', 'payment', 'user'])
-            ->whereIn('transaction_status', ['pending', 'waiting_payment', 'completed'])
+            ->where('status', 0)
+            ->whereIn('transaction_status', ['pending', 'waiting_payment', 'completed'])            
             ->orderBy('transaction_date', 'desc')
             ->paginate(10);
 
@@ -27,7 +28,7 @@ class PaymentController extends Controller
 
         // Update transaction
         $transaction->update([
-            'transaction_status' => 'completed',
+            'transaction_status' => 'paid',
             'paid_at' => now()
         ]);
 
@@ -41,7 +42,7 @@ class PaymentController extends Controller
                 'grandtotal_price' => $transaction->grandtotal_price,
                 'verified_by' => Auth::id(),
                 'verified_at' => now(),
-                'payment_status' => 'completed',
+                'payment_status' => 'paid',
                 'updated_at' => now()
             ]
         );
@@ -55,7 +56,7 @@ class PaymentController extends Controller
 
         // Update transaction
         $transaction->update([
-            'transaction_status' => 'failed',
+            'transaction_status' => 'rejected',
             'paid_at' => now()
         ]);
 
