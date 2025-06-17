@@ -15,11 +15,41 @@ class PaymentController extends Controller
     {
         $transactions = Transaction::with(['booking', 'payment', 'user'])
             ->where('status', 0)
-            ->whereIn('transaction_status', ['pending', 'waiting_payment', 'completed'])            
             ->orderBy('transaction_date', 'desc')
-            ->paginate(10);
+            ->paginate(8);
 
         return view('pages.payment.pay.index', compact('transactions'));
+    }
+
+    public function filter(Request $request)
+    {
+        $query = Transaction::with(['booking', 'payment', 'user'])
+            ->orderBy('transaction_date', 'desc');
+
+        if ($request->has('status') && $request->status != 'all') {
+            $query->where('transaction_status', $request->status);
+        }
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_id', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('user_name', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('booking.property', function ($propertyQuery) use ($search) {
+                        $propertyQuery->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        $transactions = $query->paginate(8);
+
+        return response()->json([
+            'transactions' => $transactions,
+            'pagination' => $transactions->links()->toHtml()
+        ]);
     }
 
     public function approve($id)
@@ -71,6 +101,7 @@ class PaymentController extends Controller
                 'verified_by' => Auth::id(),
                 'verified_at' => now(),
                 'payment_status' => 'rejected',
+                'notes' => request('rejectNote'), // Add this line to save the note
                 'updated_at' => now()
             ]
         );

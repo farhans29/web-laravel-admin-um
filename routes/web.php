@@ -77,7 +77,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('payment')->group(function () {
-        Route::get('/pay', [PaymentController::class, 'index'])->name('pay.index');
+        Route::get('/pay', [PaymentController::class, 'index'])->name('admin.payments.index');
+        Route::get('/payments/filter', [PaymentController::class, 'filter'])->name('admin.payments.filter');
         Route::post('/approve/{id}', [PaymentController::class, 'approve'])->name('admin.payments.approve');
         Route::post('/reject/{id}', [PaymentController::class, 'reject'])->name('admin.payments.reject');  
     });

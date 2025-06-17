@@ -213,8 +213,8 @@
                     <ul class="space-y-1">
                         <!-- Payments -->
                         <li>
-                            <a href="{{ route('pay.index') }}"
-                                class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('pay.index')) bg-indigo-900 @endif">
+                            <a href="{{ route('admin.payments.index') }}"
+                                class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('admin.payments.index')) bg-indigo-900 @endif">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
