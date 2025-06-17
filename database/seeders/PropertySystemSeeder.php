@@ -18,19 +18,25 @@ class PropertySystemSeeder extends Seeder
         // Clear existing data
         DB::table('t_booking')->delete();
         DB::table('t_transactions')->delete();
+        DB::table('t_payment')->delete();
         DB::table('m_rooms')->delete();
         DB::table('m_properties')->delete();
 
         // Seed m_properties
         $properties = [];
         $propertyNames = [
-            'Grand Luxury Hotel',
-            'Urban Loft Apartments',
-            'Mountain View Resort',
-            'Beachfront Villas',
-            'City Center Suites'
-        ];        
-        $tags = ['Kos', 'Rumah', 'Apartment', 'Villa', 'Hotel'];
+            'Jelambar House 1',
+            'Jelambar House 2',
+            'Ulin Mahoni House Jaksel',
+            'Ulin Mahoni House Jaksel 2',
+            'Jelambar House',
+            'Jelambar House I',
+            'Ulin Mahoni Apartment',
+            'Ulin Mahoni Apartment I',
+            'Ulin Mahoni Villa',
+            'Ulin Mahoni Villa I'
+        ];
+        $tags = ['House', 'Apartment', 'Villa', 'Hotel'];
 
         $locations = [
             'DKI Jakarta' => ['Jakarta Pusat', 'Jakarta Utara', 'Jakarta Barat', 'Jakarta Selatan', 'Jakarta Timur'],
@@ -69,7 +75,7 @@ class PropertySystemSeeder extends Seeder
                 'price_discounted_daily' => rand(400000, 1800000),
                 'price_original_monthly' => rand(10000000, 30000000),
                 'price_discounted_monthly' => rand(9000000, 28000000),
-                'features' => $features,            
+                'features' => $features,
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -121,9 +127,10 @@ class PropertySystemSeeder extends Seeder
 
         DB::table('m_rooms')->insert($rooms);
 
-        // Seed t_transactions and t_booking
+        // Seed t_transactions, t_booking, and t_payment
         $transactions = [];
         $bookings = [];
+        $payments = [];
 
         // Create 5 transactions (one for each property)
         for ($k = 1; $k <= 5; $k++) {
@@ -173,6 +180,8 @@ class PropertySystemSeeder extends Seeder
                 'transaction_status' => 'Completed',
                 'status' => 'Active',
                 'paid_at' => now(),
+                'payment_method' => 'Bank Transfer',
+                'notes' => 'Pembayaran dilakukan via transfer bank BCA',
                 'created_at' => now(),
                 'updated_at' => now()
             ];
@@ -189,9 +198,25 @@ class PropertySystemSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now()
             ];
+
+            $payments[] = [
+                'property_id'       => $propertyId,
+                'room_id'           => $room['idrec'], // no need to cast to string if it's already integer
+                'order_id'          => $orderId, // this is the alphanumeric order ID
+                'user_id'           => $userId,
+                'grandtotal_price'  => $grandTotal,
+                'verified_by'       => 1, // assuming admin user with ID 1
+                'verified_at'       => now(),
+                'notes'             => 'Pembayaran untuk booking ' . $orderId,
+                'payment_status'    => 'pending',
+                'created_at'        => now(),
+                'updated_at'        => now(),
+                'created_by'        => $userId                
+            ];            
         }
 
         DB::table('t_transactions')->insert($transactions);
         DB::table('t_booking')->insert($bookings);
+        DB::table('t_payment')->insert($payments);
     }
 }

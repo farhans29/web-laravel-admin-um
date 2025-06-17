@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('m_promo_banner', function (Blueprint $table) {
+        Schema::create('m_promo_banners', function (Blueprint $table) {
             $table->integer('idrec')->primary();
             $table->string('title', 250)->nullable();
             $table->binary('attachment')->nullable();

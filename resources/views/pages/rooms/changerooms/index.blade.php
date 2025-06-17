@@ -30,19 +30,19 @@
                             <!-- Transfer Controls -->
                             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h2 class="text-xl font-semibold text-gray-800">Mutasi kamar</h2>
+                                    <h2 class="text-xl font-semibold text-gray-800">Pindah kamar</h2>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <!-- Guest Selection -->
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        <h3 class="font-medium text-gray-700 mb-3">Informasi Tamu</h3>
+                                        <h3 class="font-medium text-gray-700 mb-3">Informasi Booking</h3>
 
                                         <form method="GET" action="{{ route('changerooom.index') }}" class="mb-4">
                                             <div class="relative">
                                                 <input type="text" name="search" value="{{ request('search') }}"
                                                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                    placeholder="Search guest...">
+                                                    placeholder="Search booking...">
                                                 <button type="submit">
                                                     <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                                                 </button>
@@ -266,23 +266,23 @@
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 ID Pesanan</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Tamu</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Dari Kamar</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Ke Kamar</th>
+                                                <th scope="col"
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Tanggal/Waktu</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Alasan</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Tanggal/Waktu</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status</th>
@@ -296,12 +296,12 @@
                                                         {{ $history['order_id'] }}</div>
                                                 </td>
                                                 <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                                                     <div class="text-sm font-medium text-gray-900">
                                                         {{ $history['guest_name'] }}</div>
                                                 </td>
                                                 <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                                                     <div class="text-sm font-medium text-gray-900">
                                                         @if ($history['previous_room'])
                                                             {{ $history['previous_room']->room->name ?? 'N/A' }}
@@ -312,7 +312,7 @@
                                                     </div>
                                                 </td>
                                                 <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                                                     <div class="text-sm font-medium text-gray-900">
                                                         @if ($history['current_room'])
                                                             {{ $history['current_room']->room->name ?? 'N/A' }}
@@ -323,12 +323,7 @@
                                                     </div>
                                                 </td>
                                                 <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                    <div class="text-sm font-medium text-gray-900">
-                                                        {{ $history['reason'] }}</div>
-                                                </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                                                     <div class="text-sm font-medium text-gray-900">
                                                         {{ $history['created_at']->format('Y M d') }}
                                                     </div>
@@ -336,6 +331,11 @@
                                                         {{ $history['created_at']->format('H:i') }}
                                                     </div>
                                                 </td>
+                                                <td
+                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                    <div class="text-sm font-medium text-gray-900">
+                                                        {{ $history['reason'] }}</div>
+                                                </td>                                                
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <span
                                                         class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">

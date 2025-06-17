@@ -21,14 +21,23 @@ return new class extends Migration
             $table->longText('periode')->nullable();
             $table->string('type', 100)->nullable();
             $table->string('level', 10)->nullable();
-            $table->longText('facility')->nullable();
+            
+            $table->json('facility')->nullable();
+
             $table->longText('price')->nullable();
-            $table->binary('attachment')->nullable();
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+
+            // Tambahan kolom baru sesuai permintaan
+            $table->decimal('admin_fees', 18, 4)->nullable();
+            $table->decimal('discount_percent', 18, 4)->nullable();
+            $table->decimal('price_original_daily', 18, 4)->nullable();
+            $table->decimal('price_discounted_daily', 18, 4)->nullable();
+            $table->decimal('price_original_monthly', 18, 4)->nullable();
+            $table->decimal('price_discounted_monthly', 18, 4)->nullable();          
+           
             $table->string('created_by', 100)->nullable();
             $table->string('updated_by', 100)->nullable();
             $table->integer('status')->default(1);
+            $table->timestamps();
         });
     }
 

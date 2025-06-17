@@ -399,24 +399,24 @@
                                                 </div>
 
                                                 <!-- Image Preview Grid -->
-                                                <div x-show="images.length > 0" class="mt-6 grid grid-cols-3 gap-4"
+                                                <div x-show="images.length > 0" class="mt-2 grid grid-cols-5 gap-1"
                                                     x-transition:enter="transition ease-out duration-300"
                                                     x-transition:enter-start="opacity-0 scale-95"
                                                     x-transition:enter-end="opacity-100 scale-100">
                                                     <template x-for="(image, index) in images" :key="index">
                                                         <div class="relative group">
-                                                            <!-- Image Container -->
+                                                            <!-- Image Container - Made smaller -->
                                                             <div
-                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-blue-400 transition-colors duration-200">
+                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200">
                                                                 <img :src="image.url"
                                                                     :alt="`Preview ${index + 1}`"
                                                                     class="w-full h-full object-cover">
                                                             </div>
 
-                                                            <!-- Remove Button -->
+                                                            <!-- Remove Button - Made smaller -->
                                                             <button @click="removeImage(index)"
-                                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                                <svg class="w-3 h-3" fill="none"
+                                                                class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                <svg class="w-2 h-2" fill="none"
                                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round"
                                                                         stroke-linejoin="round" stroke-width="2"
@@ -424,15 +424,16 @@
                                                                 </svg>
                                                             </button>
 
-                                                            <!-- Image Number Badge -->
+                                                            <!-- Image Number Badge - Made smaller -->
                                                             <div
-                                                                class="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                                                class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
                                                                 <span x-text="index + 1"></span>
                                                             </div>
 
-                                                            <!-- File Name -->
-                                                            <div class="mt-2">
-                                                                <p class="text-xs text-gray-600 truncate"
+                                                            <!-- File Name - Made smaller and hidden by default, shows on hover -->
+                                                            <div
+                                                                class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                                <p class="text-[8px] text-gray-600 truncate"
                                                                     x-text="image.name"></p>
                                                             </div>
                                                         </div>
@@ -600,8 +601,13 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <img src="data:image/jpeg;base64,{{ $property->image }}"
-                                                alt="Property Image" class="w-full h-full object-cover rounded" />
+                                            @if($property->images->isNotEmpty() && !empty($property->images->first()->image))
+                                                <img src="data:image/jpeg;base64,{{ $property->images->first()->image }}"
+                                                    alt="Property Image" class="w-full h-full object-cover rounded" />
+                                            @else                                                
+                                                <img src="{{ asset('images/picture.png') }}" 
+                                                    alt="Default Property Image" class="w-full h-full object-cover rounded" />
+                                            @endif
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">{{ $property->name }}</div>
@@ -650,6 +656,16 @@
                                         <!-- View -->
                                         <div x-data="modalView()" class="relative group">
                                             @php
+                                                // Initialize empty array for images
+                                                $images = [];
+
+                                                // Only add images that belong to this property
+                                                foreach ($property->images as $image) {
+                                                    if (!empty($image->image)) {
+                                                        $images[] = 'data:image/jpeg;base64,' . $image->image;
+                                                    }
+                                                }
+
                                                 $features = json_encode(
                                                     $property->features,
                                                     JSON_HEX_APOS | JSON_HEX_QUOT,
@@ -659,23 +675,19 @@
                                                 class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
                                                 type="button"
                                                 @click.prevent='openModal({
-                                                                name: @json($property->name),
-                                                                city: @json($property->city),
-                                                                province: @json($property->province),
-                                                                description: @json($property->description),
-                                                                created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
-                                                                updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
-                                                                creator: "{{ $property->creator->username ?? 'Unknown' }}",
-                                                                status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                                                images: [
-                                                                    "data:image/jpeg;base64,{{ $property->image }}",
-                                                                    "data:image/jpeg;base64,{{ $property->image2 }}",
-                                                                    "data:image/jpeg;base64,{{ $property->image3 }}"
-                                                                ],
-                                                                location: @json($property->location),
-                                                                distance: @json($property->distance),
-                                                                features: {!! $features !!},                                                                                                                                                                                              
-                                                            })'
+                                                                    name: @json($property->name),
+                                                                    city: @json($property->city),
+                                                                    province: @json($property->province),
+                                                                    description: @json($property->description),
+                                                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
+                                                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
+                                                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
+                                                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
+                                                                    images: {!! json_encode($images) !!},
+                                                                    location: @json($property->location),
+                                                                    distance: @json($property->distance),
+                                                                    features: {!! $features !!},                                                                                                                                                                                              
+                                                                })'
                                                 aria-controls="property-detail-modal" title="View Details">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1809,34 +1821,59 @@
             </div>
         </div>
     </div>
+    @if (session('success'))
+        <script>
+            toastr.success('{{ session('success') }}');
+        </script>
+    @endif
 
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('modalView', () => ({
                 selectedProperty: {
                     currentImageIndex: 0,
-                    images: []
+                    images: [],
+                    features: []
                 },
                 modalOpenDetail: false,
+                isLoading: false,
+                touchStartX: 0,
+                touchEndX: 0,
 
                 openModal(property) {
-                    // Initialize property data with default values
-                    this.selectedProperty = {
-                        ...property,
-                        currentImageIndex: 0,
-                        images: property.images || []
-                    };
+                    this.isLoading = true;
                     this.modalOpenDetail = true;
                     this.disableBodyScroll();
+
+                    // Use nextTick to ensure DOM is ready before setting properties
+                    this.$nextTick(() => {
+                        this.selectedProperty = {
+                            ...property,
+                            currentImageIndex: 0,
+                            images: Array.isArray(property.images) ? property.images.filter(
+                                img => img) : [],
+                            features: Array.isArray(property.features) ? property.features :
+                                []
+                        };
+                        this.isLoading = false;
+                    });
                 },
 
                 closeModal() {
                     this.modalOpenDetail = false;
                     this.enableBodyScroll();
+                    // Reset for next opening
+                    setTimeout(() => {
+                        this.selectedProperty = {
+                            currentImageIndex: 0,
+                            images: [],
+                            features: []
+                        };
+                    }, 300); // Match this with your CSS transition duration
                 },
 
                 nextImage() {
-                    if (this.selectedProperty.images.length > 0) {
+                    if (this.hasMultipleImages) {
                         this.selectedProperty.currentImageIndex =
                             (this.selectedProperty.currentImageIndex + 1) % this.selectedProperty.images
                             .length;
@@ -1844,7 +1881,7 @@
                 },
 
                 prevImage() {
-                    if (this.selectedProperty.images.length > 0) {
+                    if (this.hasMultipleImages) {
                         this.selectedProperty.currentImageIndex =
                             (this.selectedProperty.currentImageIndex - 1 + this.selectedProperty.images
                                 .length) %
@@ -1853,47 +1890,81 @@
                 },
 
                 goToImage(index) {
-                    if (index >= 0 && index < this.selectedProperty.images.length) {
+                    if (this.hasMultipleImages && index >= 0 && index < this.selectedProperty.images
+                        .length) {
                         this.selectedProperty.currentImageIndex = index;
+                    }
+                },
+
+                // Getters for computed properties
+                get hasMultipleImages() {
+                    return this.selectedProperty.images?.length > 1;
+                },
+
+                get currentImage() {
+                    return this.selectedProperty.images[this.selectedProperty.currentImageIndex];
+                },
+
+                // Touch event handlers for mobile swipe
+                handleTouchStart(e) {
+                    this.touchStartX = e.changedTouches[0].screenX;
+                },
+
+                handleTouchEnd(e) {
+                    this.touchEndX = e.changedTouches[0].screenX;
+                    this.handleSwipe();
+                },
+
+                handleSwipe() {
+                    const threshold = 50; // Minimum swipe distance
+                    const diff = this.touchStartX - this.touchEndX;
+
+                    if (diff > threshold) {
+                        this.nextImage(); // Swipe left
+                    } else if (diff < -threshold) {
+                        this.prevImage(); // Swipe right
                     }
                 },
 
                 disableBodyScroll() {
                     document.body.style.overflow = 'hidden';
-                    document.body.style.paddingRight = this.getScrollbarWidth() + 'px';
+                    document.body.style.paddingRight = this.scrollbarWidth + 'px';
                 },
 
                 enableBodyScroll() {
-                    document.body.style.overflow = 'auto';
-                    document.body.style.paddingRight = '0';
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
                 },
 
-                getScrollbarWidth() {
+                get scrollbarWidth() {
                     return window.innerWidth - document.documentElement.clientWidth;
                 },
 
                 init() {
-                    // Handle escape key press
-                    document.addEventListener('keydown', (e) => {
-                        if (this.modalOpenDetail && e.key === 'Escape') {
-                            this.closeModal();
-                        }
+                    // Keyboard event listener
+                    const handleKeyDown = (e) => {
+                        if (!this.modalOpenDetail) return;
 
-                        // Optional: Add keyboard navigation for images
-                        if (this.modalOpenDetail && this.selectedProperty.images.length > 1) {
-                            if (e.key === 'ArrowRight') {
+                        switch (e.key) {
+                            case 'Escape':
+                                this.closeModal();
+                                break;
+                            case 'ArrowRight':
                                 this.nextImage();
-                            } else if (e.key === 'ArrowLeft') {
+                                break;
+                            case 'ArrowLeft':
                                 this.prevImage();
-                            }
+                                break;
                         }
-                    });
+                    };
 
-                    // Watch for modal state changes
-                    this.$watch('modalOpenDetail', (value) => {
-                        if (!value) {
-                            this.enableBodyScroll();
-                        }
+                    document.addEventListener('keydown', handleKeyDown);
+
+                    // Cleanup event listener when component is removed
+                    this.$el.addEventListener('alpine:initialized', () => {
+                        this.$el.addEventListener('alpine:destroying', () => {
+                            document.removeEventListener('keydown', handleKeyDown);
+                        });
                     });
                 }
             }));
@@ -1904,7 +1975,8 @@
                 selectedProperty: {},
                 modalOpenDetail: false,
                 images: [],
-                maxImages: 3,
+                maxImages: 10, // Changed from 3 to 10
+                minImages: 3, // Added minimum images requirement
                 map: null,
                 marker: null,
                 searchQuery: '',
@@ -2161,7 +2233,7 @@
                     }
                 },
 
-                // Photo upload methods (unchanged)
+                // Enhanced photo upload methods
                 handleFileSelect(event) {
                     const files = Array.from(event.target.files);
                     this.processFiles(files);
@@ -2176,7 +2248,19 @@
                 processFiles(files) {
                     const imageFiles = files.filter(file => file.type.startsWith('image/'));
                     const availableSlots = this.maxImages - this.images.length;
+
+                    if (availableSlots <= 0) {
+                        alert(`Maksimal hanya ${this.maxImages} foto yang dapat diupload.`);
+                        return;
+                    }
+
                     const filesToProcess = imageFiles.slice(0, availableSlots);
+
+                    if (imageFiles.length > availableSlots) {
+                        alert(
+                            `Hanya ${availableSlots} foto yang dapat ditambahkan. Sisa slot: ${availableSlots}`
+                        );
+                    }
 
                     filesToProcess.forEach(file => {
                         if (file.size <= 5 * 1024 * 1024) { // 5MB limit
@@ -2204,12 +2288,28 @@
                     this.images.splice(index, 1);
                 },
 
+                // Updated computed properties
                 get canUploadMore() {
                     return this.images.length < this.maxImages;
                 },
 
                 get remainingSlots() {
                     return this.maxImages - this.images.length;
+                },
+
+                get imageUploadStatus() {
+                    const current = this.images.length;
+                    if (current < this.minImages) {
+                        return `Minimal ${this.minImages} foto diperlukan (${current}/${this.minImages})`;
+                    } else if (current >= this.minImages && current < this.maxImages) {
+                        return `${current}/${this.maxImages} foto (dapat menambah ${this.remainingSlots} lagi)`;
+                    } else {
+                        return `${current}/${this.maxImages} foto (maksimal tercapai)`;
+                    }
+                },
+
+                get isImageRequirementMet() {
+                    return this.images.length >= this.minImages;
                 },
 
                 validateStep(step) {
@@ -2267,8 +2367,16 @@
                     } else if (step === 3) {
                         // No validation needed for step 3 (facilities) as they're optional
                     } else if (step === 4) {
-                        if (this.images.length !== 3) {
-                            alert('Wajib upload tepat 3 foto properti');
+                        // Updated validation for new image requirements
+                        if (this.images.length < this.minImages) {
+                            alert(
+                                `Minimal ${this.minImages} foto properti harus diupload. Saat ini: ${this.images.length} foto.`
+                            );
+                            isValid = false;
+                        } else if (this.images.length > this.maxImages) {
+                            alert(
+                                `Maksimal ${this.maxImages} foto properti dapat diupload. Saat ini: ${this.images.length} foto.`
+                            );
                             isValid = false;
                         }
                     }
@@ -2284,6 +2392,7 @@
                     this.images = [];
                 },
 
+                // Enhanced submit form with better image handling
                 submitForm() {
                     if (this.validateStep(4)) {
                         const form = document.getElementById('propertyForm');
@@ -2296,6 +2405,9 @@
                         this.images.forEach((image, index) => {
                             formData.append('property_images[]', image.file);
                         });
+
+                        // Add image count for backend validation
+                        formData.append('image_count', this.images.length);
 
                         // Submit the form
                         fetch(form.action, {
@@ -2312,9 +2424,19 @@
                                 return response.json();
                             })
                             .then(data => {
-                                // Handle success - replace with your actual route
-                                // window.location.href = '{{ route('properties.index') }}';
-                                alert('Property berhasil disimpan!');
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: `Property berhasil disimpan dengan ${this.images.length} foto!`,
+                                    showConfirmButton: false,
+                                    timer: 1000,
+                                    timerProgressBar: true,
+                                    didClose: () => {
+                                        window.location.href =
+                                            '{{ route('properties.index') }}';
+                                    }
+                                });
                             })
                             .catch(error => {
                                 console.error('Error:', error);
@@ -2322,6 +2444,18 @@
                             });
                     }
                 },
+
+                // Helper method to get upload progress info
+                getUploadInfo() {
+                    return {
+                        current: this.images.length,
+                        min: this.minImages,
+                        max: this.maxImages,
+                        remaining: this.remainingSlots,
+                        canUpload: this.canUploadMore,
+                        isValid: this.isImageRequirementMet
+                    };
+                }
             }));
         });
 

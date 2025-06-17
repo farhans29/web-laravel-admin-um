@@ -36,10 +36,7 @@ return new class extends Migration
             $table->longText('attributes')->nullable();            
             $table->longText('amenities')->nullable();
             $table->longText('room_facilities')->nullable();
-            $table->longText('rules')->nullable();
-            $table->binary('image')->nullable();
-            $table->binary('image2')->nullable();
-            $table->binary('image3')->nullable();
+            $table->longText('rules')->nullable();          
             $table->integer('status')->default(1);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();

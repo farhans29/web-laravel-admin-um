@@ -86,4 +86,9 @@ class User extends Authenticatable
     {
         return $this->permissions()->where('name', $permissionName)->exists();
     }
+
+    public function verifiedPayments()
+    {
+        return $this->hasMany(Payment::class, 'verified_by');
+    }
 }

@@ -8,6 +8,9 @@ use App\Models\Booking;
 use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Notifications\RoomTransferNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 
 class ChangeRoomController extends Controller
@@ -123,7 +126,6 @@ class ChangeRoomController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'current_property_id' => 'required|string|max:100',
             'order_id' => 'required|string|max:100',
@@ -142,20 +144,54 @@ class ChangeRoomController extends Controller
         }
 
         try {
+            // Get the previous booking to find the user and previous room
+            $previousBooking = Booking::where('order_id', $request->order_id)
+                ->where('status', 1) // Assuming 1 is active status
+                ->firstOrFail();
+
+            // Get user who made the booking
+            $user = $previousBooking->transaction->user;
+            // Get room details
+            $previousRoom = Room::find($previousBooking->room_id);
+            $newRoom = Room::find($request->new_room);
+
+            // Create the new booking (transfer)
             $booking = Booking::create([
                 'property_id' => $request->current_property_id,
                 'order_id' => $request->order_id,
                 'room_id' => $request->new_room,
+                'user_id' => $previousBooking->user_id, // Keep same user
                 'check_in_at' => Carbon::parse($request->check_in),
                 'check_out_at' => $request->check_out ? Carbon::parse($request->check_out) : null,
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
-                'status' => 2,
+                'status' => 2, // Assuming 2 is transferred status
                 'reason' => $request->reason ?? null,
                 'description' => $request->notes,
             ]);
 
-            return redirect()->route('changerooom.index')->with('success', 'Kamar berhasil dipindahkan!');
+            // Mark previous booking as inactive or transferred
+            $previousBooking->status = 3; // Or whatever status indicates it's no longer active
+            $previousBooking->save();
+
+            // Prepare transfer details for notification
+            $transferDetails = [
+                'guest_name' => $user->username,
+                'order_id' => $request->order_id,
+                'previous_room' => $previousRoom->name . ' (' . $previousRoom->type . ')',
+                'new_room' => $newRoom->name . ' (' . $newRoom->type . ')',
+                'reason' => $request->reason ?? 'Not specified',
+                'transfer_date' => now()->format('Y-m-d H:i'),
+                'check_in' => Carbon::parse($request->check_in)->format('Y-m-d H:i'),
+                'check_out' => $request->check_out ? Carbon::parse($request->check_out)->format('Y-m-d H:i') : 'Not specified',
+            ];
+
+            // Send notification to user
+            if ($user && $user->email) {
+                Notification::send($user, new RoomTransferNotification($transferDetails));
+            }
+
+            return redirect()->route('changerooom.index')->with('success', 'Kamar berhasil dipindahkan dan notifikasi telah dikirim!');
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

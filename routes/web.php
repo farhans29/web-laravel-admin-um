@@ -11,6 +11,7 @@ use App\Http\Controllers\Bookings\CheckOut\CheckOutController;
 use App\Http\Controllers\Rooms\ChangeRoomController;
 use App\Http\Controllers\Properties\ManajementPropertiesController;
 use App\Http\Controllers\Properties\ManajementRoomsController;
+use App\Http\Controllers\Payment\PaymentController;
 
 // Route::redirect('/', 'login');
 
@@ -73,6 +74,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
+    });
+
+    Route::prefix('payment')->group(function () {
+        Route::get('/pay', [PaymentController::class, 'index'])->name('pay.index');
+        Route::post('/approve/{id}', [PaymentController::class, 'approve'])->name('admin.payments.approve');
+        Route::post('/reject/{id}', [PaymentController::class, 'reject'])->name('admin.payments.reject');  
     });
 
     Route::prefix('master')->group(function () {});

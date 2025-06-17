@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Properties;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Property;
+use App\Models\PropertyImage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\User;
@@ -17,7 +18,7 @@ class ManajementPropertiesController extends Controller
         $status = $request->input('status');
         $perPage = $request->input('per_page', 5);
 
-        $query = Property::with('creator')
+        $query = Property::with(['creator', 'images'])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -57,9 +58,30 @@ class ManajementPropertiesController extends Controller
         return response()->json(['success' => true]);
     }
 
+    protected function generateInitials($name)
+    {
+        $words = preg_split('/\s+/', $name);
+        $initials = '';
+
+        foreach ($words as $word) {
+            // Ambil huruf pertama jika kapital
+            if (ctype_upper(substr($word, 0, 1))) {
+                $initials .= substr($word, 0, 1);
+            }
+        }
+
+        // Jika tidak ada huruf kapital, ambil semua huruf pertama
+        if (empty($initials)) {
+            foreach ($words as $word) {
+                $initials .= strtoupper(substr($word, 0, 1));
+            }
+        }
+
+        return $initials;
+    }
+
     public function store(Request $request)
     {
-        
         $validated = $request->validate([
             'property_name' => 'required',
             'property_type' => 'required',
@@ -73,16 +95,41 @@ class ManajementPropertiesController extends Controller
             'distance' => 'nullable|string',
             'latitude' => 'required',
             'longitude' => 'required',
-            'property_images' => 'required|array|size:3',
+            'property_images' => 'required|array|min:1|max:10',
             'property_images.*' => 'required|image|mimes:jpeg,jpg,png|max:5120',
             'facilities' => 'nullable|array',
         ]);
 
-        if (count($request->file('property_images')) !== 3) {
-            return back()->withErrors(['property_images' => 'Exactly 3 images are required.']);
-        }
+        // Fitur yang tersedia
+        $features = [
+            'High-speed WiFi',
+            'Parking',
+            'Swimming Pool',
+            'Gym',
+            'Restaurant',
+            '24/7 Security',
+            'Concierge',
+            'Laundry Service',
+            'Room Service'
+        ];
 
+        // Ambil hanya fasilitas yang valid
+        $facilitiesData = [
+            'features' => array_intersect($request->input('facilities', []), $features),
+        ];
+
+        // Buat ID dan slug unik
+        $idrec = Property::max('idrec') + 1;
+        $tagShort = strtolower(substr($request->property_type, 0, 3));
+        $nameShort = strtolower(collect(explode(' ', $request->property_name))->map(fn($w) => substr($w, 0, 1))->implode(''));
+        $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
+
+        // Generate initial dari property_name
+        $initials = $this->generateInitials($request->property_name);
+
+        // Encode file gambar ke base64
         $imageBase64Array = [];
+        $imageCaptionArray = [];
 
         foreach ($request->file('property_images') as $file) {
             if (!$file->isValid()) {
@@ -91,35 +138,16 @@ class ManajementPropertiesController extends Controller
 
             $fileContents = file_get_contents($file->getRealPath());
             $imageBase64Array[] = base64_encode($fileContents);
+            $imageCaptionArray[] = $file->getClientOriginalName();
         }
 
-        if (count($imageBase64Array) !== 3) {
-            abort(400, 'Exactly 3 images are required.');
-        }
-
-        $features = array_merge(
-            ['High-speed WiFi', 'Parking', 'Swimming Pool', 'Gym', 'Restaurant', '24/7 Security', 'Concierge', 'Laundry Service', 'Room Service']
-        );
-
-        
-
-        $facilitiesData = [
-            'features' => array_intersect($request->input('facilities', []), $features),            
-        ];
-
-        $idrec = Property::max('idrec') + 1;
-
-        $tagShort = strtolower(substr($request->property_type, 0, 3));
-        $nameShort = strtolower(collect(explode(' ', $request->property_name))->map(function ($word) {
-            return substr($word, 0, 1);
-        })->implode(''));
-        $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
-
+        // Simpan ke tabel `properties`
         $property = new Property();
         $property->idrec = $idrec;
         $property->slug = $slug;
         $property->tags = $request->property_type;
         $property->name = $request->property_name;
+        $property->initial = $initials;
         $property->province = $request->province;
         $property->city = $request->city;
         $property->subdistrict = $request->district;
@@ -127,19 +155,22 @@ class ManajementPropertiesController extends Controller
         $property->postal_code = $request->postal_code;
         $property->address = $request->full_address;
         $property->description = $request->description;
-        
         $property->location = $request->latitude . ',' . $request->longitude;
-
-        $property->image = $imageBase64Array[0];
-        $property->image2 = $imageBase64Array[1];
-        $property->image3 = $imageBase64Array[2];
-        
         $property->features = $facilitiesData['features'];
-                
         $property->status = '1';
         $property->created_by = Auth::id();
-
         $property->save();
+       
+        // Simpan ke tabel m_property_images
+        foreach ($imageBase64Array as $index => $base64) {
+            $image = new PropertyImage();
+            $image->property_id = $idrec;
+            $image->image = $base64; // base64 string
+            $image->caption = $imageCaptionArray[$index] ?? 'No caption';
+            $image->created_by = Auth::user()->id;
+            $image->created_at = now();
+            $image->save();
+        }
 
         return $request->wantsJson()
             ? response()->json(['status' => 'success', 'message' => 'Property created successfully!', 'data' => $property], 201)

@@ -80,4 +80,9 @@ class Property extends Model
     {
         return $this->hasMany(RoomType::class, 'property_id', 'idrec');
     }
+
+    public function images()
+    {
+        return $this->hasMany(PropertyImage::class, 'property_id', 'idrec');
+    }
 }

@@ -12,33 +12,37 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('t_transactions', function (Blueprint $table) {
-            $table->id('idrec'); 
+            $table->id('idrec');
             $table->string('property_id', 11)->nullable();
             $table->string('room_id', 11)->nullable();
-            $table->string('order_id', 100); 
+            $table->string('order_id', 100);
             $table->integer('user_id');
             $table->string('user_name', 150)->nullable();
+            $table->string('user_email', 100)->nullable();
             $table->string('user_phone_number', 150)->nullable();
             $table->string('property_name', 150)->nullable();
-            $table->dateTime('transaction_date');
+            $table->string('property_type', 100)->nullable();
+            $table->string('room_name', 100)->nullable();
+            $table->string('booking_type', 100)->nullable(); 
+            $table->integer('booking_days')->nullable(); 
+            $table->integer('booking_months')->nullable();
+            $table->decimal('daily_price', 18, 4)->nullable(); 
+            $table->decimal('monthly_price', 18, 4)->nullable(); 
             $table->dateTime('check_in')->nullable();
             $table->dateTime('check_out')->nullable();
-            $table->string('room_name', 100)->nullable();
-            $table->string('user_email', 100)->nullable();
-            $table->integer('booking_days');
-            $table->integer('booking_months')->nullable();
-            $table->decimal('daily_price', 18, 4);
-            $table->decimal('room_price', 18, 4);
+            $table->decimal('room_price', 18, 4)->nullable(); 
             $table->decimal('admin_fees', 18, 4)->nullable();
             $table->decimal('grandtotal_price', 18, 4)->nullable();
-            $table->string('property_type', 100)->nullable();
+            $table->dateTime('transaction_date');
             $table->string('transaction_type', 100)->nullable();
             $table->string('transaction_code', 100)->nullable();
-            $table->string('transaction_status', 100)->nullable();
-            $table->string('status', 100)->nullable();
+            $table->string('transaction_status', 100)->nullable();            
+            $table->string('payment_method', 100)->nullable();
+            $table->longText('notes')->nullable();
+            $table->string('status', 100)->default('1'); 
             $table->timestamp('paid_at')->nullable();
-            $table->timestamps();         
-        
+            $table->binary('attachment')->nullable(); 
+            $table->timestamps();
         });
     }
 

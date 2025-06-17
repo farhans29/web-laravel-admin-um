@@ -24,9 +24,9 @@ return new class extends Migration
             $table->text('two_factor_recovery_codes')->nullable();
             $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->integer('is_admin')->default(0);
+            $table->integer('status')->default('active');
             $table->unsignedBigInteger('role_id')->nullable()->default(2);
             $table->string('dep')->nullable();
-            $table->string('status')->default('active');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->string('employee_id')->nullable();

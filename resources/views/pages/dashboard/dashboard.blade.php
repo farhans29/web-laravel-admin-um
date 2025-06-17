@@ -14,7 +14,7 @@
                         <h1 class="text-2xl md:text-3xl text-white font-bold mb-1">
                             MANAGEMENT DASHBOARD
                         </h1>
-                        <p class="text-blue-100 font-medium">Welcome back, {{ Auth::user()->name }}</p>
+                        <p class="text-blue-100 font-medium">Welcome back, {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
                     </div>
 
                     <div class="mt-4 md:mt-0 flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2">
@@ -31,89 +31,98 @@
 
                 <!-- Quick Stats -->
                 <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Occupancy Rate -->
-                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-blue-300">
+                    <!-- Checked Out -->
+                    <div
+                        class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-blue-300 hover:bg-white/15 transition-all duration-200">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">Occupancy Rate</p>
-                                <h3 class="text-white text-2xl font-bold mt-1">78%</h3>
+                                <p class="text-blue-100 text-sm font-medium">Checked Out</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">78</h3>
                                 <p class="text-green-200 text-xs mt-1 flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
                                         fill="currentColor">
                                         <path fill-rule="evenodd"
-                                            d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z"
+                                            d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    5.2% from yesterday
+                                    +5 today
                                 </p>
                             </div>
                             <div class="bg-blue-500/20 p-2 rounded-lg">
+                                <!-- Checkout/Exit icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-200" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                 </svg>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Today's Check-ins -->
-                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-green-300">
+                    <!-- Ready Room -->
+                    <div
+                        class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-green-300 hover:bg-white/15 transition-all duration-200">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">Today's Check-ins</p>
+                                <p class="text-blue-100 text-sm font-medium">Ready Room</p>
                                 <h3 class="text-white text-2xl font-bold mt-1">24</h3>
-                                <p class="text-blue-200 text-xs mt-1">8 pending arrivals</p>
+                                <p class="text-blue-200 text-xs mt-1">8 cleaned today</p>
                             </div>
                             <div class="bg-green-500/20 p-2 rounded-lg">
+                                <!-- Clean/Ready room icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-200" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Revenue -->
-                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-yellow-300">
+                    <!-- Today's Check-in -->
+                    <div
+                        class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-yellow-300 hover:bg-white/15 transition-all duration-200">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">Today's Revenue</p>
-                                <h3 class="text-white text-2xl font-bold mt-1">$12,845</h3>
+                                <p class="text-blue-100 text-sm font-medium">Today's Check-in</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">32</h3>
                                 <p class="text-green-200 text-xs mt-1 flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
                                         fill="currentColor">
                                         <path fill-rule="evenodd"
-                                            d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z"
+                                            d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    12% from yesterday
+                                    +4 from yesterday
                                 </p>
                             </div>
                             <div class="bg-yellow-500/20 p-2 rounded-lg">
+                                <!-- Check-in/Enter icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-200" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        d="M7 8l-4 4m0 0l4 4m-4-4h14m-6-4v-1a3 3 0 013-3h4a3 3 0 013 3v10a3 3 0 01-3 3h-4a3 3 0 01-3-3v-1" />
                                 </svg>
                             </div>
+                                                                         
                         </div>
                     </div>
 
-                    <!-- Maintenance Requests -->
-                    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-red-300">
+                    <!-- Guest Staying -->
+                    <div
+                        class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-red-300 hover:bg-white/15 transition-all duration-200">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">Active Requests</p>
-                                <h3 class="text-white text-2xl font-bold mt-1">5</h3>
-                                <p class="text-red-200 text-xs mt-1">2 high priority</p>
+                                <p class="text-blue-100 text-sm font-medium">Guest Staying</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">120</h3>
+                                <p class="text-red-200 text-xs mt-1">15 extended stay</p>
                             </div>
                             <div class="bg-red-500/20 p-2 rounded-lg">
+                                <!-- Guests/People staying icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-200" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
                         </div>
@@ -155,10 +164,12 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#BK-10245
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        #BK-10245
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">John Smith</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Deluxe Suite (305)
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Deluxe Suite
+                                        (305)
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span
@@ -170,10 +181,13 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#BK-10244
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        #BK-10244
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sarah Johnson</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Executive Room (412)
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sarah Johnson
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Executive Room
+                                        (412)
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span
@@ -184,10 +198,12 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#BK-10243
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        #BK-10243
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Robert Chen</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Presidential Suite
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Presidential
+                                        Suite
                                         (801)</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span
@@ -198,10 +214,12 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#BK-10242
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        #BK-10242
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maria Garcia</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Standard Room (207)
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Standard Room
+                                        (207)
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span
@@ -404,7 +422,8 @@
                                     <div class="ml-2 text-sm text-gray-500">2 days ago</div>
                                 </div>
                                 <div class="mt-1 text-sm font-medium text-gray-900">John Doe</div>
-                                <div class="mt-1 text-sm text-gray-600">"The Deluxe Suite was amazing! Great view and
+                                <div class="mt-1 text-sm text-gray-600">"The Deluxe Suite was amazing! Great view
+                                    and
                                     excellent service."</div>
                             </div>
                         </div>
@@ -443,7 +462,8 @@
                                     <div class="ml-2 text-sm text-gray-500">1 week ago</div>
                                 </div>
                                 <div class="mt-1 text-sm font-medium text-gray-900">Sarah Miller</div>
-                                <div class="mt-1 text-sm text-gray-600">"Absolutely perfect stay! The staff went above
+                                <div class="mt-1 text-sm text-gray-600">"Absolutely perfect stay! The staff went
+                                    above
                                     and beyond to make our anniversary special."</div>
                             </div>
                         </div>
@@ -559,7 +579,8 @@
                             <div class="ml-3">
                                 <p class="text-sm font-medium text-gray-900">Corporate Conference</p>
                                 <p class="text-sm text-gray-500">May 22-24, 2023 • All day</p>
-                                <p class="mt-1 text-sm text-gray-600">TechCorp annual meeting. 15 rooms blocked.</p>
+                                <p class="mt-1 text-sm text-gray-600">TechCorp annual meeting. 15 rooms blocked.
+                                </p>
                             </div>
                         </div>
 
@@ -571,7 +592,8 @@
                             <div class="ml-3">
                                 <p class="text-sm font-medium text-gray-900">Spa Maintenance</p>
                                 <p class="text-sm text-gray-500">May 25, 2023 • 8:00 AM - 2:00 PM</p>
-                                <p class="mt-1 text-sm text-gray-600">Spa will be closed for routine maintenance.</p>
+                                <p class="mt-1 text-sm text-gray-600">Spa will be closed for routine maintenance.
+                                </p>
                             </div>
                         </div>
                     </div>

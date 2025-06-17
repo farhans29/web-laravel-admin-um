@@ -30,6 +30,7 @@ class Transaction extends Model
         'booking_days',
         'booking_months',
         'daily_price',
+        'monthly_price',
         'room_price',
         'admin_fees',
         'grandtotal_price',
@@ -37,19 +38,39 @@ class Transaction extends Model
         'transaction_type',
         'transaction_code',
         'transaction_status',
+        'booking_type',
+        'payment_method',
+        'notes',
+        'attachment',
         'status',
         'paid_at'
     ];
+
 
     protected $casts = [
         'transaction_date' => 'datetime',
         'check_in' => 'datetime',
         'check_out' => 'datetime',
-        'paid_at' => 'datetime',
+        'paid_at' => 'datetime'        
     ];
 
     public function booking()
     {
         return $this->hasOne(Booking::class, 'order_id', 'order_id');
+    }
+
+    public function getAttachmentBase64Attribute()
+    {
+        return $this->attachment ? base64_encode($this->attachment) : null;
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'order_id', 'order_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }
