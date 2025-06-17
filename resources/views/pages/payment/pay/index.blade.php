@@ -49,7 +49,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     @if ($transaction->attachment)
-                                        <a href="{{ route('admin.payments.view-proof', $transaction->idrec) }}"
+                                        <a href=""
                                             target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
                                             View Proof
                                         </a>
