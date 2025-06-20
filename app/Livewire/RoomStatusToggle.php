@@ -9,23 +9,26 @@ class RoomStatusToggle extends Component
 {
     public $roomId;
     public $status;
+    public $roomNo;
 
-    public function mount($roomId, $status)
+    public function mount($roomId, $status, $roomNo)
     {
         $this->roomId = $roomId;
-        $this->status = (bool) $status; // Ensures it's true or false
+        $this->status = $status; // Ensures it's true or false
+        $this->roomNo = $roomNo;
     }
 
-    public function updatedStatus($value)
+    public function updatedStatus($newStatus)
     {
-        logger("Updated status for room {$this->roomId} to: " . ($value ? 1 : 0)); // <-- Debug line
+        logger("Updated status for room {$this->roomId} to: " . $newStatus); // <-- Debug line
     
-        Room::where('idrec', $this->roomId)->update(['status' => $value ? 1 : 0]);
+        $this->status = $newStatus;
+        Room::where('id', $this->roomId)->update(['status' => $this->status]);
     }
 
     public function toggleStatus($isChecked)
     {
-        $this->status = $isChecked ? 1 : 0;
+        $this->status = $isChecked;
 
         Room::where('idrec', $this->roomId)
             ->update(['status' => $this->status]);

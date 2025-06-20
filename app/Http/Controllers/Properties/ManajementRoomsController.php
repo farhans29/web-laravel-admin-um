@@ -32,6 +32,7 @@ class ManajementRoomsController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $validated = $request->validate([
             'room_no' => 'required|string|max:255',
             'room_name' => 'required|string|max:255',
@@ -40,7 +41,7 @@ class ManajementRoomsController extends Controller
             'property_name' => 'required|string',
             'room_type' => 'nullable|string',
             'room_size' => 'required|numeric',
-            'room_bed' => 'required|numeric',
+            'room_bed' => 'required|string',
             'room_capacity' => 'required|numeric',
             'description_id' => 'nullable|string',
             'description_en' => 'nullable|string',
@@ -81,7 +82,7 @@ class ManajementRoomsController extends Controller
             'level' => "",
             'type' => "",
             'size' => $validated['room_size'],
-            'bed_count' => $validated['room_bed'],
+            'bed_type' => $validated['room_bed'],
             'capacity' => $validated['room_capacity'],
             'descriptions' => $validated['description_id'],
             'image' => $validated['photo'] ?? null, // Use photo from $validated if available
@@ -143,7 +144,7 @@ class ManajementRoomsController extends Controller
         $validated = $request->validate([
             'edit_room_name' => 'required|string|max:255',
             'edit_room_size' => 'required|numeric',
-            'edit_room_bed' => 'required|numeric',
+            'edit_room_bed' => 'required|string',
             'edit_room_capacity' => 'required|numeric',
             'description_id' => 'nullable|string',
             'photo' => 'nullable|image|max:2048',
@@ -180,7 +181,7 @@ class ManajementRoomsController extends Controller
             'name' => $validated['edit_room_name'],
             'descriptions' => $validated['description_id'],
             'size' => $validated['edit_room_size'],
-            'bed_count' => $validated['edit_room_bed'],
+            'bed_type' => $validated['edit_room_bed'],
             'capacity' => $validated['edit_room_capacity'],
             'image' => $validated['photo'] ?? null, // Use photo from $validated if available
             'price_original_daily' => $validated['daily_price'] ?? 0,
@@ -304,6 +305,7 @@ class ManajementRoomsController extends Controller
             $end = Carbon::parse($validated['end_date']);
 
             $dates = collect($start->daysUntil($end))->map(fn ($date) => $date->toDateString());
+            // dd($dates);
 
             DB::beginTransaction();
 
@@ -335,5 +337,26 @@ class ManajementRoomsController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    // Route: /properties/rooms/{room}/prices?year=2025&month=6
+    public function getRoomPrices(Request $request, $roomId)
+    {
+        $year = $request->get('year');
+        $month = $request->get('month');
+
+        $start = Carbon::createFromDate($year, $month, 1);
+        $end = $start->copy()->endOfMonth();
+        // dd($start, $end);
+
+        $prices = RoomPrices::where('room_id', $roomId)
+            ->whereBetween('date', [$start, $end])
+            ->pluck('price', 'date') // returns [ '2025-06-13' => 1000000, ... ]
+            ->mapWithKeys(function ($value, $key) {
+                return [Carbon::parse($key)->toDateString() => $value];
+            });
+        // dd($start, $end, $prices);
+
+        return response()->json($prices);
     }
 }

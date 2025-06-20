@@ -21,7 +21,7 @@ class Room extends Model
         'no',
         'descriptions',
         'size',
-        'bed_count',
+        'bed_type',
         'capacity',
         'periode',
         'type',

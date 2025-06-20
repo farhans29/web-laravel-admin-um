@@ -97,15 +97,19 @@
                                         <div class="grid grid-cols-3 gap-6 mb-4">
                                             <div class="space-y-4">
                                                 <div>
-                                                    <label class="block text-sm font-medium">Ukuran Kamar</label>
+                                                    <label class="block text-sm font-medium">Ukuran Kamar (m³)</label>
                                                     <input type="number" name="room_size" required class="w-full border rounded p-2" placeholder="">
                                                 </div>
                                             </div>
 
                                             <div class="space-y-4">
                                                 <div>
-                                                    <label class="block text-sm font-medium">Jumlah Kasur</label>
-                                                    <input type="number" name="room_bed" required class="w-full border rounded p-2" placeholder="">
+                                                    <label class="block text-sm font-medium">Jenis Kasur</label>
+                                                    <select name="room_bed" class="w-full border rounded p-2">
+                                                        @foreach(['Single', 'Double', 'King', 'Queen', 'Twin'] as $bedType)
+                                                            <option value="{{ $bedType }}">{{ $bedType }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             </div>
 
@@ -117,38 +121,58 @@
                                             </div>
                                         </div>
 
-                                        <div 
-                                            x-data="{
-                                                mode: null,
-                                                dailyOriginal: 0,
-                                                monthlyOriginal: 0,
+                                        <div x-data="{
+                                            mode: null,
+                                            dailyOriginal: 0,
+                                            monthlyOriginal: 0,
+                                            cleaveInstance: null,
 
-                                                get priceLabel() {
-                                                    if (this.mode === 'daily') return 'Harga Original Harian';
-                                                    if (this.mode === 'monthly') return 'Harga Original Bulanan';
-                                                    return '';
-                                                },
+                                            get priceLabel() {
+                                                if (this.mode === 'daily') return 'Harga Original Harian';
+                                                if (this.mode === 'monthly') return 'Harga Original Bulanan';
+                                                return '';
+                                            },
 
-                                                get priceNotes() {
-                                                    if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
-                                                    if (this.mode === 'monthly') return '';
-                                                    return '';
-                                                },
+                                            get priceNotes() {
+                                                if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
+                                                return '';
+                                            },
 
-                                                get currentPrice() {
-                                                    return this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
-                                                },
+                                            get currentPrice() {
+                                                return this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
+                                            },
 
-                                                set currentPrice(value) {
-                                                    if (this.mode === 'daily') {
-                                                        this.dailyOriginal = value;
-                                                    } else if (this.mode === 'monthly') {
-                                                        this.monthlyOriginal = value;
-                                                    }
-                                                },
-                                            }" 
-                                            class="space-y-4"
-                                        >
+                                            set currentPrice(value) {
+                                                if (this.mode === 'daily') {
+                                                    this.dailyOriginal = value;
+                                                } else if (this.mode === 'monthly') {
+                                                    this.monthlyOriginal = value;
+                                                }
+                                            },
+
+                                            init() {
+                                                this.$watch('mode', () => {
+                                                    this.$nextTick(() => {
+                                                        if (this.cleaveInstance) {
+                                                            this.cleaveInstance.destroy();
+                                                        }
+
+                                                        const input = this.$refs.priceInput;
+                                                        input.value = ''; // reset visible input
+
+                                                        this.cleaveInstance = new Cleave(input, {
+                                                            numeral: true,
+                                                            numeralDecimalMark: ',',
+                                                            delimiter: '.',
+                                                            numeralThousandsGroupStyle: 'thousand',
+                                                            onValueChanged: (e) => {
+                                                                this.currentPrice = parseFloat(e.target.rawValue || 0);
+                                                            }
+                                                        });
+                                                    });
+                                                });
+                                            }
+                                        }" x-init="init()" class="space-y-4">
                                             <div class="col-span-2 mb-2">
                                                 <h3 class="text-md font-medium border-gray-300 pb-1">Jenis Kamar</h3>
                                             </div>
@@ -168,18 +192,19 @@
                                             <!-- Price input shown only if mode is selected -->
                                             <div x-show="mode" x-transition>
                                                 <label class="block text-sm font-medium" x-text="priceLabel"></label>
-                                                <!-- Hidden field to submit the selected mode -->
                                                 <input type="hidden" name="mode" x-model="mode">
 
-                                                <!-- Price input -->
+                                                <!-- Hidden input to store the actual numeric value -->
+                                                <input type="hidden" :name="mode === 'daily' ? 'daily_price' : 'monthly_price'" :value="currentPrice">
+
+                                                <!-- Visible input field (formatted with Cleave.js) -->
                                                 <input
-                                                    type="number"
-                                                    min="0"
-                                                    x-model.number="currentPrice"
-                                                    :name="mode === 'daily' ? 'daily_price' : 'monthly_price'"
+                                                    type="text"
+                                                    x-ref="priceInput"
                                                     class="w-full border rounded p-2 mt-1"
-                                                    required
-                                                />                                              
+                                                    placeholder="Masukkan harga"
+                                                />
+
                                                 <p class="text-sm text-red-600 italic mb-4" x-html="priceNotes"></p>
                                             </div>
                                         </div>
@@ -204,7 +229,7 @@
                                         <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
 
                                         <div class="flex justify-end gap-2 mt-4">
-                                            <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button>
+                                            {{-- <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button> --}}
                                             <button type="button"
                                                 @click="
                                                     const inputs = $refs.step1Form.querySelectorAll('[required]');
@@ -329,6 +354,9 @@
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Status</th>
                             <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Room Type</th>
+                            <th scope="col"
                                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Aksi</th>
                         </tr>
@@ -353,7 +381,10 @@
                                     {{ $room->creator->username }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status])
+                                    @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status, 'roomNo' => $room->no])
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @livewire('room-type-toggle', ['roomId' => $room->idrec, 'roomType' => $room->periode])
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
@@ -436,15 +467,19 @@
                                                                 <div class="grid grid-cols-3 gap-6 mb-4">
                                                                     <div class="space-y-4">
                                                                         <div>
-                                                                            <label class="block text-sm font-medium">Ukuran Kamar</label>
+                                                                            <label class="block text-sm font-medium">Ukuran Kamar (m³)</label>
                                                                             <input type="number" name="edit_room_size" required class="w-full border rounded p-2" value="{{ e($room->size) }}">
                                                                         </div>
                                                                     </div>
 
                                                                     <div class="space-y-4">
                                                                         <div>
-                                                                            <label class="block text-sm font-medium">Jumlah Kasur</label>
-                                                                            <input type="number" name="edit_room_bed" required class="w-full border rounded p-2" value="{{ e($room->bed_count) }}">
+                                                                            <label class="block text-sm font-medium">Jenis Kasur</label>
+                                                                            <select name="edit_room_bed" class="w-full border rounded p-2">
+                                                                                @foreach(['Single', 'Double', 'King', 'Queen', 'Twin'] as $bedType)
+                                                                                    <option value="{{ $bedType }}" {{ $room->bed_type == $bedType ? 'selected' : '' }}>{{ $bedType }}</option>
+                                                                                @endforeach
+                                                                            </select>
                                                                         </div>
                                                                     </div>
 
@@ -457,10 +492,11 @@
                                                                 </div>
 
                                                                 <div 
-                                                                    x-data="() => ({
+                                                                    x-data="{
                                                                         mode: '{{ e($room->periode) }}',
                                                                         dailyOriginal: {{ e($room->price_original_daily) }},
                                                                         monthlyOriginal: {{ e($room->price_original_monthly) }},
+                                                                        cleaveInstance: null,
 
                                                                         get priceLabel() {
                                                                             if (this.mode === 'daily') return 'Harga Original Harian';
@@ -470,7 +506,6 @@
 
                                                                         get priceNotes() {
                                                                             if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
-                                                                            if (this.mode === 'monthly') return '';
                                                                             return '';
                                                                         },
 
@@ -485,7 +520,44 @@
                                                                                 this.monthlyOriginal = value;
                                                                             }
                                                                         },
-                                                                    })"
+
+                                                                        formatInitialValue() {
+                                                                            const input = this.$refs.priceInput;
+
+                                                                            // Destroy existing Cleave instance if any
+                                                                            if (this.cleaveInstance) {
+                                                                                this.cleaveInstance.destroy();
+                                                                            }
+
+                                                                            // Create a new Cleave instance
+                                                                            this.cleaveInstance = new Cleave(input, {
+                                                                                numeral: true,
+                                                                                numeralDecimalMark: ',',
+                                                                                delimiter: '.',
+                                                                                numeralThousandsGroupStyle: 'thousand',
+                                                                                onValueChanged: (e) => {
+                                                                                    this.currentPrice = parseFloat(e.target.rawValue || 0);
+                                                                                }
+                                                                            });
+
+                                                                            // 💡 Set correct price for the current mode
+                                                                            const price = this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
+                                                                            this.cleaveInstance.setRawValue(price);
+                                                                        },
+
+                                                                        init() {
+                                                                            this.$nextTick(() => {
+                                                                                this.formatInitialValue();
+                                                                            });
+
+                                                                            this.$watch('mode', () => {
+                                                                                this.$nextTick(() => {
+                                                                                    this.formatInitialValue();
+                                                                                });
+                                                                            });
+                                                                        }
+                                                                    }"
+                                                                    x-init="init()"
                                                                     class="space-y-4"
                                                                 >
                                                                     <div class="col-span-2 mb-2">
@@ -507,18 +579,19 @@
                                                                     <!-- Price input shown only if mode is selected -->
                                                                     <div x-show="mode" x-transition>
                                                                         <label class="block text-sm font-medium" x-text="priceLabel"></label>
-                                                                        <!-- Hidden field to submit the selected mode -->
-                                                                        <input type="hidden" name="mode" x-model="mode">
 
-                                                                        <!-- Price input -->
+                                                                        <!-- Hidden field to submit the actual raw price -->
+                                                                        <input type="hidden" :name="mode === 'daily' ? 'daily_price' : 'monthly_price'" :value="currentPrice">
+
+                                                                        <!-- Visible input formatted with Cleave.js -->
                                                                         <input
-                                                                            type="number"
-                                                                            min="0"
-                                                                            x-model.number="currentPrice"
-                                                                            :name="mode === 'daily' ? 'daily_price' : 'monthly_price'"
+                                                                            type="text"
+                                                                            x-ref="priceInput"
                                                                             class="w-full border rounded p-2 mt-1"
+                                                                            placeholder="Masukkan harga"
                                                                             required
-                                                                        />                                              
+                                                                        />
+
                                                                         <p class="text-sm text-red-600 italic mb-4" x-html="priceNotes"></p>
                                                                     </div>
                                                                 </div>
@@ -543,7 +616,7 @@
                                                                 <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
 
                                                                 <div class="flex justify-end gap-2 mt-4">
-                                                                    <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button>
+                                                                    {{-- <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button> --}}
                                                                     <button type="button"
                                                                         @click="
                                                                             const inputs = $refs.step1Form.querySelectorAll('[required]');
@@ -626,48 +699,41 @@
                                             <div x-show="priceModalOpen" x-cloak x-transition class="fixed inset-0 flex items-center justify-center backdrop-blur bg-opacity-30 z-50 text-left">
                                                 <div x-data="{
                                                     startDate: '',
-                                                    endDate: '',
-                                                    dateRangePrice: '',
                                                     setPrice: '',
-                                                    async fetchPricesForRange(start, end) {
-                                                        const dates = [];
-                                                        let current = new Date(start);
-                                                        while (current <= new Date(end)) {
-                                                            dates.push(current.toLocaleDateString('en-CA'));
-                                                            current.setDate(current.getDate() + 1);
-                                                        }
+                                                    cleaveInstance: null,
+                                                    priceMap: {},
+                                                    basePrice: {{ $room->price_original_daily }},
+                                                    
+                                                    get formattedDatePrice() {
+                                                        const price = this.priceMap[this.startDate];
+                                                        if (price === undefined || price === null || isNaN(price)) return '-';
+                                                        return new Intl.NumberFormat('id-ID', {
+                                                            minimumFractionDigits: 0,
+                                                            maximumFractionDigits: 2
+                                                        }).format(price);
+                                                    },
 
-                                                        const priceList = [];
+                                                    get formattedBasePrice() {
+                                                        const price = this.basePrice;
+                                                        if (price === undefined || price === null || isNaN(price)) return '-';
+                                                        return new Intl.NumberFormat('id-ID', {
+                                                            minimumFractionDigits: 0,
+                                                            maximumFractionDigits: 2
+                                                        }).format(price);
+                                                    },
 
-                                                        for (let date of dates) {
-                                                            const res = await fetch(`/properties/rooms/{{ $room->idrec }}/price?date=${date}`);
+                                                    async fetchMonthPrices(year, month, fpInstance) {
+                                                        try {
+                                                            const res = await fetch(`/properties/rooms/{{ $room->idrec }}/prices?year=${year}&month=${month}`);
                                                             const data = await res.json();
-                                                            priceList.push(data.price ?? null);
+                                                            this.priceMap = data;
+                                                            {{-- console.log('Fetched priceMap:', data); --}}
+                                                            fpInstance.redraw(); // Recolor calendar
+                                                        } catch (e) {
+                                                            console.error('Failed to fetch prices', e);
                                                         }
-
-                                                        const uniquePrices = [...new Set(priceList)];
-
-                                                        this.dateRangePrice = uniquePrices.length === 1 && uniquePrices[0] !== null
-                                                            ? uniquePrices[0]
-                                                            : '-';
                                                     },
-                                                    init() {
-                                                        flatpickr(this.$el.querySelector('.inline-calendar'), {
-                                                            inline: true,
-                                                            mode: 'range',
-                                                            dateFormat: 'Y-m-d',
-                                                            onChange: async (dates) => {
-                                                                if (dates.length > 0) {
-                                                                    this.startDate = dates[0].toLocaleDateString('en-CA');
-                                                                    this.endDate = dates[1]
-                                                                        ? dates[1].toLocaleDateString('en-CA')
-                                                                        : dates[0].toLocaleDateString('en-CA');
 
-                                                                    await this.fetchPricesForRange(this.startDate, this.endDate);
-                                                                }
-                                                            }
-                                                        });
-                                                    },
                                                     async updatePrice() {
                                                         try {
                                                             const res = await fetch(`/properties/rooms/{{ $room->idrec }}/update-price`, {
@@ -678,70 +744,174 @@
                                                                 },
                                                                 body: JSON.stringify({
                                                                     start_date: this.startDate,
-                                                                    end_date: this.endDate,
+                                                                    end_date: this.startDate,
                                                                     price: this.setPrice
                                                                 })
                                                             });
 
                                                             const data = await res.json();
+                                                            {{-- console.log(data); --}}
 
                                                             if (res.ok) {
                                                                 alert(data.message || 'Harga berhasil diperbarui!');
+                                                                const date = this.startDate;
+                                                                {{-- console.log(date); --}}
+                                                                if (!date) {
+                                                                    alert('Tanggal belum dipilih.');
+                                                                    return;
+                                                                }
+                                                                const [year, month] = date.split('-');
+                                                                {{-- console.log(year, month); --}}
+                                                                await this.fetchMonthPrices(parseInt(year), parseInt(month), this.fpInstance);
                                                             } else {
                                                                 alert(data.message || 'Gagal memperbarui harga.');
                                                             }
-                                                        } catch (error) {
-                                                            console.error('Unexpected error:', error);
+                                                        } catch (e) {
+                                                            console.error('Update error:', e);
                                                             alert('Terjadi kesalahan saat memperbarui harga.');
                                                         }
+                                                    },
+
+                                                    init() {
+                                                        const self = this;
+                                                        const calendar = flatpickr(this.$el.querySelector('.inline-calendar'), {
+                                                            inline: true,
+                                                            mode: 'single',
+                                                            dateFormat: 'Y-m-d',
+
+                                                            async onReady(selectedDates, dateStr, instance) {
+                                                                self.fpInstance = instance; // ✅ store reference
+                                                                await self.fetchMonthPrices(instance.currentYear, instance.currentMonth + 1, instance);
+                                                            },
+
+                                                            async onMonthChange(selectedDates, dateStr, instance) {
+                                                                await self.fetchMonthPrices(instance.currentYear, instance.currentMonth + 1, instance);
+                                                            },
+
+                                                            async onChange(dates) {
+                                                                if (dates.length > 0) {
+                                                                    const localDate = dates[0];
+                                                                    const year = localDate.getFullYear();
+                                                                    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                                                                    const day = String(localDate.getDate()).padStart(2, '0');
+                                                                    self.startDate = `${year}-${month}-${day}`;
+                                                                }
+                                                            },
+
+                                                            onDayCreate(dObj, dStr, fp, dayElem) {
+                                                                // Skip days from previous or next month
+                                                                if (dayElem.classList.contains('prevMonthDay') || dayElem.classList.contains('nextMonthDay')) {
+                                                                    return;
+                                                                }
+                                                                    
+                                                                const localDate = dayElem.dateObj;
+                                                                const year = localDate.getFullYear();
+                                                                const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                                                                const day = String(localDate.getDate()).padStart(2, '0');
+                                                                const date = `${year}-${month}-${day}`;
+                                                                const price = self.priceMap[date];
+
+                                                                {{-- dayElem.style.backgroundColor = price === undefined || price === null
+                                                                    ? '#d1d5db' // gray-300
+                                                                    : parseInt(price) === parseInt(self.basePrice)
+                                                                        ? '#3b82f6' // blue-500
+                                                                        : '#ef4444'; // red-500 --}}
+
+                                                                dayElem.style.backgroundColor = 
+                                                                    (price === undefined || price === null || price == 0)
+                                                                        ? '#d1d5db' // gray-300 for empty
+                                                                        : (parseInt(price) === parseInt(self.basePrice)
+                                                                            ? '#3b82f6' // blue-500 for base price
+                                                                            : (parseInt(price) > parseInt(self.basePrice)
+                                                                                ? '#ef4444' // red-500 for higher price
+                                                                                : '#4CAF50')); // green-500 for lower price
+
+                                                                dayElem.style.color = '#ffffff'; // white text
+                                                            }
+                                                        });
+
+                                                        this.fpInstance = calendar; // ✅ fallback if needed
+
+                                                        this.$nextTick(() => {
+                                                            this.cleaveInstance = new Cleave(this.$refs.setPrice, {
+                                                                numeral: true,
+                                                                numeralDecimalMark: ',',
+                                                                delimiter: '.',
+                                                                numeralThousandsGroupStyle: 'thousand',
+                                                                onValueChanged: (e) => {
+                                                                    this.setPrice = parseFloat(e.target.rawValue || 0);
+                                                                }
+                                                            });
+                                                        });
                                                     }
                                                 }" x-init="init"
                                                 class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative space-y-6 overflow-y-auto max-h-[90vh]">
 
                                                     <!-- Header -->
                                                     <div class="flex justify-between items-center border-b pb-3">
-                                                        <h2 class="text-lg font-semibold text-gray-800">Edit Harga</h2>
+                                                        <h2 class="text-lg font-semibold text-gray-800">Manajemen Harga (Harian)</h2>
                                                         <button @click="priceModalOpen = false" class="text-gray-500 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
                                                     </div>
 
                                                     <!-- Content Grid -->
-                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                                                         <!-- LEFT: Calendar -->
-                                                        <div class="text-center space-y-4">
+                                                        <div class="flex flex-col h-full justify-between space-y-4">
                                                             <div class="p-2 inline-block" style="position: relative;">
                                                                 <style>.inline-calendar input { display: none; }</style>
                                                                 <div class="inline-calendar"></div>
                                                             </div>
+
+                                                            <!-- Legend -->
+                                                            <div class="grid grid-cols-2 gap-2 text-sm text-left">
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded" style="background-color: #d1d5db;"></div>
+                                                                    <span>Belum ada harga</span>
+                                                                </div>
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded" style="background-color: #3b82f6;"></div>
+                                                                    <span>Harga standar</span>
+                                                                </div>
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded" style="background-color: #ef4444;"></div>
+                                                                    <span>Harga lebih tinggi</span>
+                                                                </div>
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded" style="background-color: #4CAF50;"></div>
+                                                                    <span>Harga lebih rendah</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
 
                                                         <!-- RIGHT: Form -->
-                                                        <div class="space-y-4">
-                                                            <div class="grid grid-cols-2 gap-4">
-                                                                <div>
-                                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Awal</label>
-                                                                    <input type="text" :value="startDate" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
-                                                                </div>
-                                                                <div>
-                                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Akhir</label>
-                                                                    <input type="text" :value="endDate" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
-                                                                </div>
+                                                        <div class="flex flex-col h-full justify-between space-y-4">
+                                                            <div class="w-full space-y-1">
+                                                                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                                                <input type="text" :value="startDate" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
                                                             </div>
                                                             <div class="w-full space-y-1">
-                                                                <label class="block text-sm font-medium text-gray-700">Harga pada rentang tanggal</label>
-                                                                <input type="text" :value="dateRangePrice" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
-                                                                <p class="text-xs text-gray-500 mt-1 w-full break-words whitespace-normal">
-                                                                    Jika harga menunjukkan "-", maka ada harga yang berbeda atau harga yang kosong.
+                                                                <label class="block text-sm font-medium text-gray-700">Harga pada tanggal</label>
+                                                                <input type="text" :value="formattedDatePrice" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
+                                                                <p class="text-xs text-gray-500 mt-1 w-full break-words whitespace-normal italic">
+                                                                    Harga original: <span x-text="formattedBasePrice"></span><br>
+                                                                    Jika harga menunjukkan '-', maka harga kosong.
                                                                 </p>
                                                             </div>
                                                             <div>
                                                                 <label class="block text-sm font-medium text-gray-700 mb-1">Harga Baru</label>
-                                                                <input type="number" x-model="setPrice" class="border border-gray-300 px-4 py-2 rounded w-full" placeholder="Masukkan Harga">
+                                                                <input
+                                                                    type="text"
+                                                                    x-ref="setPrice"
+                                                                    class="border border-gray-300 px-4 py-2 rounded w-full"
+                                                                    placeholder="Masukkan harga"
+                                                                />
                                                             </div>
                                                             <div class="flex justify-between pt-2">
                                                                 <button @click="updatePrice" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Update</button>
                                                             </div>
                                                         </div>
                                                     </div>
+
                                                 </div>
                                             </div>
                                         </div>

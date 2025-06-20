@@ -82,6 +82,8 @@ Route::middleware(['auth'])->group(function () {
         // Route to update price for a date range
         Route::post('/rooms/{room}/update-price', [ManajementRoomsController::class, 'updatePriceRange'])
             ->name('rooms.prices.update');
+
+        Route::get('/rooms/{room}/prices', [ManajementRoomsController::class, 'getRoomPrices'])->name('rooms.prices.index');
     });
 
     Route::prefix('master')->group(function () {});
