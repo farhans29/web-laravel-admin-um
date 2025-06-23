@@ -14,11 +14,7 @@ class DashboardController extends Controller
         return view('pages/dashboard/dashboard', compact('dataFeed'));
     }
 
-    /**
-     * Displays the analytics screen
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
+    
     public function analytics()
     {
         return view('pages/dashboard/analytics');

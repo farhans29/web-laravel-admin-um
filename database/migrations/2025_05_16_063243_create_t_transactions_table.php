@@ -39,7 +39,7 @@ return new class extends Migration
             $table->string('transaction_status', 100)->nullable();            
             $table->string('payment_method', 100)->nullable();
             $table->longText('notes')->nullable();
-            $table->integer('status', 100)->default('1'); 
+            $table->integer('status')->default(1);
             $table->timestamp('paid_at')->nullable();
             $table->binary('attachment')->nullable(); 
             $table->timestamps();

@@ -601,12 +601,13 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            @if($property->images->isNotEmpty() && !empty($property->images->first()->image))
+                                            @if ($property->images->isNotEmpty() && !empty($property->images->first()->image))
                                                 <img src="data:image/jpeg;base64,{{ $property->images->first()->image }}"
                                                     alt="Property Image" class="w-full h-full object-cover rounded" />
-                                            @else                                                
-                                                <img src="{{ asset('images/picture.png') }}" 
-                                                    alt="Default Property Image" class="w-full h-full object-cover rounded" />
+                                            @else
+                                                <img src="{{ asset('images/picture.png') }}"
+                                                    alt="Default Property Image"
+                                                    class="w-full h-full object-cover rounded" />
                                             @endif
                                         </div>
                                         <div class="ml-4">
@@ -1126,7 +1127,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
                                         <!-- Edit -->
                                         <div x-data="modalPropertyEdit({{ $property }})" class="relative group">
                                             @php
@@ -1134,32 +1134,39 @@
                                                     $property->features,
                                                     JSON_HEX_APOS | JSON_HEX_QUOT,
                                                 );
-                                                $attributes = json_encode(
-                                                    $property->attributes,
-                                                    JSON_HEX_APOS | JSON_HEX_QUOT,
-                                                );
+                                                $images = $property->images
+                                                    ->map(function ($image) {
+                                                        return [
+                                                            'id' => $image->idrec,
+                                                            'url' => 'data:image/jpeg;base64,' . $image->image,
+                                                            'caption' => $image->caption,
+                                                            'name' => 'Image_' . $image->idrec . '.jpg',
+                                                        ];
+                                                    })
+                                                    ->toJson();
                                             @endphp
 
                                             <button class="text-amber-600 hover:text-amber-900" type="button"
                                                 @click.prevent='openModal({
-                                                                    name: @json($property->name),
-                                                                    city: @json($property->city),
-                                                                    province: @json($property->province),
-                                                                    description: @json($property->description),
-                                                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
-                                                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
-                                                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
-                                                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                                                    location: @json($property->location),
-                                                                    images: [
-                                                                                "data:image/jpeg;base64,{{ $property->image }}",
-                                                                                "data:image/jpeg;base64,{{ $property->image2 }}",
-                                                                                "data:image/jpeg;base64,{{ $property->image3 }}"
-                                                                            ],
-                                                                    distance: @json($property->distance),
-                                                                    features: {!! $features !!},
-                                                                    attributes: {!! $attributes !!}
-                                                                })'
+                                                                name: @json($property->name),
+                                                                city: @json($property->city),
+                                                                province: @json($property->province),
+                                                                description: @json($property->description),
+                                                                created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
+                                                                updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
+                                                                creator: "{{ $property->creator->username ?? 'Unknown' }}",
+                                                                status: "{{ $property->status ? 'Active' : 'Inactive' }}",
+                                                                location: @json($property->location),                                                                                                                                     
+                                                                features: {!! $features !!},
+                                                                existingImages: {!! $images !!},
+                                                                latitude: {{ $property->latitude ?? 'null' }},
+                                                                longitude: {{ $property->longitude ?? 'null' }},
+                                                                address: @json($property->address),
+                                                                subdistrict: @json($property->subdistrict),
+                                                                village: @json($property->village),
+                                                                postal_code: @json($property->postal_code),
+                                                                type: @json($property->type)
+                                                            })'
                                                 aria-controls="property-edit-modal" title="Edit Property">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                     viewBox="0 0 20 20" fill="currentColor">
@@ -1426,12 +1433,13 @@
                                                                                 class="text-red-500 ml-1">*</span>
                                                                             <span
                                                                                 class="text-gray-500 text-sm font-normal ml-2">(Klik
-                                                                                untuk
-                                                                                menandai langsung pada peta)</span>
+                                                                                untuk menandai langsung pada
+                                                                                peta)</span>
                                                                         </label>
                                                                         <div id="map_edit"
                                                                             class="h-64 bg-gray-100 rounded-lg border-2 border-gray-200 flex items-center justify-center">
-                                                                            <div class="text-gray-500 text-center">
+                                                                            <div class="text-gray-500 text-center"
+                                                                                x-show="!propertyData.latitude || !propertyData.longitude">
                                                                                 <svg class="w-12 h-12 mx-auto mb-2"
                                                                                     fill="none"
                                                                                     stroke="currentColor"
@@ -1451,7 +1459,15 @@
                                                                             </div>
                                                                         </div>
                                                                         <div id="coordinates_edit"
-                                                                            class="mt-2 text-sm text-gray-500"></div>
+                                                                            class="mt-2 text-sm text-gray-500">
+                                                                            <span
+                                                                                x-show="propertyData.latitude && propertyData.longitude">
+                                                                                Koordinat: <span
+                                                                                    x-text="propertyData.latitude"></span>,
+                                                                                <span
+                                                                                    x-text="propertyData.longitude"></span>
+                                                                            </span>
+                                                                        </div>
                                                                         <input type="hidden" id="latitude_edit"
                                                                             name="latitude"
                                                                             x-model="propertyData.latitude">
@@ -1595,10 +1611,10 @@
                                                                                 class="text-red-500">*</span>
                                                                             <span
                                                                                 class="text-sm font-normal text-gray-500">
-                                                                                (Wajib 3 foto - <span
-                                                                                    x-text="remainingSlots"></span>
-                                                                                foto
-                                                                                lagi)
+                                                                                (Minimal <span
+                                                                                    x-text="minImages"></span> foto,
+                                                                                maksimal <span
+                                                                                    x-text="maxImages"></span> foto)
                                                                             </span>
                                                                         </label>
 
@@ -1606,7 +1622,7 @@
                                                                         <div x-show="canUploadMore"
                                                                             @drop="handleDrop($event)"
                                                                             @dragover.prevent @dragenter.prevent
-                                                                            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer mt-4"
+                                                                            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer"
                                                                             :class="{ 'border-blue-400 bg-blue-50': canUploadMore }">
                                                                             <div class="space-y-2">
                                                                                 <svg class="w-12 h-12 mx-auto text-gray-400"
@@ -1616,17 +1632,16 @@
                                                                                     <path stroke-linecap="round"
                                                                                         stroke-linejoin="round"
                                                                                         stroke-width="2"
-                                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                                                    </path>
+                                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                                                 </svg>
                                                                                 <div
                                                                                     class="flex text-sm text-gray-600 justify-center">
-                                                                                    <label for="property_images_edit"
+                                                                                    <label for="edit_property_images"
                                                                                         class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                                                                         <span>Upload foto</span>
                                                                                         <input
-                                                                                            id="property_images_edit"
-                                                                                            name="property_images[]"
+                                                                                            id="edit_property_images"
+                                                                                            name="edit_property_images[]"
                                                                                             type="file" multiple
                                                                                             accept="image/*"
                                                                                             @change="handleFileSelect($event)"
@@ -1636,16 +1651,24 @@
                                                                                         drop</p>
                                                                                 </div>
                                                                                 <p class="text-xs text-gray-500">PNG,
-                                                                                    JPG, JPEG up to 5MB</p>
-                                                                                <p class="text-xs text-blue-600"
-                                                                                    x-text="`Dapat upload ${remainingSlots} foto lagi`">
+                                                                                    JPG, JPEG (maks. 5MB per file)</p>
+                                                                                <p class="text-xs"
+                                                                                    :class="{
+                                                                                        'text-red-600': remainingSlots <=
+                                                                                            0,
+                                                                                        'text-yellow-600': remainingSlots >
+                                                                                            0 && remainingSlots < 3,
+                                                                                        'text-blue-600': remainingSlots >=
+                                                                                            3
+                                                                                    }"
+                                                                                    x-text="imageUploadStatus.message">
                                                                                 </p>
                                                                             </div>
                                                                         </div>
 
                                                                         <!-- Full Upload Message -->
                                                                         <div x-show="!canUploadMore"
-                                                                            class="border-2 border-green-300 rounded-lg p-8 text-center bg-green-50 mt-4">
+                                                                            class="border-2 border-green-300 rounded-lg p-8 text-center bg-green-50">
                                                                             <div class="space-y-2">
                                                                                 <svg class="w-12 h-12 mx-auto text-green-500"
                                                                                     fill="none"
@@ -1654,38 +1677,56 @@
                                                                                     <path stroke-linecap="round"
                                                                                         stroke-linejoin="round"
                                                                                         stroke-width="2"
-                                                                                        d="M5 13l4 4L19 7"></path>
+                                                                                        d="M5 13l4 4L19 7" />
                                                                                 </svg>
                                                                                 <p
                                                                                     class="text-sm text-green-600 font-medium">
-                                                                                    3 foto telah diupload!</p>
+                                                                                    <span x-text="maxImages"></span>
+                                                                                    foto telah diupload!
+                                                                                </p>
                                                                                 <p class="text-xs text-green-500">
-                                                                                    Semua slot foto telah terisi</p>
+                                                                                    Maksimal upload foto tercapai</p>
                                                                             </div>
                                                                         </div>
 
                                                                         <!-- Image Preview Grid -->
-                                                                        <div x-show="images.length > 0"
-                                                                            class="mt-6 grid grid-cols-3 gap-4"
+                                                                        <div x-show="propertyData.existingImages.filter(img => !img.markedForDeletion).length > 0 || images.length > 0"
+                                                                            class="mt-2 grid grid-cols-5 gap-1"
                                                                             x-transition:enter="transition ease-out duration-300"
                                                                             x-transition:enter-start="opacity-0 scale-95"
                                                                             x-transition:enter-end="opacity-100 scale-100">
-                                                                            <template x-for="(image, index) in images"
-                                                                                :key="'new-' + index">
-                                                                                <div class="relative group">
-                                                                                    <!-- Image Container -->
+
+                                                                            <!-- Existing Images -->
+                                                                            <template
+                                                                                x-for="(image, index) in propertyData.existingImages"
+                                                                                :key="'existing-' + index">
+                                                                                <div class="relative group"
+                                                                                    x-show="!image.markedForDeletion">
+                                                                                    <!-- Image Preview -->
                                                                                     <div
-                                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-blue-400 transition-colors duration-200">
+                                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
                                                                                         <img :src="image.url"
-                                                                                            :alt="`New Image ${index + 1}`"
+                                                                                            :alt="'Existing Image ' + (index +
+                                                                                                1)"
                                                                                             class="w-full h-full object-cover">
+                                                                                        <div
+                                                                                            class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                            <span
+                                                                                                x-text="index + 1"></span>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div
+                                                                                        class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
+                                                                                        <p class="text-[8px] text-gray-600 truncate"
+                                                                                            x-text="image.name"></p>
                                                                                     </div>
 
                                                                                     <!-- Remove Button -->
                                                                                     <button
-                                                                                        @click="removeImage(index)"
-                                                                                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                                                        <svg class="w-3 h-3"
+                                                                                        @click="removeExistingImage(index)"
+                                                                                        class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                                        <svg class="w-2 h-2"
                                                                                             fill="none"
                                                                                             stroke="currentColor"
                                                                                             viewBox="0 0 24 24">
@@ -1693,21 +1734,52 @@
                                                                                                 stroke-linecap="round"
                                                                                                 stroke-linejoin="round"
                                                                                                 stroke-width="2"
-                                                                                                d="M6 18L18 6M6 6l12 12">
-                                                                                            </path>
+                                                                                                d="M6 18L18 6M6 6l12 12" />
                                                                                         </svg>
                                                                                     </button>
 
-                                                                                    <!-- Image Number Badge -->
+                                                                                    <!-- Hidden Image ID -->
+                                                                                    <input type="hidden"
+                                                                                        name="existing_images[]"
+                                                                                        :value="image.id">
+                                                                                </div>
+                                                                            </template>
+
+                                                                            <!-- New Images -->
+                                                                            <template x-for="(image, index) in images"
+                                                                                :key="'new-' + index">
+                                                                                <div class="relative group">
                                                                                     <div
-                                                                                        class="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                                                                        <span
-                                                                                            x-text="propertyData.existingImages.length + index + 1"></span>
+                                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
+                                                                                        <img :src="image.url"
+                                                                                            :alt="'New Image ' + (index + 1)"
+                                                                                            class="w-full h-full object-cover">
+                                                                                        <div
+                                                                                            class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                            <span
+                                                                                                x-text="propertyData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                                                        </div>
                                                                                     </div>
 
-                                                                                    <!-- File Name -->
-                                                                                    <div class="mt-2">
-                                                                                        <p class="text-xs text-gray-600 truncate"
+                                                                                    <!-- Remove Button -->
+                                                                                    <button @click="removeImage(index)"
+                                                                                        class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                                        <svg class="w-2 h-2"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M6 18L18 6M6 6l12 12" />
+                                                                                        </svg>
+                                                                                    </button>
+
+                                                                                    <!-- File Name (Optional) -->
+                                                                                    <div
+                                                                                        class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
+                                                                                        <p class="text-[8px] text-gray-600 truncate"
                                                                                             x-text="image.name"></p>
                                                                                     </div>
                                                                                 </div>
@@ -1720,33 +1792,44 @@
                                                                                 class="flex justify-between text-sm text-gray-600 mb-2">
                                                                                 <span>Progress Upload</span>
                                                                                 <span
-                                                                                    x-text="`${images.length + propertyData.existingImages.length}/${maxImages} foto`"></span>
+                                                                                    x-text="`${propertyData.existingImages.filter(img => !img.markedForDeletion).length + images.length}/${maxImages} foto`"></span>
                                                                             </div>
                                                                             <div
-                                                                                class="w-full bg-gray-200 rounded-full h-2">
-                                                                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                                                                    :style="`width: ${((images.length + propertyData.existingImages.length) / maxImages) * 100}%`">
+                                                                                class="w-full bg-gray-200 rounded-full h-2.5">
+                                                                                <div class="h-2.5 rounded-full transition-all duration-300"
+                                                                                    :style="`width: ${uploadProgress.percentage}%`"
+                                                                                    :class="{
+                                                                                        'bg-red-500': uploadProgress
+                                                                                            .status === 'danger',
+                                                                                        'bg-yellow-500': uploadProgress
+                                                                                            .status === 'warning',
+                                                                                        'bg-green-500': uploadProgress
+                                                                                            .status === 'success'
+                                                                                    }">
                                                                                 </div>
                                                                             </div>
+                                                                            <p class="text-sm mt-1"
+                                                                                :class="imageUploadStatus.class"
+                                                                                x-text="imageUploadStatus.message"></p>
                                                                         </div>
 
-                                                                        <!-- Validation Message -->
-                                                                        <div x-show="images.length + propertyData.existingImages.length < 3"
-                                                                            class="mt-3">
-                                                                            <p class="text-sm text-red-600">
+                                                                        <!-- Validation Messages -->
+                                                                        <div x-show="(propertyData.existingImages.filter(img => !img.markedForDeletion).length + images.length) < minImages"
+                                                                            class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                                            <p class="text-red-600 text-sm">
                                                                                 <span
                                                                                     class="font-medium">Perhatian:</span>
-                                                                                Anda harus mengupload tepat 3 foto untuk
-                                                                                melanjutkan.
+                                                                                Anda harus mengupload minimal <span
+                                                                                    x-text="minImages"></span> foto.
                                                                             </p>
                                                                         </div>
 
-                                                                        <div x-show="images.length + propertyData.existingImages.length === 3"
-                                                                            class="mt-3">
-                                                                            <p class="text-sm text-green-600">
+                                                                        <div x-show="(propertyData.existingImages.filter(img => !img.markedForDeletion).length + images.length) >= minImages"
+                                                                            class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                                            <p class="text-green-600 text-sm">
                                                                                 <span
                                                                                     class="font-medium">Sempurna!</span>
-                                                                                Semua foto telah diupload.
+                                                                                Foto sudah memenuhi syarat minimal.
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -1916,7 +1999,7 @@
                 },
 
                 handleSwipe() {
-                    const threshold = 50; // Minimum swipe distance
+                    const threshold = 50;
                     const diff = this.touchStartX - this.touchEndX;
 
                     if (diff > threshold) {
@@ -2250,17 +2333,34 @@
                     const availableSlots = this.maxImages - this.images.length;
 
                     if (availableSlots <= 0) {
-                        alert(`Maksimal hanya ${this.maxImages} foto yang dapat diupload.`);
+                        Swal.fire({
+                            toast: true,
+                            icon: 'error',
+                            title: `Maksimal hanya ${this.maxImages} foto yang dapat diupload.`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
                         return;
                     }
+
 
                     const filesToProcess = imageFiles.slice(0, availableSlots);
 
                     if (imageFiles.length > availableSlots) {
-                        alert(
-                            `Hanya ${availableSlots} foto yang dapat ditambahkan. Sisa slot: ${availableSlots}`
-                        );
+                        Swal.fire({
+                            toast: true,
+                            icon: 'warning',
+                            title: `Hanya ${availableSlots} foto yang dapat ditambahkan.`,
+                            text: `Sisa slot: ${availableSlots}`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
                     }
+
 
                     filesToProcess.forEach(file => {
                         if (file.size <= 5 * 1024 * 1024) { // 5MB limit
@@ -2394,55 +2494,94 @@
 
                 // Enhanced submit form with better image handling
                 submitForm() {
-                    if (this.validateStep(4)) {
-                        const form = document.getElementById('propertyForm');
-                        const formData = new FormData(form);
+                    if (!this.validateStep(4)) return;
 
-                        // Clear any existing file inputs
-                        formData.delete('property_images[]');
-
-                        // Add each selected image
-                        this.images.forEach((image, index) => {
-                            formData.append('property_images[]', image.file);
-                        });
-
-                        // Add image count for backend validation
-                        formData.append('image_count', this.images.length);
-
-                        // Submit the form
-                        fetch(form.action, {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector(
-                                        'meta[name="csrf-token"]').content,
-                                    'Accept': 'application/json'
-                                }
-                            })
-                            .then(response => {
-                                if (!response.ok) throw new Error('Network response was not ok');
-                                return response.json();
-                            })
-                            .then(data => {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'success',
-                                    title: `Property berhasil disimpan dengan ${this.images.length} foto!`,
-                                    showConfirmButton: false,
-                                    timer: 1000,
-                                    timerProgressBar: true,
-                                    didClose: () => {
-                                        window.location.href =
-                                            '{{ route('properties.index') }}';
-                                    }
-                                });
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('Error submitting form');
-                            });
+                    // Store original button state
+                    const submitBtn = document.querySelector('#propertyForm button[type="submit"]');
+                    const originalBtnContent = submitBtn?.innerHTML;
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                Processing...
+                                            `;
                     }
+
+                    const form = document.getElementById('propertyForm');
+                    const formData = new FormData(form);
+
+                    // Clear any existing file inputs
+                    formData.delete('property_images[]');
+
+                    // Add each selected image
+                    this.images.forEach((image, index) => {
+                        formData.append('property_images[]', image.file);
+                    });
+
+                    // Add image count for backend validation
+                    formData.append('image_count', this.images.length);
+
+                    // Submit the form
+                    fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(async response => {
+                            // First check if response is JSON
+                            const contentType = response.headers.get('content-type');
+                            if (!contentType || !contentType.includes('application/json')) {
+                                const text = await response.text();
+                                throw new Error(
+                                    `Expected JSON but got: ${text.substring(0, 100)}...`);
+                            }
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                // Handle server-side validation errors
+                                let errorMsg = data.message || 'Submission failed';
+                                if (data.errors) {
+                                    errorMsg = Object.values(data.errors).join('\n');
+                                }
+                                throw new Error(errorMsg);
+                            }
+
+                            return data;
+                        })
+                        .then(data => {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: `Property berhasil disimpan dengan ${this.images.length} foto!`,
+                                showConfirmButton: false,
+                                timer: 1000,
+                                timerProgressBar: true,
+                                didClose: () => {
+                                    window.location.href =
+                                        '{{ route('properties.index') }}';
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: error.message || 'Failed to submit form',
+                            });
+                        })
+                        .finally(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnContent;
+                            }
+                        });
                 },
 
                 // Helper method to get upload progress info
@@ -2463,15 +2602,23 @@
             return {
                 modalOpenDetail: false,
                 step: 1,
-                maxImages: 3,
+                minImages: 3,
+                maxImages: 10,
                 images: [],
+                map: null,
+                marker: null,
+                searchQuery: '',
+                searchResults: [],
+                isSearching: false,
+                isSubmitting: false, // Track submission state
+                originalPropertyData: {}, // Store original data for comparison
                 propertyData: {
                     name: property.name || '',
                     type: property.tags || 'House',
                     description: property.description || '',
                     address: property.address || '',
-                    latitude: property.latitude || '',
-                    longitude: property.longitude || '',
+                    latitude: property.latitude || null,
+                    longitude: property.longitude || null,
                     province: property.province || '',
                     city: property.city || '',
                     subdistrict: property.subdistrict || '',
@@ -2479,152 +2626,401 @@
                     postal_code: property.postal_code || '',
                     features: property.features || [],
                     attributes: property.attributes || [],
-                    // Add existing images from property data
-                    existingImages: [
-                        property.image ? {
-                            url: property.image
-                        } : null,
-                        property.image2 ? {
-                            url: property.image2
-                        } : null,
-                        property.image3 ? {
-                            url: property.image3
-                        } : null
-                    ].filter(img => img !== null)
+                    existingImages: property.images ? property.images.map(img => ({
+                        id: img.idrec,
+                        url: 'data:image/jpeg;base64,' + img.image,
+                        caption: img.caption || '',
+                        name: 'Image_' + img.idrec + '.jpg',
+                        markedForDeletion: false // Track which images to delete
+                    })) : []
+                },
+
+                init() {
+                    // Store original data for comparison
+                    this.originalPropertyData = JSON.parse(JSON.stringify(this.propertyData));
+
+                    this.$watch('step', (value) => {
+                        if (value === 2 && typeof L === 'undefined') {
+                            this.loadLeaflet().then(() => {
+                                setTimeout(() => {
+                                    this.initMap();
+                                }, 100);
+                            });
+                        } else if (value === 2 && typeof L !== 'undefined' && !this.map) {
+                            setTimeout(() => {
+                                this.initMap();
+                            }, 100);
+                        }
+                    });
+                },
+
+                loadLeaflet() {
+                    return new Promise((resolve) => {
+                        if (typeof L !== 'undefined') {
+                            resolve();
+                            return;
+                        }
+
+                        // Load Leaflet CSS
+                        const css = document.createElement('link');
+                        css.rel = 'stylesheet';
+                        css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                        css.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                        css.crossOrigin = '';
+                        document.head.appendChild(css);
+
+                        // Load Leaflet JS
+                        const js = document.createElement('script');
+                        js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                        js.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+                        js.crossOrigin = '';
+                        js.onload = () => {
+                            // Ensure DOM is fully loaded before resolving
+                            setTimeout(resolve, 50);
+                        };
+                        document.head.appendChild(js);
+                    });
                 },
 
                 get remainingSlots() {
-                    return this.maxImages - (this.images.length + this.propertyData.existingImages.length);
+                    return this.maxImages - (this.propertyData.existingImages.filter(img => !img.markedForDeletion)
+                        .length + this.images.length);
                 },
 
                 get canUploadMore() {
-                    return (this.images.length + this.propertyData.existingImages.length) < this.maxImages;
+                    return (this.propertyData.existingImages.filter(img => !img.markedForDeletion).length + this.images
+                        .length) < this.maxImages;
+                },
+
+                get uploadProgress() {
+                    const totalCurrentImages = this.propertyData.existingImages.filter(img => !img.markedForDeletion)
+                        .length + this.images.length;
+                    const percentage = Math.min(100, (totalCurrentImages / this.maxImages) * 100);
+
+                    return {
+                        percentage,
+                        status: totalCurrentImages < this.minImages ? 'danger' : totalCurrentImages >= this.minImages &&
+                            totalCurrentImages < this.maxImages ? 'warning' : 'success'
+                    };
+                },
+
+                get imageUploadStatus() {
+                    const totalCurrentImages = this.propertyData.existingImages.filter(img => !img.markedForDeletion)
+                        .length + this.images.length;
+
+                    if (totalCurrentImages < this.minImages) {
+                        return {
+                            class: 'text-red-600',
+                            message: `Minimal ${this.minImages} foto diperlukan (${totalCurrentImages}/${this.minImages})`
+                        };
+                    } else if (totalCurrentImages >= this.minImages && totalCurrentImages < this.maxImages) {
+                        return {
+                            class: 'text-yellow-600',
+                            message: `${totalCurrentImages}/${this.maxImages} foto (dapat menambah ${this.maxImages - totalCurrentImages} lagi)`
+                        };
+                    } else {
+                        return {
+                            class: 'text-green-600',
+                            message: `${totalCurrentImages}/${this.maxImages} foto (maksimal tercapai)`
+                        };
+                    }
+                },
+
+                get hasMinimumImages() {
+                    const totalCurrentImages = this.images.length +
+                        this.propertyData.existingImages.filter(img => !img.markedForDeletion).length;
+                    return totalCurrentImages >= this.minImages;
                 },
 
                 openModal(data) {
                     this.propertyData = {
                         ...this.propertyData,
-                        ...data,
-                        // Preserve existing images when modal is reopened
-                        existingImages: this.propertyData.existingImages
+                        ...data
                     };
                     this.modalOpenDetail = true;
                     this.step = 1;
                     this.images = [];
+                    this.searchResults = [];
+                    this.searchQuery = '';
 
-                    // Initialize map after modal is opened
                     this.$nextTick(() => {
-                        this.initMap();
+                        if (this.step === 2) {
+                            if (typeof L === 'undefined') {
+                                this.loadLeaflet().then(() => {
+                                    setTimeout(() => {
+                                        this.initMap();
+                                    }, 100);
+                                });
+                            } else {
+                                setTimeout(() => {
+                                    this.initMap();
+                                }, 100);
+                            }
+                        }
                     });
                 },
 
                 initMap() {
-                    // Check if map container exists
-                    const mapContainer = document.getElementById('map_edit');
-                    if (!mapContainer) return;
+                    try {
+                        const mapContainer = document.getElementById('map_edit');
+                        if (!mapContainer) {
+                            console.error('Map element not found');
+                            return;
+                        }
 
-                    // Clear any existing map instance
-                    if (mapContainer._leaflet_map) {
-                        mapContainer._leaflet_map.remove();
+                        // Ensure the map element has proper dimensions
+                        if (mapContainer.offsetHeight === 0) {
+                            mapContainer.style.height = '400px';
+                        }
+
+                        // Default to Jakarta coordinates if no coordinates are set
+                        const defaultLat = -6.1754;
+                        const defaultLng = 106.8272;
+
+                        // Use property coordinates if available, otherwise use default
+                        const initialLat = this.propertyData.latitude || defaultLat;
+                        const initialLng = this.propertyData.longitude || defaultLng;
+
+                        // Initialize map
+                        this.map = L.map('map_edit', {
+                            preferCanvas: true,
+                            zoomControl: true
+                        }).setView([initialLat, initialLng], 15);
+
+                        // Add tile layer with error handling
+                        const tileLayer = L.tileLayer(
+                            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                maxZoom: 19,
+                                minZoom: 1
+                            });
+
+                        tileLayer.on('tileerror', (e) => {
+                            console.warn('Tile loading error:', e);
+                        });
+
+                        tileLayer.addTo(this.map);
+
+                        // Force map to invalidate size after initialization
+                        setTimeout(() => {
+                            if (this.map) {
+                                this.map.invalidateSize();
+                            }
+                        }, 200);
+
+                        // Add click event to the map
+                        this.map.on('click', (e) => {
+                            this.placeMarker(e.latlng);
+                            this.reverseGeocode(e.latlng.lat, e.latlng.lng);
+                        });
+
+                        // Initialize marker if coordinates exist
+                        if (this.propertyData.latitude && this.propertyData.longitude) {
+                            this.placeMarker({
+                                lat: this.propertyData.latitude,
+                                lng: this.propertyData.longitude
+                            });
+                        }
+
+                        console.log('Map initialized successfully');
+                    } catch (error) {
+                        console.error('Error initializing map:', error);
+                    }
+                },
+
+                placeMarker(latlng) {
+                    if (this.marker) {
+                        this.map.removeLayer(this.marker);
                     }
 
-                    // Initialize map with existing coordinates if available
-                    if (this.propertyData.latitude && this.propertyData.longitude) {
-                        const map = L.map('map_edit').setView(
-                            [this.propertyData.latitude, this.propertyData.longitude],
-                            15
+                    this.marker = L.marker(latlng, {
+                        draggable: true
+                    }).addTo(this.map);
+
+                    // Update coordinates display
+                    const coordsElement = document.getElementById('coordinates_edit');
+                    if (coordsElement) {
+                        coordsElement.innerHTML =
+                            `Koordinat: ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+                    }
+
+                    // Update property data
+                    this.propertyData.latitude = latlng.lat;
+                    this.propertyData.longitude = latlng.lng;
+
+                    // Update marker position on drag
+                    this.marker.on('dragend', (e) => {
+                        const newLatLng = e.target.getLatLng();
+                        this.reverseGeocode(newLatLng.lat, newLatLng.lng);
+
+                        // Update coordinates display
+                        if (coordsElement) {
+                            coordsElement.innerHTML =
+                                `Koordinat: ${newLatLng.lat.toFixed(6)}, ${newLatLng.lng.toFixed(6)}`;
+                        }
+
+                        // Update property data
+                        this.propertyData.latitude = newLatLng.lat;
+                        this.propertyData.longitude = newLatLng.lng;
+                    });
+                },
+
+                async searchLocation() {
+                    if (!this.searchQuery.trim()) return;
+
+                    this.isSearching = true;
+                    this.searchResults = [];
+
+                    try {
+                        const response = await fetch(
+                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.searchQuery)}&limit=5&countrycodes=id`
                         );
 
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        }).addTo(map);
+                        if (!response.ok) throw new Error('Search failed');
 
-                        const marker = L.marker(
-                            [this.propertyData.latitude, this.propertyData.longitude]
-                        ).addTo(map);
+                        const results = await response.json();
+                        this.searchResults = results;
+                    } catch (error) {
+                        console.error('Search error:', error);
+                        alert('Gagal melakukan pencarian lokasi');
+                    } finally {
+                        this.isSearching = false;
+                    }
+                },
 
-                        document.getElementById('coordinates_edit').textContent =
-                            `Koordinat: ${this.propertyData.latitude}, ${this.propertyData.longitude}`;
+                selectSearchResult(result) {
+                    const lat = parseFloat(result.lat);
+                    const lng = parseFloat(result.lon);
 
-                        // Add click event to update marker position
-                        map.on('click', (e) => {
-                            if (marker) {
-                                map.removeLayer(marker);
-                            }
-
-                            const newMarker = L.marker(e.latlng).addTo(map);
-                            this.propertyData.latitude = e.latlng.lat;
-                            this.propertyData.longitude = e.latlng.lng;
-
-                            document.getElementById('coordinates_edit').textContent =
-                                `Koordinat: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        this.placeMarker({
+                            lat,
+                            lng
                         });
-                    } else {
-                        // Initialize empty map with default Jakarta coordinates
-                        const map = L.map('map_edit').setView([-6.1754, 106.8272], 12);
+                        this.map.setView([lat, lng], 15);
+                        this.reverseGeocode(lat, lng);
+                        this.searchResults = [];
+                        this.searchQuery = result.display_name;
+                    }
+                },
 
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        }).addTo(map);
+                async reverseGeocode(lat, lng) {
+                    try {
+                        const response = await fetch(
+                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+                        );
 
-                        // Add click event to add marker
-                        map.on('click', (e) => {
-                            const existingMarkers = document.getElementsByClassName('leaflet-marker-icon');
-                            Array.from(existingMarkers).forEach(marker => marker.remove());
+                        if (!response.ok) throw new Error('Reverse geocoding failed');
 
-                            const marker = L.marker(e.latlng).addTo(map);
-                            this.propertyData.latitude = e.latlng.lat;
-                            this.propertyData.longitude = e.latlng.lng;
+                        const data = await response.json();
+                        if (data.address) {
+                            this.updateAddressFields(data.address);
+                        }
+                    } catch (error) {
+                        console.error('Reverse geocoding error:', error);
+                    }
+                },
 
-                            document.getElementById('coordinates_edit').textContent =
-                                `Koordinat: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
-                        });
+                updateAddressFields(address) {
+                    // Helper function to safely update form fields
+                    const updateField = (id, value) => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.value = value || '';
+                            // Also update the propertyData
+                            if (id === 'full_address_edit') this.propertyData.address = value || '';
+                            if (id === 'province_edit') this.propertyData.province = value || '';
+                            if (id === 'city_edit') this.propertyData.city = value || '';
+                            if (id === 'district_edit') this.propertyData.subdistrict = value || '';
+                            if (id === 'village_edit') this.propertyData.village = value || '';
+                            if (id === 'postal_code_edit') this.propertyData.postal_code = value || '';
+                        }
+                    };
+
+                    // Update form fields based on reverse geocoding results
+                    updateField('full_address_edit',
+                        address.road || address.hamlet || address.village ||
+                        address.town || address.city || '');
+                    updateField('province_edit', address.state || address.region || '');
+                    updateField('city_edit', address.city || address.town || address.county || '');
+                    updateField('district_edit', address.suburb || address.city_district || '');
+                    updateField('village_edit',
+                        address.village || address.hamlet || address.neighbourhood || '');
+                    updateField('postal_code_edit', address.postcode || '');
+                },
+
+                // Force map resize when step changes or container becomes visible
+                resizeMap() {
+                    if (this.map) {
+                        setTimeout(() => {
+                            this.map.invalidateSize();
+                        }, 100);
                     }
                 },
 
                 handleFileSelect(event) {
-                    const files = event.target.files;
-                    this.handleFiles(files);
-                    // Reset the input to allow selecting the same file again
-                    event.target.value = '';
+                    const files = Array.from(event.target.files);
+                    this.processFiles(files);
                 },
 
                 handleDrop(event) {
                     event.preventDefault();
-                    const files = event.dataTransfer.files;
-                    this.handleFiles(files);
+                    const files = Array.from(event.dataTransfer.files);
+                    this.processFiles(files);
                 },
 
-                handleFiles(files) {
-                    if (!files || files.length === 0) return;
+                processFiles(files) {
+                    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+                    const availableSlots = this.maxImages - this.images.length;
 
-                    const availableSlots = this.maxImages - (this.images.length + this.propertyData.existingImages.length);
                     if (availableSlots <= 0) {
-                        alert(`Anda hanya dapat mengupload maksimal ${this.maxImages} foto`);
+                        Swal.fire({
+                            toast: true,
+                            icon: 'error',
+                            title: `Maksimal hanya ${this.maxImages} foto yang dapat diupload.`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
                         return;
                     }
 
-                    for (let i = 0; i < files.length; i++) {
-                        if ((this.images.length + this.propertyData.existingImages.length) >= this.maxImages) break;
+                    const filesToProcess = imageFiles.slice(0, availableSlots);
 
-                        const file = files[i];
-                        if (!file.type.match('image.*')) continue;
-                        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                            alert('File terlalu besar. Maksimal 5MB per gambar.');
-                            continue;
+                    if (imageFiles.length > availableSlots) {
+                        Swal.fire({
+                            toast: true,
+                            icon: 'warning',
+                            title: `Hanya ${availableSlots} foto yang dapat ditambahkan.`,
+                            text: `Sisa slot: ${availableSlots}`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    }
+
+                    filesToProcess.forEach(file => {
+                        if (file.size <= 5 * 1024 * 1024) { // 5MB limit
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                this.images.push({
+                                    file: file,
+                                    url: e.target.result,
+                                    name: file.name,
+                                    isNew: true
+                                });
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
                         }
+                    });
 
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            this.images.push({
-                                id: Date.now() + i,
-                                file: file,
-                                url: e.target.result,
-                                name: file.name,
-                                isNew: true // Mark as new upload
-                            });
-                        };
-                        reader.readAsDataURL(file);
+                    // Clear the file input to allow re-selection
+                    if (event.target) {
+                        event.target.value = '';
                     }
                 },
 
@@ -2638,14 +3034,28 @@
                     }
                 },
 
+                removeExistingImage(index) {
+                    this.propertyData.existingImages.splice(index, 1);
+                },
+
                 nextStep() {
                     if (this.validateStep()) {
                         this.step++;
+                        if (this.step === 2) {
+                            this.$nextTick(() => {
+                                this.resizeMap();
+                            });
+                        }
                     }
                 },
 
                 prevStep() {
                     this.step--;
+                    if (this.step === 2) {
+                        this.$nextTick(() => {
+                            this.resizeMap();
+                        });
+                    }
                 },
 
                 validateStep() {
@@ -2669,9 +3079,17 @@
                             alert('Semua detail lokasi harus diisi');
                             return false;
                         }
+
+                        if (!this.propertyData.latitude || !this.propertyData.longitude) {
+                            alert('Pinpoint lokasi wajib dipilih');
+                            return false;
+                        }
                     } else if (this.step === 4) {
-                        if (this.images.length < this.maxImages) {
-                            alert(`Harap unggah ${this.maxImages} foto properti`);
+                        const totalImages = this.images.length +
+                            this.propertyData.existingImages.filter(img => !img.markedForDeletion).length;
+
+                        if (totalImages < this.minImages) {
+                            alert(`Harap unggah minimal ${this.minImages} foto properti (Saat ini: ${totalImages})`);
                             return false;
                         }
                     }
@@ -2682,74 +3100,144 @@
                     this.modalOpenDetail = false;
                     this.step = 1;
                     this.images = [];
+                    this.searchResults = [];
 
                     // Clean up map
-                    const mapContainer = document.getElementById('map_edit');
-                    if (mapContainer && mapContainer._leaflet_map) {
-                        mapContainer._leaflet_map.remove();
+                    if (this.map) {
+                        this.map.remove();
+                        this.map = null;
+                        this.marker = null;
                     }
                 },
 
                 async submitForm() {
-                    if (!this.validateStep()) return;
+                    if (!this.validateStep() || this.isSubmitting) return;
+                    this.isSubmitting = true;
+
+                    // Store the submit button reference and original text
+                    const submitBtn = document.querySelector('button[type="submit"]');
+                    const originalText = submitBtn?.innerHTML;
+
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Memproses...
+                `;
+                    }
 
                     try {
                         // Create FormData for the submission
-                        const formData = new FormData(document.getElementById('propertyFormEdit'));
+                        const formData = new FormData();
 
-                        // Append the new images
-                        this.images.forEach((image, index) => {
-                            formData.append(`images[${index}]`, image.file);
-                        });
-
-                        // Append which existing images to delete
-                        this.propertyData.existingImages.forEach((image, index) => {
-                            if (image.markedForDeletion) {
-                                formData.append(`delete_images[]`, index);
+                        // Only include changed fields to minimize data transfer
+                        const changedFields = this.getChangedFields();
+                        for (const [key, value] of Object.entries(changedFields)) {
+                            if (Array.isArray(value)) {
+                                value.forEach(item => formData.append(`${key}[]`, item));
+                            } else {
+                                formData.append(key, value);
                             }
+                        }
+
+                        // Append new images
+                        this.images.forEach((image, index) => {
+                            formData.append(`new_images[${index}]`, image.file);
                         });
 
-                        // Show loading state
-                        const submitBtn = document.querySelector('button[type="submit"]');
-                        const originalText = submitBtn.innerHTML;
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = `
-                                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                Memproses...
-                                            `;
+                        // Append images to delete
+                        this.propertyData.existingImages
+                            .filter(img => img.markedForDeletion)
+                            .forEach(img => {
+                                formData.append('delete_images[]', img.id);
+                            });
 
-                        // Submit the form
+                        // Add CSRF token
+                        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+                        formData.append('_method', 'PUT');
+
                         const response = await fetch(document.getElementById('propertyFormEdit').action, {
-                            method: 'POST',
+                            method: 'POST', // Laravel handles PUT via POST with _method
                             body: formData,
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                                 'Accept': 'application/json'
                             }
                         });
 
                         const data = await response.json();
 
-                        if (response.ok) {
-                            alert('Properti berhasil diperbarui!');
-                            this.closeModal();
-                            window.location.reload();
-                        } else {
+                        if (!response.ok) {
                             throw new Error(data.message || 'Gagal memperbarui properti');
                         }
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Properti berhasil diperbarui!',
+                            showConfirmButton: false,
+                            timer: 1000,
+                            timerProgressBar: true,
+                            didClose: () => {
+                                this.closeModal();
+                                window.location.reload();
+                            }
+                        });
                     } catch (error) {
                         console.error('Error:', error);
-                        alert(`Error: ${error.message}`);
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: `Error: ${error.message}`,
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
                     } finally {
-                        const submitBtn = document.querySelector('button[type="submit"]');
+                        this.isSubmitting = false;
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;
                         }
                     }
+                },
+                getChangedFields() {
+                    const changes = {};
+
+                    // Compare each field with original data
+                    for (const key in this.propertyData) {
+                        if (key === 'existingImages') continue; // Handled separately
+
+                        if (JSON.stringify(this.propertyData[key]) !== JSON.stringify(this.originalPropertyData[key])) {
+                            changes[key] = this.propertyData[key];
+                        }
+                    }
+
+                    // Handle features/attributes separately if needed
+                    if (JSON.stringify(this.propertyData.features) !== JSON.stringify(this.originalPropertyData.features)) {
+                        changes.features = this.propertyData.features;
+                    }
+
+                    return changes;
+                },
+
+                // Helper method to get upload progress info
+                getUploadInfo() {
+                    const totalCurrentImages = this.images.length +
+                        this.propertyData.existingImages.filter(img => !img.markedForDeletion).length;
+
+                    return {
+                        current: totalCurrentImages,
+                        min: this.minImages,
+                        max: this.maxImages,
+                        remaining: this.remainingSlots,
+                        canUpload: this.canUploadMore,
+                        isValid: this.hasMinimumImages
+                    };
                 }
             };
         }

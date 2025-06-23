@@ -69,8 +69,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/m-properties', [ManajementPropertiesController::class, 'index'])->name('properties.index');
         Route::put('/m-properties/{property}/status', [ManajementPropertiesController::class, 'updateStatus'])->name('properties.updateStatus');
         Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store'); 
-        Route::put('/m-properties/update/{id}', [ManajementPropertiesController::class, 'update'])->name('properties.update');
-
+        Route::put('/m-properties/update/{idrec}', [ManajementPropertiesController::class, 'update'])->name('properties.update');
 
         Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');

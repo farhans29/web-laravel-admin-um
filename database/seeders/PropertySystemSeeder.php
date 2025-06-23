@@ -68,8 +68,7 @@ class PropertySystemSeeder extends Seeder
                 'village' => 'Village ' . $i,
                 'postal_code' => '1000' . $i,
                 'address' => 'Jl. Example No.' . $i . ', ' . $city,
-                'location' => 'https://maps.google.com/?q=' . $i,
-                'distance' => rand(1, 20) . ' km from city center',
+                'location' => 'https://maps.google.com/?q=' . $i,                
                 'price' => json_encode(['daily' => rand(500000, 2000000), 'monthly' => rand(10000000, 30000000)]),
                 'price_original_daily' => rand(500000, 2000000),
                 'price_discounted_daily' => rand(400000, 1800000),
@@ -79,8 +78,8 @@ class PropertySystemSeeder extends Seeder
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-                'created_by' => 'seeder',
-                'updated_by' => 'seeder'
+                'created_by' => '1',
+                'updated_by' => '1'
             ];
             $i++;
         }
@@ -178,7 +177,7 @@ class PropertySystemSeeder extends Seeder
                 'transaction_type' => 'Booking',
                 'transaction_code' => 'TRX-' . strtoupper(Str::random(8)),
                 'transaction_status' => 'Completed',
-                'status' => 'Active',
+                'status' => '1',
                 'paid_at' => now(),
                 'payment_method' => 'Bank Transfer',
                 'notes' => 'Pembayaran dilakukan via transfer bank BCA',
@@ -199,9 +198,7 @@ class PropertySystemSeeder extends Seeder
                 'updated_at' => now()
             ];
 
-            $payments[] = [
-                'property_id'       => $propertyId,
-                'room_id'           => $room['idrec'], // no need to cast to string if it's already integer
+            $payments[] = [                
                 'order_id'          => $orderId, // this is the alphanumeric order ID
                 'user_id'           => $userId,
                 'grandtotal_price'  => $grandTotal,

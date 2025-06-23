@@ -26,7 +26,8 @@ return new class extends Migration
             $table->string('postal_code', 50)->nullable();
             $table->string('address', 250)->nullable();
             $table->string('location', 500)->nullable();
-            $table->string('distance', 255)->nullable();            
+            $table->string('latitude', 500)->nullable();
+            $table->string('longitude', 500)->nullable();                   
             $table->longText('price')->nullable();
             $table->decimal('price_original_daily', 18, 4)->nullable();
             $table->decimal('price_discounted_daily', 18, 4)->nullable();

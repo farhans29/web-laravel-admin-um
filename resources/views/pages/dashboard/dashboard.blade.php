@@ -479,7 +479,7 @@
         <!-- Calendar & Upcoming Events -->
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Calendar -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 lg:col-span-3">
                 <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
                     <h2 class="font-semibold text-gray-800">Booking Calendar</h2>
                     <div class="flex items-center space-x-2">
@@ -549,68 +549,7 @@
                         <div class="py-2 text-center text-gray-400">1</div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Upcoming Events -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div class="px-5 py-4 border-b border-gray-200">
-                    <h2 class="font-semibold text-gray-800">Upcoming Events</h2>
-                </div>
-                <div class="p-5">
-                    <div class="space-y-4">
-                        <!-- Event 1 -->
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 mt-1">
-                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-900">Wedding Reception</p>
-                                <p class="text-sm text-gray-500">May 20, 2023 • 6:00 PM</p>
-                                <p class="mt-1 text-sm text-gray-600">Johnson-Miller wedding. 120 guests. Ballroom
-                                    reserved.</p>
-                            </div>
-                        </div>
-
-                        <!-- Event 2 -->
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 mt-1">
-                                <div class="h-2 w-2 bg-green-500 rounded-full"></div>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-900">Corporate Conference</p>
-                                <p class="text-sm text-gray-500">May 22-24, 2023 • All day</p>
-                                <p class="mt-1 text-sm text-gray-600">TechCorp annual meeting. 15 rooms blocked.
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Event 3 -->
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 mt-1">
-                                <div class="h-2 w-2 bg-purple-500 rounded-full"></div>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-900">Spa Maintenance</p>
-                                <p class="text-sm text-gray-500">May 25, 2023 • 8:00 AM - 2:00 PM</p>
-                                <p class="mt-1 text-sm text-gray-600">Spa will be closed for routine maintenance.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-6 text-center">
-                        <a href="#"
-                            class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
-                            View all events
-                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            </div>            
         </div>
     </div>
 </x-app-layout>

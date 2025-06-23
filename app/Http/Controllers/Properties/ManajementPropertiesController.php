@@ -81,7 +81,7 @@ class ManajementPropertiesController extends Controller
     }
 
     public function store(Request $request)
-    {
+    {        
         $validated = $request->validate([
             'property_name' => 'required',
             'property_type' => 'required',
@@ -91,8 +91,7 @@ class ManajementPropertiesController extends Controller
             'village' => 'required|string',
             'postal_code' => 'nullable|string',
             'full_address' => 'required|string',
-            'description' => 'nullable|string',
-            'distance' => 'nullable|string',
+            'description' => 'nullable|string',            
             'latitude' => 'required',
             'longitude' => 'required',
             'property_images' => 'required|array|min:1|max:10',
@@ -156,6 +155,8 @@ class ManajementPropertiesController extends Controller
         $property->address = $request->full_address;
         $property->description = $request->description;
         $property->location = $request->latitude . ',' . $request->longitude;
+        $property->latitude = $request->latitude;
+        $property->longitude = $request->longitude;
         $property->features = $facilitiesData['features'];
         $property->status = '1';
         $property->created_by = Auth::id();
@@ -179,7 +180,7 @@ class ManajementPropertiesController extends Controller
 
 
     public function update(Request $request, $id)
-    {
+    {        
         $validated = $request->validate([
             'property_name' => 'required|string|max:255',
             'property_type' => 'required|string',
@@ -190,7 +191,6 @@ class ManajementPropertiesController extends Controller
             'postal_code' => 'nullable|string',
             'full_address' => 'required|string',
             'description' => 'nullable|string',
-            'distance' => 'nullable|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'existing_images' => 'nullable|array',
@@ -198,27 +198,54 @@ class ManajementPropertiesController extends Controller
             'property_images' => 'nullable|array',
             'property_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
             'features' => 'nullable|array',
-            'attributes' => 'nullable|array',
         ]);
 
         $property = Property::findOrFail($id);
 
-        // Handle image update
-        $existingImages = $request->input('existing_images', []);
-        $newImages = [];
+        // Whitelist fitur yang valid
+        $validFeatures = [
+            "High-speed WiFi",
+            "Parking",
+            "Swimming Pool",
+            "Gym",
+            "Restaurant",
+            "24/7 Security",
+            "Concierge",
+            "Laundry Service",
+            "Room Service"
+        ];
 
+        // Filter fitur yang dikirim agar hanya menyimpan yang valid
+        $filteredFeatures = array_intersect($request->input('features', []), $validFeatures);
+
+        // Ambil gambar yang masih dipertahankan
+        $existingImages = $request->input('existing_images', []);
+
+        // Hapus gambar dari DB yang tidak termasuk existingImages
+        PropertyImage::where('property_id', $property->idrec)
+            ->whereNotIn('image', $existingImages)
+            ->delete();
+
+        // Tambahkan gambar baru jika ada
         if ($request->hasFile('property_images')) {
-            foreach ($request->file('property_images') as $image) {
-                $imageData = file_get_contents($image->getRealPath());
-                $base64 = base64_encode($imageData);
-                $newImages[] = $base64;
+            foreach ($request->file('property_images') as $file) {
+                if (!$file->isValid()) continue;
+
+                $fileContents = file_get_contents($file->getRealPath());
+                $base64 = base64_encode($fileContents);
+                $caption = $file->getClientOriginalName();
+
+                PropertyImage::create([
+                    'property_id' => $property->idrec,
+                    'image' => $base64,
+                    'caption' => $caption,
+                    'created_by' => Auth::id(),
+                    'created_at' => now()
+                ]);
             }
         }
 
-        // Combine existing and new images
-        $allImages = array_merge($existingImages, $newImages);
-
-        // Update property data
+        // Update data properti
         $property->update([
             'name' => $validated['property_name'],
             'tags' => $validated['property_type'],
@@ -229,13 +256,10 @@ class ManajementPropertiesController extends Controller
             'postal_code' => $validated['postal_code'],
             'address' => $validated['full_address'],
             'description' => $validated['description'],
-            'distance' => $validated['distance'],
             'latitude' => $validated['latitude'],
             'longitude' => $validated['longitude'],
             'location' => $validated['latitude'] . ',' . $validated['longitude'],
-            'image' => json_encode($allImages),
-            'features' => $validated['features'] ?? [],
-            'attributes' => $validated['attributes'] ?? [],
+            'features' => $filteredFeatures,
             'updated_by' => Auth::id(),
         ]);
 
