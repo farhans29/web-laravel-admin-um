@@ -1,27 +1,5 @@
 <x-app-layout>
     <div class="container mx-auto px-4 py-6">
-{{-- 
-        <!-- ✅ Flash message block -->
-        @if (session()->has('success') || session()->has('error'))
-            <div 
-                x-data="{ show: true }" 
-                x-show="show" 
-                x-init="setTimeout(() => show = false, 3000)" 
-                class="fixed top-4 right-4 z-50"
-            >
-                @if (session()->has('success'))
-                    <div class="bg-green-500 text-white px-4 py-2 rounded shadow-md mb-2">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if (session()->has('error'))
-                    <div class="bg-red-500 text-white px-4 py-2 rounded shadow-md">
-                        {{ session('error') }}
-                    </div>
-                @endif
-            </div>
-        @endif --}}
 
         @if (session()->has('success'))
             <div class="bg-green-500 text-white px-4 py-2 rounded shadow-md mb-2">
@@ -52,174 +30,258 @@
                     </button>
 
                     <!-- Modal -->
-                    <div x-show="open" x-cloak  class="fixed inset-0 backdrop-blur bg-opacity-30 flex items-center justify-center z-50 transition-opacity"                    >
-                        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 relative">
-                            <!-- Close Button -->
-                            <button @click="open = false" class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl">&times;</button>
+                    <div x-show="open" x-cloak class="fixed inset-0 backdrop-blur bg-opacity-30 flex items-center justify-center z-50 transition-opacity">
+                        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl relative overflow-hidden">
+                            <!-- Modal Header -->
+                            <div class="flex justify-between items-center px-6 py-4 border-b">
+                                <div>
+                                    <h2 x-show="step === 1" class="text-xl font-semibold text-slate-800">Informasi Kamar</h2>
+                                    <h2 x-show="step === 2" class="text-xl font-semibold text-slate-800">Fasilitas</h2>
+                                </div>
+                                <button @click="open = false" class="text-gray-600 hover:text-black text-2xl">&times;</button>
+                            </div>
 
-                            <!-- Form -->
-                            <form
-                                x-ref="roomForm"
-                                @submit.prevent="
-                                    if (step === 2) {
-                                        const requireds = $refs.step2Form.querySelectorAll('[required]');
-                                        let step2Valid = true;
+                            <!-- Modal Body -->
+                            <div class="p-6 max-h-[80vh] overflow-y-auto">
+                                <!-- Form -->
+                                <form
+                                    x-ref="roomForm"
+                                    @submit.prevent="
+                                        if (step === 2) {
+                                            const requireds = $refs.step2Form.querySelectorAll('[required]');
+                                            let step2Valid = true;
 
-                                        requireds.forEach(input => {
-                                            if (!input.value) {
-                                                input.classList.add('border-red-500');
-                                                step2Valid = false;
+                                            requireds.forEach(input => {
+                                                if (!input.value) {
+                                                    input.classList.add('border-red-500');
+                                                    step2Valid = false;
+                                                } else {
+                                                    input.classList.remove('border-red-500');
+                                                }
+                                            });
+
+                                            if (step2Valid) {
+                                                $refs.roomForm.submit(); // Submit to rooms.store
                                             } else {
-                                                input.classList.remove('border-red-500');
+                                                isValidStep2 = false;
                                             }
-                                        });
-
-                                        if (step2Valid) {
-                                            $refs.roomForm.submit(); // Submit to rooms.store
-                                        } else {
-                                            isValidStep2 = false;
                                         }
-                                    }
-                                "
-                                x-data="{ open: false, step: 1, isValid: true, isValidStep2: true }"
-                                method="POST"
-                                action="{{ route('rooms.store') }}"
-                                enctype="multipart/form-data"
-                            >
-                                @csrf
+                                    "
+                                    x-data="{ open: false, step: 1, isValid: true, isValidStep2: true }"
+                                    method="POST"
+                                    action="{{ route('rooms.store') }}"
+                                    enctype="multipart/form-data"
+                                >
+                                    @csrf
 
-                                <!-- Step 1 -->
-                                <div x-show="step === 1" x-transition x-ref="step1Form">
-                                    <h2 class="text-xl font-semibold mb-4">Informasi Kamar</h2>
+                                    <!-- Step 1 -->
+                                    <div x-show="step === 1" x-transition x-ref="step1Form">
+                                        @livewire('property-room-selector', ['userProperty' => Auth::user()->property_id])
 
-                                    <!-- Livewire component -->
-                                    @livewire('property-room-selector')
-
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium">Nama Kamar</label>
-                                        <input type="text" name="room_name" required class="w-full border rounded p-2" placeholder="Nama Kamar">
-                                    </div>
-
-                                    {{-- <!-- Checkbox For Periode -->
-                                    <div class="mb-4">
-                                        <div class="flex items-center gap-6">
-                                            <label class="inline-flex items-center">
-                                                <input type="checkbox" name="available_daily" class="form-checkbox text-blue-600" />
-                                                <span class="ml-2">Daily</span>
-                                            </label>
-                                            <label class="inline-flex items-center">
-                                                <input type="checkbox" name="available_monthly" class="form-checkbox text-blue-600" />
-                                                <span class="ml-2">Monthly</span>
-                                            </label>
-                                        </div>
-                                    </div> --}}
-
-                                    <div class="grid grid-cols-2 gap-6 mb-4">
-                                        <!-- Daily Pricing -->
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium">Harga Original Harian</label>
-                                                <input type="number" name="daily_price" required class="w-full border rounded p-2" placeholder="Harga Harian" />
+                                        <div class="grid grid-cols-2 gap-6 mb-4">
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Nomor Kamar</label>
+                                                    <input type="text" name="room_no" required class="w-full border rounded p-2" placeholder="">
+                                                </div>
                                             </div>
-                                            <div>
-                                                <label class="block text-sm font-medium">Harga Diskon Harian</label>
-                                                <input type="number" name="daily_discount_price" required class="w-full border rounded p-2" placeholder="Harga Diskon Harian" />
+
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Nama Kamar</label>
+                                                    <input type="text" name="room_name" required class="w-full border rounded p-2" placeholder="">
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Monthly Pricing -->
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium">Harga Original Bulanan</label>
-                                                <input type="number" name="monthly_price" required class="w-full border rounded p-2" placeholder="Harga Bulanan" />
+                                        <div class="grid grid-cols-3 gap-6 mb-4">
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Ukuran Kamar (m³)</label>
+                                                    <input type="number" name="room_size" required class="w-full border rounded p-2" placeholder="">
+                                                </div>
                                             </div>
-                                            <div>
-                                                <label class="block text-sm font-medium">Harga Diskon Bulanan</label>
-                                                <input type="number" name="monthly_discount_price" required class="w-full border rounded p-2" placeholder="Harga Diskon Bulanan" />
+
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Jenis Kasur</label>
+                                                    <select name="room_bed" class="w-full border rounded p-2">
+                                                        @foreach(['Single', 'Double', 'King', 'Queen', 'Twin'] as $bedType)
+                                                            <option value="{{ $bedType }}">{{ $bedType }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium">Kapasitas (Pax)</label>
+                                                    <input type="number" name="room_capacity" required class="w-full border rounded p-2" placeholder="">
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Note -->
-                                    <p class="text-sm text-gray-600 italic mb-4">
-                                        Masukkan harga jika kamar tersedia pada periode tersebut. (Jika tidak tersedia, maka input 0 pada original dan diskon)
-                                    </p>
+                                        <div x-data="{
+                                            mode: null,
+                                            dailyOriginal: 0,
+                                            monthlyOriginal: 0,
+                                            cleaveInstance: null,
 
-                                    <div class="flex gap-4 mb-4">
-                                        <div class="w-full">
-                                            <label class="block text-sm font-medium">Deskripsi Kamar Indonesia</label>
-                                            <textarea name="description_id" required class="w-full border rounded p-2" placeholder="Deskripsi Kamar"></textarea>
-                                        </div>
-                                        {{-- <div class="w-1/2">
-                                            <label class="block text-sm font-medium">Deskripsi Kamar English</label>
-                                            <textarea name="description_en" required class="w-full border rounded p-2" placeholder="Deskripsi Kamar"></textarea>
-                                        </div> --}}
-                                    </div>
+                                            get priceLabel() {
+                                                if (this.mode === 'daily') return 'Harga Original Harian';
+                                                if (this.mode === 'monthly') return 'Harga Original Bulanan';
+                                                return '';
+                                            },
 
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium">Foto Kamar</label>
-                                        <input type="file" name="photo" accept="image/*" class="w-full border rounded p-2">
-                                    </div>
+                                            get priceNotes() {
+                                                if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
+                                                return '';
+                                            },
 
-                                    <!-- Validation message -->
-                                    <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
+                                            get currentPrice() {
+                                                return this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
+                                            },
 
-                                    <div class="flex justify-end gap-2 mt-4">
-                                        <button type="button" @click="open = false" class="bg-red-600 text-white px-4 py-2 rounded">Tutup</button>
+                                            set currentPrice(value) {
+                                                if (this.mode === 'daily') {
+                                                    this.dailyOriginal = value;
+                                                } else if (this.mode === 'monthly') {
+                                                    this.monthlyOriginal = value;
+                                                }
+                                            },
 
-                                        <!-- VALIDATE and go to Step 2 -->
-                                        <button type="button"
-                                            @click="
-                                                const inputs = $refs.step1Form.querySelectorAll('[required]');
-                                                isValid = true;
-                                                inputs.forEach(input => {
-                                                    if (!input.value) {
-                                                        input.classList.add('border-red-500');
-                                                        isValid = false;
-                                                    } else {
-                                                        input.classList.remove('border-red-500');
-                                                    }
+                                            init() {
+                                                this.$watch('mode', () => {
+                                                    this.$nextTick(() => {
+                                                        if (this.cleaveInstance) {
+                                                            this.cleaveInstance.destroy();
+                                                        }
+
+                                                        const input = this.$refs.priceInput;
+                                                        input.value = ''; // reset visible input
+
+                                                        this.cleaveInstance = new Cleave(input, {
+                                                            numeral: true,
+                                                            numeralDecimalMark: ',',
+                                                            delimiter: '.',
+                                                            numeralThousandsGroupStyle: 'thousand',
+                                                            onValueChanged: (e) => {
+                                                                this.currentPrice = parseFloat(e.target.rawValue || 0);
+                                                            }
+                                                        });
+                                                    });
                                                 });
-                                                if (isValid) step = 2;
-                                            "
-                                            class="bg-green-600 text-white px-4 py-2 rounded">
-                                            Selanjutnya
-                                        </button>
+                                            }
+                                        }" x-init="init()" class="space-y-4">
+                                            <div class="col-span-2 mb-2">
+                                                <h3 class="text-md font-medium border-gray-300 pb-1">Jenis Kamar</h3>
+                                            </div>
+
+                                            <!-- Mode selector -->
+                                            <div class="flex space-x-6">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" value="daily" x-model="mode" class="form-radio text-blue-600">
+                                                    <span class="ml-2">Harian</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" value="monthly" x-model="mode" class="form-radio text-blue-600">
+                                                    <span class="ml-2">Bulanan</span>
+                                                </label>
+                                            </div>
+
+                                            <!-- Price input shown only if mode is selected -->
+                                            <div x-show="mode" x-transition>
+                                                <label class="block text-sm font-medium" x-text="priceLabel"></label>
+                                                <input type="hidden" name="mode" x-model="mode">
+
+                                                <!-- Hidden input to store the actual numeric value -->
+                                                <input type="hidden" :name="mode === 'daily' ? 'daily_price' : 'monthly_price'" :value="currentPrice">
+
+                                                <!-- Visible input field (formatted with Cleave.js) -->
+                                                <input
+                                                    type="text"
+                                                    x-ref="priceInput"
+                                                    class="w-full border rounded p-2 mt-1"
+                                                    placeholder="Masukkan harga"
+                                                />
+
+                                                <p class="text-sm text-red-600 italic mb-4" x-html="priceNotes"></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-4 mb-4">
+                                            <div class="w-full">
+                                                <label class="block text-sm font-medium">Deskripsi Kamar Indonesia</label>
+                                                <textarea name="description_id" required class="w-full border rounded p-2" placeholder=""></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium">Foto Kamar</label>
+                                            <input type="file" name="photo" accept="image/*" class="w-full border rounded p-2">
+                                        </div>
+
+                                        <p class="text-sm text-gray-600 italic mb-4">
+                                            Gambar ini akan dijadikan thumbnail kamar. Untuk menambahkan gambar lebih bisa setelah kamar sudah disimpan.
+                                        </p>
+
+                                        <!-- Validation message -->
+                                        <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
+
+                                        <div class="flex justify-end gap-2 mt-4">
+                                            {{-- <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button> --}}
+                                            <button type="button"
+                                                @click="
+                                                    const inputs = $refs.step1Form.querySelectorAll('[required]');
+                                                    isValid = true;
+                                                    inputs.forEach(input => {
+                                                        if (!input.value) {
+                                                            input.classList.add('border-red-500');
+                                                            isValid = false;
+                                                        } else {
+                                                            input.classList.remove('border-red-500');
+                                                        }
+                                                    });
+                                                    if (isValid) step = 2;
+                                                "
+                                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                Selanjutnya
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Step 2 -->
-                                <div x-show="step === 2" x-transition x-ref="step2Form">
-                                    <h2 class="text-xl font-semibold mb-4">Fasilitas</h2>
+                                    <!-- Step 2 -->
+                                    <div x-show="step === 2" x-transition x-ref="step2Form">
+                                        <div class="col-span-2 mb-2">
+                                            <h3 class="text-lg font-medium border-gray-300 pb-1">Fasilitas</h3>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-4 mb-4">
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="wifi" class="form-checkbox text-blue-600" />
+                                                <span class="ml-2">WiFi</span>
+                                            </label>
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="tv" class="form-checkbox text-blue-600" />
+                                                <span class="ml-2">TV</span>
+                                            </label>
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="ac" class="form-checkbox text-blue-600" />
+                                                <span class="ml-2">AC</span>
+                                            </label>
+                                            <label class="inline-flex items-center">
+                                                <input type="checkbox" name="bathroom" class="form-checkbox text-blue-600" />
+                                                <span class="ml-2">Bathroom</span>
+                                            </label>
+                                        </div>
 
-                                    <div class="grid grid-cols-2 gap-4 mb-4">
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="wifi" class="form-checkbox text-blue-600" />
-                                            <span class="ml-2">WiFi</span>
-                                        </label>
-
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="tv" class="form-checkbox text-blue-600" />
-                                            <span class="ml-2">TV</span>
-                                        </label>
-
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="ac" class="form-checkbox text-blue-600" />
-                                            <span class="ml-2">AC</span>
-                                        </label>
-
-                                        <label class="inline-flex items-center">
-                                            <input type="checkbox" name="bathroom" class="form-checkbox text-blue-600" />
-                                            <span class="ml-2">Bathroom</span>
-                                        </label>
+                                        <div class="flex justify-end gap-2 mt-4">
+                                            <button type="button" @click="step = 1" class="bg-gray-500  hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-white px-4 py-2 rounded">Kembali</button>
+                                            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Simpan</button>
+                                        </div>
                                     </div>
-
-                                    <div class="flex justify-end gap-2 mt-4">
-                                        <button type="button" @click="step = 1" class="bg-gray-500 text-white px-4 py-2 rounded">Kembali</button>
-                                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
 
@@ -235,9 +297,19 @@
         <!-- Search and Filter Section -->
         <div class="bg-white rounded-lg shadow p-4 mb-6">
             <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                <div class="flex-1">
-                    <input type="text" id="search-input" placeholder="Cari kamar..."
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                <div>
+                    @if (auth::user()->property_id == 0)
+                        <select id="room-filter"
+                            class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <option value="" hidden>Pilih Properti</option>
+                            @foreach ($properties as $property)
+                                <option value="{{ $property->idrec }}">{{ $property->name }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <input type="hidden" id="room-filter" class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" value="{{ $properties->idrec }}" readonly>
+                        <input type="text" id="room-filter" class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-center" value="{{ $properties->name }}" readonly>
+                    @endif
                 </div>
                 <div>
                     <select id="status-filter"
@@ -247,14 +319,9 @@
                         <option value="0">Nonaktif</option>
                     </select>
                 </div>
-                <div>
-                    <select id="room-filter"
-                        class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Semua Properti</option>
-                        @foreach ($rooms as $room)
-                            <option value="{{ $room->idrec }}">{{ $room->name }}</option>
-                        @endforeach
-                    </select>
+                <div class="flex-1">
+                    <input type="text" id="search-input" placeholder="Cari kamar..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <button id="filter-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
                     Filter
@@ -287,6 +354,9 @@
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Status</th>
                             <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Room Type</th>
+                            <th scope="col"
                                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Aksi</th>
                         </tr>
@@ -299,7 +369,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">{{ $room->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $room->type }}</div>
+                                    <div class="text-sm text-gray-500">Room {{ $room->no }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ \Carbon\Carbon::parse($room->created_at)->format('d M Y') }}
@@ -308,24 +378,551 @@
                                     {{ $room->updated_at ? \Carbon\Carbon::parse($room->updated_at)->format('d M Y') : '-' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $room->created_by }}
+                                    {{ $room->creator->username }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status])
-                                    </div>
-                                    
+                                    @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status, 'roomNo' => $room->no])
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @livewire('room-type-toggle', ['roomId' => $room->idrec, 'roomType' => $room->periode])
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
-                                        <a href=""
-                                            class="text-blue-600 hover:text-blue-900" title="Edit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path
-                                                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                            </svg>
-                                        </a>
+                                        <!-- AlpineJS Wrapper -->
+                                        <div x-data="{ open: false, step: 1, isValid: true }">
+
+                                            <!-- Add Room Button -->
+                                            <button @click="open = true"
+                                                class="text-blue-600 hover:text-blue-900" title="Edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                                    fill="currentColor">
+                                                    <path
+                                                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Modal -->
+                                            <div x-show="open" x-cloak class="fixed inset-0 backdrop-blur bg-opacity-30 flex items-center justify-center z-50 transition-opacity">
+                                                <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl relative overflow-hidden">
+                                                    <!-- Modal Header -->
+                                                    <div class="flex justify-between items-center px-6 py-4 border-b">
+                                                        <div>
+                                                            <h2 x-show="step === 1" class="text-xl font-semibold text-slate-800">Edit Informasi Kamar</h2>
+                                                            <h2 x-show="step === 2" class="text-xl font-semibold text-slate-800">Edit Fasilitas</h2>
+                                                        </div>
+                                                        <button @click="open = false" class="text-gray-600 hover:text-black text-2xl">&times;</button>
+                                                    </div>
+
+                                                    <!-- Modal Body -->
+                                                    <div class="p-6 max-h-[80vh] overflow-y-auto text-left">
+                                                        <!-- Form -->
+                                                        <form
+                                                            x-ref="roomForm"
+                                                            @submit.prevent="
+                                                                if (step === 2) {
+                                                                    const requireds = $refs.step2Form.querySelectorAll('[required]');
+                                                                    let step2Valid = true;
+
+                                                                    requireds.forEach(input => {
+                                                                        if (!input.value) {
+                                                                            input.classList.add('border-red-500');
+                                                                            step2Valid = false;
+                                                                        } else {
+                                                                            input.classList.remove('border-red-500');
+                                                                        }
+                                                                    });
+
+                                                                    if (step2Valid) {
+                                                                        $refs.roomForm.submit(); // Submit to rooms.store
+                                                                    } else {
+                                                                        isValidStep2 = false;
+                                                                    }
+                                                                }
+                                                            "
+                                                            x-data="{ open: false, step: 1, isValid: true, isValidStep2: true }"
+                                                            method="POST"
+                                                            action="{{ route('rooms.update', ['idrec' => $room->idrec]) }}"
+                                                            enctype="multipart/form-data"
+                                                        >
+                                                            @csrf
+
+                                                            <!-- Step 1 -->
+                                                            <div x-show="step === 1" x-transition x-ref="step1Form">
+                                                                <div class="grid grid-cols-2 gap-6 mb-4">
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Nomor Kamar</label>
+                                                                            <input type="text" name="edit_room_no" required class="w-full border rounded p-2 bg-gray-50" value="{{ e($room->no) }}" readonly>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Nama Kamar</label>
+                                                                            <input type="text" name="edit_room_name" required class="w-full border rounded p-2" value="{{ e($room->name) }}">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div class="grid grid-cols-3 gap-6 mb-4">
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Ukuran Kamar (m³)</label>
+                                                                            <input type="number" name="edit_room_size" required class="w-full border rounded p-2" value="{{ e($room->size) }}">
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Jenis Kasur</label>
+                                                                            <select name="edit_room_bed" class="w-full border rounded p-2">
+                                                                                @foreach(['Single', 'Double', 'King', 'Queen', 'Twin'] as $bedType)
+                                                                                    <option value="{{ $bedType }}" {{ $room->bed_type == $bedType ? 'selected' : '' }}>{{ $bedType }}</option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <label class="block text-sm font-medium">Kapasitas (Pax)</label>
+                                                                            <input type="number" name="edit_room_capacity" required class="w-full border rounded p-2" value="{{ e($room->capacity) }}">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div 
+                                                                    x-data="{
+                                                                        mode: '{{ e($room->periode) }}',
+                                                                        dailyOriginal: {{ e($room->price_original_daily) }},
+                                                                        monthlyOriginal: {{ e($room->price_original_monthly) }},
+                                                                        cleaveInstance: null,
+
+                                                                        get priceLabel() {
+                                                                            if (this.mode === 'daily') return 'Harga Original Harian';
+                                                                            if (this.mode === 'monthly') return 'Harga Original Bulanan';
+                                                                            return '';
+                                                                        },
+
+                                                                        get priceNotes() {
+                                                                            if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
+                                                                            return '';
+                                                                        },
+
+                                                                        get currentPrice() {
+                                                                            return this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
+                                                                        },
+
+                                                                        set currentPrice(value) {
+                                                                            if (this.mode === 'daily') {
+                                                                                this.dailyOriginal = value;
+                                                                            } else if (this.mode === 'monthly') {
+                                                                                this.monthlyOriginal = value;
+                                                                            }
+                                                                        },
+
+                                                                        formatInitialValue() {
+                                                                            const input = this.$refs.priceInput;
+
+                                                                            // Destroy existing Cleave instance if any
+                                                                            if (this.cleaveInstance) {
+                                                                                this.cleaveInstance.destroy();
+                                                                            }
+
+                                                                            // Create a new Cleave instance
+                                                                            this.cleaveInstance = new Cleave(input, {
+                                                                                numeral: true,
+                                                                                numeralDecimalMark: ',',
+                                                                                delimiter: '.',
+                                                                                numeralThousandsGroupStyle: 'thousand',
+                                                                                onValueChanged: (e) => {
+                                                                                    this.currentPrice = parseFloat(e.target.rawValue || 0);
+                                                                                }
+                                                                            });
+
+                                                                            // 💡 Set correct price for the current mode
+                                                                            const price = this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
+                                                                            this.cleaveInstance.setRawValue(price);
+                                                                        },
+
+                                                                        init() {
+                                                                            this.$nextTick(() => {
+                                                                                this.formatInitialValue();
+                                                                            });
+
+                                                                            this.$watch('mode', () => {
+                                                                                this.$nextTick(() => {
+                                                                                    this.formatInitialValue();
+                                                                                });
+                                                                            });
+                                                                        }
+                                                                    }"
+                                                                    x-init="init()"
+                                                                    class="space-y-4"
+                                                                >
+                                                                    <div class="col-span-2 mb-2">
+                                                                        <h3 class="text-md font-medium border-gray-300 pb-1">Jenis Kamar</h3>
+                                                                    </div>
+
+                                                                    <!-- Mode selector -->
+                                                                    <div class="flex space-x-6">
+                                                                        <label class="inline-flex items-center">
+                                                                            <input type="radio" value="daily" x-model="mode" class="form-radio text-blue-600">
+                                                                            <span class="ml-2">Harian</span>
+                                                                        </label>
+                                                                        <label class="inline-flex items-center">
+                                                                            <input type="radio" value="monthly" x-model="mode" class="form-radio text-blue-600">
+                                                                            <span class="ml-2">Bulanan</span>
+                                                                        </label>
+                                                                    </div>
+
+                                                                    <!-- Price input shown only if mode is selected -->
+                                                                    <div x-show="mode" x-transition>
+                                                                        <label class="block text-sm font-medium" x-text="priceLabel"></label>
+
+                                                                        <!-- Hidden field to submit the actual raw price -->
+                                                                        <input type="hidden" :name="mode === 'daily' ? 'daily_price' : 'monthly_price'" :value="currentPrice">
+
+                                                                        <!-- Visible input formatted with Cleave.js -->
+                                                                        <input
+                                                                            type="text"
+                                                                            x-ref="priceInput"
+                                                                            class="w-full border rounded p-2 mt-1"
+                                                                            placeholder="Masukkan harga"
+                                                                            required
+                                                                        />
+
+                                                                        <p class="text-sm text-red-600 italic mb-4" x-html="priceNotes"></p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex gap-4 mb-4">
+                                                                    <div class="w-full">
+                                                                        <label class="block text-sm font-medium">Deskripsi Kamar Indonesia</label>
+                                                                        <textarea name="description_id" required class="w-full border rounded p-2" value="{{ e($room->descriptions) }}">{{ e($room->descriptions) }}</textarea>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="mb-4">
+                                                                    <label class="block text-sm font-medium">Foto Kamar</label>
+                                                                    <input type="file" name="photo" accept="image/*" class="w-full border rounded p-2">
+                                                                </div>
+
+                                                                <p class="text-sm text-gray-600 italic mb-4">
+                                                                    Gambar ini akan dijadikan thumbnail kamar. Untuk menambahkan gambar lebih bisa setelah kamar sudah disimpan.
+                                                                </p>
+
+                                                                <!-- Validation message -->
+                                                                <div x-show="!isValid" class="text-red-600 text-sm mb-2">Semua kolom wajib diisi sebelum lanjut.</div>
+
+                                                                <div class="flex justify-end gap-2 mt-4">
+                                                                    {{-- <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button> --}}
+                                                                    <button type="button"
+                                                                        @click="
+                                                                            const inputs = $refs.step1Form.querySelectorAll('[required]');
+                                                                            isValid = true;
+                                                                            inputs.forEach(input => {
+                                                                                if (!input.value) {
+                                                                                    input.classList.add('border-red-500');
+                                                                                    isValid = false;
+                                                                                } else {
+                                                                                    input.classList.remove('border-red-500');
+                                                                                }
+                                                                            });
+                                                                            if (isValid) step = 2;
+                                                                        "
+                                                                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                                        Selanjutnya
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Step 2 -->
+                                                            <div x-show="step === 2" x-transition x-ref="step2Form">
+                                                                <div class="col-span-2 mb-2">
+                                                                    <h3 class="text-lg font-medium border-gray-300 pb-1">Fasilitas</h3>
+                                                                </div>
+                                                                
+                                                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                                                    <label class="inline-flex items-center">
+                                                                        <input type="checkbox" name="wifi" class="form-checkbox text-blue-600"
+                                                                            value="1" {{ ($room->facility['wifi'] ?? false) == true ? 'checked' : '' }}>
+                                                                        <span class="ml-2">WiFi</span>
+                                                                    </label>
+
+                                                                    <label class="inline-flex items-center">
+                                                                        <input type="checkbox" name="tv" class="form-checkbox text-blue-600"
+                                                                            value="1" {{ ($room->facility['tv'] ?? false) == true ? 'checked' : '' }}>
+                                                                        <span class="ml-2">TV</span>
+                                                                    </label>
+
+                                                                    <label class="inline-flex items-center">
+                                                                        <input type="checkbox" name="ac" class="form-checkbox text-blue-600"
+                                                                            value="1" {{ ($room->facility['ac'] ?? false) == true ? 'checked' : '' }}>
+                                                                        <span class="ml-2">AC</span>
+                                                                    </label>
+
+                                                                    <label class="inline-flex items-center">
+                                                                        <input type="checkbox" name="bathroom" class="form-checkbox text-blue-600"
+                                                                            value="1" {{ ($room->facility['bathroom'] ?? false) == true ? 'checked' : '' }}>
+                                                                        <span class="ml-2">Bathroom</span>
+                                                                    </label>
+                                                                </div>
+
+                                                                <div class="flex justify-end gap-2 mt-4">
+                                                                    <button type="button" @click="step = 1" class="bg-gray-500  hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-white px-4 py-2 rounded">Kembali</button>
+                                                                    <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Simpan</button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <style>
+                                                [x-cloak] {
+                                                    display: none !important;
+                                                }
+                                            </style>
+                                        </div>
+                                                                        
+                                        <!-- Edit Price Button -->
+                                        <div x-data="{ priceModalOpen: false }">
+                                            <!-- Trigger Button -->
+                                            <a href="#" class="text-green-600 hover:text-green-900" title="Edit Harga" @click.prevent="priceModalOpen = true">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M4 3a1 1 0 000 2h12a1 1 0 100-2H4zm1 4a1 1 0 000 2h10a1 1 0 100-2H5zm-1 4a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm1 3a1 1 0 000 2h6a1 1 0 100-2H5z"/>
+                                                </svg>
+                                            </a>
+
+                                            <!-- Modal -->
+                                            <div x-show="priceModalOpen" x-cloak x-transition class="fixed inset-0 flex items-center justify-center backdrop-blur bg-opacity-30 z-50 text-left">
+                                                <div x-data="{
+                                                    startDate: '',
+                                                    setPrice: '',
+                                                    cleaveInstance: null,
+                                                    priceMap: {},
+                                                    basePrice: {{ $room->price_original_daily }},
+                                                    
+                                                    get formattedDatePrice() {
+                                                        const price = this.priceMap[this.startDate];
+                                                        if (price === undefined || price === null || isNaN(price)) return '-';
+                                                        return new Intl.NumberFormat('id-ID', {
+                                                            minimumFractionDigits: 0,
+                                                            maximumFractionDigits: 2
+                                                        }).format(price);
+                                                    },
+
+                                                    get formattedBasePrice() {
+                                                        const price = this.basePrice;
+                                                        if (price === undefined || price === null || isNaN(price)) return '-';
+                                                        return new Intl.NumberFormat('id-ID', {
+                                                            minimumFractionDigits: 0,
+                                                            maximumFractionDigits: 2
+                                                        }).format(price);
+                                                    },
+
+                                                    async fetchMonthPrices(year, month, fpInstance) {
+                                                        try {
+                                                            const res = await fetch(`/properties/rooms/{{ $room->idrec }}/prices?year=${year}&month=${month}`);
+                                                            const data = await res.json();
+                                                            this.priceMap = data;
+                                                            {{-- console.log('Fetched priceMap:', data); --}}
+                                                            fpInstance.redraw(); // Recolor calendar
+                                                        } catch (e) {
+                                                            console.error('Failed to fetch prices', e);
+                                                        }
+                                                    },
+
+                                                    async updatePrice() {
+                                                        try {
+                                                            const res = await fetch(`/properties/rooms/{{ $room->idrec }}/update-price`, {
+                                                                method: 'POST',
+                                                                headers: {
+                                                                    'Content-Type': 'application/json',
+                                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                                },
+                                                                body: JSON.stringify({
+                                                                    start_date: this.startDate,
+                                                                    end_date: this.startDate,
+                                                                    price: this.setPrice
+                                                                })
+                                                            });
+
+                                                            const data = await res.json();
+                                                            {{-- console.log(data); --}}
+
+                                                            if (res.ok) {
+                                                                alert(data.message || 'Harga berhasil diperbarui!');
+                                                                const date = this.startDate;
+                                                                {{-- console.log(date); --}}
+                                                                if (!date) {
+                                                                    alert('Tanggal belum dipilih.');
+                                                                    return;
+                                                                }
+                                                                const [year, month] = date.split('-');
+                                                                {{-- console.log(year, month); --}}
+                                                                await this.fetchMonthPrices(parseInt(year), parseInt(month), this.fpInstance);
+                                                            } else {
+                                                                alert(data.message || 'Gagal memperbarui harga.');
+                                                            }
+                                                        } catch (e) {
+                                                            console.error('Update error:', e);
+                                                            alert('Terjadi kesalahan saat memperbarui harga.');
+                                                        }
+                                                    },
+
+                                                    init() {
+                                                        const self = this;
+                                                        const calendar = flatpickr(this.$el.querySelector('.inline-calendar'), {
+                                                            inline: true,
+                                                            mode: 'single',
+                                                            dateFormat: 'Y-m-d',
+
+                                                            async onReady(selectedDates, dateStr, instance) {
+                                                                self.fpInstance = instance; // ✅ store reference
+                                                                await self.fetchMonthPrices(instance.currentYear, instance.currentMonth + 1, instance);
+                                                            },
+
+                                                            async onMonthChange(selectedDates, dateStr, instance) {
+                                                                await self.fetchMonthPrices(instance.currentYear, instance.currentMonth + 1, instance);
+                                                            },
+
+                                                            async onChange(dates) {
+                                                                if (dates.length > 0) {
+                                                                    const localDate = dates[0];
+                                                                    const year = localDate.getFullYear();
+                                                                    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                                                                    const day = String(localDate.getDate()).padStart(2, '0');
+                                                                    self.startDate = `${year}-${month}-${day}`;
+                                                                }
+                                                            },
+
+                                                            onDayCreate(dObj, dStr, fp, dayElem) {
+                                                                // Skip days from previous or next month
+                                                                if (dayElem.classList.contains('prevMonthDay') || dayElem.classList.contains('nextMonthDay')) {
+                                                                    return;
+                                                                }
+                                                                    
+                                                                const localDate = dayElem.dateObj;
+                                                                const year = localDate.getFullYear();
+                                                                const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                                                                const day = String(localDate.getDate()).padStart(2, '0');
+                                                                const date = `${year}-${month}-${day}`;
+                                                                const price = self.priceMap[date];
+
+                                                                {{-- dayElem.style.backgroundColor = price === undefined || price === null
+                                                                    ? '#d1d5db' // gray-300
+                                                                    : parseInt(price) === parseInt(self.basePrice)
+                                                                        ? '#3b82f6' // blue-500
+                                                                        : '#ef4444'; // red-500 --}}
+
+                                                                dayElem.style.backgroundColor = 
+                                                                    (price === undefined || price === null || price == 0)
+                                                                        ? '#d1d5db' // gray-300 for empty
+                                                                        : (parseInt(price) === parseInt(self.basePrice)
+                                                                            ? '#3b82f6' // blue-500 for base price
+                                                                            : (parseInt(price) > parseInt(self.basePrice)
+                                                                                ? '#ef4444' // red-500 for higher price
+                                                                                : '#4CAF50')); // green-500 for lower price
+
+                                                                dayElem.style.color = '#ffffff'; // white text
+                                                            }
+                                                        });
+
+                                                        this.fpInstance = calendar; // ✅ fallback if needed
+
+                                                        this.$nextTick(() => {
+                                                            this.cleaveInstance = new Cleave(this.$refs.setPrice, {
+                                                                numeral: true,
+                                                                numeralDecimalMark: ',',
+                                                                delimiter: '.',
+                                                                numeralThousandsGroupStyle: 'thousand',
+                                                                onValueChanged: (e) => {
+                                                                    this.setPrice = parseFloat(e.target.rawValue || 0);
+                                                                }
+                                                            });
+                                                        });
+                                                    }
+                                                }" x-init="init"
+                                                class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative space-y-6 overflow-y-auto max-h-[90vh]">
+
+                                                    <!-- Header -->
+                                                    <div class="flex justify-between items-center border-b pb-3">
+                                                        <h2 class="text-lg font-semibold text-gray-800">Manajemen Harga (Harian)</h2>
+                                                        <button @click="priceModalOpen = false" class="text-gray-500 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+                                                    </div>
+
+                                                    <!-- Content Grid -->
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                                                        <!-- LEFT: Calendar -->
+                                                        <div class="flex flex-col h-full justify-between space-y-4">
+                                                            <div class="p-2 inline-block" style="position: relative;">
+                                                                <style>.inline-calendar input { display: none; }</style>
+                                                                <div class="inline-calendar"></div>
+                                                            </div>
+
+                                                            <!-- Legend -->
+                                                            <div class="grid grid-cols-2 gap-2 text-sm text-left">
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded" style="background-color: #d1d5db;"></div>
+                                                                    <span>Belum ada harga</span>
+                                                                </div>
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded" style="background-color: #3b82f6;"></div>
+                                                                    <span>Harga standar</span>
+                                                                </div>
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded" style="background-color: #ef4444;"></div>
+                                                                    <span>Harga lebih tinggi</span>
+                                                                </div>
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded" style="background-color: #4CAF50;"></div>
+                                                                    <span>Harga lebih rendah</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- RIGHT: Form -->
+                                                        <div class="flex flex-col h-full justify-between space-y-4">
+                                                            <div class="w-full space-y-1">
+                                                                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                                                                <input type="text" :value="startDate" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
+                                                            </div>
+                                                            <div class="w-full space-y-1">
+                                                                <label class="block text-sm font-medium text-gray-700">Harga pada tanggal</label>
+                                                                <input type="text" :value="formattedDatePrice" class="border border-gray-300 px-4 py-2 rounded w-full" readonly>
+                                                                <p class="text-xs text-gray-500 mt-1 w-full break-words whitespace-normal italic">
+                                                                    Harga original: <span x-text="formattedBasePrice"></span><br>
+                                                                    Jika harga menunjukkan '-', maka harga kosong.
+                                                                </p>
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Baru</label>
+                                                                <input
+                                                                    type="text"
+                                                                    x-ref="setPrice"
+                                                                    class="border border-gray-300 px-4 py-2 rounded w-full"
+                                                                    placeholder="Masukkan harga"
+                                                                />
+                                                            </div>
+                                                            <div class="flex justify-between pt-2">
+                                                                <button @click="updatePrice" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Update</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Flatpickr & Alpine -->
+                                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+                                        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                                        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+                                        
+                                        <!-- Delete Button -->
                                         <form action="" method="POST"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus kamar ini?')">
                                             @csrf

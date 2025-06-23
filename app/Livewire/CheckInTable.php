@@ -30,7 +30,7 @@ class CheckInTable extends Component
         $query = Booking::with(['transaction', 'property', 'room']);
 
         if ($this->propertyType) {
-            $query->whereHas('property', fn($q) => $q->where('type', $this->propertyType));
+            $query->whereHas('property', fn($q) => $q->where('tags', $this->propertyType));
         }
 
         if ($this->status) {
@@ -54,7 +54,9 @@ class CheckInTable extends Component
             });
         }
 
+        // dd($query->toSql(), $query->getBindings());
         $bookings = $query->orderBy('check_in_at', 'desc')->paginate($this->perPage);
+        // dd($query, $bookings);
 
         return view('livewire.check-in-table', compact('bookings'));
     }

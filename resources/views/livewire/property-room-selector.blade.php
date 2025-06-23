@@ -1,17 +1,18 @@
 <div>
-    <!-- Property Select -->
-    <div class="mb-4">
-        <label class="block text-sm font-medium">Pilih Properti</label>
-        <select wire:model.lazy="selectedProperty" class="w-full border rounded p-2" required>
-            <option value="">Pilih Properti</option>
-            @foreach($properties as $property)
-                <option value="{{ $property->idrec }}">{{ $property->name }}</option>
-            @endforeach
-        </select>
-        <div class="text-xs mt-1 text-gray-500">Selected Property: {{ $selectedProperty }}</div>
-    </div>
+    @if ($userProperty == 0)
+        <!-- Property Select -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium">Pilih Properti</label>
+            <select wire:model.lazy="selectedProperty" class="w-full border rounded p-2" required>
+                @foreach($properties as $property)
+                    <option value="{{ $property->idrec }}">{{ $property->name }}</option>
+                @endforeach
+            </select>
+            <div class="text-xs mt-1 text-gray-500">Selected Property: {{ $selectedProperty }}</div>
+        </div>
+    @endif
 
-    <div class="flex gap-4 mb-4">
+    {{-- <div class="flex gap-4 mb-4">
         <!-- Level -->
         <div class="w-1/2">
             <label class="block text-sm font-medium">Lantai</label>
@@ -33,11 +34,11 @@
                 @endforeach
             </select>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Hidden inputs for Laravel POST -->
     <input type="hidden" name="property_id" value="{{ $selectedProperty }}">
-    <input type="hidden" name="level" value="{{ $selectedLevel }}">
-    <input type="hidden" name="room_type" value="{{ $selectedRoomType }}">
+    {{-- <input type="hidden" name="level" value="{{ $selectedLevel }}">
+    <input type="hidden" name="room_type" value="{{ $selectedRoomType }}"> --}}
     <input type="hidden" name="property_name" value="{{ $this->selectedPropertyName }}">
 </div>

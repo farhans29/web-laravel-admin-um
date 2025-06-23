@@ -71,8 +71,22 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store'); 
         Route::put('/m-properties/update/{idrec}', [ManajementPropertiesController::class, 'update'])->name('properties.update');
 
-        Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
+        Route::get('/rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
+        Route::post('/rooms/update/{idrec}', [ManajementRoomsController::class, 'update'])->name('rooms.update');
+
+        Route::get('/rooms/{room}/edit-prices', [ManajementRoomsController::class, 'changePriceIndex'])->name('rooms.prices.change-price-index');
+        // Route::put('/rooms/{room}/edit-prices', [ManajementRoomsController::class, 'updatePrice'])->name('rooms.prices.update');
+
+        // Route to fetch price for a specific date
+        Route::get('/rooms/{room}/price', [ManajementRoomsController::class, 'getPriceForDate'])
+            ->name('rooms.prices.date');
+
+        // Route to update price for a date range
+        Route::post('/rooms/{room}/update-price', [ManajementRoomsController::class, 'updatePriceRange'])
+            ->name('rooms.prices.update');
+
+        Route::get('/rooms/{room}/prices', [ManajementRoomsController::class, 'getRoomPrices'])->name('rooms.prices.index');
     });
 
     Route::prefix('payment')->group(function () {

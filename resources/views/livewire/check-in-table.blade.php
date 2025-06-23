@@ -1,5 +1,5 @@
 <div>
-    {{-- <div class="p-4 text-green-700 font-semibold bg-green-100 rounded">
+    <div class="p-4 text-green-700 font-semibold bg-green-100 rounded">
         Livewire Component Loaded
     </div>
     
@@ -8,17 +8,18 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
-                <select wire:model="propertyType" class="w-full border-gray-200 rounded-lg">
+                <select wire:model.lazy="propertyType" class="w-full border-gray-200 rounded-lg">
                     <option value="">All Properties</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="hotel">Hotel</option>
-                    <option value="house">House</option>
-                    <option value="villa">Villa</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="Hotel">Hotel</option>
+                    <option value="House">House</option>
+                    <option value="Villa">Villa</option>
                 </select>
+                <div class="text-xs mt-1 text-gray-500">Selected Property: {{ $propertyType }}</div>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select wire:model="status" class="w-full border-gray-200 rounded-lg">
+                <select wire:model.lazy="status" class="w-full border-gray-200 rounded-lg">
                     <option value="">All Statuses</option>
                     <option value="waiting">Waiting for Check-In</option>
                     <option value="checkin">Checked-In</option>
@@ -27,14 +28,14 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Check-in Date</label>
-                <input type="date" wire:model="checkInDate" class="w-full border-gray-200 rounded-lg">
+                <input type="date" wire:model.lazy="checkInDate" class="w-full border-gray-200 rounded-lg">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                <input type="text" wire:model.debounce.500ms="search" placeholder="Search guest or order..." class="w-full border-gray-200 rounded-lg">
+                <input type="text" wire:model.lazy.debounce.500ms="search" placeholder="Search guest or order..." class="w-full border-gray-200 rounded-lg">
             </div>
         </div>
-    </div> --}}
+    </div>
 
     <!-- Results Table -->
     <div class="overflow-x-auto">
@@ -128,7 +129,8 @@
                         </td>
 
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
-                            @if (is_null($booking->check_in_at) && is_null($booking->check_out_at))
+
+                            @if ((is_null($booking->check_in_at) && is_null($booking->check_out_at)) && \Carbon\Carbon::parse($booking->transaction->check_in)->isToday())
                                 <!-- Trigger Button -->
                                 <button @click="open = true"
                                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none">
@@ -145,7 +147,7 @@
                                     Check-In
                                 </button>
 
-                                <!-- Modal -->
+                                {{-- <!-- Old Modal -->
                                 <div x-show="open" x-cloak
                                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
                                     <div
@@ -166,6 +168,74 @@
                                                     class="px-4 py-2 text-sm text-white bg-green-600 rounded hover:bg-green-700">
                                                     Yes, Check-In
                                                 </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div> --}}
+
+                                <!-- Modal backdrop -->
+                                <div class="fixed inset-0 backdrop-blur bg-opacity-30 z-50 transition-opacity"
+                                    x-show="open" x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                    x-transition:leave="transition ease-out duration-100" x-transition:leave-start="opacity-100"
+                                    x-transition:leave-end="opacity-0" aria-hidden="true" x-cloak></div>
+
+                                <!-- Modal dialog -->
+                                <div id="feedback-modal1"
+                                    class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
+                                    role="dialog" aria-modal="true" x-show="open"
+                                    x-transition:enter="transition ease-in-out duration-200"
+                                    x-transition:enter-start="opacity-0 translate-y-4"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in-out duration-200"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 translate-y-4" x-cloak>
+                                    <div class="bg-white rounded shadow-lg overflow-auto w-1/3 max-h-full"
+                                        @click.outside="open = false" @keydown.escape.window="open = false">
+                                        <!-- Modal header -->
+                                        <div class="px-5 py-3 border-b border-slate-200" id="modalAddLpjDetail">
+                                            <div class="flex justify-between items-center">
+                                                <div class="font-semibold text-slate-800">Tambahkan Detail</div>
+                                                <button type="button" class="text-slate-400 hover:text-slate-500"
+                                                    @click="open = false">
+                                                    <div class="sr-only">Close</div>
+                                                    <svg class="w-4 h-4 fill-current">
+                                                        <path
+                                                            d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal content -->
+                                        <div class="modal-content text-xs px-5 py-4">
+                                            <form id="checkinForm" method="POST" action="{{ route('bookings.checkin', $booking->idrec) }}"
+                                                enctype="multipart/form-data">
+                                                @csrf
+                                                <!-- Step 1 - Basic Information -->
+                                                <div class="space-y-4">
+                                                    <div>
+                                                        <label for="deposit_amount"
+                                                            class="block text-sm text-left font-medium text-gray-700">Deposito</label>
+                                                        <input type="text" id="deposit_amount" name="deposit_amount" required
+                                                            value="{{ old('deposit_amount', 0) }}"
+                                                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Form Actions -->
+                                                <div class="mt-6 flex justify-end gap-3">
+                                                    <div class="flex space-x-3">
+                                                        <button type="button" @click="open = false"
+                                                            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                            Tutup
+                                                        </button>
+                                                        <button type="submit"
+                                                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                            Check-In
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </form>
                                         </div>
                                     </div>
