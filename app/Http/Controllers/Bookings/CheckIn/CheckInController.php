@@ -26,7 +26,7 @@ class CheckInController extends Controller
                             });
                     });
             })
-            ->orderBy('check_in_at', 'desc')
+            ->orderBy('check_in_at', 'asc')
             ->paginate(7);
 
         return view('pages.bookings.checkin.index', compact('bookings'));
