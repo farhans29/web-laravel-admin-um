@@ -15,6 +15,7 @@ class PaymentController extends Controller
     {
         $transactions = Transaction::with(['booking', 'payment', 'user'])
             ->where('status', 0)
+            ->whereHas('payment') // Hanya ambil yang punya relasi di t_payment
             ->orderBy('transaction_date', 'desc')
             ->paginate(8);
 
