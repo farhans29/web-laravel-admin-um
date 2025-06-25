@@ -13,14 +13,16 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::with(['booking', 'payment', 'user'])
-            ->where('status', 0)
-            ->whereHas('payment') // Hanya ambil yang punya relasi di t_payment
-            ->orderBy('transaction_date', 'desc')
+        $transactions = Payment::with(['booking', 'transaction', 'user'])
+            ->whereHas('transaction', function ($query) {
+                $query->where('status', 0);
+            })
+            ->orderBy('transaction_date', 'desc') // asumsi ini kolom di Payment
             ->paginate(8);
 
         return view('pages.payment.pay.index', compact('transactions'));
     }
+
 
     public function filter(Request $request)
     {
