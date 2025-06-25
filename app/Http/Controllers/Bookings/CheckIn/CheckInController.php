@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Booking;
+use Illuminate\Support\Facades\Auth;
 
 class CheckInController extends Controller
 {
@@ -15,32 +16,21 @@ class CheckInController extends Controller
     {
         $bookings = Booking::with(['user', 'room', 'property', 'transaction'])
             ->where(function ($query) {
-                // Ambil semua data dengan status = 1
-                $query->where('status', 1);
-
-                // ATAU, jika ada order_id yang memiliki status 2
-                $query->orWhereIn('order_id', function ($sub) {
-                    $sub->select('order_id')
-                        ->from('t_booking')
-                        ->where('status', 2);
-                });
+                $query->where('status', 2)
+                    ->orWhere(function ($q) {
+                        $q->where('status', 1)
+                            ->whereNotIn('order_id', function ($sub) {
+                                $sub->select('order_id')
+                                    ->from('t_booking')
+                                    ->where('status', 2);
+                            });
+                    });
             })
-            ->where(function ($query) {
-                // Prioritaskan status = 2 jika ada
-                $query->where('status', 1)
-                    ->whereNotIn('order_id', function ($sub) {
-                        $sub->select('order_id')
-                            ->from('t_booking')
-                            ->where('status', 2);
-                    })
-                    ->orWhere('status', 2);
-            })
-            ->orderBy('check_in_at', 'asc')
+            ->orderBy('check_in_at', 'desc')
             ->paginate(7);
 
         return view('pages.bookings.checkin.index', compact('bookings'));
     }
-
 
     public function getBookingDetails($orderId)
     {
@@ -54,18 +44,27 @@ class CheckInController extends Controller
     public function checkIn(Request $request, $order_id)
     {
         $validated = $request->validate([
-            'ktp_img' => 'required|string', // Data URL base64
-            'updated_by' => 'required|exists:users,id'
+            'ktp_img' => 'required|string',
         ]);
 
         try {
             $booking = Booking::where('order_id', $order_id)->firstOrFail();
             $imageData = $validated['ktp_img'];
-            $booking->update([
+
+            // Debug sementara
+            if (!$booking) {
+                return response()->json(['success' => false, 'message' => 'Booking not found']);
+            }
+
+            $updated = $booking->update([
                 'check_in_at' => now(),
-                'ktp_img' => $imageData, // Simpan base64 string langsung
-                'updated_by' => $validated['updated_by']
+                'ktp_img' => $imageData,
+                'updated_by' => Auth::id(),
             ]);
+
+            if (!$updated) {
+                return response()->json(['success' => false, 'message' => 'Update failed']);
+            }
 
             return response()->json([
                 'success' => true,
@@ -79,6 +78,7 @@ class CheckInController extends Controller
             ], 500);
         }
     }
+
 
     public function checkout(Request $request)
     {

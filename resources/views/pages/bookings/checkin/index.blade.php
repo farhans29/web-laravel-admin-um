@@ -516,15 +516,31 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         data: JSON.stringify({
-                            ktp_img: this.ktpPreview, 
-                            updated_by: {{ Auth::id() }}
+                            ktp_img: this.ktpPreview                            
                         }),
                         success: function(data) {
                             if (data.success) {
-                                alert('Check-in submitted successfully!');
-                                window.location.reload();
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: 'Check-in submitted successfully!',
+                                    showConfirmButton: false,
+                                    timer: 1000,
+                                    timerProgressBar: true
+                                }).then(() => {
+                                    window.location.reload();
+                                });
                             } else {
-                                alert('Error: ' + data.message);
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'Error: ' + data.message,
+                                    showConfirmButton: false,
+                                    timer: 1000,
+                                    timerProgressBar: true
+                                });
                             }
                         },
                         error: function(xhr, status, error) {

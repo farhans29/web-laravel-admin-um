@@ -25,8 +25,7 @@ class Booking extends Model
         'ktp_img',
         'check_out_at',
         'created_by',
-        'updated_by',
-        'status',
+        'updated_by',        
         'reason',
         'description',
     ];

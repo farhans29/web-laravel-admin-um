@@ -24,12 +24,8 @@ return new class extends Migration
             $table->string('bed_type', 50)->nullable();
             $table->binary('image')->nullable();
             $table->string('capacity', 10)->nullable();
-
             $table->json('facility')->nullable();
-
-            $table->longText('price')->nullable();
-
-            // Tambahan kolom baru sesuai permintaan
+            $table->longText('price')->nullable();            
             $table->decimal('admin_fees', 18, 4)->nullable();
             $table->decimal('discount_percent', 18, 4)->nullable();
             $table->decimal('price_original_daily', 18, 4)->nullable();
