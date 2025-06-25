@@ -21,7 +21,10 @@ return new class extends Migration
             $table->longText('periode')->nullable();
             $table->string('type', 100)->nullable();
             $table->string('level', 10)->nullable();
-            
+            $table->string('bed_type', 50)->nullable();
+            $table->binary('image')->nullable();
+            $table->string('capacity', 10)->nullable();
+
             $table->json('facility')->nullable();
 
             $table->longText('price')->nullable();

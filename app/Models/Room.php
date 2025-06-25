@@ -17,10 +17,8 @@ class Room extends Model
         'property_id',
         'property_name',
         'slug',
-        'name',
-        'no',
-        'descriptions',
-        'size',
+        'name',        
+        'descriptions',        
         'bed_type',
         'capacity',
         'periode',
@@ -116,6 +114,6 @@ class Room extends Model
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 }

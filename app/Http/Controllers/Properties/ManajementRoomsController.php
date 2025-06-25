@@ -19,15 +19,15 @@ class ManajementRoomsController extends Controller
     {
         $rooms = Room::where('status', '!=', '2')
                 ->with('transactions', 'bookings', 'property', 'creator')
-                ->where('property_id', Auth::user()->property_id)
+                // ->where('property_id', Auth::user()->property_id)
                 ->orderBy('created_at', 'desc')
                 ->paginate(5);
-        if (Auth::user()->property_id == 0) {
-            $properties = Property::orderBy('name', 'asc')->get();
-        } else {
-            $properties = Property::where('idrec', Auth::user()->property_id)->first();
-        }
-        return view('pages.Properties.m-Rooms.index', compact('rooms', 'properties'));
+        // if (Auth::user()->property_id == 0) {
+        //     $properties = Property::orderBy('name', 'asc')->get();
+        // } else {
+        //     $properties = Property::where('idrec', Auth::user()->property_id)->first();
+        // }
+        return view('pages.Properties.m-Rooms.index', compact('rooms'));
     }
 
     public function store(Request $request)
@@ -262,12 +262,7 @@ class ManajementRoomsController extends Controller
         }
     }    
 
-    /**
-     * Shows the room prices index page for a given room.
-     *
-     * @param \App\Models\Room $room
-     * @return \Illuminate\Contracts\View\View
-     */
+    
     public function changePriceIndex(Room $room)
     {
         $rooms = Room::where('status', '!=', '2')

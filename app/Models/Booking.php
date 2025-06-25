@@ -22,6 +22,7 @@ class Booking extends Model
         'room_id',
         'property_id',
         'check_in_at',
+        'ktp_img',
         'check_out_at',
         'created_by',
         'updated_by',

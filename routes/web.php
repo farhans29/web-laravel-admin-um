@@ -53,7 +53,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('bookings')->group(function () {
         Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
-        Route::post('/check-in/{id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
+        Route::post('/checkin/{order_id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
+        Route::get('/check-in/{order_id}/details', [CheckInController::class, 'getBookingDetails'])->name('bookings.checkin.details');
 
         Route::get('/checkout', [CheckOutController::class, 'index'])->name('checkout.index');
         Route::post('/check-out/{id}', [CheckOutController::class, 'checkOut'])->name('bookings.checkout');
@@ -68,23 +69,18 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('properties')->group(function () {
         Route::get('/m-properties', [ManajementPropertiesController::class, 'index'])->name('properties.index');
         Route::put('/m-properties/{property}/status', [ManajementPropertiesController::class, 'updateStatus'])->name('properties.updateStatus');
-        Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store'); 
+        Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store');
         Route::put('/m-properties/update/{idrec}', [ManajementPropertiesController::class, 'update'])->name('properties.update');
-
+        
+        // ------------------------- ROOMS MANAGEMENT -------------------------
         Route::get('/rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
         Route::post('/rooms/update/{idrec}', [ManajementRoomsController::class, 'update'])->name('rooms.update');
 
         Route::get('/rooms/{room}/edit-prices', [ManajementRoomsController::class, 'changePriceIndex'])->name('rooms.prices.change-price-index');
         // Route::put('/rooms/{room}/edit-prices', [ManajementRoomsController::class, 'updatePrice'])->name('rooms.prices.update');
-
-        // Route to fetch price for a specific date
-        Route::get('/rooms/{room}/price', [ManajementRoomsController::class, 'getPriceForDate'])
-            ->name('rooms.prices.date');
-
-        // Route to update price for a date range
-        Route::post('/rooms/{room}/update-price', [ManajementRoomsController::class, 'updatePriceRange'])
-            ->name('rooms.prices.update');
+        Route::get('/rooms/{room}/price', [ManajementRoomsController::class, 'getPriceForDate'])->name('rooms.prices.date');
+        Route::post('/rooms/{room}/update-price', [ManajementRoomsController::class, 'updatePriceRange'])->name('rooms.prices.update');
 
         Route::get('/rooms/{room}/prices', [ManajementRoomsController::class, 'getRoomPrices'])->name('rooms.prices.index');
     });
@@ -93,7 +89,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pay', [PaymentController::class, 'index'])->name('admin.payments.index');
         Route::get('/payments/filter', [PaymentController::class, 'filter'])->name('admin.payments.filter');
         Route::post('/approve/{id}', [PaymentController::class, 'approve'])->name('admin.payments.approve');
-        Route::post('/reject/{id}', [PaymentController::class, 'reject'])->name('admin.payments.reject');  
+        Route::post('/reject/{id}', [PaymentController::class, 'reject'])->name('admin.payments.reject');
     });
 
     Route::prefix('master')->group(function () {});
