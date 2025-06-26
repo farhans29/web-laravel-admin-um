@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use App\Models\User;
 
 class ManajementPropertiesController extends Controller
 {
@@ -81,7 +79,7 @@ class ManajementPropertiesController extends Controller
     }
 
     public function store(Request $request)
-    {        
+    {
         $validated = $request->validate([
             'property_name' => 'required',
             'property_type' => 'required',
@@ -91,7 +89,7 @@ class ManajementPropertiesController extends Controller
             'village' => 'required|string',
             'postal_code' => 'nullable|string',
             'full_address' => 'required|string',
-            'description' => 'nullable|string',            
+            'description' => 'nullable|string',
             'latitude' => 'required',
             'longitude' => 'required',
             'property_images' => 'required|array|min:1|max:10',
@@ -161,7 +159,7 @@ class ManajementPropertiesController extends Controller
         $property->status = '1';
         $property->created_by = Auth::id();
         $property->save();
-       
+
         // Simpan ke tabel m_property_images
         foreach ($imageBase64Array as $index => $base64) {
             $image = new PropertyImage();
@@ -178,92 +176,105 @@ class ManajementPropertiesController extends Controller
             : redirect()->route('properties.index')->with('success', 'Property created successfully!');
     }
 
-
     public function update(Request $request, $id)
     {        
-        $validated = $request->validate([
-            'property_name' => 'required|string|max:255',
-            'property_type' => 'required|string',
-            'province' => 'required|string',
-            'city' => 'required|string',
-            'district' => 'required|string',
-            'village' => 'required|string',
-            'postal_code' => 'nullable|string',
-            'full_address' => 'required|string',
-            'description' => 'nullable|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'existing_images' => 'nullable|array',
-            'existing_images.*' => 'nullable|string',
-            'property_images' => 'nullable|array',
-            'property_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
-            'features' => 'nullable|array',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'type' => 'required|string',
+                'description' => 'nullable|string',
+                'address' => 'required|string',
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'province' => 'required|string',
+                'city' => 'required|string',
+                'subdistrict' => 'required|string',
+                'village' => 'required|string',
+                'postal_code' => 'nullable|string',
+                'features' => 'nullable|array',
+                'property_images' => 'nullable|array',
+                'property_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+                'delete_images' => 'nullable|array',
+                'delete_images.*' => 'integer',
+            ]);
 
-        $property = Property::findOrFail($id);
+            $property = Property::findOrFail($id);
 
-        // Whitelist fitur yang valid
-        $validFeatures = [
-            "High-speed WiFi",
-            "Parking",
-            "Swimming Pool",
-            "Gym",
-            "Restaurant",
-            "24/7 Security",
-            "Concierge",
-            "Laundry Service",
-            "Room Service"
-        ];
+            // Validasi dan filter fitur
+            $validFeatures = [
+                "High-speed WiFi",
+                "Parking",
+                "Swimming Pool",
+                "Gym",
+                "Restaurant",
+                "24/7 Security",
+                "Concierge",
+                "Laundry Service",
+                "Room Service"
+            ];
+            $filteredFeatures = array_intersect($request->input('features', []), $validFeatures);
 
-        // Filter fitur yang dikirim agar hanya menyimpan yang valid
-        $filteredFeatures = array_intersect($request->input('features', []), $validFeatures);
-
-        // Ambil gambar yang masih dipertahankan
-        $existingImages = $request->input('existing_images', []);
-
-        // Hapus gambar dari DB yang tidak termasuk existingImages
-        PropertyImage::where('property_id', $property->idrec)
-            ->whereNotIn('image', $existingImages)
-            ->delete();
-
-        // Tambahkan gambar baru jika ada
-        if ($request->hasFile('property_images')) {
-            foreach ($request->file('property_images') as $file) {
-                if (!$file->isValid()) continue;
-
-                $fileContents = file_get_contents($file->getRealPath());
-                $base64 = base64_encode($fileContents);
-                $caption = $file->getClientOriginalName();
-
-                PropertyImage::create([
-                    'property_id' => $property->idrec,
-                    'image' => $base64,
-                    'caption' => $caption,
-                    'created_by' => Auth::id(),
-                    'created_at' => now()
-                ]);
+            // Hapus gambar berdasarkan delete_images
+            $imagesToDelete = $request->input('delete_images', []);
+            if (!empty($imagesToDelete)) {
+                PropertyImage::whereIn('idrec', $imagesToDelete)
+                    ->where('property_id', $property->idrec)
+                    ->delete();
             }
+
+            // Simpan gambar baru jika ada
+            if ($request->hasFile('property_images')) {
+                foreach ($request->file('property_images') as $file) {
+                    if (!$file->isValid()) continue;
+
+                    $fileContents = file_get_contents($file->getRealPath());
+                    $base64 = base64_encode($fileContents);
+                    $caption = $file->getClientOriginalName();
+
+                    PropertyImage::create([
+                        'property_id' => $property->idrec,
+                        'image' => $base64,
+                        'caption' => $caption,
+                        'created_by' => Auth::id(),
+                        'created_at' => now()
+                    ]);
+                }
+            }
+
+            // Update data ke tabel `m_properties`
+            $property->update([
+                'name' => $validated['name'],
+                'tags' => $validated['type'],
+                'description' => $validated['description'],
+                'address' => $validated['address'],
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
+                'location' => $validated['latitude'] . ',' . $validated['longitude'],
+                'province' => $validated['province'],
+                'city' => $validated['city'],
+                'subdistrict' => $validated['subdistrict'],
+                'village' => $validated['village'],
+                'postal_code' => $validated['postal_code'],
+                'features' => $filteredFeatures,
+                'updated_by' => Auth::id(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Properti berhasil diperbarui',
+                'redirect' => route('properties.index')
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
         }
-
-        // Update data properti
-        $property->update([
-            'name' => $validated['property_name'],
-            'tags' => $validated['property_type'],
-            'province' => $validated['province'],
-            'city' => $validated['city'],
-            'subdistrict' => $validated['district'],
-            'village' => $validated['village'],
-            'postal_code' => $validated['postal_code'],
-            'address' => $validated['full_address'],
-            'description' => $validated['description'],
-            'latitude' => $validated['latitude'],
-            'longitude' => $validated['longitude'],
-            'location' => $validated['latitude'] . ',' . $validated['longitude'],
-            'features' => $filteredFeatures,
-            'updated_by' => Auth::id(),
-        ]);
-
-        return redirect()->route('properties.index')
-            ->with('success', 'Properti berhasil diperbarui');
     }
 }

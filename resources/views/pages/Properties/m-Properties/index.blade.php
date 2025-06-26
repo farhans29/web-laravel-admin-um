@@ -352,6 +352,30 @@
                                                     </span>
                                                 </label>
 
+                                                <!-- Info about thumbnail -->
+                                                <div
+                                                    class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r-lg">
+                                                    <div class="flex items-start">
+                                                        <div class="flex-shrink-0">
+                                                            <svg class="h-5 w-5 text-blue-500" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                </path>
+                                                            </svg>
+                                                        </div>
+                                                        <div class="ml-3">
+                                                            <p class="text-sm text-blue-700">
+                                                                <span class="font-semibold">Perhatian:</span> Foto
+                                                                pertama yang Anda upload akan menjadi <span
+                                                                    class="font-bold">thumbnail utama</span> iklan
+                                                                properti ini. Pastikan foto pertama adalah yang terbaik!
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <!-- Upload Area -->
                                                 <div x-show="canUploadMore" @drop="handleDrop($event)"
                                                     @dragover.prevent @dragenter.prevent
@@ -406,8 +430,8 @@
                                                     <template x-for="(image, index) in images" :key="index">
                                                         <div class="relative group">
                                                             <!-- Image Container - Made smaller -->
-                                                            <div
-                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200">
+                                                            <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200"
+                                                                :class="{ 'border-2 border-blue-600': index === 0 }">
                                                                 <img :src="image.url"
                                                                     :alt="`Preview ${index + 1}`"
                                                                     class="w-full h-full object-cover">
@@ -428,6 +452,12 @@
                                                             <div
                                                                 class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
                                                                 <span x-text="index + 1"></span>
+                                                            </div>
+
+                                                            <!-- Thumbnail indicator for first image -->
+                                                            <div x-show="index === 0" class="absolute top-1 right-1">
+                                                                <span
+                                                                    class="bg-yellow-500 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">Thumbnail</span>
                                                             </div>
 
                                                             <!-- File Name - Made smaller and hidden by default, shows on hover -->
@@ -466,6 +496,7 @@
                                                         <span class="font-medium">Sempurna!</span>
                                                         Semua foto telah diupload.
                                                     </p>
+                                                   
                                                 </div>
                                             </div>
                                         </div>
@@ -676,19 +707,19 @@
                                                 class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
                                                 type="button"
                                                 @click.prevent='openModal({
-                                                                    name: @json($property->name),
-                                                                    city: @json($property->city),
-                                                                    province: @json($property->province),
-                                                                    description: @json($property->description),
-                                                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
-                                                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
-                                                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
-                                                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                                                    images: {!! json_encode($images) !!},
-                                                                    location: @json($property->location),
-                                                                    distance: @json($property->distance),
-                                                                    features: {!! $features !!},                                                                                                                                                                                              
-                                                                })'
+                                                                name: @json($property->name),
+                                                                city: @json($property->city),
+                                                                province: @json($property->province),
+                                                                description: @json($property->description),
+                                                                created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
+                                                                updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
+                                                                creator: "{{ $property->creator->username ?? 'Unknown' }}",
+                                                                status: "{{ $property->status ? 'Active' : 'Inactive' }}",
+                                                                images: {!! json_encode($images) !!},
+                                                                location: @json($property->location),
+                                                                distance: @json($property->distance),
+                                                                features: {!! $features !!},                                                                                                                                                                                              
+                                                            })'
                                                 aria-controls="property-detail-modal" title="View Details">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1148,26 +1179,27 @@
 
                                             <button class="text-amber-600 hover:text-amber-900" type="button"
                                                 @click.prevent='openModal({
-                                                                name: @json($property->name),
-                                                                city: @json($property->city),
-                                                                province: @json($property->province),
-                                                                description: @json($property->description),
-                                                                created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
-                                                                updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
-                                                                creator: "{{ $property->creator->username ?? 'Unknown' }}",
-                                                                status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                                                location: @json($property->location),                                                                                                                                     
-                                                                features: {!! $features !!},
-                                                                existingImages: {!! $images !!},
-                                                                latitude: {{ $property->latitude ?? 'null' }},
-                                                                longitude: {{ $property->longitude ?? 'null' }},
-                                                                address: @json($property->address),
-                                                                subdistrict: @json($property->subdistrict),
-                                                                village: @json($property->village),
-                                                                postal_code: @json($property->postal_code),
-                                                                type: @json($property->type)
-                                                            })'
-                                                aria-controls="property-edit-modal" title="Edit Property">
+                                                    name: @json($property->name),
+                                                    city: @json($property->city),
+                                                    province: @json($property->province),
+                                                    description: @json($property->description),
+                                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
+                                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
+                                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
+                                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
+                                                    location: @json($property->location),                                                                                                                                     
+                                                    features: {!! $features !!},
+                                                    existingImages: {!! $images !!},
+                                                    latitude: {{ $property->latitude ?? 'null' }},
+                                                    longitude: {{ $property->longitude ?? 'null' }},
+                                                    address: @json($property->address),
+                                                    subdistrict: @json($property->subdistrict),
+                                                    village: @json($property->village),
+                                                    postal_code: @json($property->postal_code),
+                                                    type: @json($property->type)
+                                                })'
+                                                aria-controls="property-edit-modal-{{ $property->idrec }}"
+                                                title="Edit Property">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
                                                     viewBox="0 0 20 20" fill="currentColor">
                                                     <path
@@ -1177,7 +1209,7 @@
 
                                             <!-- Modal backdrop -->
                                             <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity"
-                                                x-show="modalOpenDetail"
+                                                x-show="editModalOpen"
                                                 x-transition:enter="transition ease-out duration-300"
                                                 x-transition:enter-start="opacity-0"
                                                 x-transition:enter-end="opacity-100"
@@ -1186,9 +1218,9 @@
                                                 x-transition:leave-end="opacity-0" aria-hidden="true" x-cloak></div>
 
                                             <!-- Modal dialog -->
-                                            <div id="property-edit-modal"
+                                            <div id="property-edit-modal-{{ $property->idrec }}"
                                                 class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
-                                                role="dialog" aria-modal="true" x-show="modalOpenDetail"
+                                                role="dialog" aria-modal="true" x-show="editModalOpen"
                                                 x-transition:enter="transition ease-in-out duration-300"
                                                 x-transition:enter-start="opacity-0 translate-y-4 scale-95"
                                                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
@@ -1197,8 +1229,8 @@
                                                 x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak>
 
                                                 <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
-                                                    @click.outside="modalOpenDetail = false"
-                                                    @keydown.escape.window="modalOpenDetail = false">
+                                                    @click.outside="editModalOpen = false"
+                                                    @keydown.escape.window="editModalOpen = false">
 
                                                     <!-- Modal header with step indicator -->
                                                     <div
@@ -1208,7 +1240,7 @@
                                                             </div>
                                                             <button type="button"
                                                                 class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                                                @click="modalOpenDetail = false">
+                                                                @click="editModalOpen = false">
                                                                 <div class="sr-only">Close</div>
                                                                 <svg class="w-6 h-6 fill-current">
                                                                     <path
@@ -1222,12 +1254,12 @@
                                                             <!-- Step 1 -->
                                                             <div class="flex items-center">
                                                                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                                                    :class="step >= 1 ?
+                                                                    :class="editStep >= 1 ?
                                                                         'bg-blue-600 border-blue-600 text-white' :
                                                                         'border-gray-300 text-gray-500'">
                                                                     <span class="text-sm font-semibold"
-                                                                        x-show="step < 1">1</span>
-                                                                    <svg x-show="step >= 1" class="w-5 h-5"
+                                                                        x-show="editStep < 1">1</span>
+                                                                    <svg x-show="editStep >= 1" class="w-5 h-5"
                                                                         fill="none" stroke="currentColor"
                                                                         viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round"
@@ -1237,7 +1269,8 @@
                                                                 </div>
                                                                 <div class="ml-3 text-sm">
                                                                     <p class="font-medium transition-colors duration-300"
-                                                                        :class="step >= 1 ? 'text-blue-600' : 'text-gray-500'">
+                                                                        :class="editStep >= 1 ? 'text-blue-600' :
+                                                                            'text-gray-500'">
                                                                         Informasi Dasar
                                                                     </p>
                                                                 </div>
@@ -1245,18 +1278,18 @@
 
                                                             <!-- Connector -->
                                                             <div class="w-16 h-0.5 transition-colors duration-300"
-                                                                :class="step >= 2 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                                :class="editStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'">
                                                             </div>
 
                                                             <!-- Step 2 -->
                                                             <div class="flex items-center">
                                                                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                                                    :class="step >= 2 ?
+                                                                    :class="editStep >= 2 ?
                                                                         'bg-blue-600 border-blue-600 text-white' :
                                                                         'border-gray-300 text-gray-500'">
                                                                     <span class="text-sm font-semibold"
-                                                                        x-show="step < 2">2</span>
-                                                                    <svg x-show="step >= 2" class="w-5 h-5"
+                                                                        x-show="editStep < 2">2</span>
+                                                                    <svg x-show="editStep >= 2" class="w-5 h-5"
                                                                         fill="none" stroke="currentColor"
                                                                         viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round"
@@ -1266,25 +1299,26 @@
                                                                 </div>
                                                                 <div class="ml-3 text-sm">
                                                                     <p class="font-medium transition-colors duration-300"
-                                                                        :class="step >= 2 ? 'text-blue-600' : 'text-gray-500'">
+                                                                        :class="editStep >= 2 ? 'text-blue-600' :
+                                                                            'text-gray-500'">
                                                                         Detail Lokasi</p>
                                                                 </div>
                                                             </div>
 
                                                             <!-- Connector -->
                                                             <div class="w-16 h-0.5 transition-colors duration-300"
-                                                                :class="step >= 3 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                                :class="editStep >= 3 ? 'bg-blue-600' : 'bg-gray-300'">
                                                             </div>
 
                                                             <!-- Step 3 (Fasilitas) -->
                                                             <div class="flex items-center">
                                                                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                                                    :class="step >= 3 ?
+                                                                    :class="editStep >= 3 ?
                                                                         'bg-blue-600 border-blue-600 text-white' :
                                                                         'border-gray-300 text-gray-500'">
                                                                     <span class="text-sm font-semibold"
-                                                                        x-show="step < 3">3</span>
-                                                                    <svg x-show="step >= 3" class="w-5 h-5"
+                                                                        x-show="editStep < 3">3</span>
+                                                                    <svg x-show="editStep >= 3" class="w-5 h-5"
                                                                         fill="none" stroke="currentColor"
                                                                         viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round"
@@ -1294,25 +1328,26 @@
                                                                 </div>
                                                                 <div class="ml-3 text-sm">
                                                                     <p class="font-medium transition-colors duration-300"
-                                                                        :class="step >= 3 ? 'text-blue-600' : 'text-gray-500'">
+                                                                        :class="editStep >= 3 ? 'text-blue-600' :
+                                                                            'text-gray-500'">
                                                                         Fasilitas</p>
                                                                 </div>
                                                             </div>
 
                                                             <!-- Connector -->
                                                             <div class="w-16 h-0.5 transition-colors duration-300"
-                                                                :class="step >= 4 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                                :class="editStep >= 4 ? 'bg-blue-600' : 'bg-gray-300'">
                                                             </div>
 
                                                             <!-- Step 4 (Foto) -->
                                                             <div class="flex items-center">
                                                                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                                                    :class="step >= 4 ?
+                                                                    :class="editStep >= 4 ?
                                                                         'bg-blue-600 border-blue-600 text-white' :
                                                                         'border-gray-300 text-gray-500'">
                                                                     <span class="text-sm font-semibold"
-                                                                        x-show="step < 4">4</span>
-                                                                    <svg x-show="step >= 4" class="w-5 h-5"
+                                                                        x-show="editStep < 4">4</span>
+                                                                    <svg x-show="editStep >= 4" class="w-5 h-5"
                                                                         fill="none" stroke="currentColor"
                                                                         viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round"
@@ -1322,7 +1357,8 @@
                                                                 </div>
                                                                 <div class="ml-3 text-sm">
                                                                     <p class="font-medium transition-colors duration-300"
-                                                                        :class="step >= 4 ? 'text-blue-600' : 'text-gray-500'">
+                                                                        :class="editStep >= 4 ? 'text-blue-600' :
+                                                                            'text-gray-500'">
                                                                         Foto</p>
                                                                 </div>
                                                             </div>
@@ -1331,26 +1367,29 @@
 
                                                     <!-- Modal content -->
                                                     <div class="flex-1 overflow-y-auto px-6 py-6">
-                                                        <form id="propertyFormEdit" method="POST"
+                                                        <form id="propertyFormEdit-{{ $property->idrec }}"
+                                                            method="POST"
                                                             action="{{ route('properties.update', $property->idrec) }}"
                                                             enctype="multipart/form-data"
-                                                            @submit.prevent="submitForm">
+                                                            @submit.prevent="submitEditForm">
                                                             @csrf
                                                             @method('PUT')
 
                                                             <!-- Step 1 - Basic Information -->
-                                                            <div x-show="step === 1"
+                                                            <div x-show="editStep === 1"
                                                                 x-transition:enter="transition ease-out duration-300"
                                                                 x-transition:enter-start="opacity-0 translate-x-4"
                                                                 x-transition:enter-end="opacity-100 translate-x-0">
                                                                 <div class="space-y-6">
                                                                     <div>
-                                                                        <label for="property_name_edit"
+                                                                        <label
+                                                                            for="property_name_edit_{{ $property->idrec }}"
                                                                             class="block text-sm font-semibold text-gray-700 mb-2">
                                                                             Nama Properti <span
                                                                                 class="text-red-500">*</span>
                                                                         </label>
-                                                                        <input type="text" id="property_name_edit"
+                                                                        <input type="text"
+                                                                            id="property_name_edit_{{ $property->idrec }}"
                                                                             name="property_name" required
                                                                             x-model="propertyData.name"
                                                                             class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -1371,21 +1410,23 @@
                                                                                     { label: 'Villa', value: 'Villa' },
                                                                                     { label: 'Hotel', value: 'Hotel' }
                                                                                 ],
-                                                                                selectedType: propertyData.type
+                                                                                selectedType: propertyData.tags
                                                                             }">
                                                                             <template x-for="type in types"
                                                                                 :key="type.value">
                                                                                 <div class="relative">
                                                                                     <input
-                                                                                        :id="'type-edit-' + type.value"
+                                                                                        :id="'type-edit-{{ $property->idrec }}-' +
+                                                                                        type.value"
                                                                                         name="property_type"
                                                                                         type="radio"
                                                                                         :value="type.value"
                                                                                         class="sr-only peer" required
                                                                                         x-model="selectedType"
-                                                                                        @change="propertyData.type = type.value">
+                                                                                        @change="propertyData.tags = type.value">
                                                                                     <label
-                                                                                        :for="'type-edit-' + type.value"
+                                                                                        :for="'type-edit-{{ $property->idrec }}-' +
+                                                                                        type.value"
                                                                                         class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
                                                                                         <span
                                                                                             x-text="type.label"></span>
@@ -1396,12 +1437,14 @@
                                                                     </div>
 
                                                                     <div>
-                                                                        <label for="description_edit"
+                                                                        <label
+                                                                            for="description_edit_{{ $property->idrec }}"
                                                                             class="block text-sm font-semibold text-gray-700 mb-2">
                                                                             Deskripsi <span
                                                                                 class="text-red-500">*</span>
                                                                         </label>
-                                                                        <textarea id="description_edit" name="description" rows="4" required x-model="propertyData.description"
+                                                                        <textarea id="description_edit_{{ $property->idrec }}" name="description" rows="4" required
+                                                                            x-model="propertyData.description"
                                                                             class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                             placeholder="Deskripsikan properti Anda..."></textarea>
                                                                     </div>
@@ -1409,19 +1452,21 @@
                                                             </div>
 
                                                             <!-- Step 2 - Location Details -->
-                                                            <div x-show="step === 2"
+                                                            <div x-show="editStep === 2"
                                                                 x-transition:enter="transition ease-out duration-300"
                                                                 x-transition:enter-start="opacity-0 translate-x-4"
                                                                 x-transition:enter-end="opacity-100 translate-x-0"
                                                                 x-cloak>
                                                                 <div class="space-y-6">
                                                                     <div>
-                                                                        <label for="full_address_edit"
+                                                                        <label
+                                                                            for="full_address_edit_{{ $property->idrec }}"
                                                                             class="block text-sm font-semibold text-gray-700 mb-2">
                                                                             Alamat Lengkap <span
                                                                                 class="text-red-500">*</span>
                                                                         </label>
-                                                                        <textarea id="full_address_edit" name="full_address" rows="3" required x-model="propertyData.address"
+                                                                        <textarea id="full_address_edit_{{ $property->idrec }}" name="full_address" rows="3" required
+                                                                            x-model="propertyData.address"
                                                                             class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                             placeholder="Masukkan alamat lengkap properti"></textarea>
                                                                     </div>
@@ -1436,7 +1481,7 @@
                                                                                 untuk menandai langsung pada
                                                                                 peta)</span>
                                                                         </label>
-                                                                        <div id="map_edit"
+                                                                        <div id="map_edit_{{ $property->idrec }}"
                                                                             class="h-64 bg-gray-100 rounded-lg border-2 border-gray-200 flex items-center justify-center">
                                                                             <div class="text-gray-500 text-center"
                                                                                 x-show="!propertyData.latitude || !propertyData.longitude">
@@ -1458,7 +1503,7 @@
                                                                                 <p>Klik untuk menentukan lokasi</p>
                                                                             </div>
                                                                         </div>
-                                                                        <div id="coordinates_edit"
+                                                                        <div id="coordinates_edit_{{ $property->idrec }}"
                                                                             class="mt-2 text-sm text-gray-500">
                                                                             <span
                                                                                 x-show="propertyData.latitude && propertyData.longitude">
@@ -1468,22 +1513,26 @@
                                                                                     x-text="propertyData.longitude"></span>
                                                                             </span>
                                                                         </div>
-                                                                        <input type="hidden" id="latitude_edit"
+                                                                        <input type="hidden"
+                                                                            id="latitude_edit_{{ $property->idrec }}"
                                                                             name="latitude"
                                                                             x-model="propertyData.latitude">
-                                                                        <input type="hidden" id="longitude_edit"
+                                                                        <input type="hidden"
+                                                                            id="longitude_edit_{{ $property->idrec }}"
                                                                             name="longitude"
                                                                             x-model="propertyData.longitude">
                                                                     </div>
 
                                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                         <div>
-                                                                            <label for="province_edit"
+                                                                            <label
+                                                                                for="province_edit_{{ $property->idrec }}"
                                                                                 class="block text-sm font-semibold text-gray-700 mb-2">
                                                                                 Provinsi <span
                                                                                     class="text-red-500">*</span>
                                                                             </label>
-                                                                            <input type="text" id="province_edit"
+                                                                            <input type="text"
+                                                                                id="province_edit_{{ $property->idrec }}"
                                                                                 name="province" required
                                                                                 x-model="propertyData.province"
                                                                                 placeholder="Masukkan Provinsi"
@@ -1491,12 +1540,14 @@
                                                                         </div>
 
                                                                         <div>
-                                                                            <label for="city_edit"
+                                                                            <label
+                                                                                for="city_edit_{{ $property->idrec }}"
                                                                                 class="block text-sm font-semibold text-gray-700 mb-2">
                                                                                 Kota/Kabupaten <span
                                                                                     class="text-red-500">*</span>
                                                                             </label>
-                                                                            <input type="text" id="city_edit"
+                                                                            <input type="text"
+                                                                                id="city_edit_{{ $property->idrec }}"
                                                                                 name="city" required
                                                                                 x-model="propertyData.city"
                                                                                 placeholder="Masukkan Kota atau Kabupaten"
@@ -1506,12 +1557,14 @@
 
                                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                         <div>
-                                                                            <label for="district_edit"
+                                                                            <label
+                                                                                for="district_edit_{{ $property->idrec }}"
                                                                                 class="block text-sm font-semibold text-gray-700 mb-2">
                                                                                 Kecamatan <span
                                                                                     class="text-red-500">*</span>
                                                                             </label>
-                                                                            <input type="text" id="district_edit"
+                                                                            <input type="text"
+                                                                                id="district_edit_{{ $property->idrec }}"
                                                                                 name="district" required
                                                                                 x-model="propertyData.subdistrict"
                                                                                 class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -1519,12 +1572,14 @@
                                                                         </div>
 
                                                                         <div>
-                                                                            <label for="village_edit"
+                                                                            <label
+                                                                                for="village_edit_{{ $property->idrec }}"
                                                                                 class="block text-sm font-semibold text-gray-700 mb-2">
                                                                                 Kelurahan <span
                                                                                     class="text-red-500">*</span>
                                                                             </label>
-                                                                            <input type="text" id="village_edit"
+                                                                            <input type="text"
+                                                                                id="village_edit_{{ $property->idrec }}"
                                                                                 name="village" required
                                                                                 x-model="propertyData.village"
                                                                                 class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -1532,14 +1587,16 @@
                                                                         </div>
                                                                     </div>
 
-                                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <div
+                                                                        class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                         <div>
-                                                                            <label for="postal_code_edit"
+                                                                            <label
+                                                                                for="postal_code_edit_{{ $property->idrec }}"
                                                                                 class="block text-sm font-semibold text-gray-700 mb-2">
                                                                                 Kode Pos
                                                                             </label>
                                                                             <input type="text"
-                                                                                id="postal_code_edit"
+                                                                                id="postal_code_edit_{{ $property->idrec }}"
                                                                                 name="postal_code"
                                                                                 x-model="propertyData.postal_code"
                                                                                 class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -1550,7 +1607,7 @@
                                                             </div>
 
                                                             <!-- Step 3 - Facilities -->
-                                                            <div x-show="step === 3"
+                                                            <div x-show="editStep === 3"
                                                                 x-transition:enter="transition ease-out duration-300"
                                                                 x-transition:enter-start="opacity-0 translate-x-4"
                                                                 x-transition:enter-end="opacity-100 translate-x-0"
@@ -1577,16 +1634,18 @@
                                                                                 :key="index">
                                                                                 <div class="relative">
                                                                                     <input
-                                                                                        :id="'facility-edit-' + index"
+                                                                                        :id="'facility-edit-{{ $property->idrec }}-' +
+                                                                                        index"
                                                                                         name="facilities[]"
                                                                                         type="checkbox"
                                                                                         :value="item"
                                                                                         class="sr-only peer"
                                                                                         x-model="propertyData.features"
-                                                                                        :checked="propertyData.features.includes(
-                                                                                            item)">
+                                                                                        :checked="propertyData.features
+                                                                                            .includes(item)">
                                                                                     <label
-                                                                                        :for="'facility-edit-' + index"
+                                                                                        :for="'facility-edit-{{ $property->idrec }}-' +
+                                                                                        index"
                                                                                         class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
                                                                                         <span x-text="item"></span>
                                                                                     </label>
@@ -1598,7 +1657,7 @@
                                                             </div>
 
                                                             <!-- Step 4 - Photos -->
-                                                            <div x-show="step === 4"
+                                                            <div x-show="editStep === 4"
                                                                 x-transition:enter="transition ease-out duration-300"
                                                                 x-transition:enter-start="opacity-0 translate-x-4"
                                                                 x-transition:enter-end="opacity-100 translate-x-0"
@@ -1612,18 +1671,52 @@
                                                                             <span
                                                                                 class="text-sm font-normal text-gray-500">
                                                                                 (Minimal <span
-                                                                                    x-text="minImages"></span> foto,
+                                                                                    x-text="editMinImages"></span>
+                                                                                foto,
                                                                                 maksimal <span
-                                                                                    x-text="maxImages"></span> foto)
+                                                                                    x-text="editMaxImages"></span>
+                                                                                foto)
                                                                             </span>
                                                                         </label>
 
+                                                                        <!-- Thumbnail Info Box -->
+                                                                        <div
+                                                                            class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r-lg">
+                                                                            <div class="flex items-start">
+                                                                                <div class="flex-shrink-0">
+                                                                                    <svg class="h-5 w-5 text-blue-500"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                                        </path>
+                                                                                    </svg>
+                                                                                </div>
+                                                                                <div class="ml-3">
+                                                                                    <p class="text-sm text-blue-700">
+                                                                                        <span
+                                                                                            class="font-semibold">Perhatian:</span>
+                                                                                        Foto
+                                                                                        pertama yang Anda upload akan
+                                                                                        menjadi <span
+                                                                                            class="font-bold">thumbnail
+                                                                                            utama</span> iklan
+                                                                                        properti ini. Pastikan foto
+                                                                                        pertama adalah yang terbaik!
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
                                                                         <!-- Upload Area -->
-                                                                        <div x-show="canUploadMore"
-                                                                            @drop="handleDrop($event)"
+                                                                        <div x-show="editCanUploadMore"
+                                                                            @drop="handleEditDrop($event)"
                                                                             @dragover.prevent @dragenter.prevent
                                                                             class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer"
-                                                                            :class="{ 'border-blue-400 bg-blue-50': canUploadMore }">
+                                                                            :class="{ 'border-blue-400 bg-blue-50': editCanUploadMore }">
                                                                             <div class="space-y-2">
                                                                                 <svg class="w-12 h-12 mx-auto text-gray-400"
                                                                                     fill="none"
@@ -1632,42 +1725,36 @@
                                                                                     <path stroke-linecap="round"
                                                                                         stroke-linejoin="round"
                                                                                         stroke-width="2"
-                                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                                                    </path>
                                                                                 </svg>
                                                                                 <div
                                                                                     class="flex text-sm text-gray-600 justify-center">
-                                                                                    <label for="edit_property_images"
+                                                                                    <label
+                                                                                        for="edit_property_images_{{ $property->idrec }}"
                                                                                         class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                                                                         <span>Upload foto</span>
                                                                                         <input
-                                                                                            id="edit_property_images"
+                                                                                            id="edit_property_images_{{ $property->idrec }}"
                                                                                             name="edit_property_images[]"
                                                                                             type="file" multiple
                                                                                             accept="image/*"
-                                                                                            @change="handleFileSelect($event)"
+                                                                                            @change="handleEditFileSelect($event)"
                                                                                             class="sr-only">
                                                                                     </label>
                                                                                     <p class="pl-1">atau drag and
                                                                                         drop</p>
                                                                                 </div>
                                                                                 <p class="text-xs text-gray-500">PNG,
-                                                                                    JPG, JPEG (maks. 5MB per file)</p>
-                                                                                <p class="text-xs"
-                                                                                    :class="{
-                                                                                        'text-red-600': remainingSlots <=
-                                                                                            0,
-                                                                                        'text-yellow-600': remainingSlots >
-                                                                                            0 && remainingSlots < 3,
-                                                                                        'text-blue-600': remainingSlots >=
-                                                                                            3
-                                                                                    }"
-                                                                                    x-text="imageUploadStatus.message">
+                                                                                    JPG, JPEG up to 5MB</p>
+                                                                                <p class="text-xs text-blue-600"
+                                                                                    x-text="`Dapat upload ${editRemainingSlots} foto lagi`">
                                                                                 </p>
                                                                             </div>
                                                                         </div>
 
                                                                         <!-- Full Upload Message -->
-                                                                        <div x-show="!canUploadMore"
+                                                                        <div x-show="!editCanUploadMore"
                                                                             class="border-2 border-green-300 rounded-lg p-8 text-center bg-green-50">
                                                                             <div class="space-y-2">
                                                                                 <svg class="w-12 h-12 mx-auto text-green-500"
@@ -1677,54 +1764,64 @@
                                                                                     <path stroke-linecap="round"
                                                                                         stroke-linejoin="round"
                                                                                         stroke-width="2"
-                                                                                        d="M5 13l4 4L19 7" />
+                                                                                        d="M5 13l4 4L19 7"></path>
                                                                                 </svg>
                                                                                 <p
                                                                                     class="text-sm text-green-600 font-medium">
-                                                                                    <span x-text="maxImages"></span>
-                                                                                    foto telah diupload!
+                                                                                    <span
+                                                                                        x-text="editMaxImages"></span>
+                                                                                    foto telah
+                                                                                    diupload!
                                                                                 </p>
                                                                                 <p class="text-xs text-green-500">
-                                                                                    Maksimal upload foto tercapai</p>
+                                                                                    Semua slot foto telah terisi</p>
                                                                             </div>
                                                                         </div>
 
                                                                         <!-- Image Preview Grid -->
-                                                                        <div x-show="propertyData.existingImages.filter(img => !img.markedForDeletion).length > 0 || images.length > 0"
+                                                                        <div x-show="propertyData.existingImages.filter(img => !img.markedForDeletion).length > 0 || editImages.length > 0"
                                                                             class="mt-2 grid grid-cols-5 gap-1"
                                                                             x-transition:enter="transition ease-out duration-300"
                                                                             x-transition:enter-start="opacity-0 scale-95"
                                                                             x-transition:enter-end="opacity-100 scale-100">
 
-                                                                            <!-- Existing Images -->
+                                                                            <!-- First Image (Thumbnail) -->
                                                                             <template
-                                                                                x-for="(image, index) in propertyData.existingImages"
-                                                                                :key="'existing-' + index">
-                                                                                <div class="relative group"
-                                                                                    x-show="!image.markedForDeletion">
-                                                                                    <!-- Image Preview -->
+                                                                                x-if="propertyData.existingImages.filter(img => !img.markedForDeletion).length > 0 || editImages.length > 0">
+                                                                                <div class="relative group">
+                                                                                    <!-- Thumbnail Image Container -->
                                                                                     <div
-                                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
-                                                                                        <img :src="image.url"
-                                                                                            :alt="'Existing Image ' + (index +
-                                                                                                1)"
-                                                                                            class="w-full h-full object-cover">
-                                                                                        <div
-                                                                                            class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                                            <span
-                                                                                                x-text="index + 1"></span>
-                                                                                        </div>
-                                                                                    </div>
+                                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-500">
+                                                                                        <template
+                                                                                            x-if="propertyData.existingImages.filter(img => !img.markedForDeletion).length > 0">
+                                                                                            <img x-show="editImages.length === 0 || (editImages.length > 0 && propertyData.existingImages.filter(img => !img.markedForDeletion).length > 0)"
+                                                                                                :src="propertyData
+                                                                                                    .existingImages
+                                                                                                    .find(img => !img
+                                                                                                        .markedForDeletion
+                                                                                                    )?.url"
+                                                                                                alt="Thumbnail"
+                                                                                                class="w-full h-full object-cover">
+                                                                                        </template>
+                                                                                        <template
+                                                                                            x-if="editImages.length > 0">
+                                                                                            <img x-show="editImages.length > 0"
+                                                                                                :src="editImages[0].url"
+                                                                                                alt="New Thumbnail"
+                                                                                                class="w-full h-full object-cover">
+                                                                                        </template>
 
-                                                                                    <div
-                                                                                        class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
-                                                                                        <p class="text-[8px] text-gray-600 truncate"
-                                                                                            x-text="image.name"></p>
+                                                                                        <!-- Thumbnail indicator -->
+                                                                                        <div x-show="true"
+                                                                                            class="absolute top-1 right-1">
+                                                                                            <span
+                                                                                                class="bg-yellow-500 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">Thumbnail</span>
+                                                                                        </div>
                                                                                     </div>
 
                                                                                     <!-- Remove Button -->
                                                                                     <button
-                                                                                        @click="removeExistingImage(index)"
+                                                                                        @click="editImages.length > 0 ? removeEditImage(0) : removeEditExistingImage(propertyData.existingImages.findIndex(img => !img.markedForDeletion))"
                                                                                         class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
                                                                                         <svg class="w-2 h-2"
                                                                                             fill="none"
@@ -1734,35 +1831,45 @@
                                                                                                 stroke-linecap="round"
                                                                                                 stroke-linejoin="round"
                                                                                                 stroke-width="2"
-                                                                                                d="M6 18L18 6M6 6l12 12" />
+                                                                                                d="M6 18L18 6M6 6l12 12">
+                                                                                            </path>
                                                                                         </svg>
                                                                                     </button>
 
-                                                                                    <!-- Hidden Image ID -->
-                                                                                    <input type="hidden"
-                                                                                        name="existing_images[]"
-                                                                                        :value="image.id">
+                                                                                    <!-- Image Number Badge -->
+                                                                                    <div
+                                                                                        class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                        <span>1</span>
+                                                                                    </div>
+
+                                                                                    <!-- File Name -->
+                                                                                    <div
+                                                                                        class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                                                        <p class="text-[8px] text-gray-600 truncate"
+                                                                                            x-text="editImages.length > 0 ? editImages[0].name : propertyData.existingImages.find(img => !img.markedForDeletion)?.name">
+                                                                                        </p>
+                                                                                    </div>
                                                                                 </div>
                                                                             </template>
 
-                                                                            <!-- New Images -->
-                                                                            <template x-for="(image, index) in images"
-                                                                                :key="'new-' + index">
-                                                                                <div class="relative group">
+                                                                            <!-- Other Images -->
+                                                                            <template
+                                                                                x-for="(image, index) in propertyData.existingImages.filter(img => !img.markedForDeletion)"
+                                                                                :key="'existing-' + index">
+                                                                                <div x-show="index > 0"
+                                                                                    class="relative group">
+                                                                                    <!-- Image Container -->
                                                                                     <div
-                                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
+                                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200">
                                                                                         <img :src="image.url"
-                                                                                            :alt="'New Image ' + (index + 1)"
+                                                                                            :alt="'Existing Image ' + (index +
+                                                                                                1)"
                                                                                             class="w-full h-full object-cover">
-                                                                                        <div
-                                                                                            class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                                            <span
-                                                                                                x-text="propertyData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
-                                                                                        </div>
                                                                                     </div>
 
                                                                                     <!-- Remove Button -->
-                                                                                    <button @click="removeImage(index)"
+                                                                                    <button type="button"
+                                                                                        @click="removeEditExistingImage(index)"
                                                                                         class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
                                                                                         <svg class="w-2 h-2"
                                                                                             fill="none"
@@ -1772,13 +1879,67 @@
                                                                                                 stroke-linecap="round"
                                                                                                 stroke-linejoin="round"
                                                                                                 stroke-width="2"
-                                                                                                d="M6 18L18 6M6 6l12 12" />
+                                                                                                d="M6 18L18 6M6 6l12 12">
+                                                                                            </path>
                                                                                         </svg>
                                                                                     </button>
 
-                                                                                    <!-- File Name (Optional) -->
+                                                                                    <!-- Image Number Badge -->
                                                                                     <div
-                                                                                        class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
+                                                                                        class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                        <span
+                                                                                            x-text="index + 1"></span>
+                                                                                    </div>
+
+                                                                                    <!-- File Name -->
+                                                                                    <div
+                                                                                        class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                                                        <p class="text-[8px] text-gray-600 truncate"
+                                                                                            x-text="image.name"></p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </template>
+
+                                                                            <!-- New Images (excluding first if it exists) -->
+                                                                            <template
+                                                                                x-for="(image, index) in editImages"
+                                                                                :key="'new-' + index">
+                                                                                <div x-show="index > 0"
+                                                                                    class="relative group">
+                                                                                    <div
+                                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200">
+                                                                                        <img :src="image.url"
+                                                                                            :alt="'New Image ' + (index + 1)"
+                                                                                            class="w-full h-full object-cover">
+                                                                                    </div>
+
+                                                                                    <!-- Remove Button -->
+                                                                                    <button
+                                                                                        @click="removeEditImage(index)"
+                                                                                        class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                                        <svg class="w-2 h-2"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M6 18L18 6M6 6l12 12">
+                                                                                            </path>
+                                                                                        </svg>
+                                                                                    </button>
+
+                                                                                    <!-- Image Number Badge -->
+                                                                                    <div
+                                                                                        class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                        <span
+                                                                                            x-text="propertyData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                                                    </div>
+
+                                                                                    <!-- File Name -->
+                                                                                    <div
+                                                                                        class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                                                                         <p class="text-[8px] text-gray-600 truncate"
                                                                                             x-text="image.name"></p>
                                                                                     </div>
@@ -1792,44 +1953,34 @@
                                                                                 class="flex justify-between text-sm text-gray-600 mb-2">
                                                                                 <span>Progress Upload</span>
                                                                                 <span
-                                                                                    x-text="`${propertyData.existingImages.filter(img => !img.markedForDeletion).length + images.length}/${maxImages} foto`"></span>
+                                                                                    x-text="`${propertyData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length}/${editMaxImages} foto`"></span>
                                                                             </div>
                                                                             <div
-                                                                                class="w-full bg-gray-200 rounded-full h-2.5">
-                                                                                <div class="h-2.5 rounded-full transition-all duration-300"
-                                                                                    :style="`width: ${uploadProgress.percentage}%`"
-                                                                                    :class="{
-                                                                                        'bg-red-500': uploadProgress
-                                                                                            .status === 'danger',
-                                                                                        'bg-yellow-500': uploadProgress
-                                                                                            .status === 'warning',
-                                                                                        'bg-green-500': uploadProgress
-                                                                                            .status === 'success'
-                                                                                    }">
+                                                                                class="w-full bg-gray-200 rounded-full h-2">
+                                                                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                                                    :style="`width: ${((propertyData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) / editMaxImages) * 100}%`">
                                                                                 </div>
                                                                             </div>
-                                                                            <p class="text-sm mt-1"
-                                                                                :class="imageUploadStatus.class"
-                                                                                x-text="imageUploadStatus.message"></p>
                                                                         </div>
 
                                                                         <!-- Validation Messages -->
-                                                                        <div x-show="(propertyData.existingImages.filter(img => !img.markedForDeletion).length + images.length) < minImages"
-                                                                            class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                                            <p class="text-red-600 text-sm">
+                                                                        <div x-show="(propertyData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) < editMinImages"
+                                                                            class="mt-3">
+                                                                            <p class="text-sm text-red-600">
                                                                                 <span
                                                                                     class="font-medium">Perhatian:</span>
                                                                                 Anda harus mengupload minimal <span
-                                                                                    x-text="minImages"></span> foto.
+                                                                                    x-text="editMinImages"></span>
+                                                                                foto untuk melanjutkan.
                                                                             </p>
                                                                         </div>
 
-                                                                        <div x-show="(propertyData.existingImages.filter(img => !img.markedForDeletion).length + images.length) >= minImages"
-                                                                            class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                                                            <p class="text-green-600 text-sm">
+                                                                        <div x-show="(propertyData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) >= editMinImages"
+                                                                            class="mt-3">
+                                                                            <p class="text-sm text-green-600">
                                                                                 <span
                                                                                     class="font-medium">Sempurna!</span>
-                                                                                Foto sudah memenuhi syarat minimal.
+                                                                                Semua foto telah diupload.
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -1839,8 +1990,8 @@
                                                             <!-- Form Actions -->
                                                             <div class="mt-6 flex justify-end">
                                                                 <div>
-                                                                    <button type="button" x-show="step > 1"
-                                                                        @click="step--"
+                                                                    <button type="button" x-show="editStep > 1"
+                                                                        @click="editStep--"
                                                                         class="px-6 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                                                                         <svg class="w-4 h-4 inline mr-2"
                                                                             fill="none" stroke="currentColor"
@@ -1852,8 +2003,8 @@
                                                                         </svg>
                                                                         Sebelumnya
                                                                     </button>
-                                                                    <button type="button" x-show="step < 4"
-                                                                        @click="validateStep(step) && step++"
+                                                                    <button type="button" x-show="editStep < 4"
+                                                                        @click="validateEditStep(editStep) && editStep++"
                                                                         class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                                                                         Selanjutnya
                                                                         <svg class="w-4 h-4 inline ml-2"
@@ -1865,7 +2016,7 @@
                                                                             </path>
                                                                         </svg>
                                                                     </button>
-                                                                    <button type="submit" x-show="step === 4"
+                                                                    <button type="submit" x-show="editStep === 4"
                                                                         class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
                                                                         <svg class="w-4 h-4 inline mr-2"
                                                                             fill="none" stroke="currentColor"
@@ -2319,7 +2470,20 @@
                 // Enhanced photo upload methods
                 handleFileSelect(event) {
                     const files = Array.from(event.target.files);
+                    const wasEmpty = this.images.length === 0;
                     this.processFiles(files);
+
+                    if (wasEmpty && this.images.length > 0) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: 'Foto pertama akan menjadi thumbnail properti',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    }
                 },
 
                 handleDrop(event) {
@@ -2598,23 +2762,23 @@
             }));
         });
 
-        function modalPropertyEdit(property) {
-            return {
-                modalOpenDetail: false,
-                step: 1,
-                minImages: 3,
-                maxImages: 10,
-                images: [],
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('modalPropertyEdit', (property) => ({
+                editModalOpen: false,
+                editStep: 1,
+                editMinImages: 3,
+                editMaxImages: 10,
+                editImages: [],
                 map: null,
                 marker: null,
                 searchQuery: '',
                 searchResults: [],
                 isSearching: false,
-                isSubmitting: false, // Track submission state
-                originalPropertyData: {}, // Store original data for comparison
+                isSubmitting: false,
+                originalPropertyData: {},
                 propertyData: {
                     name: property.name || '',
-                    type: property.tags || 'House',
+                    tags: property.tags || 'House',
                     description: property.description || '',
                     address: property.address || '',
                     latitude: property.latitude || null,
@@ -2625,111 +2789,73 @@
                     village: property.village || '',
                     postal_code: property.postal_code || '',
                     features: property.features || [],
-                    attributes: property.attributes || [],
-                    existingImages: property.images ? property.images.map(img => ({
-                        id: img.idrec,
-                        url: 'data:image/jpeg;base64,' + img.image,
-                        caption: img.caption || '',
-                        name: 'Image_' + img.idrec + '.jpg',
-                        markedForDeletion: false // Track which images to delete
-                    })) : []
+                    existingImages: property.existingImages || []
                 },
 
                 init() {
-                    // Store original data for comparison
                     this.originalPropertyData = JSON.parse(JSON.stringify(this.propertyData));
 
-                    this.$watch('step', (value) => {
-                        if (value === 2 && typeof L === 'undefined') {
-                            this.loadLeaflet().then(() => {
-                                setTimeout(() => {
-                                    this.initMap();
-                                }, 100);
-                            });
-                        } else if (value === 2 && typeof L !== 'undefined' && !this.map) {
-                            setTimeout(() => {
+                    this.$watch('editStep', (value) => {
+                        if (value === 2) {
+                            this.$nextTick(() => {
                                 this.initMap();
-                            }, 100);
+                            });
                         }
                     });
                 },
 
-                loadLeaflet() {
-                    return new Promise((resolve) => {
-                        if (typeof L !== 'undefined') {
-                            resolve();
-                            return;
-                        }
-
-                        // Load Leaflet CSS
-                        const css = document.createElement('link');
-                        css.rel = 'stylesheet';
-                        css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-                        css.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
-                        css.crossOrigin = '';
-                        document.head.appendChild(css);
-
-                        // Load Leaflet JS
-                        const js = document.createElement('script');
-                        js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-                        js.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
-                        js.crossOrigin = '';
-                        js.onload = () => {
-                            // Ensure DOM is fully loaded before resolving
-                            setTimeout(resolve, 50);
-                        };
-                        document.head.appendChild(js);
-                    });
+                get editRemainingSlots() {
+                    return this.editMaxImages - (this.propertyData.existingImages.filter(img => !img
+                        .markedForDeletion).length + this.editImages.length);
                 },
 
-                get remainingSlots() {
-                    return this.maxImages - (this.propertyData.existingImages.filter(img => !img.markedForDeletion)
-                        .length + this.images.length);
+                get editCanUploadMore() {
+                    return (this.propertyData.existingImages.filter(img => !img.markedForDeletion)
+                        .length + this.editImages.length) < this.editMaxImages;
                 },
 
-                get canUploadMore() {
-                    return (this.propertyData.existingImages.filter(img => !img.markedForDeletion).length + this.images
-                        .length) < this.maxImages;
-                },
-
-                get uploadProgress() {
-                    const totalCurrentImages = this.propertyData.existingImages.filter(img => !img.markedForDeletion)
-                        .length + this.images.length;
-                    const percentage = Math.min(100, (totalCurrentImages / this.maxImages) * 100);
+                get editUploadProgress() {
+                    const totalCurrentImages = this.propertyData.existingImages.filter(img => !img
+                        .markedForDeletion).length + this.editImages.length;
+                    const percentage = Math.min(100, (totalCurrentImages / this.editMaxImages) *
+                        100);
 
                     return {
                         percentage,
-                        status: totalCurrentImages < this.minImages ? 'danger' : totalCurrentImages >= this.minImages &&
-                            totalCurrentImages < this.maxImages ? 'warning' : 'success'
+                        status: totalCurrentImages < this.editMinImages ? 'danger' :
+                            totalCurrentImages >= this.editMinImages && totalCurrentImages < this
+                            .editMaxImages ? 'warning' : 'success'
                     };
                 },
 
-                get imageUploadStatus() {
-                    const totalCurrentImages = this.propertyData.existingImages.filter(img => !img.markedForDeletion)
-                        .length + this.images.length;
+                get editImageUploadStatus() {
+                    const totalCurrentImages = this.propertyData.existingImages.filter(img => !img
+                        .markedForDeletion).length + this.editImages.length;
 
-                    if (totalCurrentImages < this.minImages) {
+                    if (totalCurrentImages < this.editMinImages) {
                         return {
                             class: 'text-red-600',
-                            message: `Minimal ${this.minImages} foto diperlukan (${totalCurrentImages}/${this.minImages})`
+                            message: `Minimal ${this.editMinImages} foto diperlukan (${totalCurrentImages}/${this.editMinImages})`
                         };
-                    } else if (totalCurrentImages >= this.minImages && totalCurrentImages < this.maxImages) {
+                    } else if (totalCurrentImages >= this.editMinImages && totalCurrentImages < this
+                        .editMaxImages) {
                         return {
                             class: 'text-yellow-600',
-                            message: `${totalCurrentImages}/${this.maxImages} foto (dapat menambah ${this.maxImages - totalCurrentImages} lagi)`
+                            message: `${totalCurrentImages}/${this.editMaxImages} foto (dapat menambah ${this.editMaxImages - totalCurrentImages} lagi)`
                         };
                     } else {
                         return {
                             class: 'text-green-600',
-                            message: `${totalCurrentImages}/${this.maxImages} foto (maksimal tercapai)`
+                            message: `${totalCurrentImages}/${this.editMaxImages} foto (maksimal tercapai)`
                         };
                     }
                 },
 
                 get hasMinimumImages() {
-                    const totalCurrentImages = this.images.length +
-                        this.propertyData.existingImages.filter(img => !img.markedForDeletion).length;
-                    return totalCurrentImages >= this.minImages;
+                    const totalCurrentImages = this.editImages.length +
+                        this.propertyData.existingImages.filter(img => !img.markedForDeletion)
+                        .length;
+                    return totalCurrentImages >= this.editMinImages;
                 },
 
                 openModal(data) {
@@ -2737,40 +2863,49 @@
                         ...this.propertyData,
                         ...data
                     };
-                    this.modalOpenDetail = true;
-                    this.step = 1;
-                    this.images = [];
+                    this.editModalOpen = true;
+                    this.editStep = 1;
+                    this.editImages = [];
                     this.searchResults = [];
                     this.searchQuery = '';
 
                     this.$nextTick(() => {
-                        if (this.step === 2) {
-                            if (typeof L === 'undefined') {
-                                this.loadLeaflet().then(() => {
-                                    setTimeout(() => {
-                                        this.initMap();
-                                    }, 100);
-                                });
-                            } else {
-                                setTimeout(() => {
-                                    this.initMap();
-                                }, 100);
-                            }
+                        if (this.editStep === 2) {
+                            this.initMap();
                         }
                     });
                 },
 
-                initMap() {
+                async initMap() {
                     try {
-                        const mapContainer = document.getElementById('map_edit');
-                        if (!mapContainer) {
+                        // Check if map is already initialized
+                        const mapId = `map_edit_${property.idrec}`;
+                        if (this.map && this.map._container && this.map._container.id === mapId) {                            
+                            return;
+                        }
+
+                        // Load Leaflet if not already loaded
+                        if (typeof L === 'undefined') {
+                            await this.loadLeaflet();
+                        }
+
+                        const mapElement = document.getElementById(mapId);
+
+                        if (!mapElement) {
                             console.error('Map element not found');
                             return;
                         }
 
                         // Ensure the map element has proper dimensions
-                        if (mapContainer.offsetHeight === 0) {
-                            mapContainer.style.height = '400px';
+                        if (mapElement.offsetHeight === 0) {
+                            mapElement.style.height = '400px';
+                        }
+
+                        // Clean up any existing map instance
+                        if (this.map) {
+                            this.map.off();
+                            this.map.remove();
+                            this.map = null;
                         }
 
                         // Default to Jakarta coordinates if no coordinates are set
@@ -2782,7 +2917,7 @@
                         const initialLng = this.propertyData.longitude || defaultLng;
 
                         // Initialize map
-                        this.map = L.map('map_edit', {
+                        this.map = L.map(mapId, {
                             preferCanvas: true,
                             zoomControl: true
                         }).setView([initialLat, initialLng], 15);
@@ -2820,12 +2955,39 @@
                                 lat: this.propertyData.latitude,
                                 lng: this.propertyData.longitude
                             });
-                        }
-
-                        console.log('Map initialized successfully');
+                        }                        
                     } catch (error) {
                         console.error('Error initializing map:', error);
                     }
+                },
+
+                async loadLeaflet() {
+                    return new Promise((resolve) => {
+                        if (typeof L !== 'undefined') {
+                            resolve();
+                            return;
+                        }
+
+                        // Load Leaflet CSS
+                        const css = document.createElement('link');
+                        css.rel = 'stylesheet';
+                        css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                        css.integrity =
+                            'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                        css.crossOrigin = '';
+                        document.head.appendChild(css);
+
+                        // Load Leaflet JS
+                        const js = document.createElement('script');
+                        js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                        js.integrity =
+                            'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+                        js.crossOrigin = '';
+                        js.onload = () => {
+                            setTimeout(resolve, 50);
+                        };
+                        document.head.appendChild(js);
+                    });
                 },
 
                 placeMarker(latlng) {
@@ -2838,7 +3000,7 @@
                     }).addTo(this.map);
 
                     // Update coordinates display
-                    const coordsElement = document.getElementById('coordinates_edit');
+                    const coordsElement = document.getElementById(`coordinates_edit_${property.idrec}`);
                     if (coordsElement) {
                         coordsElement.innerHTML =
                             `Koordinat: ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
@@ -2928,28 +3090,36 @@
                         if (element) {
                             element.value = value || '';
                             // Also update the propertyData
-                            if (id === 'full_address_edit') this.propertyData.address = value || '';
-                            if (id === 'province_edit') this.propertyData.province = value || '';
-                            if (id === 'city_edit') this.propertyData.city = value || '';
-                            if (id === 'district_edit') this.propertyData.subdistrict = value || '';
-                            if (id === 'village_edit') this.propertyData.village = value || '';
-                            if (id === 'postal_code_edit') this.propertyData.postal_code = value || '';
+                            if (id === `full_address_edit_${property.idrec}`) this.propertyData
+                                .address = value || '';
+                            if (id === `province_edit_${property.idrec}`) this.propertyData
+                                .province = value || '';
+                            if (id === `city_edit_${property.idrec}`) this.propertyData.city =
+                                value || '';
+                            if (id === `district_edit_${property.idrec}`) this.propertyData
+                                .subdistrict = value || '';
+                            if (id === `village_edit_${property.idrec}`) this.propertyData.village =
+                                value || '';
+                            if (id === `postal_code_edit_${property.idrec}`) this.propertyData
+                                .postal_code = value || '';
                         }
                     };
 
                     // Update form fields based on reverse geocoding results
-                    updateField('full_address_edit',
+                    updateField(`full_address_edit_${property.idrec}`,
                         address.road || address.hamlet || address.village ||
                         address.town || address.city || '');
-                    updateField('province_edit', address.state || address.region || '');
-                    updateField('city_edit', address.city || address.town || address.county || '');
-                    updateField('district_edit', address.suburb || address.city_district || '');
-                    updateField('village_edit',
+                    updateField(`province_edit_${property.idrec}`, address.state || address.region ||
+                        '');
+                    updateField(`city_edit_${property.idrec}`, address.city || address.town || address
+                        .county || '');
+                    updateField(`district_edit_${property.idrec}`, address.suburb || address
+                        .city_district || '');
+                    updateField(`village_edit_${property.idrec}`,
                         address.village || address.hamlet || address.neighbourhood || '');
-                    updateField('postal_code_edit', address.postcode || '');
+                    updateField(`postal_code_edit_${property.idrec}`, address.postcode || '');
                 },
 
-                // Force map resize when step changes or container becomes visible
                 resizeMap() {
                     if (this.map) {
                         setTimeout(() => {
@@ -2958,7 +3128,7 @@
                     }
                 },
 
-                handleFileSelect(event) {
+                handleEditFileSelect(event) {
                     const files = Array.from(event.target.files);
                     this.processFiles(files);
                 },
@@ -2971,13 +3141,13 @@
 
                 processFiles(files) {
                     const imageFiles = files.filter(file => file.type.startsWith('image/'));
-                    const availableSlots = this.maxImages - this.images.length;
+                    const availableSlots = this.editMaxImages - this.editImages.length;
 
                     if (availableSlots <= 0) {
                         Swal.fire({
                             toast: true,
                             icon: 'error',
-                            title: `Maksimal hanya ${this.maxImages} foto yang dapat diupload.`,
+                            title: `Maksimal hanya ${this.editMaxImages} foto yang dapat diupload.`,
                             position: 'top-end',
                             showConfirmButton: false,
                             timer: 3000,
@@ -3005,7 +3175,7 @@
                         if (file.size <= 5 * 1024 * 1024) { // 5MB limit
                             const reader = new FileReader();
                             reader.onload = (e) => {
-                                this.images.push({
+                                this.editImages.push({
                                     file: file,
                                     url: e.target.result,
                                     name: file.name,
@@ -3024,24 +3194,18 @@
                     }
                 },
 
-                removeImage(index, isExisting = false) {
-                    if (isExisting) {
-                        // For existing images, we'll just mark them for deletion
-                        this.propertyData.existingImages[index].markedForDeletion = true;
-                    } else {
-                        // For new uploads, simply remove from array
-                        this.images.splice(index, 1);
-                    }
+                removeEditImage(index) {
+                    this.editImages.splice(index, 1);
                 },
 
-                removeExistingImage(index) {
-                    this.propertyData.existingImages.splice(index, 1);
+                removeEditExistingImage(index) {
+                    this.propertyData.existingImages[index].markedForDeletion = true;
                 },
 
                 nextStep() {
-                    if (this.validateStep()) {
-                        this.step++;
-                        if (this.step === 2) {
+                    if (this.validateEditStep()) {
+                        this.editStep++;
+                        if (this.editStep === 2) {
                             this.$nextTick(() => {
                                 this.resizeMap();
                             });
@@ -3050,16 +3214,16 @@
                 },
 
                 prevStep() {
-                    this.step--;
-                    if (this.step === 2) {
+                    this.editStep--;
+                    if (this.editStep === 2) {
                         this.$nextTick(() => {
                             this.resizeMap();
                         });
                     }
                 },
 
-                validateStep() {
-                    if (this.step === 1) {
+                validateEditStep() {
+                    if (this.editStep === 1) {
                         if (!this.propertyData.name.trim()) {
                             alert('Nama properti harus diisi');
                             return false;
@@ -3068,14 +3232,15 @@
                             alert('Deskripsi properti harus diisi');
                             return false;
                         }
-                    } else if (this.step === 2) {
+                    } else if (this.editStep === 2) {
                         if (!this.propertyData.address.trim()) {
                             alert('Alamat lengkap harus diisi');
                             return false;
                         }
 
                         if (!this.propertyData.province.trim() || !this.propertyData.city.trim() ||
-                            !this.propertyData.subdistrict.trim() || !this.propertyData.village.trim()) {
+                            !this.propertyData.subdistrict.trim() || !this.propertyData.village.trim()
+                        ) {
                             alert('Semua detail lokasi harus diisi');
                             return false;
                         }
@@ -3084,22 +3249,32 @@
                             alert('Pinpoint lokasi wajib dipilih');
                             return false;
                         }
-                    } else if (this.step === 4) {
-                        const totalImages = this.images.length +
-                            this.propertyData.existingImages.filter(img => !img.markedForDeletion).length;
+                    } else if (this.editStep === 4) {
+                        const totalImages = this.editImages.length +
+                            this.propertyData.existingImages.filter(img => !img.markedForDeletion)
+                            .length;
 
-                        if (totalImages < this.minImages) {
-                            alert(`Harap unggah minimal ${this.minImages} foto properti (Saat ini: ${totalImages})`);
+                        if (totalImages < this.editMinImages) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'warning',
+                                title: `Harap unggah minimal ${this.editMinImages} foto properti (Saat ini: ${totalImages})`,
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
                             return false;
                         }
+
                     }
                     return true;
                 },
 
                 closeModal() {
-                    this.modalOpenDetail = false;
-                    this.step = 1;
-                    this.images = [];
+                    this.editModalOpen = false;
+                    this.editStep = 1;
+                    this.editImages = [];
                     this.searchResults = [];
 
                     // Clean up map
@@ -3110,32 +3285,34 @@
                     }
                 },
 
-                async submitForm() {
-                    if (!this.validateStep() || this.isSubmitting) return;
+                async submitEditForm() {
+                    if (!this.validateEditStep() || this.isSubmitting) return;
                     this.isSubmitting = true;
 
                     // Store the submit button reference and original text
-                    const submitBtn = document.querySelector('button[type="submit"]');
+                    const submitBtn = document.querySelector(
+                        `#propertyFormEdit-${property.idrec} button[type="submit"]`);
                     const originalText = submitBtn?.innerHTML;
 
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Memproses...
-                `;
+                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Memproses...
+                                    `;
                     }
 
                     try {
                         // Create FormData for the submission
                         const formData = new FormData();
 
-                        // Only include changed fields to minimize data transfer
-                        const changedFields = this.getChangedFields();
-                        for (const [key, value] of Object.entries(changedFields)) {
+                        // Add all property data
+                        for (const [key, value] of Object.entries(this.propertyData)) {
+                            if (key === 'existingImages') continue; // Handled separately
+
                             if (Array.isArray(value)) {
                                 value.forEach(item => formData.append(`${key}[]`, item));
                             } else {
@@ -3144,8 +3321,8 @@
                         }
 
                         // Append new images
-                        this.images.forEach((image, index) => {
-                            formData.append(`new_images[${index}]`, image.file);
+                        this.editImages.forEach((image, index) => {
+                            formData.append(`property_images[${index}]`, image.file);
                         });
 
                         // Append images to delete
@@ -3156,10 +3333,12 @@
                             });
 
                         // Add CSRF token
-                        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+                        formData.append('_token', document.querySelector('meta[name="csrf-token"]')
+                            .content);
                         formData.append('_method', 'PUT');
 
-                        const response = await fetch(document.getElementById('propertyFormEdit').action, {
+                        const response = await fetch(document.getElementById(
+                            `propertyFormEdit-${property.idrec}`).action, {
                             method: 'POST', // Laravel handles PUT via POST with _method
                             body: formData,
                             headers: {
@@ -3167,7 +3346,15 @@
                             }
                         });
 
-                        const data = await response.json();
+                        let data;
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            data = await response.json();
+                        } else {
+                            const text = await response.text();
+                            throw new Error('Server returned non-JSON response: ' + text.substring(
+                                0, 100));
+                        }
 
                         if (!response.ok) {
                             throw new Error(data.message || 'Gagal memperbarui properti');
@@ -3204,43 +3391,9 @@
                             submitBtn.innerHTML = originalText;
                         }
                     }
-                },
-                getChangedFields() {
-                    const changes = {};
-
-                    // Compare each field with original data
-                    for (const key in this.propertyData) {
-                        if (key === 'existingImages') continue; // Handled separately
-
-                        if (JSON.stringify(this.propertyData[key]) !== JSON.stringify(this.originalPropertyData[key])) {
-                            changes[key] = this.propertyData[key];
-                        }
-                    }
-
-                    // Handle features/attributes separately if needed
-                    if (JSON.stringify(this.propertyData.features) !== JSON.stringify(this.originalPropertyData.features)) {
-                        changes.features = this.propertyData.features;
-                    }
-
-                    return changes;
-                },
-
-                // Helper method to get upload progress info
-                getUploadInfo() {
-                    const totalCurrentImages = this.images.length +
-                        this.propertyData.existingImages.filter(img => !img.markedForDeletion).length;
-
-                    return {
-                        current: totalCurrentImages,
-                        min: this.minImages,
-                        max: this.maxImages,
-                        remaining: this.remainingSlots,
-                        canUpload: this.canUploadMore,
-                        isValid: this.hasMinimumImages
-                    };
                 }
-            };
-        }
+            }));
+        });
 
         // Listen for filter changes and submit form
         document.getElementById('statusFilter').addEventListener('change', function() {

@@ -229,8 +229,7 @@
                         @forelse ($bookings as $booking)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-indigo-600">{{ $booking->order_id }}</div>
-                                    <div class="text-sm text-gray-500">ID: {{ $booking->transaction->user_id }}</div>
+                                    <div class="text-sm font-medium text-indigo-600">{{ $booking->order_id }}</div>                                
                                 </td>
 
                                 <td class="px-6 py-4 whitespace-nowrap">
