@@ -12,21 +12,9 @@ class ManajementPropertiesController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $status = $request->input('status');
-        $perPage = $request->input('per_page', 5);
+        $perPage = $request->input('per_page', 8);
 
         $query = Property::with(['creator', 'images'])
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('province', 'like', "%{$search}%")
-                        ->orWhere('city', 'like', "%{$search}%");
-                });
-            })
-            ->when(isset($status) && $status !== '', function ($query) use ($status) {
-                return $query->where('status', $status);
-            })
             ->orderBy('created_at', 'desc');
 
         $properties = $perPage === 'all'
@@ -35,11 +23,55 @@ class ManajementPropertiesController extends Controller
 
         return view('pages.Properties.m-Properties.index', [
             'properties' => $properties,
-            'search' => $search,
-            'status' => $status,
             'per_page' => $perPage,
         ]);
     }
+
+    public function filter(Request $request)
+    {
+        $perPage = $request->input('per_page', 8);
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        $query = Property::with(['creator', 'images'])
+            ->orderBy('created_at', 'desc');
+
+        // Filter berdasarkan pencarian
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('province', 'like', '%' . $search . '%')
+                    ->orWhere('city', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Filter berdasarkan status
+        if ($status !== null) {
+            $query->where('status', $status);
+        }
+
+        $properties = $perPage === 'all'
+            ? $query->get()
+            : $query->paginate((int) $perPage);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('pages.Properties.m-Properties.partials.property_table', [
+                    'properties' => $properties,
+                    'per_page' => $perPage,
+                ])->render(),
+                'pagination' => $perPage !== 'all'
+                    ? $properties->appends(request()->input())->links()->toHtml()
+                    : ''
+            ]);
+        }
+
+        return view('pages.Properties.m-Properties.index', [
+            'properties' => $properties,
+            'per_page' => $perPage,
+        ]);
+    }
+
 
     public function updateStatus(Property $property, Request $request)
     {
@@ -177,7 +209,7 @@ class ManajementPropertiesController extends Controller
     }
 
     public function update(Request $request, $id)
-    {        
+    {
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -276,5 +308,22 @@ class ManajementPropertiesController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function tablePartial(Request $request)
+    {
+        $perPage = $request->input('per_page', 8);
+
+        $query = Property::with(['creator', 'images'])
+            ->orderBy('created_at', 'desc');
+
+        $properties = $perPage === 'all'
+            ? $query->get()
+            : $query->paginate((int) $perPage)->withQueryString();
+
+        return view('pages.Properties.m-Properties.partials.property_table', [
+            'properties' => $properties,
+            'per_page' => $perPage,
+        ]);
     }
 }

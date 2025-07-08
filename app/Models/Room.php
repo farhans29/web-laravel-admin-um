@@ -15,28 +15,31 @@ class Room extends Model
 
     protected $fillable = [
         'property_id',
-        'property_name',
+        'property_name',        
         'slug',
-        'name',        
-        'descriptions',        
+        'no',
+        'name',
+        'descriptions',
+        'size',
         'bed_type',
         'capacity',
         'periode',
         'type',
         'level',
         'facility',
-        'discount_percentage',
+        'price',
+        'discount_percent',
         'price_original_daily',
         'price_discounted_daily',
         'price_original_monthly',
-        'price_discounted_monthly',
-        'image',
-        'created_at',
-        'updated_at',
+        'price_discounted_monthly',        
         'created_by',
         'updated_by',
         'status',
+        'created_at',
+        'updated_at',
     ];
+
 
     public function getFacilityAttribute($value)
     {
@@ -115,5 +118,10 @@ class Room extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by', 'id');
+    }
+
+    public function roomImages()
+    {
+        return $this->hasMany(MRoomImage::class, 'room_id', 'idrec');
     }
 }

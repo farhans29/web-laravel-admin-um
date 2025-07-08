@@ -1,416 +1,548 @@
 <x-app-layout>
-    <div class="container mx-auto px-4 py-6">
-
-        @if (session()->has('success'))
-            <div class="bg-green-500 text-white px-4 py-2 rounded shadow-md mb-2">
-                {{ session('success') }}
-            </div>
-        @elseif (session()->has('error'))
-            <div class="bg-red-500 text-white px-4 py-2 rounded shadow-md">
-                {{ session('error') }}
-            </div>
-        @endif
+    <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
 
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Manajemen Kamar</h1>
-            <div class="mt-4 md:mt-0">
-                <!-- AlpineJS Wrapper -->
-                <div x-data="{
-                                modalOpen: false,
-                                step: 1,
-                            
-                                validateStep(step) {
-                                    if (step === 1) {
-                                        const requiredInputs = Array.from(document.querySelectorAll('#roomForm [required]'));
-                                        let isValid = true;
-                            
-                                        requiredInputs.forEach(input => {
-                                            if (!input.value) {
-                                                input.classList.add('border-red-500');
-                                                isValid = false;
-                                            } else {
-                                                input.classList.remove('border-red-500');
-                                            }
-                                        });
-                            
-                                        return isValid;
-                                    }
-                                    return true;
-                                },
-                            
-                                submitForm() {
-                                    if (this.validateStep(this.step)) {
-                                        document.getElementById('roomForm').submit();
-                                    }
-                                }
-                            }">
-                    <!-- Add Room Button -->
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
-                        type="button" @click.prevent="modalOpen = true;" aria-controls="room-modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        Tambah Kamar
-                    </button>
+            <!-- New Room -->
+            <div x-data="modalRoom()">
+                <!-- Trigger Button -->
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+                    type="button" @click.prevent="modalOpen = true;" aria-controls="room-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Tambah Kamar
+                </button>
 
-                    <!-- Modal backdrop -->
-                    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity" x-show="modalOpen"
-                        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-                        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-out duration-200"
-                        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"
-                        x-cloak></div>
+                <!-- Modal -->
+                <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity" x-show="modalOpen"
+                    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-out duration-200"
+                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"
+                    x-cloak></div>
 
-                    <!-- Modal dialog -->
-                    <div id="room-modal"
-                        class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
-                        role="dialog" aria-modal="true" x-show="modalOpen"
-                        x-transition:enter="transition ease-in-out duration-300"
-                        x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave="transition ease-in-out duration-200"
-                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak>
+                <div id="room-modal"
+                    class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
+                    role="dialog" aria-modal="true" x-show="modalOpen"
+                    x-transition:enter="transition ease-in-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave="transition ease-in-out duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak>
 
-                        <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
-                            @click.outside="modalOpen = false" @keydown.escape.window="modalOpen = false">
+                    <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
+                        @click.outside="modalOpen = false" @keydown.escape.window="modalOpen = false">
 
-                            <!-- Modal header with step indicator -->
-                            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-                                <div class="flex justify-between items-center mb-4">
-                                    <div class="font-bold text-xl text-gray-800">Tambahkan Kamar</div>
-                                    <button type="button"
-                                        class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                        @click="modalOpen = false">
-                                        <div class="sr-only">Close</div>
-                                        <svg class="w-6 h-6 fill-current">
-                                            <path
-                                                d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                        <!-- Modal header with step indicator -->
+                        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="font-bold text-xl text-gray-800">Tambahkan Kamar</div>
+                                <button type="button"
+                                    class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                    @click="modalOpen = false">
+                                    <div class="sr-only">Close</div>
+                                    <svg class="w-6 h-6 fill-current">
+                                        <path
+                                            d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Step Indicator -->
+                            <div class="flex items-center justify-center space-x-4">
+                                <!-- Step 1 -->
+                                <div class="flex items-center">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+                                        :class="step >= 1 ? 'bg-blue-600 border-blue-600 text-white' :
+                                            'border-gray-300 text-gray-500'">
+                                        <span class="text-sm font-semibold" x-show="step < 1">1</span>
+                                        <svg x-show="step >= 1" class="w-5 h-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
                                         </svg>
-                                    </button>
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <p class="font-medium transition-colors duration-300"
+                                            :class="step >= 1 ? 'text-blue-600' : 'text-gray-500'">Informasi Dasar</p>
+                                    </div>
                                 </div>
 
-                                <!-- Step Indicator -->
-                                <div class="flex items-center justify-center space-x-4">
-                                    <!-- Step 1 -->
-                                    <div class="flex items-center">
-                                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step >= 1 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 text-gray-500'">
-                                            <span class="text-sm font-semibold" x-show="step < 1">1</span>
-                                            <svg x-show="step >= 1" class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3 text-sm">
-                                            <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 1 ? 'text-blue-600' : 'text-gray-500'">Informasi Kamar
-                                            </p>
-                                        </div>
+                                <!-- Connector -->
+                                <div class="w-16 h-0.5 transition-colors duration-300"
+                                    :class="step >= 2 ? 'bg-blue-600' : 'bg-gray-300'"></div>
+
+                                <!-- Step 2 -->
+                                <div class="flex items-center">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+                                        :class="step >= 2 ? 'bg-blue-600 border-blue-600 text-white' :
+                                            'border-gray-300 text-gray-500'">
+                                        <span class="text-sm font-semibold" x-show="step < 2">2</span>
+                                        <svg x-show="step >= 2" class="w-5 h-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
                                     </div>
+                                    <div class="ml-3 text-sm">
+                                        <p class="font-medium transition-colors duration-300"
+                                            :class="step >= 2 ? 'text-blue-600' : 'text-gray-500'">Harga</p>
+                                    </div>
+                                </div>
 
-                                    <!-- Connector -->
-                                    <div class="w-16 h-0.5 transition-colors duration-300"
-                                        :class="step >= 2 ? 'bg-blue-600' : 'bg-gray-300'"></div>
+                                <!-- Connector -->
+                                <div class="w-16 h-0.5 transition-colors duration-300"
+                                    :class="step >= 3 ? 'bg-blue-600' : 'bg-gray-300'"></div>
 
-                                    <!-- Step 2 -->
-                                    <div class="flex items-center">
-                                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step >= 2 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 text-gray-500'">
-                                            <span class="text-sm font-semibold" x-show="step < 2">2</span>
-                                            <svg x-show="step >= 2" class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3 text-sm">
-                                            <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 2 ? 'text-blue-600' : 'text-gray-500'">Fasilitas</p>
-                                        </div>
+                                <!-- Step 3 -->
+                                <div class="flex items-center">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+                                        :class="step >= 3 ? 'bg-blue-600 border-blue-600 text-white' :
+                                            'border-gray-300 text-gray-500'">
+                                        <span class="text-sm font-semibold" x-show="step < 3">3</span>
+                                        <svg x-show="step >= 3" class="w-5 h-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <p class="font-medium transition-colors duration-300"
+                                            :class="step >= 3 ? 'text-blue-600' : 'text-gray-500'">Fasilitas</p>
+                                    </div>
+                                </div>
+
+                                <!-- Connector -->
+                                <div class="w-16 h-0.5 transition-colors duration-300"
+                                    :class="step >= 4 ? 'bg-blue-600' : 'bg-gray-300'"></div>
+
+                                <!-- Step 4 -->
+                                <div class="flex items-center">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+                                        :class="step >= 4 ? 'bg-blue-600 border-blue-600 text-white' :
+                                            'border-gray-300 text-gray-500'">
+                                        <span class="text-sm font-semibold" x-show="step < 4">4</span>
+                                        <svg x-show="step >= 4" class="w-5 h-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <p class="font-medium transition-colors duration-300"
+                                            :class="step >= 4 ? 'text-blue-600' : 'text-gray-500'">Foto</p>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Modal content -->
-                            <div class="flex-1 overflow-y-auto px-6 py-6">
-                                <form id="roomForm" method="POST" action="{{ route('rooms.store') }}"
-                                    enctype="multipart/form-data" @submit.prevent="submitForm">
-                                    @csrf
+                        <!-- Modal content -->
+                        <div class="flex-1 overflow-y-auto px-6 py-6">
+                            <form id="roomForm" method="POST" action="{{ route('rooms.store') }}"
+                                enctype="multipart/form-data" @submit.prevent="submitForm">
+                                @csrf
 
-                                    <!-- Step 1 - Room Information -->
-                                    <div x-show="step === 1" x-transition:enter="transition ease-out duration-300"
-                                        x-transition:enter-start="opacity-0 translate-x-4"
-                                        x-transition:enter-end="opacity-100 translate-x-0">
-                                        <div class="space-y-6">
-                                            <!-- Property Selector -->
+                                <!-- Step 1 - Basic Information -->
+                                <div x-show="step === 1" x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 translate-x-4"
+                                    x-transition:enter-end="opacity-100 translate-x-0">
+                                    <div class="space-y-6">
+                                        <!-- Property Selector -->
+                                        <div>
+                                            <label for="property_id"
+                                                class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Properti <span class="text-red-500">*</span>
+                                            </label>
+                                            <select id="property_id" name="property_id" required
+                                                class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                                <option value="" disabled selected>Pilih Properti</option>
+                                                @foreach ($properties as $property)
+                                                    <option value="{{ $property->idrec }}">{{ $property->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                @livewire('property-room-selector', ['userProperty' => Auth::user()->property_id])
+                                                <label for="room_no"
+                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    Nomor Kamar <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="text" id="room_no" name="room_no" required
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan nomor kamar">
                                             </div>
 
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label for="room_no"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
-                                                        Nomor Kamar <span class="text-red-500">*</span>
-                                                    </label>
-                                                    <input type="text" id="room_no" name="room_no" required
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                        placeholder="Masukkan nomor kamar">
-                                                </div>
+                                            <div>
+                                                <label for="room_name"
+                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    Nama Kamar <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="text" id="room_name" name="room_name" required
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan nama kamar">
+                                            </div>
+                                        </div>
 
-                                                <div>
-                                                    <label for="room_name"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
-                                                        Nama Kamar <span class="text-red-500">*</span>
-                                                    </label>
-                                                    <input type="text" id="room_name" name="room_name" required
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                        placeholder="Masukkan nama kamar">
-                                                </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="room_size"
+                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    Ukuran Kamar (m²) <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="number" id="room_size" name="room_size" required
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan ukuran kamar">
                                             </div>
 
-                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                <div>
-                                                    <label for="room_size"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
-                                                        Ukuran Kamar (m³) <span class="text-red-500">*</span>
-                                                    </label>
-                                                    <input type="number" id="room_size" name="room_size" required
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                        placeholder="Masukkan ukuran kamar">
-                                                </div>
-
-                                                <div>
-                                                    <label for="room_bed"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
-                                                        Jenis Kasur
-                                                    </label>
-                                                    <select id="room_bed" name="room_bed"
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                                        @foreach (['Single', 'Double', 'King', 'Queen', 'Twin'] as $bedType)
-                                                            <option value="{{ $bedType }}">{{ $bedType }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-
-                                                <div>
-                                                    <label for="room_capacity"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
-                                                        Kapasitas (Pax) <span class="text-red-500">*</span>
-                                                    </label>
-                                                    <input type="number" id="room_capacity" name="room_capacity"
-                                                        required
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                        placeholder="Masukkan kapasitas kamar">
-                                                </div>
+                                            <div>
+                                                <label for="room_bed"
+                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    Jenis Kasur <span class="text-red-500">*</span>
+                                                </label>
+                                                <select id="room_bed" name="room_bed" required
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                                    <option value="">Pilih Jenis Kasur</option>
+                                                    <option value="Single">Single</option>
+                                                    <option value="Double">Double</option>
+                                                    <option value="King">King</option>
+                                                    <option value="Queen">Queen</option>
+                                                    <option value="Twin">Twin</option>
+                                                </select>
                                             </div>
 
-                                            <div x-data="{
-                                                mode: null,
-                                                dailyOriginal: 0,
-                                                monthlyOriginal: 0,
-                                                cleaveInstance: null,
-                                            
-                                                get priceLabel() {
-                                                    if (this.mode === 'daily') return 'Harga Original Harian';
-                                                    if (this.mode === 'monthly') return 'Harga Original Bulanan';
-                                                    return '';
-                                                },
-                                            
-                                                get priceNotes() {
-                                                    if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
-                                                    return '';
-                                                },
-                                            
-                                                get currentPrice() {
-                                                    return this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
-                                                },
-                                            
-                                                set currentPrice(value) {
-                                                    if (this.mode === 'daily') {
-                                                        this.dailyOriginal = value;
-                                                    } else if (this.mode === 'monthly') {
-                                                        this.monthlyOriginal = value;
-                                                    }
-                                                },
-                                            
-                                                init() {
-                                                    this.$watch('mode', () => {
-                                                        this.$nextTick(() => {
-                                                            if (this.cleaveInstance) {
-                                                                this.cleaveInstance.destroy();
-                                                            }
-                                            
-                                                            const input = this.$refs.priceInput;
-                                                            input.value = ''; // reset visible input
-                                            
-                                                            this.cleaveInstance = new Cleave(input, {
-                                                                numeral: true,
-                                                                numeralDecimalMark: ',',
-                                                                delimiter: '.',
-                                                                numeralThousandsGroupStyle: 'thousand',
-                                                                onValueChanged: (e) => {
-                                                                    this.currentPrice = parseFloat(e.target.rawValue || 0);
-                                                                }
-                                                            });
-                                                        });
-                                                    });
-                                                }
-                                            }" x-init="init()">
-                                                <div class="mb-4">
-                                                    <h3 class="text-md font-semibold text-gray-700 mb-2">Jenis Kamar
-                                                    </h3>
-                                                    <div class="flex space-x-6">
-                                                        <label class="inline-flex items-center">
-                                                            <input type="radio" value="daily" x-model="mode"
-                                                                class="form-radio text-blue-600">
-                                                            <span class="ml-2">Harian</span>
-                                                        </label>
-                                                        <label class="inline-flex items-center">
-                                                            <input type="radio" value="monthly" x-model="mode"
-                                                                class="form-radio text-blue-600">
-                                                            <span class="ml-2">Bulanan</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
+                                            <div>
+                                                <label for="room_capacity"
+                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    Kapasitas (Pax) <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="number" id="room_capacity" name="room_capacity"
+                                                    required
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan kapasitas kamar">
+                                            </div>
+                                        </div>
 
-                                                <div x-show="mode" x-transition>
-                                                    <label class="block text-sm font-semibold text-gray-700 mb-2"
-                                                        x-text="priceLabel"></label>
-                                                    <input type="hidden" name="mode" x-model="mode">
-                                                    <input type="hidden"
-                                                        :name="mode === 'daily' ? 'daily_price' : 'monthly_price'"
-                                                        :value="currentPrice">
-                                                    <input type="text" x-ref="priceInput"
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                        placeholder="Masukkan harga" />
-                                                    <p class="text-sm text-red-600 italic mt-2" x-html="priceNotes">
+                                        <div>
+                                            <label for="description_id"
+                                                class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Deskripsi Kamar <span class="text-red-500">*</span>
+                                            </label>
+                                            <textarea id="description_id" name="description_id" rows="4" required
+                                                class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                placeholder="Deskripsikan kamar Anda..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2 - Pricing -->
+                                <div x-show="step === 2" x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 translate-x-4"
+                                    x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
+                                    <div class="space-y-6">
+                                        <div class="mb-4">
+                                            <h3 class="text-md font-semibold text-gray-700 mb-2">Jenis Harga</h3>
+                                            <div class="flex space-x-6">
+                                                <label class="inline-flex items-center">
+                                                    <input type="checkbox" value="daily" x-model="priceTypes"
+                                                        class="form-checkbox text-blue-600">
+                                                    <span class="ml-2">Harian</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="checkbox" value="monthly" x-model="priceTypes"
+                                                        class="form-checkbox text-blue-600">
+                                                    <span class="ml-2">Bulanan</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div x-show="priceTypes.includes('daily')" x-transition>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Harga Harian <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-gray-500">Rp</span>
+                                                </div>
+                                                <input type="text" x-ref="dailyPriceInput"
+                                                    class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan harga harian">
+                                                <input type="hidden" name="daily_price" x-model="dailyPrice">
+                                            </div>
+                                        </div>
+
+                                        <div x-show="priceTypes.includes('monthly')" x-transition class="mt-4">
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Harga Bulanan <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-gray-500">Rp</span>
+                                                </div>
+                                                <input type="text" x-ref="monthlyPriceInput"
+                                                    class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan harga bulanan">
+                                                <input type="hidden" name="monthly_price" x-model="monthlyPrice">
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-4">
+                                            <div class="flex items-start">
+                                                <div class="flex-shrink-0">
+                                                    <svg class="h-5 w-5 text-blue-500" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                        </path>
+                                                    </svg>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="text-sm text-blue-700">
+                                                        Anda bisa memilih salah satu atau kedua jenis harga. Pastikan
+                                                        mengisi harga yang sesuai dengan jenis yang dipilih.
                                                     </p>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                            <div>
-                                                <label for="description_id"
-                                                    class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Deskripsi Kamar (Indonesia) <span class="text-red-500">*</span>
-                                                </label>
-                                                <textarea id="description_id" name="description_id" rows="4" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                    placeholder="Deskripsikan kamar Anda..."></textarea>
+                                <!-- Step 3 - Facilities -->
+                                <div x-show="step === 3" x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 translate-x-4"
+                                    x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
+                                    <div class="space-y-6">
+                                        <div>
+                                            <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                </svg>
+                                                Fasilitas Kamar
+                                            </h3>
+                                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                <template x-for="(facility, index) in facilities"
+                                                    :key="index">
+                                                    <div class="relative">
+                                                        <input :id="'facility-' + index" name="facilities[]"
+                                                            type="checkbox" :value="facility.value"
+                                                            class="sr-only peer">
+                                                        <label :for="'facility-' + index"
+                                                            class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
+                                                            <span x-text="facility.label"></span>
+                                                        </label>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4 - Photos -->
+                                <div x-show="step === 4" x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 translate-x-4"
+                                    x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
+                                    <div class="space-y-6">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                                Foto Kamar <span class="text-red-500">*</span>
+                                                <span class="text-sm font-normal text-gray-500">
+                                                    (Wajib 3 foto - <span x-text="remainingSlots"></span> foto lagi)
+                                                </span>
+                                            </label>
+
+                                            <!-- Info about thumbnail -->
+                                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r-lg">
+                                                <div class="flex items-start">
+                                                    <div class="flex-shrink-0">
+                                                        <svg class="h-5 w-5 text-blue-500" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                            </path>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="ml-3">
+                                                        <p class="text-sm text-blue-700">
+                                                            <span class="font-semibold">Perhatian:</span> Foto pertama
+                                                            yang Anda upload akan menjadi <span
+                                                                class="font-bold">thumbnail utama</span> kamar ini.
+                                                            Pastikan foto pertama adalah yang terbaik!
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Foto Kamar <span class="text-red-500">*</span>
-                                                    <span class="text-sm font-normal text-gray-500">(Foto ini akan
-                                                        dijadikan thumbnail kamar)</span>
-                                                </label>
-                                                <input type="file" id="photo" name="photo" accept="image/*"
-                                                    required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                                <p class="text-sm text-gray-600 italic mt-2">
-                                                    Untuk menambahkan gambar lebih bisa setelah kamar sudah disimpan.
+                                            <!-- Upload Area -->
+                                            <div x-show="canUploadMore" @drop="handleDrop($event)" @dragover.prevent
+                                                @dragenter.prevent
+                                                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer"
+                                                :class="{ 'border-blue-400 bg-blue-50': canUploadMore }">
+                                                <div class="space-y-2">
+                                                    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                        </path>
+                                                    </svg>
+                                                    <div class="flex text-sm text-gray-600 justify-center">
+                                                        <label for="room_images"
+                                                            class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                            <span>Upload foto</span>
+                                                            <input id="room_images" name="room_images[]"
+                                                                type="file" multiple accept="image/*"
+                                                                @change="handleFileSelect($event)" class="sr-only">
+                                                        </label>
+                                                        <p class="pl-1">atau drag and drop</p>
+                                                    </div>
+                                                    <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 5MB</p>
+                                                    <p class="text-xs text-blue-600"
+                                                        x-text="`Dapat upload ${remainingSlots} foto lagi`"></p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Full Upload Message -->
+                                            <div x-show="!canUploadMore"
+                                                class="border-2 border-green-300 rounded-lg p-8 text-center bg-green-50">
+                                                <div class="space-y-2">
+                                                    <svg class="w-12 h-12 mx-auto text-green-500" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                    <p class="text-sm text-green-600 font-medium">3 foto telah
+                                                        diupload!</p>
+                                                    <p class="text-xs text-green-500">Semua slot foto telah terisi</p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Image Preview Grid -->
+                                            <div x-show="images.length > 0" class="mt-2 grid grid-cols-5 gap-1"
+                                                x-transition:enter="transition ease-out duration-300"
+                                                x-transition:enter-start="opacity-0 scale-95"
+                                                x-transition:enter-end="opacity-100 scale-100">
+                                                <template x-for="(image, index) in images" :key="index">
+                                                    <div class="relative group">
+                                                        <!-- Image Container -->
+                                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200"
+                                                            :class="{ 'border-2 border-blue-600': index === 0 }">
+                                                            <img :src="image.url" :alt="`Preview ${index + 1}`"
+                                                                class="w-full h-full object-cover">
+                                                        </div>
+
+                                                        <!-- Remove Button -->
+                                                        <button @click="removeImage(index)"
+                                                            class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                            <svg class="w-2 h-2" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                            </svg>
+                                                        </button>
+
+                                                        <!-- Image Number Badge -->
+                                                        <div
+                                                            class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                            <span x-text="index + 1"></span>
+                                                        </div>
+
+                                                        <!-- Thumbnail indicator for first image -->
+                                                        <div x-show="index === 0" class="absolute top-1 right-1">
+                                                            <span
+                                                                class="bg-yellow-500 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">Thumbnail</span>
+                                                        </div>
+
+                                                        <!-- File Name -->
+                                                        <div
+                                                            class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                            <p class="text-[8px] text-gray-600 truncate"
+                                                                x-text="image.name"></p>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+
+                                            <!-- Progress Indicator -->
+                                            <div class="mt-4">
+                                                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                                    <span>Progress Upload</span>
+                                                    <span x-text="`${images.length}/${maxImages} foto`"></span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                        :style="`width: ${(images.length / maxImages) * 100}%`"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Validation Message -->
+                                            <div x-show="images.length < 3" class="mt-3">
+                                                <p class="text-sm text-red-600">
+                                                    <span class="font-medium">Perhatian:</span>
+                                                    Anda harus mengupload tepat 3 foto untuk melanjutkan.
+                                                </p>
+                                            </div>
+
+                                            <div x-show="images.length === 3" class="mt-3">
+                                                <p class="text-sm text-green-600">
+                                                    <span class="font-medium">Sempurna!</span>
+                                                    Semua foto telah diupload.
+                                                </p>
+                                                <p class="text-xs text-gray-600 mt-1">
+                                                    Foto pertama (ditandai dengan label "Thumbnail") akan menjadi gambar
+                                                    utama kamar Anda.
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <!-- Step 2 - Facilities -->
-                                    <div x-show="step === 2" x-transition:enter="transition ease-out duration-300"
-                                        x-transition:enter-start="opacity-0 translate-x-4"
-                                        x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
-                                        <div class="space-y-6">
-                                            <div>
-                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                                                    </svg>
-                                                    Fasilitas Kamar
-                                                </h3>
-                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                    <div class="relative">
-                                                        <input id="facility-wifi" name="wifi" type="checkbox"
-                                                            value="1" class="sr-only peer">
-                                                        <label for="facility-wifi"
-                                                            class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
-                                                            <span>WiFi</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="relative">
-                                                        <input id="facility-tv" name="tv" type="checkbox"
-                                                            value="1" class="sr-only peer">
-                                                        <label for="facility-tv"
-                                                            class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
-                                                            <span>TV</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="relative">
-                                                        <input id="facility-ac" name="ac" type="checkbox"
-                                                            value="1" class="sr-only peer">
-                                                        <label for="facility-ac"
-                                                            class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
-                                                            <span>AC</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="relative">
-                                                        <input id="facility-bathroom" name="bathroom" type="checkbox"
-                                                            value="1" class="sr-only peer">
-                                                        <label for="facility-bathroom"
-                                                            class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
-                                                            <span>Bathroom</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <!-- Form Actions -->
+                                <div class="mt-6 flex justify-end">
+                                    <div>
+                                        <button type="button" x-show="step > 1" @click="step--"
+                                            class="px-6 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 19l-7-7 7-7"></path>
+                                            </svg>
+                                            Sebelumnya
+                                        </button>
+                                        <button type="button" x-show="step < 4"
+                                            @click="validateStep(step) && step++"
+                                            class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                            Selanjutnya
+                                            <svg class="w-4 h-4 inline ml-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </button>
+                                        <button type="submit" x-show="step === 4"
+                                            class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
+                                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            Simpan
+                                        </button>
                                     </div>
-
-                                    <!-- Form Actions -->
-                                    <div class="mt-6 flex justify-end">
-                                        <div>
-                                            <button type="button" x-show="step > 1" @click="step--"
-                                                class="px-6 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                                </svg>
-                                                Sebelumnya
-                                            </button>
-                                            <button type="button" x-show="step < 2"
-                                                @click="validateStep(step) && step++"
-                                                class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                                                Selanjutnya
-                                                <svg class="w-4 h-4 inline ml-2" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                                </svg>
-                                            </button>
-                                            <button type="submit" x-show="step === 2"
-                                                class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
-                                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                Simpan
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -418,10 +550,11 @@
         </div>
 
         <!-- Search and Filter Section -->
-        <div class="bg-white rounded-lg shadow p-4 mb-6">
-            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                <div>
-                    @if (auth::user()->property_id == 0)
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Search and Filter Section -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                    <div>
                         <select id="room-filter"
                             class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                             <option value="" hidden>Pilih Properti</option>
@@ -429,842 +562,2832 @@
                                 <option value="{{ $property->idrec }}">{{ $property->name }}</option>
                             @endforeach
                         </select>
-                    @else
-                        <input type="hidden" id="room-filter"
-                            class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                            value="{{ $properties->idrec }}" readonly>
-                        <input type="text" id="room-filter"
-                            class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-center"
-                            value="{{ $properties->name }}" readonly>
-                    @endif
+                    </div>
+                    <div>
+                        <select id="status-filter"
+                            class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Semua Status</option>
+                            <option value="1">Aktif</option>
+                            <option value="0">Nonaktif</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <input type="text" id="search-input" placeholder="Cari kamar..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button id="filter-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                        Filter
+                    </button>
                 </div>
-                <div>
-                    <select id="status-filter"
-                        class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Semua Status</option>
-                        <option value="1">Aktif</option>
-                        <option value="0">Nonaktif</option>
-                    </select>
-                </div>
-                <div class="flex-1">
-                    <input type="text" id="search-input" placeholder="Cari kamar..."
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <button id="filter-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                    Filter
-                </button>
             </div>
-        </div>
 
-        <!-- Room Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Properti</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nama Kamar</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Tgl Penambahan</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Tgl Perubahan</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Ditambahkan Oleh</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Room Type</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="rooms-table-body">
-                        @foreach ($rooms as $room)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $room->property_name }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $room->name }}</div>
-                                    <div class="text-sm text-gray-500">Room {{ $room->no }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ \Carbon\Carbon::parse($room->created_at)->format('d M Y') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $room->updated_at ? \Carbon\Carbon::parse($room->updated_at)->format('d M Y') : '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $room->creator->username }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @livewire('room-status-toggle', ['roomId' => $room->idrec, 'status' => $room->status, 'roomNo' => $room->no])
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @livewire('room-type-toggle', ['roomId' => $room->idrec, 'roomType' => $room->periode])
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div class="flex justify-end space-x-2">
-                                        <!-- AlpineJS Wrapper -->
-                                        <div x-data="{ open: false, step: 1, isValid: true }">
-
-                                            <!-- Add Room Button -->
-                                            <button @click="open = true" class="text-blue-600 hover:text-blue-900"
-                                                title="Edit">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path
-                                                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                                </svg>
-                                            </button>
-
-                                            <!-- Modal -->
-                                            <div x-show="open" x-cloak
-                                                class="fixed inset-0 backdrop-blur bg-opacity-30 flex items-center justify-center z-50 transition-opacity">
+            <div class="overflow-x-auto" id="roomTableContainer">
+                <!-- Room Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Properti</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Nama Kamar</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tgl Penambahan</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tgl Perubahan</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ditambahkan Oleh</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Periode</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="rooms-table-body">
+                                @foreach ($rooms as $room)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $room->property_name ?? '-' }}
+                                            </div>
+                                            <div class="text-xs text-gray-400">
+                                                {{ $room->property->subdistrict ?? '-' }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                                            <div class="text-sm font-medium text-gray-900">{{ $room->name }}</div>
+                                            <div class="text-sm text-gray-400">Number:{{ $room->no }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                                            @if ($room->created_at)
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ \Carbon\Carbon::parse($room->created_at)->format('Y M d') }}
+                                                </div>
+                                                <div class="text-xs text-gray-400">
+                                                    {{ \Carbon\Carbon::parse($room->created_at)->format('H:i') }}</div>
+                                            @else
+                                                <div>-</div>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                                            @if ($room->updated_at)
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ \Carbon\Carbon::parse($room->updated_at)->format('Y M d') }}
+                                                </div>
+                                                <div class="text-xs text-gray-400">
+                                                    {{ \Carbon\Carbon::parse($room->updated_at)->format('H:i') }}</div>
+                                            @else
+                                                <div>-</div>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $room->creator->username }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" value="" class="sr-only peer"
+                                                    data-id="{{ $room->idrec }}"
+                                                    {{ $room->status ? 'checked' : '' }}
+                                                    onchange="toggleStatus(this)">
                                                 <div
-                                                    class="bg-white rounded-lg shadow-lg w-full max-w-4xl relative overflow-hidden">
-                                                    <!-- Modal Header -->
-                                                    <div class="flex justify-between items-center px-6 py-4 border-b">
-                                                        <div>
-                                                            <h2 x-show="step === 1"
-                                                                class="text-xl font-semibold text-slate-800">Edit
-                                                                Informasi Kamar</h2>
-                                                            <h2 x-show="step === 2"
-                                                                class="text-xl font-semibold text-slate-800">Edit
-                                                                Fasilitas</h2>
-                                                        </div>
-                                                        <button @click="open = false"
-                                                            class="text-gray-600 hover:text-black text-2xl">&times;</button>
+                                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                                </div>
+                                                <span class="ml-3 text-sm font-medium text-gray-900">
+                                                    {{ $room->status ? 'Active' : 'Inactive' }}
+                                                </span>
+                                            </label>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <div class="flex flex-col items-center space-y-2">
+                                                @php
+                                                    $periode = json_decode($room->periode, true) ?? [];
+
+                                                    $isDaily = isset($periode['daily']) && $periode['daily'] === true;
+                                                    $isMonthly =
+                                                        isset($periode['monthly']) && $periode['monthly'] === true;
+                                                @endphp
+
+                                                @if ($isDaily && $isMonthly)
+                                                    <div class="flex items-center justify-center">
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-blue-400"
+                                                                fill="currentColor" viewBox="0 0 8 8">
+                                                                <circle cx="4" cy="4" r="3" />
+                                                            </svg>
+                                                            Daily
+                                                        </span>
+                                                        <span
+                                                            class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
+                                                                fill="currentColor" viewBox="0 0 8 8">
+                                                                <circle cx="4" cy="4" r="3" />
+                                                            </svg>
+                                                            Monthly
+                                                        </span>
+                                                    </div>
+                                                    <span class="text-xs text-gray-500">Both options available</span>
+                                                @elseif ($isDaily)
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-blue-400"
+                                                            fill="currentColor" viewBox="0 0 8 8">
+                                                            <circle cx="4" cy="4" r="3" />
+                                                        </svg>
+                                                        Daily Only
+                                                    </span>
+                                                @elseif ($isMonthly)
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
+                                                            fill="currentColor" viewBox="0 0 8 8">
+                                                            <circle cx="4" cy="4" r="3" />
+                                                        </svg>
+                                                        Monthly Only
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                        <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-gray-400"
+                                                            fill="currentColor" viewBox="0 0 8 8">
+                                                            <circle cx="4" cy="4" r="3" />
+                                                        </svg>
+                                                        Not Set
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </td>
+
+
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex space-x-2 justify-center">
+                                                <!-- View -->
+                                                <div x-data="modalViewRoom()" class="relative group">
+                                                    @php
+                                                        $roomImages = [];
+                                                        foreach ($room->roomImages as $image) {
+                                                            if (!empty($image->image)) {
+                                                                $roomImages[] = $image->image;
+                                                            }
+                                                        }
+
+                                                        $facilities = json_encode(
+                                                            $room->facility,
+                                                            JSON_HEX_APOS | JSON_HEX_QUOT,
+                                                        );
+                                                    @endphp
+                                                    <button
+                                                        class="p-2 text-blue-500 hover:text-blue-700 transition-colors duration-200 rounded-full hover:bg-blue-50"
+                                                        type="button"
+                                                        @click.prevent='openModal({
+                                                                        name: @json($room->name),
+                                                                        number: @json($room->no),
+                                                                        size: @json($room->size),
+                                                                        bed: @json($room->bed_type),
+                                                                        capacity: @json($room->capacity),
+                                                                        description: @json($room->descriptions),
+                                                                        created_at: "{{ \Carbon\Carbon::parse($room->created_at)->format('Y-m-d H:i') }}",
+                                                                        updated_at: "{{ $room->updated_at ? \Carbon\Carbon::parse($room->updated_at)->format('Y-m-d H:i') : '-' }}",
+                                                                        creator: "{{ $room->creator->username ?? 'Unknown' }}",
+                                                                        status: "{{ $room->status ? 'Active' : 'Inactive' }}",
+                                                                        images: {!! json_encode($roomImages) !!},
+                                                                        daily_price: "{{ number_format($room->price_original_daily, 0, ',', '.') }}",
+                                                                        monthly_price: "{{ number_format($room->price_original_monthly, 0, ',', '.') }}",
+                                                                        facilities: {!! $facilities !!},
+                                                                        property_name: @json($room->property_name ?? 'Unknown Property')
+                                                                    })'
+                                                        aria-controls="room-detail-modal" title="View Details">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                                            stroke-width="1.5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+                                                        </svg>
+                                                    </button>
+                                                    <!-- Modal backdrop -->
+                                                    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity"
+                                                        x-show="modalOpenDetail"
+                                                        x-transition:enter="transition ease-out duration-300"
+                                                        x-transition:enter-start="opacity-0"
+                                                        x-transition:enter-end="opacity-100"
+                                                        x-transition:leave="transition ease-out duration-200"
+                                                        x-transition:leave-start="opacity-100"
+                                                        x-transition:leave-end="opacity-0" aria-hidden="true" x-cloak>
                                                     </div>
 
-                                                    <!-- Modal Body -->
-                                                    <div class="p-6 max-h-[80vh] overflow-y-auto text-left">
-                                                        <!-- Form -->
-                                                        <form x-ref="roomForm"
-                                                            @submit.prevent="
-                                                                if (step === 2) {
-                                                                    const requireds = $refs.step2Form.querySelectorAll('[required]');
-                                                                    let step2Valid = true;
+                                                    <!-- Modal dialog -->
+                                                    <div id="room-detail-modal"
+                                                        class="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4"
+                                                        role="dialog" aria-modal="true" x-show="modalOpenDetail"
+                                                        x-transition:enter="transition ease-in-out duration-300"
+                                                        x-transition:enter-start="opacity-0 scale-95"
+                                                        x-transition:enter-end="opacity-100 scale-100"
+                                                        x-transition:leave="transition ease-in-out duration-200"
+                                                        x-transition:leave-start="opacity-100 scale-100"
+                                                        x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
-                                                                    requireds.forEach(input => {
-                                                                        if (!input.value) {
-                                                                            input.classList.add('border-red-500');
-                                                                            step2Valid = false;
-                                                                        } else {
-                                                                            input.classList.remove('border-red-500');
-                                                                        }
-                                                                    });
+                                                        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl max-h-[95vh] flex flex-col"
+                                                            @click.outside="modalOpenDetail = false"
+                                                            @keydown.escape.window="modalOpenDetail = false">
 
-                                                                    if (step2Valid) {
-                                                                        $refs.roomForm.submit(); // Submit to rooms.store
-                                                                    } else {
-                                                                        isValidStep2 = false;
-                                                                    }
-                                                                }
-                                                            "
-                                                            x-data="{ open: false, step: 1, isValid: true, isValidStep2: true }" method="POST"
-                                                            action="{{ route('rooms.update', ['idrec' => $room->idrec]) }}"
-                                                            enctype="multipart/form-data">
-                                                            @csrf
+                                                            <!-- Modal header -->
+                                                            <div
+                                                                class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
+                                                                <div class="text-left">
+                                                                    <h3 class="text-2xl font-bold text-gray-900 mb-1"
+                                                                        x-text="selectedRoom.name"></h3>
+                                                                    <p class="text-gray-600">
+                                                                        <span
+                                                                            x-text="'Room No: ' + selectedRoom.number"></span>
+                                                                        •
+                                                                        <span
+                                                                            x-text="selectedRoom.property_name"></span>
+                                                                    </p>
+                                                                </div>
+                                                                <button type="button"
+                                                                    class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-2 hover:bg-white rounded-full"
+                                                                    @click="modalOpenDetail = false">
+                                                                    <svg class="w-6 h-6" fill="none"
+                                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M6 18L18 6M6 6l12 12" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
 
-                                                            <!-- Step 1 -->
-                                                            <div x-show="step === 1" x-transition x-ref="step1Form">
-                                                                <div class="grid grid-cols-2 gap-6 mb-4">
-                                                                    <div class="space-y-4">
-                                                                        <div>
-                                                                            <label
-                                                                                class="block text-sm font-medium">Nomor
-                                                                                Kamar</label>
-                                                                            <input type="text" name="edit_room_no"
-                                                                                required
-                                                                                class="w-full border rounded p-2 bg-gray-50"
-                                                                                value="{{ e($room->no) }}" readonly>
-                                                                        </div>
+                                                            <!-- Modal content -->
+                                                            <div class="overflow-y-auto flex-1">
+                                                                <!-- Room image slider -->
+                                                                <div class="relative h-72 overflow-hidden bg-gray-200">
+                                                                    <!-- Images -->
+                                                                    <div class="flex h-full transition-transform duration-300 ease-in-out"
+                                                                        :style="'transform: translateX(-' + (selectedRoom
+                                                                            .currentImageIndex * 100) + '%)'">
+                                                                        <template
+                                                                            x-for="(image, index) in selectedRoom.images"
+                                                                            :key="index">
+                                                                            <img :src="image"
+                                                                                alt="Room Image"
+                                                                                class="w-full h-full object-cover object-center flex-shrink-0">
+                                                                        </template>
                                                                     </div>
 
-                                                                    <div class="space-y-4">
-                                                                        <div>
-                                                                            <label
-                                                                                class="block text-sm font-medium">Nama
-                                                                                Kamar</label>
-                                                                            <input type="text"
-                                                                                name="edit_room_name" required
-                                                                                class="w-full border rounded p-2"
-                                                                                value="{{ e($room->name) }}">
-                                                                        </div>
+                                                                    <!-- Navigation arrows -->
+                                                                    <button x-show="selectedRoom.images.length > 1"
+                                                                        @click="selectedRoom.currentImageIndex = (selectedRoom.currentImageIndex - 1 + selectedRoom.images.length) % selectedRoom.images.length"
+                                                                        class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md">
+                                                                        <svg class="w-6 h-6 text-gray-800"
+                                                                            fill="none" stroke="currentColor"
+                                                                            viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2" d="M15 19l-7-7 7-7" />
+                                                                        </svg>
+                                                                    </button>
+                                                                    <button x-show="selectedRoom.images.length > 1"
+                                                                        @click="selectedRoom.currentImageIndex = (selectedRoom.currentImageIndex + 1) % selectedRoom.images.length"
+                                                                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md">
+                                                                        <svg class="w-6 h-6 text-gray-800"
+                                                                            fill="none" stroke="currentColor"
+                                                                            viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2" d="M9 5l7 7-7 7" />
+                                                                        </svg>
+                                                                    </button>
+
+                                                                    <!-- Status badge -->
+                                                                    <div
+                                                                        class="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                                                                        <span
+                                                                            :class="selectedRoom && selectedRoom
+                                                                                .status === 'Active' ?
+                                                                                'text-green-600 font-semibold' :
+                                                                                'text-red-600 font-semibold'"
+                                                                            class="text-sm flex items-center">
+                                                                            <span
+                                                                                class="w-2.5 h-2.5 rounded-full mr-2 block"
+                                                                                :class="selectedRoom && selectedRoom
+                                                                                    .status === 'Active' ?
+                                                                                    'bg-green-500' : 'bg-red-500'"></span>
+                                                                            <span
+                                                                                x-text="selectedRoom && selectedRoom.status ? selectedRoom.status : ''"></span>
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <!-- Image indicators -->
+                                                                    <div x-show="selectedRoom.images.length > 1"
+                                                                        class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                                                                        <template
+                                                                            x-for="(image, index) in selectedRoom.images"
+                                                                            :key="index">
+                                                                            <button
+                                                                                @click="selectedRoom.currentImageIndex = index"
+                                                                                class="w-3 h-3 rounded-full transition-all"
+                                                                                :class="selectedRoom.currentImageIndex ===
+                                                                                    index ? 'bg-white w-6' :
+                                                                                    'bg-white/50'"></button>
+                                                                        </template>
                                                                     </div>
                                                                 </div>
 
-                                                                <div class="grid grid-cols-3 gap-6 mb-4">
-                                                                    <div class="space-y-4">
+                                                                <div class="p-6 space-y-8">
+                                                                    <!-- Room Details Grid -->
+                                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                        <div class="space-y-4">
+                                                                            <div>
+                                                                                <h4
+                                                                                    class="text-lg font-bold text-gray-900 mb-3 text-left">
+                                                                                    Room Specifications</h4>
+                                                                                <div class="space-y-3">
+                                                                                    <div class="flex items-center">
+                                                                                        <svg class="w-5 h-5 text-blue-500 mr-3"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                                                                        </svg>
+                                                                                        <span class="text-gray-700">
+                                                                                            <span
+                                                                                                class="font-medium">Property:</span>
+                                                                                            <span
+                                                                                                x-text="selectedRoom.property_name"></span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="flex items-center">
+                                                                                        <svg class="w-5 h-5 text-blue-500 mr-3"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M4 6h16M4 12h16M4 18h16" />
+                                                                                        </svg>
+                                                                                        <span class="text-gray-700">
+                                                                                            <span
+                                                                                                class="font-medium">Room
+                                                                                                Number:</span>
+                                                                                            <span
+                                                                                                x-text="selectedRoom.number"></span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="flex items-center">
+                                                                                        <svg class="w-5 h-5 text-blue-500 mr-3"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                        </svg>
+                                                                                        <span class="text-gray-700">
+                                                                                            <span
+                                                                                                class="font-medium">Size:</span>
+                                                                                            <span
+                                                                                                x-text="selectedRoom.size + ' m²'"></span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="flex items-center">
+                                                                                        <svg class="w-5 h-5 text-blue-500 mr-3"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                                                        </svg>
+                                                                                        <span class="text-gray-700">
+                                                                                            <span
+                                                                                                class="font-medium">Bed
+                                                                                                Type:</span>
+                                                                                            <span
+                                                                                                x-text="selectedRoom.bed"></span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="flex items-center">
+                                                                                        <svg class="w-5 h-5 text-blue-500 mr-3"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                                                        </svg>
+                                                                                        <span class="text-gray-700">
+                                                                                            <span
+                                                                                                class="font-medium">Capacity:</span>
+                                                                                            <span
+                                                                                                x-text="selectedRoom.capacity + ' person(s)'"></span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <!-- Pricing -->
+                                                                            <div>
+                                                                                <h4
+                                                                                    class="text-lg font-bold text-gray-900 mb-3 text-left">
+                                                                                    Pricing</h4>
+                                                                                <div class="space-y-3">
+                                                                                    <template
+                                                                                        x-if="selectedRoom.daily_price && selectedRoom.daily_price !== '0'">
+                                                                                        <div
+                                                                                            class="flex items-center justify-between bg-blue-50 p-3 rounded-lg">
+                                                                                            <div
+                                                                                                class="flex items-center">
+                                                                                                <svg class="w-5 h-5 text-blue-600 mr-3"
+                                                                                                    fill="none"
+                                                                                                    stroke="currentColor"
+                                                                                                    viewBox="0 0 24 24">
+                                                                                                    <path
+                                                                                                        stroke-linecap="round"
+                                                                                                        stroke-linejoin="round"
+                                                                                                        stroke-width="2"
+                                                                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                                </svg>
+                                                                                                <span
+                                                                                                    class="text-gray-700 font-medium">Daily
+                                                                                                    Rate:</span>
+                                                                                            </div>
+                                                                                            <span
+                                                                                                class="text-blue-600 font-bold"
+                                                                                                x-text="'Rp ' + selectedRoom.daily_price"></span>
+                                                                                        </div>
+                                                                                    </template>
+                                                                                    <template
+                                                                                        x-if="selectedRoom.monthly_price && selectedRoom.monthly_price !== '0'">
+                                                                                        <div
+                                                                                            class="flex items-center justify-between bg-green-50 p-3 rounded-lg">
+                                                                                            <div
+                                                                                                class="flex items-center">
+                                                                                                <svg class="w-5 h-5 text-green-600 mr-3"
+                                                                                                    fill="none"
+                                                                                                    stroke="currentColor"
+                                                                                                    viewBox="0 0 24 24">
+                                                                                                    <path
+                                                                                                        stroke-linecap="round"
+                                                                                                        stroke-linejoin="round"
+                                                                                                        stroke-width="2"
+                                                                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                                                </svg>
+                                                                                                <span
+                                                                                                    class="text-gray-700 font-medium">Monthly
+                                                                                                    Rate:</span>
+                                                                                            </div>
+                                                                                            <span
+                                                                                                class="text-green-600 font-bold"
+                                                                                                x-text="'Rp ' + selectedRoom.monthly_price"></span>
+                                                                                        </div>
+                                                                                    </template>
+                                                                                    <template
+                                                                                        x-if="!selectedRoom.daily_price && !selectedRoom.monthly_price || (selectedRoom.daily_price === '0' && selectedRoom.monthly_price === '0')">
+                                                                                        <div
+                                                                                            class="text-center py-3 text-gray-500">
+                                                                                            No pricing information
+                                                                                            available
+                                                                                        </div>
+                                                                                    </template>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <!-- Description -->
                                                                         <div>
-                                                                            <label
-                                                                                class="block text-sm font-medium">Ukuran
-                                                                                Kamar (m³)</label>
-                                                                            <input type="number"
-                                                                                name="edit_room_size" required
-                                                                                class="w-full border rounded p-2"
-                                                                                value="{{ e($room->size) }}">
+                                                                            <h4
+                                                                                class="text-lg font-bold text-gray-900 mb-3">
+                                                                                Description</h4>
+                                                                            <div class="bg-gray-50 p-4 rounded-lg">
+                                                                                <p class="text-gray-700 leading-relaxed whitespace-pre-line"
+                                                                                    x-text="selectedRoom.description">
+                                                                                </p>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
 
-                                                                    <div class="space-y-4">
-                                                                        <div>
-                                                                            <label
-                                                                                class="block text-sm font-medium">Jenis
-                                                                                Kasur</label>
-                                                                            <select name="edit_room_bed"
-                                                                                class="w-full border rounded p-2">
-                                                                                @foreach (['Single', 'Double', 'King', 'Queen', 'Twin'] as $bedType)
-                                                                                    <option
-                                                                                        value="{{ $bedType }}"
-                                                                                        {{ $room->bed_type == $bedType ? 'selected' : '' }}>
-                                                                                        {{ $bedType }}</option>
-                                                                                @endforeach
-                                                                            </select>
+                                                                    <!-- Facilities room Section -->
+                                                                    <div x-show="selectedRoom.facilities && selectedRoom.facilities.length > 0"
+                                                                        class="space-y-4">
+                                                                        <div class="flex items-center space-x-2 mb-4">
+                                                                            <svg class="w-6 h-6 text-blue-500"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>
+                                                                            <h4
+                                                                                class="text-lg font-bold text-gray-900">
+                                                                                Room Facilities</h4>
+                                                                        </div>
+                                                                        <div
+                                                                            class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                                            <template
+                                                                                x-for="facility in selectedRoom.facilities">
+                                                                                <div
+                                                                                    class="flex items-center space-x-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                                                                    <!-- Facility Icons -->
+                                                                                    <template
+                                                                                        x-if="facility === 'wifi'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <template x-if="facility === 'ac'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <template x-if="facility === 'tv'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <template
+                                                                                        x-if="facility === 'bathroom'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <template
+                                                                                        x-if="facility === 'hot_water'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <template
+                                                                                        x-if="facility === 'wardrobe'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <template
+                                                                                        x-if="facility === 'desk'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <template
+                                                                                        x-if="facility === 'refrigerator'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <template
+                                                                                        x-if="facility === 'breakfast'">
+                                                                                        <svg class="h-5 w-5 text-blue-600"
+                                                                                            fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            stroke="currentColor">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" />
+                                                                                        </svg>
+                                                                                    </template>
+                                                                                    <span
+                                                                                        x-text="facility === 'wifi' ? 'WiFi' : 
+                                                                                                facility === 'ac' ? 'AC' : 
+                                                                                                facility === 'tv' ? 'TV' : 
+                                                                                                facility === 'bathroom' ? 'Private Bathroom' : 
+                                                                                                facility === 'hot_water' ? 'Hot Water' : 
+                                                                                                facility === 'wardrobe' ? 'Wardrobe' : 
+                                                                                                facility === 'desk' ? 'Study Desk' : 
+                                                                                                facility === 'refrigerator' ? 'Refrigerator' : 
+                                                                                                facility === 'breakfast' ? 'Breakfast Included' : facility"
+                                                                                        class="text-gray-800 font-medium text-sm"></span>
+                                                                                </div>
+                                                                            </template>
                                                                         </div>
                                                                     </div>
 
-                                                                    <div class="space-y-4">
-                                                                        <div>
-                                                                            <label
-                                                                                class="block text-sm font-medium">Kapasitas
-                                                                                (Pax)</label>
-                                                                            <input type="number"
-                                                                                name="edit_room_capacity" required
-                                                                                class="w-full border rounded p-2"
-                                                                                value="{{ e($room->capacity) }}">
+                                                                    <!-- Meta Information -->
+                                                                    <div
+                                                                        class="grid grid-cols-3 grid-rows-1 gap-4 bg-gray-50 p-6 rounded-xl">
+                                                                        <!-- Added By -->
+                                                                        <div
+                                                                            class="flex flex-col items-center justify-center text-center space-y-2">
+                                                                            <svg class="w-5 h-5 text-blue-500"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                                            </svg>
+                                                                            <div>
+                                                                                <p
+                                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                                    Added By</p>
+                                                                                <p class="text-gray-800 font-medium"
+                                                                                    x-text="selectedRoom.creator"></p>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <!-- Added -->
+                                                                        <div
+                                                                            class="flex flex-col items-center justify-center text-center space-y-2">
+                                                                            <svg class="w-5 h-5 text-blue-500"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>
+                                                                            <div>
+                                                                                <p
+                                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                                    Added</p>
+                                                                                <p class="text-gray-800 font-medium"
+                                                                                    x-text="selectedRoom.created_at">
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <!-- Last Updated -->
+                                                                        <div
+                                                                            class="flex flex-col items-center justify-center text-center space-y-2">
+                                                                            <svg class="w-5 h-5 text-green-500"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                                            </svg>
+                                                                            <div>
+                                                                                <p
+                                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                                    Last Updated</p>
+                                                                                <p class="text-gray-800 font-medium"
+                                                                                    x-text="selectedRoom.updated_at">
+                                                                                </p>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
 
-                                                                <div x-data="{
-                                                                    mode: '{{ e($room->periode) }}',
-                                                                    dailyOriginal: {{ e($room->price_original_daily) }},
-                                                                    monthlyOriginal: {{ e($room->price_original_monthly) }},
-                                                                    cleaveInstance: null,
-                                                                
-                                                                    get priceLabel() {
-                                                                        if (this.mode === 'daily') return 'Harga Original Harian';
-                                                                        if (this.mode === 'monthly') return 'Harga Original Bulanan';
-                                                                        return '';
-                                                                    },
-                                                                
-                                                                    get priceNotes() {
-                                                                        if (this.mode === 'daily') return `Harga harian akan berlaku selama setahun terhitung dari tanggal pembuatan kamar.<br>Untuk harga spesial, silahkan gunakan fitur ubah harga setelah kamar disimpan.`;
-                                                                        return '';
-                                                                    },
-                                                                
-                                                                    get currentPrice() {
-                                                                        return this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
-                                                                    },
-                                                                
-                                                                    set currentPrice(value) {
-                                                                        if (this.mode === 'daily') {
-                                                                            this.dailyOriginal = value;
-                                                                        } else if (this.mode === 'monthly') {
-                                                                            this.monthlyOriginal = value;
-                                                                        }
-                                                                    },
-                                                                
-                                                                    formatInitialValue() {
-                                                                        const input = this.$refs.priceInput;
-                                                                
-                                                                        // Destroy existing Cleave instance if any
-                                                                        if (this.cleaveInstance) {
-                                                                            this.cleaveInstance.destroy();
-                                                                        }
-                                                                
-                                                                        // Create a new Cleave instance
-                                                                        this.cleaveInstance = new Cleave(input, {
-                                                                            numeral: true,
-                                                                            numeralDecimalMark: ',',
-                                                                            delimiter: '.',
-                                                                            numeralThousandsGroupStyle: 'thousand',
-                                                                            onValueChanged: (e) => {
-                                                                                this.currentPrice = parseFloat(e.target.rawValue || 0);
-                                                                            }
-                                                                        });
-                                                                
-                                                                        // 💡 Set correct price for the current mode
-                                                                        const price = this.mode === 'daily' ? this.dailyOriginal : this.monthlyOriginal;
-                                                                        this.cleaveInstance.setRawValue(price);
-                                                                    },
-                                                                
-                                                                    init() {
-                                                                        this.$nextTick(() => {
-                                                                            this.formatInitialValue();
-                                                                        });
-                                                                
-                                                                        this.$watch('mode', () => {
-                                                                            this.$nextTick(() => {
-                                                                                this.formatInitialValue();
-                                                                            });
-                                                                        });
-                                                                    }
-                                                                }" x-init="init()"
-                                                                    class="space-y-4">
-                                                                    <div class="col-span-2 mb-2">
-                                                                        <h3
-                                                                            class="text-md font-medium border-gray-300 pb-1">
-                                                                            Jenis Kamar</h3>
-                                                                    </div>
-
-                                                                    <!-- Mode selector -->
-                                                                    <div class="flex space-x-6">
-                                                                        <label class="inline-flex items-center">
-                                                                            <input type="radio" value="daily"
-                                                                                x-model="mode"
-                                                                                class="form-radio text-blue-600">
-                                                                            <span class="ml-2">Harian</span>
-                                                                        </label>
-                                                                        <label class="inline-flex items-center">
-                                                                            <input type="radio" value="monthly"
-                                                                                x-model="mode"
-                                                                                class="form-radio text-blue-600">
-                                                                            <span class="ml-2">Bulanan</span>
-                                                                        </label>
-                                                                    </div>
-
-                                                                    <!-- Price input shown only if mode is selected -->
-                                                                    <div x-show="mode" x-transition>
-                                                                        <label class="block text-sm font-medium"
-                                                                            x-text="priceLabel"></label>
-
-                                                                        <!-- Hidden field to submit the actual raw price -->
-                                                                        <input type="hidden"
-                                                                            :name="mode === 'daily' ? 'daily_price' :
-                                                                                'monthly_price'"
-                                                                            :value="currentPrice">
-
-                                                                        <!-- Visible input formatted with Cleave.js -->
-                                                                        <input type="text" x-ref="priceInput"
-                                                                            class="w-full border rounded p-2 mt-1"
-                                                                            placeholder="Masukkan harga" required />
-
-                                                                        <p class="text-sm text-red-600 italic mb-4"
-                                                                            x-html="priceNotes"></p>
-                                                                    </div>
+                                                            <!-- Modal footer -->
+                                                            <div
+                                                                class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+                                                                <div class="text-sm text-gray-500">
+                                                                    <span>Press ESC or click outside to close</span>
                                                                 </div>
-
-                                                                <div class="flex gap-4 mb-4">
-                                                                    <div class="w-full">
-                                                                        <label
-                                                                            class="block text-sm font-medium">Deskripsi
-                                                                            Kamar Indonesia</label>
-                                                                        <textarea name="description_id" required class="w-full border rounded p-2" value="{{ e($room->descriptions) }}">{{ e($room->descriptions) }}</textarea>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="mb-4">
-                                                                    <label class="block text-sm font-medium">Foto
-                                                                        Kamar</label>
-                                                                    <input type="file" name="photo"
-                                                                        accept="image/*"
-                                                                        class="w-full border rounded p-2">
-                                                                </div>
-
-                                                                <p class="text-sm text-gray-600 italic mb-4">
-                                                                    Gambar ini akan dijadikan thumbnail kamar. Untuk
-                                                                    menambahkan gambar lebih bisa setelah kamar sudah
-                                                                    disimpan.
-                                                                </p>
-
-                                                                <!-- Validation message -->
-                                                                <div x-show="!isValid"
-                                                                    class="text-red-600 text-sm mb-2">Semua kolom wajib
-                                                                    diisi sebelum lanjut.</div>
-
-                                                                <div class="flex justify-end gap-2 mt-4">
-                                                                    {{-- <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Tutup</button> --}}
-                                                                    <button type="button"
-                                                                        @click="
-                                                                            const inputs = $refs.step1Form.querySelectorAll('[required]');
-                                                                            isValid = true;
-                                                                            inputs.forEach(input => {
-                                                                                if (!input.value) {
-                                                                                    input.classList.add('border-red-500');
-                                                                                    isValid = false;
-                                                                                } else {
-                                                                                    input.classList.remove('border-red-500');
-                                                                                }
-                                                                            });
-                                                                            if (isValid) step = 2;
-                                                                        "
-                                                                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                                        Selanjutnya
+                                                                <div class="flex space-x-3">
+                                                                    <button @click="modalOpenDetail = false"
+                                                                        class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 font-medium hover:shadow-md">
+                                                                        Close
                                                                     </button>
                                                                 </div>
                                                             </div>
-
-                                                            <!-- Step 2 -->
-                                                            <div x-show="step === 2" x-transition x-ref="step2Form">
-                                                                <div class="col-span-2 mb-2">
-                                                                    <h3
-                                                                        class="text-lg font-medium border-gray-300 pb-1">
-                                                                        Fasilitas</h3>
-                                                                </div>
-
-                                                                <div class="grid grid-cols-2 gap-4 mb-4">
-                                                                    <label class="inline-flex items-center">
-                                                                        <input type="checkbox" name="wifi"
-                                                                            class="form-checkbox text-blue-600"
-                                                                            value="1"
-                                                                            {{ ($room->facility['wifi'] ?? false) == true ? 'checked' : '' }}>
-                                                                        <span class="ml-2">WiFi</span>
-                                                                    </label>
-
-                                                                    <label class="inline-flex items-center">
-                                                                        <input type="checkbox" name="tv"
-                                                                            class="form-checkbox text-blue-600"
-                                                                            value="1"
-                                                                            {{ ($room->facility['tv'] ?? false) == true ? 'checked' : '' }}>
-                                                                        <span class="ml-2">TV</span>
-                                                                    </label>
-
-                                                                    <label class="inline-flex items-center">
-                                                                        <input type="checkbox" name="ac"
-                                                                            class="form-checkbox text-blue-600"
-                                                                            value="1"
-                                                                            {{ ($room->facility['ac'] ?? false) == true ? 'checked' : '' }}>
-                                                                        <span class="ml-2">AC</span>
-                                                                    </label>
-
-                                                                    <label class="inline-flex items-center">
-                                                                        <input type="checkbox" name="bathroom"
-                                                                            class="form-checkbox text-blue-600"
-                                                                            value="1"
-                                                                            {{ ($room->facility['bathroom'] ?? false) == true ? 'checked' : '' }}>
-                                                                        <span class="ml-2">Bathroom</span>
-                                                                    </label>
-                                                                </div>
-
-                                                                <div class="flex justify-end gap-2 mt-4">
-                                                                    <button type="button" @click="step = 1"
-                                                                        class="bg-gray-500  hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-white px-4 py-2 rounded">Kembali</button>
-                                                                    <button type="submit"
-                                                                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Simpan</button>
-                                                                </div>
-                                                            </div>
-                                                        </form>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <style>
-                                                [x-cloak] {
-                                                    display: none !important;
-                                                }
-                                            </style>
-                                        </div>
-
-                                        <!-- Edit Price Button -->
-                                        <div x-data="{ priceModalOpen: false }">
-                                            <!-- Trigger Button -->
-                                            <a href="#" class="text-green-600 hover:text-green-900"
-                                                title="Edit Harga" @click.prevent="priceModalOpen = true">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path
-                                                        d="M4 3a1 1 0 000 2h12a1 1 0 100-2H4zm1 4a1 1 0 000 2h10a1 1 0 100-2H5zm-1 4a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zm1 3a1 1 0 000 2h6a1 1 0 100-2H5z" />
-                                                </svg>
-                                            </a>
-
-                                            <!-- Modal -->
-                                            <div x-show="priceModalOpen" x-cloak x-transition
-                                                class="fixed inset-0 flex items-center justify-center backdrop-blur bg-opacity-30 z-50 text-left">
-                                                <div x-data="{
-                                                    startDate: '',
-                                                    setPrice: '',
-                                                    cleaveInstance: null,
-                                                    priceMap: {},
-                                                    basePrice: {{ $room->price_original_daily }},
-                                                
-                                                    get formattedDatePrice() {
-                                                        const price = this.priceMap[this.startDate];
-                                                        if (price === undefined || price === null || isNaN(price)) return '-';
-                                                        return new Intl.NumberFormat('id-ID', {
-                                                            minimumFractionDigits: 0,
-                                                            maximumFractionDigits: 2
-                                                        }).format(price);
-                                                    },
-                                                
-                                                    get formattedBasePrice() {
-                                                        const price = this.basePrice;
-                                                        if (price === undefined || price === null || isNaN(price)) return '-';
-                                                        return new Intl.NumberFormat('id-ID', {
-                                                            minimumFractionDigits: 0,
-                                                            maximumFractionDigits: 2
-                                                        }).format(price);
-                                                    },
-                                                
-                                                    async fetchMonthPrices(year, month, fpInstance) {
-                                                        try {
-                                                            const res = await fetch(`/properties/rooms/{{ $room->idrec }}/prices?year=${year}&month=${month}`);
-                                                            const data = await res.json();
-                                                            this.priceMap = data;
-                                                            {{-- console.log('Fetched priceMap:', data); --}}
-                                                            fpInstance.redraw(); // Recolor calendar
-                                                        } catch (e) {
-                                                            console.error('Failed to fetch prices', e);
-                                                        }
-                                                    },
-                                                
-                                                    async updatePrice() {
-                                                        try {
-                                                            const res = await fetch(`/properties/rooms/{{ $room->idrec }}/update-price`, {
-                                                                method: 'POST',
-                                                                headers: {
-                                                                    'Content-Type': 'application/json',
-                                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                                                },
-                                                                body: JSON.stringify({
-                                                                    start_date: this.startDate,
-                                                                    end_date: this.startDate,
-                                                                    price: this.setPrice
-                                                                })
-                                                            });
-                                                
-                                                            const data = await res.json();
-                                                            {{-- console.log(data); --}}
-                                                
-                                                            if (res.ok) {
-                                                                alert(data.message || 'Harga berhasil diperbarui!');
-                                                                const date = this.startDate;
-                                                                {{-- console.log(date); --}}
-                                                                if (!date) {
-                                                                    alert('Tanggal belum dipilih.');
-                                                                    return;
-                                                                }
-                                                                const [year, month] = date.split('-');
-                                                                {{-- console.log(year, month); --}}
-                                                                await this.fetchMonthPrices(parseInt(year), parseInt(month), this.fpInstance);
-                                                            } else {
-                                                                alert(data.message || 'Gagal memperbarui harga.');
+                                                <!-- Edit -->
+                                                <div x-data="modalEditRoom()">
+                                                    @php
+                                                        $roomImages = [];
+                                                        foreach ($room->roomImages as $image) {
+                                                            if (!empty($image->image)) {
+                                                                $roomImages[] = $image->image;
                                                             }
-                                                        } catch (e) {
-                                                            console.error('Update error:', e);
-                                                            alert('Terjadi kesalahan saat memperbarui harga.');
                                                         }
-                                                    },
-                                                
-                                                    init() {
-                                                        const self = this;
-                                                        const calendar = flatpickr(this.$el.querySelector('.inline-calendar'), {
-                                                            inline: true,
-                                                            mode: 'single',
-                                                            dateFormat: 'Y-m-d',
-                                                
-                                                            async onReady(selectedDates, dateStr, instance) {
-                                                                self.fpInstance = instance; // ✅ store reference
-                                                                await self.fetchMonthPrices(instance.currentYear, instance.currentMonth + 1, instance);
-                                                            },
-                                                
-                                                            async onMonthChange(selectedDates, dateStr, instance) {
-                                                                await self.fetchMonthPrices(instance.currentYear, instance.currentMonth + 1, instance);
-                                                            },
-                                                
-                                                            async onChange(dates) {
-                                                                if (dates.length > 0) {
-                                                                    const localDate = dates[0];
-                                                                    const year = localDate.getFullYear();
-                                                                    const month = String(localDate.getMonth() + 1).padStart(2, '0');
-                                                                    const day = String(localDate.getDate()).padStart(2, '0');
-                                                                    self.startDate = `${year}-${month}-${day}`;
-                                                                }
-                                                            },
-                                                
-                                                            onDayCreate(dObj, dStr, fp, dayElem) {
-                                                                // Skip days from previous or next month
-                                                                if (dayElem.classList.contains('prevMonthDay') || dayElem.classList.contains('nextMonthDay')) {
-                                                                    return;
-                                                                }
-                                                
-                                                                const localDate = dayElem.dateObj;
-                                                                const year = localDate.getFullYear();
-                                                                const month = String(localDate.getMonth() + 1).padStart(2, '0');
-                                                                const day = String(localDate.getDate()).padStart(2, '0');
-                                                                const date = `${year}-${month}-${day}`;
-                                                                const price = self.priceMap[date];
-                                                
-                                                                {{-- dayElem.style.backgroundColor = price === undefined || price === null
-                                                                    ? '#d1d5db' // gray-300
-                                                                    : parseInt(price) === parseInt(self.basePrice)
-                                                                        ? '#3b82f6' // blue-500
-                                                                        : '#ef4444'; // red-500 --}}
-                                                
-                                                                dayElem.style.backgroundColor =
-                                                                    (price === undefined || price === null || price == 0) ?
-                                                                    '#d1d5db' // gray-300 for empty
-                                                                    :
-                                                                    (parseInt(price) === parseInt(self.basePrice) ?
-                                                                        '#3b82f6' // blue-500 for base price
-                                                                        :
-                                                                        (parseInt(price) > parseInt(self.basePrice) ?
-                                                                            '#ef4444' // red-500 for higher price
-                                                                            :
-                                                                            '#4CAF50')); // green-500 for lower price
-                                                
-                                                                dayElem.style.color = '#ffffff'; // white text
-                                                            }
-                                                        });
-                                                
-                                                        this.fpInstance = calendar; // ✅ fallback if needed
-                                                
-                                                        this.$nextTick(() => {
-                                                            this.cleaveInstance = new Cleave(this.$refs.setPrice, {
-                                                                numeral: true,
-                                                                numeralDecimalMark: ',',
-                                                                delimiter: '.',
-                                                                numeralThousandsGroupStyle: 'thousand',
-                                                                onValueChanged: (e) => {
-                                                                    this.setPrice = parseFloat(e.target.rawValue || 0);
-                                                                }
-                                                            });
-                                                        });
-                                                    }
-                                                }" x-init="init"
-                                                    class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative space-y-6 overflow-y-auto max-h-[90vh]">
 
-                                                    <!-- Header -->
-                                                    <div class="flex justify-between items-center border-b pb-3">
-                                                        <h2 class="text-lg font-semibold text-gray-800">Manajemen Harga
-                                                            (Harian)</h2>
-                                                        <button @click="priceModalOpen = false"
-                                                            class="text-gray-500 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+                                                        $facilities = is_array($room->facility) ? $room->facility : [];
+                                                        $facilities = json_encode(
+                                                            $facilities,
+                                                            JSON_HEX_APOS | JSON_HEX_QUOT,
+                                                        );
+                                                    @endphp
+                                                    <!-- Trigger Button -->
+                                                    <button
+                                                        class="p-2 text-yellow-500 hover:text-yellow-700 transition-colors duration-200 rounded-full hover:bg-yellow-50"
+                                                        type="button"
+                                                        @click.prevent='openModal({
+                                                                            id: @json($room->idrec),
+                                                                            property_id: @json($room->property_id),
+                                                                            name: @json($room->name),
+                                                                            no: @json($room->no),
+                                                                            size: @json($room->size),
+                                                                            bed_type: @json($room->bed_type),
+                                                                            capacity: @json($room->capacity),
+                                                                            descriptions: @json($room->descriptions),
+                                                                            price_original_daily: "{{ number_format($room->price_original_daily, 0, ',', '.') }}",
+                                                                            price_original_monthly: "{{ number_format($room->price_original_monthly, 0, ',', '.') }}",
+                                                                            facilities: {!! $facilities !!},
+                                                                            images: {!! json_encode($roomImages) !!},
+                                                                            property_name: @json($room->property_name ?? 'Unknown Property')
+                                                                        })'
+                                                        aria-controls="room-edit-modal" title="Edit Room">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path
+                                                                d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <!-- Modal -->
+                                                    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity"
+                                                        x-show="modalOpen"
+                                                        x-transition:enter="transition ease-out duration-300"
+                                                        x-transition:enter-start="opacity-0"
+                                                        x-transition:enter-end="opacity-100"
+                                                        x-transition:leave="transition ease-out duration-200"
+                                                        x-transition:leave-start="opacity-100"
+                                                        x-transition:leave-end="opacity-0" aria-hidden="true" x-cloak>
                                                     </div>
 
-                                                    <!-- Content Grid -->
-                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                                                        <!-- LEFT: Calendar -->
-                                                        <div class="flex flex-col h-full justify-between space-y-4">
-                                                            <div class="p-2 inline-block" style="position: relative;">
-                                                                <style>
-                                                                    .inline-calendar input {
-                                                                        display: none;
-                                                                    }
-                                                                </style>
-                                                                <div class="inline-calendar"></div>
+                                                    <div id="room-edit-modal"
+                                                        class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
+                                                        role="dialog" aria-modal="true" x-show="modalOpen"
+                                                        x-transition:enter="transition ease-in-out duration-300"
+                                                        x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                                                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                                        x-transition:leave="transition ease-in-out duration-200"
+                                                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                                        x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+                                                        x-cloak>
+
+                                                        <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
+                                                            @click.outside="modalOpen = false"
+                                                            @keydown.escape.window="modalOpen = false">
+
+                                                            <!-- Modal header -->
+                                                            <div
+                                                                class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                                                                <div class="flex justify-between items-center mb-4">
+                                                                    <div class="font-bold text-xl text-gray-800">Edit
+                                                                        Kamar: <span
+                                                                            x-text="roomData.name || ''"></span></div>
+                                                                    <button type="button"
+                                                                        class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                                                        @click="modalOpen = false">
+                                                                        <div class="sr-only">Close</div>
+                                                                        <svg class="w-6 h-6 fill-current">
+                                                                            <path
+                                                                                d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+
+                                                                <!-- Step Indicator -->
+                                                                <div
+                                                                    class="flex items-center justify-center space-x-4">
+                                                                    <!-- Step 1 -->
+                                                                    <div class="flex items-center">
+                                                                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+                                                                            :class="step >= 1 ?
+                                                                                'bg-blue-600 border-blue-600 text-white' :
+                                                                                'border-gray-300 text-gray-500'">
+                                                                            <span class="text-sm font-semibold"
+                                                                                x-show="step < 1">1</span>
+                                                                            <svg x-show="step >= 1" class="w-5 h-5"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M5 13l4 4L19 7"></path>
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div class="ml-3 text-sm">
+                                                                            <p class="font-medium transition-colors duration-300"
+                                                                                :class="step >= 1 ? 'text-blue-600' :
+                                                                                    'text-gray-500'">
+                                                                                Informasi Dasar</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Connector -->
+                                                                    <div class="w-16 h-0.5 transition-colors duration-300"
+                                                                        :class="step >= 2 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                                    </div>
+
+                                                                    <!-- Step 2 -->
+                                                                    <div class="flex items-center">
+                                                                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+                                                                            :class="step >= 2 ?
+                                                                                'bg-blue-600 border-blue-600 text-white' :
+                                                                                'border-gray-300 text-gray-500'">
+                                                                            <span class="text-sm font-semibold"
+                                                                                x-show="step < 2">2</span>
+                                                                            <svg x-show="step >= 2" class="w-5 h-5"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M5 13l4 4L19 7"></path>
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div class="ml-3 text-sm">
+                                                                            <p class="font-medium transition-colors duration-300"
+                                                                                :class="step >= 2 ? 'text-blue-600' :
+                                                                                    'text-gray-500'">
+                                                                                Harga</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Connector -->
+                                                                    <div class="w-16 h-0.5 transition-colors duration-300"
+                                                                        :class="step >= 3 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                                    </div>
+
+                                                                    <!-- Step 3 -->
+                                                                    <div class="flex items-center">
+                                                                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+                                                                            :class="step >= 3 ?
+                                                                                'bg-blue-600 border-blue-600 text-white' :
+                                                                                'border-gray-300 text-gray-500'">
+                                                                            <span class="text-sm font-semibold"
+                                                                                x-show="step < 3">3</span>
+                                                                            <svg x-show="step >= 3" class="w-5 h-5"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M5 13l4 4L19 7"></path>
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div class="ml-3 text-sm">
+                                                                            <p class="font-medium transition-colors duration-300"
+                                                                                :class="step >= 3 ? 'text-blue-600' :
+                                                                                    'text-gray-500'">
+                                                                                Fasilitas</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Connector -->
+                                                                    <div class="w-16 h-0.5 transition-colors duration-300"
+                                                                        :class="step >= 4 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                                    </div>
+
+                                                                    <!-- Step 4 -->
+                                                                    <div class="flex items-center">
+                                                                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
+                                                                            :class="step >= 4 ?
+                                                                                'bg-blue-600 border-blue-600 text-white' :
+                                                                                'border-gray-300 text-gray-500'">
+                                                                            <span class="text-sm font-semibold"
+                                                                                x-show="step < 4">4</span>
+                                                                            <svg x-show="step >= 4" class="w-5 h-5"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M5 13l4 4L19 7"></path>
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div class="ml-3 text-sm">
+                                                                            <p class="font-medium transition-colors duration-300"
+                                                                                :class="step >= 4 ? 'text-blue-600' :
+                                                                                    'text-gray-500'">
+                                                                                Foto</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
 
-                                                            <!-- Legend -->
-                                                            <div class="grid grid-cols-2 gap-2 text-sm text-left">
-                                                                <div class="flex items-center gap-2">
-                                                                    <div class="w-4 h-4 rounded"
-                                                                        style="background-color: #d1d5db;"></div>
-                                                                    <span>Belum ada harga</span>
+                                                            <!-- Modal content -->
+                                                            <div class="flex-1 overflow-y-auto px-6 py-6">
+                                                                <form id="roomEditForm" method="POST"
+                                                                    x-bind:action="updateRoute"
+                                                                    enctype="multipart/form-data"
+                                                                    @submit.prevent="submitForm">
+                                                                    @csrf
+                                                                    @method('PUT')
+
+                                                                    <!-- Step 1 - Basic Information -->
+                                                                    <div x-show="step === 1"
+                                                                        x-transition:enter="transition ease-out duration-300"
+                                                                        x-transition:enter-start="opacity-0 translate-x-4"
+                                                                        x-transition:enter-end="opacity-100 translate-x-0">
+                                                                        <div class="space-y-6">
+                                                                            <!-- Property Selector -->
+                                                                            <div>
+                                                                                <label for="edit_property_id"
+                                                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                    Properti <span
+                                                                                        class="text-red-500">*</span>
+                                                                                </label>
+                                                                                <select id="edit_property_id"
+                                                                                    name="property_id" required
+                                                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                    x-model="roomData.property_id">
+                                                                                    <option value="" disabled>
+                                                                                        Pilih Properti</option>
+                                                                                    @foreach ($properties as $property)
+                                                                                        <option
+                                                                                            value="{{ $property->idrec }}">
+                                                                                            {{ $property->name }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </div>
+
+                                                                            <div
+                                                                                class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                                <div>
+                                                                                    <label for="edit_room_no"
+                                                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                        Nomor Kamar <span
+                                                                                            class="text-red-500">*</span>
+                                                                                    </label>
+                                                                                    <input type="text"
+                                                                                        id="edit_room_no"
+                                                                                        name="room_no" required
+                                                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                        placeholder="Masukkan nomor kamar"
+                                                                                        x-model="roomData.room_no">
+                                                                                </div>
+
+                                                                                <div>
+                                                                                    <label for="edit_room_name"
+                                                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                        Nama Kamar <span
+                                                                                            class="text-red-500">*</span>
+                                                                                    </label>
+                                                                                    <input type="text"
+                                                                                        id="edit_room_name"
+                                                                                        name="name" required
+                                                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                        placeholder="Masukkan nama kamar"
+                                                                                        x-model="roomData.name">
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div
+                                                                                class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                                                <div>
+                                                                                    <label for="edit_room_size"
+                                                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                        Ukuran Kamar (m²) <span
+                                                                                            class="text-red-500">*</span>
+                                                                                    </label>
+                                                                                    <input type="number"
+                                                                                        id="edit_room_size"
+                                                                                        name="room_size" required
+                                                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                        placeholder="Masukkan ukuran kamar"
+                                                                                        x-model="roomData.room_size">
+                                                                                </div>
+
+                                                                                <div>
+                                                                                    <label for="edit_bed_type"
+                                                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                        Jenis Kasur <span
+                                                                                            class="text-red-500">*</span>
+                                                                                    </label>
+                                                                                    <select id="edit_bed_type"
+                                                                                        name="bed_type" required
+                                                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                        x-model="roomData.bed_type">
+                                                                                        <option value="">Pilih
+                                                                                            Jenis Kasur</option>
+                                                                                        <option value="Single">Single
+                                                                                        </option>
+                                                                                        <option value="Double">Double
+                                                                                        </option>
+                                                                                        <option value="King">King
+                                                                                        </option>
+                                                                                        <option value="Queen">Queen
+                                                                                        </option>
+                                                                                        <option value="Twin">Twin
+                                                                                        </option>
+                                                                                    </select>
+                                                                                </div>
+
+                                                                                <div>
+                                                                                    <label for="edit_capacity"
+                                                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                        Kapasitas (Pax) <span
+                                                                                            class="text-red-500">*</span>
+                                                                                    </label>
+                                                                                    <input type="number"
+                                                                                        id="edit_capacity"
+                                                                                        name="capacity" required
+                                                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                        placeholder="Masukkan kapasitas kamar"
+                                                                                        x-model="roomData.capacity">
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <label for="edit_descriptions"
+                                                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                    Deskripsi Kamar <span
+                                                                                        class="text-red-500">*</span>
+                                                                                </label>
+                                                                                <textarea id="edit_descriptions" name="descriptions" rows="4" required
+                                                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                    placeholder="Deskripsikan kamar Anda..." x-model="roomData.descriptions"></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Step 2 - Pricing -->
+                                                                    <div x-show="step === 2"
+                                                                        x-transition:enter="transition ease-out duration-300"
+                                                                        x-transition:enter-start="opacity-0 translate-x-4"
+                                                                        x-transition:enter-end="opacity-100 translate-x-0"
+                                                                        x-cloak>
+                                                                        <div class="space-y-6">
+                                                                            <div class="mb-4">
+                                                                                <h3
+                                                                                    class="text-md font-semibold text-gray-700 mb-2">
+                                                                                    Jenis Harga</h3>
+                                                                                <div class="flex space-x-6">
+                                                                                    <label
+                                                                                        class="inline-flex items-center">
+                                                                                        <input type="checkbox"
+                                                                                            value="daily"
+                                                                                            x-model="priceTypes"
+                                                                                            class="form-checkbox text-blue-600">
+                                                                                        <span
+                                                                                            class="ml-2">Harian</span>
+                                                                                    </label>
+                                                                                    <label
+                                                                                        class="inline-flex items-center">
+                                                                                        <input type="checkbox"
+                                                                                            value="monthly"
+                                                                                            x-model="priceTypes"
+                                                                                            class="form-checkbox text-blue-600">
+                                                                                        <span
+                                                                                            class="ml-2">Bulanan</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div x-show="priceTypes.includes('daily')"
+                                                                                x-transition>
+                                                                                <label
+                                                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                    Harga Harian <span
+                                                                                        class="text-red-500">*</span>
+                                                                                </label>
+                                                                                <div class="relative">
+                                                                                    <div
+                                                                                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                                                        <span
+                                                                                            class="text-gray-500">Rp</span>
+                                                                                    </div>
+                                                                                    <input type="text"
+                                                                                        x-ref="editDailyPriceInput"
+                                                                                        class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                        placeholder="Masukkan harga harian"
+                                                                                        :value="formatPrice(roomData
+                                                                                            .price_original_daily)">
+                                                                                    <input type="hidden"
+                                                                                        name="price_original_daily"
+                                                                                        x-model="dailyPrice">
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div x-show="priceTypes.includes('monthly')"
+                                                                                x-transition class="mt-4">
+                                                                                <label
+                                                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                                    Harga Bulanan <span
+                                                                                        class="text-red-500">*</span>
+                                                                                </label>
+                                                                                <div class="relative">
+                                                                                    <div
+                                                                                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                                                        <span
+                                                                                            class="text-gray-500">Rp</span>
+                                                                                    </div>
+                                                                                    <input type="text"
+                                                                                        x-ref="editMonthlyPriceInput"
+                                                                                        class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                                        placeholder="Masukkan harga bulanan"
+                                                                                        :value="formatPrice(roomData
+                                                                                            .price_original_monthly)">
+                                                                                    <input type="hidden"
+                                                                                        name="price_original_monthly"
+                                                                                        x-model="monthlyPrice">
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div
+                                                                                class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-4">
+                                                                                <div class="flex items-start">
+                                                                                    <div class="flex-shrink-0">
+                                                                                        <svg class="h-5 w-5 text-blue-500"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                                            </path>
+                                                                                        </svg>
+                                                                                    </div>
+                                                                                    <div class="ml-3">
+                                                                                        <p
+                                                                                            class="text-sm text-blue-700">
+                                                                                            Anda bisa memilih salah satu
+                                                                                            atau kedua jenis harga.
+                                                                                            Pastikan mengisi harga yang
+                                                                                            sesuai dengan jenis yang
+                                                                                            dipilih.
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Step 3 - Facilities -->
+                                                                    <div x-show="step === 3"
+                                                                        x-transition:enter="transition ease-out duration-300"
+                                                                        x-transition:enter-start="opacity-0 translate-x-4"
+                                                                        x-transition:enter-end="opacity-100 translate-x-0"
+                                                                        x-cloak>
+                                                                        <div class="space-y-6">
+                                                                            <div>
+                                                                                <h3
+                                                                                    class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                                                                    <svg class="w-5 h-5 mr-2 text-blue-600"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                                                    </svg>
+                                                                                    Fasilitas Kamar
+                                                                                </h3>
+                                                                                <div
+                                                                                    class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                                                    <template
+                                                                                        x-for="(facility, index) in facilities"
+                                                                                        :key="index">
+                                                                                        <div class="relative">
+                                                                                            <input
+                                                                                                :id="'edit_facility-' + index"
+                                                                                                name="facilities[]"
+                                                                                                type="checkbox"
+                                                                                                :value="facility.value"
+                                                                                                class="sr-only peer"
+                                                                                                x-model="selectedFacilities"
+                                                                                                :checked="selectedFacilities
+                                                                                                    .includes(facility
+                                                                                                        .value)">
+                                                                                            <label
+                                                                                                :for="'edit_facility-' + index"
+                                                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
+                                                                                                <span
+                                                                                                    x-text="facility.label"></span>
+                                                                                            </label>
+                                                                                        </div>
+                                                                                    </template>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Step 4 - Photos -->
+                                                                    <div x-show="step === 4"
+                                                                        x-transition:enter="transition ease-out duration-300"
+                                                                        x-transition:enter-start="opacity-0 translate-x-4"
+                                                                        x-transition:enter-end="opacity-100 translate-x-0"
+                                                                        x-cloak>
+                                                                        <div class="space-y-6">
+                                                                            <div>
+                                                                                <label
+                                                                                    class="block text-sm font-semibold text-gray-700 mb-3">
+                                                                                    Foto Kamar
+                                                                                    <span
+                                                                                        class="text-sm font-normal text-gray-500">
+                                                                                        (Minimal 3 foto - <span
+                                                                                            x-text="remainingSlots"></span>
+                                                                                        foto lagi)
+                                                                                    </span>
+                                                                                </label>
+
+                                                                                <!-- Info about thumbnail -->
+                                                                                <div
+                                                                                    class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r-lg">
+                                                                                    <div class="flex items-start">
+                                                                                        <div class="flex-shrink-0">
+                                                                                            <svg class="h-5 w-5 text-blue-500"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24">
+                                                                                                <path
+                                                                                                    stroke-linecap="round"
+                                                                                                    stroke-linejoin="round"
+                                                                                                    stroke-width="2"
+                                                                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                                                </path>
+                                                                                            </svg>
+                                                                                        </div>
+                                                                                        <div class="ml-3">
+                                                                                            <p
+                                                                                                class="text-sm text-blue-700">
+                                                                                                <span
+                                                                                                    class="font-semibold">Perhatian:</span>
+                                                                                                Foto pertama yang Anda
+                                                                                                upload akan menjadi
+                                                                                                <span
+                                                                                                    class="font-bold">thumbnail
+                                                                                                    utama</span> kamar
+                                                                                                ini. Anda dapat
+                                                                                                menghapus foto yang ada
+                                                                                                dan menambahkan yang
+                                                                                                baru.
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <!-- Upload Area -->
+                                                                                <div x-show="canUploadMore"
+                                                                                    @drop="handleDrop($event)"
+                                                                                    @dragover.prevent @dragenter.prevent
+                                                                                    class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer"
+                                                                                    :class="{ 'border-blue-400 bg-blue-50': canUploadMore }">
+                                                                                    <div class="space-y-2">
+                                                                                        <svg class="w-12 h-12 mx-auto text-gray-400"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                                                            </path>
+                                                                                        </svg>
+                                                                                        <div
+                                                                                            class="flex text-sm text-gray-600 justify-center">
+                                                                                            <label
+                                                                                                for="edit_room_images"
+                                                                                                class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                                                                <span>Upload foto
+                                                                                                    baru</span>
+                                                                                                <input
+                                                                                                    id="edit_room_images"
+                                                                                                    name="room_images[]"
+                                                                                                    type="file"
+                                                                                                    multiple
+                                                                                                    accept="image/*"
+                                                                                                    @change="handleFileSelect($event)"
+                                                                                                    class="sr-only">
+                                                                                            </label>
+                                                                                            <p class="pl-1">atau
+                                                                                                drag and drop</p>
+                                                                                        </div>
+                                                                                        <p
+                                                                                            class="text-xs text-gray-500">
+                                                                                            PNG, JPG, JPEG up to 5MB</p>
+                                                                                        <p class="text-xs text-blue-600"
+                                                                                            x-text="`Dapat upload ${remainingSlots} foto lagi`">
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <!-- Full Upload Message -->
+                                                                                <div x-show="!canUploadMore"
+                                                                                    class="border-2 border-green-300 rounded-lg p-8 text-center bg-green-50">
+                                                                                    <div class="space-y-2">
+                                                                                        <svg class="w-12 h-12 mx-auto text-green-500"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24">
+                                                                                            <path
+                                                                                                stroke-linecap="round"
+                                                                                                stroke-linejoin="round"
+                                                                                                stroke-width="2"
+                                                                                                d="M5 13l4 4L19 7">
+                                                                                            </path>
+                                                                                        </svg>
+                                                                                        <p
+                                                                                            class="text-sm text-green-600 font-medium">
+                                                                                            Maksimal foto telah
+                                                                                            diupload!</p>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <!-- Current Images -->
+                                                                                <div x-show="existingImages.length > 0"
+                                                                                    class="mb-6">
+                                                                                    <h4
+                                                                                        class="text-sm font-semibold text-gray-700 mb-3">
+                                                                                        Foto Saat Ini</h4>
+                                                                                    <div
+                                                                                        class="grid grid-cols-5 gap-2">
+                                                                                        <template
+                                                                                            x-for="(image, index) in existingImages"
+                                                                                            :key="'existing-' + index">
+                                                                                            <div
+                                                                                                class="relative group">
+                                                                                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200"
+                                                                                                    :class="{
+                                                                                                        'border-2 border-blue-600': index ===
+                                                                                                            0
+                                                                                                    }">
+                                                                                                    <img :src="image.url"
+                                                                                                        :alt="'Existing Image ' +
+                                                                                                        (index + 1)"
+                                                                                                        class="w-full h-full object-cover">
+                                                                                                </div>
+                                                                                                <button
+                                                                                                    @click="removeExistingImage(image.id, index)"
+                                                                                                    class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                                                    <svg class="w-2 h-2"
+                                                                                                        fill="none"
+                                                                                                        stroke="currentColor"
+                                                                                                        viewBox="0 0 24 24">
+                                                                                                        <path
+                                                                                                            stroke-linecap="round"
+                                                                                                            stroke-linejoin="round"
+                                                                                                            stroke-width="2"
+                                                                                                            d="M6 18L18 6M6 6l12 12">
+                                                                                                        </path>
+                                                                                                    </svg>
+                                                                                                </button>
+                                                                                                <div
+                                                                                                    class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                                    <span
+                                                                                                        x-text="index + 1"></span>
+                                                                                                </div>
+                                                                                                <div x-show="index === 0"
+                                                                                                    class="absolute top-1 right-1">
+                                                                                                    <span
+                                                                                                        class="bg-yellow-500 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">Thumbnail</span>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </template>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <!-- New Image Preview Grid -->
+                                                                                <div x-show="images.length > 0"
+                                                                                    class="mt-2 grid grid-cols-5 gap-1"
+                                                                                    x-transition:enter="transition ease-out duration-300"
+                                                                                    x-transition:enter-start="opacity-0 scale-95"
+                                                                                    x-transition:enter-end="opacity-100 scale-100">
+                                                                                    <template
+                                                                                        x-for="(image, index) in images"
+                                                                                        :key="'new-' + index">
+                                                                                        <div class="relative group">
+                                                                                            <!-- Image Container -->
+                                                                                            <div
+                                                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200">
+                                                                                                <img :src="image.url"
+                                                                                                    :alt="'Preview ' + (
+                                                                                                        index + 1)"
+                                                                                                    class="w-full h-full object-cover">
+                                                                                            </div>
+
+                                                                                            <!-- Remove Button -->
+                                                                                            <button
+                                                                                                @click="removeImage(index)"
+                                                                                                class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                                                <svg class="w-2 h-2"
+                                                                                                    fill="none"
+                                                                                                    stroke="currentColor"
+                                                                                                    viewBox="0 0 24 24">
+                                                                                                    <path
+                                                                                                        stroke-linecap="round"
+                                                                                                        stroke-linejoin="round"
+                                                                                                        stroke-width="2"
+                                                                                                        d="M6 18L18 6M6 6l12 12">
+                                                                                                    </path>
+                                                                                                </svg>
+                                                                                            </button>
+
+                                                                                            <!-- Image Number Badge -->
+                                                                                            <div
+                                                                                                class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                                <span
+                                                                                                    x-text="existingImages.length + index + 1"></span>
+                                                                                            </div>
+
+                                                                                            <!-- File Name -->
+                                                                                            <div
+                                                                                                class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                                                                <p class="text-[8px] text-gray-600 truncate"
+                                                                                                    x-text="image.name">
+                                                                                                </p>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </template>
+                                                                                </div>
+
+                                                                                <!-- Progress Indicator -->
+                                                                                <div class="mt-4">
+                                                                                    <div
+                                                                                        class="flex justify-between text-sm text-gray-600 mb-2">
+                                                                                        <span>Total Foto</span>
+                                                                                        <span
+                                                                                            x-text="`${existingImages.length + images.length} foto`"></span>
+                                                                                    </div>
+                                                                                    <div
+                                                                                        class="w-full bg-gray-200 rounded-full h-2">
+                                                                                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                                                            :style="`width: ${((existingImages.length + images.length) / maxImages) * 100}%`">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <!-- Validation Message -->
+                                                                                <div x-show="(existingImages.length + images.length) < 3"
+                                                                                    class="mt-3">
+                                                                                    <p class="text-sm text-red-600">
+                                                                                        <span
+                                                                                            class="font-medium">Perhatian:</span>
+                                                                                        Anda harus memiliki minimal 3
+                                                                                        foto untuk kamar ini.
+                                                                                    </p>
+                                                                                </div>
+
+                                                                                <div x-show="(existingImages.length + images.length) >= 3"
+                                                                                    class="mt-3">
+                                                                                    <p class="text-sm text-green-600">
+                                                                                        <span
+                                                                                            class="font-medium">Sempurna!</span>
+                                                                                        Minimal foto telah terpenuhi.
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Form Actions -->
+                                                                    <div class="mt-6 flex justify-end">
+                                                                        <div>
+                                                                            <button type="button" x-show="step > 1"
+                                                                                @click="step--"
+                                                                                class="px-6 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                                                                <svg class="w-4 h-4 inline mr-2"
+                                                                                    fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M15 19l-7-7 7-7"></path>
+                                                                                </svg>
+                                                                                Sebelumnya
+                                                                            </button>
+                                                                            <button type="button" x-show="step < 4"
+                                                                                @click="validateStep(step) && step++"
+                                                                                class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                                                                Selanjutnya
+                                                                                <svg class="w-4 h-4 inline ml-2"
+                                                                                    fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M9 5l7 7-7 7"></path>
+                                                                                </svg>
+                                                                            </button>
+                                                                            <button type="submit"
+                                                                                x-show="step === 4"
+                                                                                class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
+                                                                                <svg class="w-4 h-4 inline mr-2"
+                                                                                    fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M5 13l4 4L19 7"></path>
+                                                                                </svg>
+                                                                                Simpan Perubahan
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Edit Price (Calendar) -->
+                                                <div x-data="priceModal({{ $room->idrec }}, {{ $room->price_original_daily ?? 0 }})">
+                                                    <!-- Trigger Button -->
+                                                    <button @click="openModal()"
+                                                        class="p-2 text-green-600 hover:text-green-900 transition-colors duration-200 rounded-full hover:bg-green-50"
+                                                        title="Edit Harga">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor" stroke-width="1.5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M8 7V3m8 4V3m-9 8h10m-12 8h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <!-- Modal -->
+                                                    <div x-show="isOpen" x-cloak x-transition
+                                                        class="fixed inset-0 z-50 overflow-y-auto"
+                                                        @keydown.escape="closeModal()">
+                                                        <!-- Overlay -->
+                                                        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+                                                            x-show="isOpen"
+                                                            x-transition:enter="ease-out duration-300"
+                                                            x-transition:enter-start="opacity-0"
+                                                            x-transition:enter-end="opacity-100"
+                                                            x-transition:leave="ease-in duration-200"
+                                                            x-transition:leave-start="opacity-100"
+                                                            x-transition:leave-end="opacity-0">
+                                                        </div>
+
+                                                        <!-- Modal Container -->
+                                                        <div
+                                                            class="flex min-h-screen items-center justify-center p-4 text-center">
+                                                            <!-- Modal Panel -->
+                                                            <div x-show="isOpen" @click.away="closeModal()"
+                                                                x-transition:enter="ease-out duration-300"
+                                                                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                                                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                                                x-transition:leave="ease-in duration-200"
+                                                                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                                                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                                                class="relative w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all">
+
+                                                                <!-- Header -->
+                                                                <div
+                                                                    class="flex items-center justify-between p-6 border-b">
+                                                                    <h3 class="text-xl font-semibold text-gray-900">
+                                                                        Manajemen Harga Harian
+                                                                    </h3>
+                                                                    <button @click="closeModal()"
+                                                                        class="text-gray-400 hover:text-gray-500">
+                                                                        <svg class="h-6 w-6" fill="none"
+                                                                            viewBox="0 0 24 24"
+                                                                            stroke="currentColor">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M6 18L18 6M6 6l12 12" />
+                                                                        </svg>
+                                                                    </button>
                                                                 </div>
-                                                                <div class="flex items-center gap-2">
-                                                                    <div class="w-4 h-4 rounded"
-                                                                        style="background-color: #3b82f6;"></div>
-                                                                    <span>Harga standar</span>
-                                                                </div>
-                                                                <div class="flex items-center gap-2">
-                                                                    <div class="w-4 h-4 rounded"
-                                                                        style="background-color: #ef4444;"></div>
-                                                                    <span>Harga lebih tinggi</span>
-                                                                </div>
-                                                                <div class="flex items-center gap-2">
-                                                                    <div class="w-4 h-4 rounded"
-                                                                        style="background-color: #4CAF50;"></div>
-                                                                    <span>Harga lebih rendah</span>
+
+                                                                <!-- Content -->
+                                                                <div class="p-6">
+                                                                    <div
+                                                                        class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                                        <!-- Calendar Section -->
+                                                                        <div
+                                                                            class="bg-gray-50 p-4 rounded-lg flex flex-col items-center">
+                                                                            <div
+                                                                                class="mb-4 w-full flex justify-center">
+                                                                                <div class="inline-calendar"></div>
+                                                                            </div>
+
+                                                                            <!-- Legend -->
+                                                                            <div
+                                                                                class="flex flex-wrap justify-center gap-4 text-sm">
+                                                                                <div
+                                                                                    class="flex items-center space-x-2">
+                                                                                    <span
+                                                                                        class="w-4 h-4 rounded bg-gray-300 border border-gray-400"></span>
+                                                                                    <span>Belum ada harga</span>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="flex items-center space-x-2">
+                                                                                    <span
+                                                                                        class="w-4 h-4 rounded bg-blue-500 border border-blue-600"></span>
+                                                                                    <span>Harga standar</span>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="flex items-center space-x-2">
+                                                                                    <span
+                                                                                        class="w-4 h-4 rounded bg-red-500 border border-red-600"></span>
+                                                                                    <span>Harga lebih tinggi</span>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="flex items-center space-x-2">
+                                                                                    <span
+                                                                                        class="w-4 h-4 rounded bg-green-500 border border-green-600"></span>
+                                                                                    <span>Harga lebih rendah</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                        <!-- Form Section -->
+                                                                        <div class="space-y-6">
+                                                                            <!-- Date Input -->
+                                                                            <div>
+                                                                                <label
+                                                                                    class="block text-sm font-medium text-gray-700 mb-1">
+                                                                                    Tanggal Terpilih
+                                                                                </label>
+                                                                                <input type="text"
+                                                                                    x-model="startDate"
+                                                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                                                                                    readonly>
+                                                                            </div>
+
+                                                                            <!-- Current Price -->
+                                                                            <div>
+                                                                                <label
+                                                                                    class="block text-sm font-medium text-gray-700 mb-1">
+                                                                                    Harga Saat Ini
+                                                                                </label>
+                                                                                <input type="text"
+                                                                                    x-model="formattedDatePrice"
+                                                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 font-medium"
+                                                                                    readonly>
+                                                                                <p class="mt-1 text-xs text-gray-500">
+                                                                                    Harga original: <span
+                                                                                        x-text="formattedBasePrice"
+                                                                                        class="font-medium"></span>
+                                                                                </p>
+                                                                            </div>
+
+                                                                            <!-- New Price -->
+                                                                            <div>
+                                                                                <label
+                                                                                    class="block text-sm font-medium text-gray-700 mb-1">
+                                                                                    Harga Baru
+                                                                                </label>
+                                                                                <input type="text"
+                                                                                    x-ref="setPrice"
+                                                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                    placeholder="Masukkan harga baru">
+                                                                                <p class="mt-1 text-xs text-gray-500">
+                                                                                    Kosongkan untuk reset ke harga
+                                                                                    original
+                                                                                </p>
+                                                                            </div>
+
+                                                                            <!-- Actions -->
+                                                                            <div
+                                                                                class="flex justify-end space-x-3 pt-4">
+                                                                                <button @click="closeModal()"
+                                                                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                                                                                    Batal
+                                                                                </button>
+                                                                                <button @click="updatePrice()"
+                                                                                    :disabled="isLoading"
+                                                                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                                                    <svg x-show="!isLoading"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        class="h-5 w-5"
+                                                                                        viewBox="0 0 20 20"
+                                                                                        fill="currentColor">
+                                                                                        <path fill-rule="evenodd"
+                                                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                                            clip-rule="evenodd" />
+                                                                                    </svg>
+                                                                                    <svg x-show="isLoading"
+                                                                                        class="animate-spin h-5 w-5"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        fill="none"
+                                                                                        viewBox="0 0 24 24">
+                                                                                        <circle class="opacity-25"
+                                                                                            cx="12"
+                                                                                            cy="12" r="10"
+                                                                                            stroke="currentColor"
+                                                                                            stroke-width="4"></circle>
+                                                                                        <path class="opacity-75"
+                                                                                            fill="currentColor"
+                                                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                                        </path>
+                                                                                    </svg>
+                                                                                    <span
+                                                                                        x-text="isLoading ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-
-                                                        <!-- RIGHT: Form -->
-                                                        <div class="flex flex-col h-full justify-between space-y-4">
-                                                            <div class="w-full space-y-1">
-                                                                <label
-                                                                    class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-                                                                <input type="text" :value="startDate"
-                                                                    class="border border-gray-300 px-4 py-2 rounded w-full"
-                                                                    readonly>
-                                                            </div>
-                                                            <div class="w-full space-y-1">
-                                                                <label
-                                                                    class="block text-sm font-medium text-gray-700">Harga
-                                                                    pada tanggal</label>
-                                                                <input type="text" :value="formattedDatePrice"
-                                                                    class="border border-gray-300 px-4 py-2 rounded w-full"
-                                                                    readonly>
-                                                                <p
-                                                                    class="text-xs text-gray-500 mt-1 w-full break-words whitespace-normal italic">
-                                                                    Harga original: <span
-                                                                        x-text="formattedBasePrice"></span><br>
-                                                                    Jika harga menunjukkan '-', maka harga kosong.
-                                                                </p>
-                                                            </div>
-                                                            <div>
-                                                                <label
-                                                                    class="block text-sm font-medium text-gray-700 mb-1">Harga
-                                                                    Baru</label>
-                                                                <input type="text" x-ref="setPrice"
-                                                                    class="border border-gray-300 px-4 py-2 rounded w-full"
-                                                                    placeholder="Masukkan harga" />
-                                                            </div>
-                                                            <div class="flex justify-between pt-2">
-                                                                <button @click="updatePrice"
-                                                                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Update</button>
-                                                            </div>
-                                                        </div>
                                                     </div>
-
                                                 </div>
+
+                                                <!-- Delete (Bin) -->
+                                                <button title="Delete" class="text-red-500 hover:text-red-700">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-5 w-5 text-red-500" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor"
+                                                        stroke-width="1.5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
                                             </div>
-                                        </div>
-
-
-                                        <!-- Flatpickr & Alpine -->
-                                        <link rel="stylesheet"
-                                            href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-                                        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-                                        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-                                        <!-- Delete Button -->
-                                        <form action="" method="POST"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus kamar ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900"
-                                                title="Hapus">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- Pagination -->
-            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div class="flex-1 flex justify-between sm:hidden">
-                    <a href="{{ $rooms->previousPageUrl() }}"
-                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Sebelumnya
-                    </a>
-                    <a href="{{ $rooms->nextPageUrl() }}"
-                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Berikutnya
-                    </a>
-                </div>
-                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                        <p class="text-sm text-gray-700">
-                            Menampilkan
-                            <span class="font-medium">{{ $rooms->firstItem() }}</span>
-                            sampai
-                            <span class="font-medium">{{ $rooms->lastItem() }}</span>
-                            dari
-                            <span class="font-medium">{{ $rooms->total() }}</span>
-                            hasil
-                        </p>
-                    </div>
-                    <div>
-                        {{ $rooms->links() }}
-                    </div>
-                </div>
+            <div class="bg-gray-50 rounded p-4" id="paginationContainer">
+                {{-- {{ $room->appends(request()->input())->links() }} --}}
             </div>
         </div>
     </div>
+    </div>
 
-    @push('scripts')
-        <script>
-            // Reusable success toast notification
-            function showSuccessToast(message) {
-                Toastify({
-                    text: message,
-                    duration: 3000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    style: {
-                        background: "#4CAF50",
-                        color: "#FFFFFF",
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                        borderRadius: "0.375rem",
-                        padding: "0.75rem 1rem",
-                        fontSize: "0.875rem",
-                        fontWeight: "500",
-                        display: "flex",
-                        alignItems: "center"
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('modalRoom', () => ({
+                modalOpen: false,
+                step: 1,
+                images: [],
+                maxImages: 10,
+                minImages: 3,
+                priceTypes: [],
+                dailyPrice: 0,
+                monthlyPrice: 0,
+                cleaveDaily: null,
+                cleaveMonthly: null,
+                facilities: [{
+                        label: 'WiFi',
+                        value: 'wifi'
                     },
-                    stopOnFocus: true
-                }).showToast();
-            }
+                    {
+                        label: 'AC',
+                        value: 'ac'
+                    },
+                    {
+                        label: 'TV',
+                        value: 'tv'
+                    },
+                    {
+                        label: 'Kamar Mandi',
+                        value: 'bathroom'
+                    },
+                    {
+                        label: 'Air Panas',
+                        value: 'hot_water'
+                    },
+                    {
+                        label: 'Lemari',
+                        value: 'wardrobe'
+                    },
+                    {
+                        label: 'Meja Kerja',
+                        value: 'desk'
+                    },
+                    {
+                        label: 'Kulkas',
+                        value: 'refrigerator'
+                    },
+                    {
+                        label: 'Sarapan',
+                        value: 'breakfast'
+                    }
+                ],
 
-            function modalRoom() {
-                return {
-                    modalOpen: false,
-                    step: 1,
+                init() {
+                    this.$watch('priceTypes', (types) => {
+                        this.$nextTick(() => {
+                            if (types.includes('daily') && !this.cleaveDaily) {
+                                this.cleaveDaily = new Cleave(this.$refs
+                                    .dailyPriceInput, {
+                                        numeral: true,
+                                        numeralDecimalMark: ',',
+                                        delimiter: '.',
+                                        numeralThousandsGroupStyle: 'thousand',
+                                        onValueChanged: (e) => {
+                                            this.dailyPrice = parseFloat(e
+                                                .target.rawValue || 0);
+                                        }
+                                    });
+                            }
 
-                    validateStep(step) {
-                        if (step === 1) {
-                            const requiredInputs = Array.from(document.querySelectorAll('#roomForm [required]'));
-                            let isValid = true;
+                            if (types.includes('monthly') && !this.cleaveMonthly) {
+                                this.cleaveMonthly = new Cleave(this.$refs
+                                    .monthlyPriceInput, {
+                                        numeral: true,
+                                        numeralDecimalMark: ',',
+                                        delimiter: '.',
+                                        numeralThousandsGroupStyle: 'thousand',
+                                        onValueChanged: (e) => {
+                                            this.monthlyPrice = parseFloat(e
+                                                .target.rawValue || 0);
+                                        }
+                                    });
+                            }
+                        });
+                    });
+                },
 
-                            requiredInputs.forEach(input => {
-                                if (!input.value) {
-                                    input.classList.add('border-red-500');
-                                    isValid = false;
-                                } else {
-                                    input.classList.remove('border-red-500');
-                                }
-                            });
+                // Image handling methods
+                handleFileSelect(event) {
+                    const files = Array.from(event.target.files);
+                    this.processFiles(files);
+                },
 
-                            return isValid;
+                handleDrop(event) {
+                    event.preventDefault();
+                    const files = Array.from(event.dataTransfer.files);
+                    this.processFiles(files);
+                },
+
+                processFiles(files) {
+                    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+                    const availableSlots = this.maxImages - this.images.length;
+
+                    if (availableSlots <= 0) {
+                        Swal.fire({
+                            toast: true,
+                            icon: 'error',
+                            title: `Maksimal hanya ${this.maxImages} foto yang dapat diupload.`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                        return;
+                    }
+
+                    const filesToProcess = imageFiles.slice(0, availableSlots);
+
+                    if (imageFiles.length > availableSlots) {
+                        Swal.fire({
+                            toast: true,
+                            icon: 'warning',
+                            title: `Hanya ${availableSlots} foto yang dapat ditambahkan.`,
+                            text: `Sisa slot: ${availableSlots}`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    }
+
+                    filesToProcess.forEach(file => {
+                        if (file.size <= 5 * 1024 * 1024) { // 5MB limit
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                this.images.push({
+                                    file: file,
+                                    url: e.target.result,
+                                    name: file.name
+                                });
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
                         }
-                        return true;
-                    },
+                    });
 
-                    submitForm() {
-                        if (this.validateStep(this.step)) {
-                            document.getElementById('roomForm').submit();
+                    if (event.target) {
+                        event.target.value = '';
+                    }
+                },
+
+                removeImage(index) {
+                    this.images.splice(index, 1);
+                },
+
+                // Computed properties
+                get canUploadMore() {
+                    return this.images.length < this.maxImages;
+                },
+
+                get remainingSlots() {
+                    return this.maxImages - this.images.length;
+                },
+
+                get isImageRequirementMet() {
+                    return this.images.length >= this.minImages;
+                },
+
+                // Step validation
+                validateStep(step) {
+                    let isValid = true;
+                    const errors = {};
+
+                    if (step === 1) {
+                        const requiredFields = ['property_id', 'room_no', 'room_name', 'room_size',
+                            'room_bed', 'room_capacity', 'description_id'
+                        ];
+
+                        requiredFields.forEach(field => {
+                            const el = document.getElementById(field);
+                            if (el && !el.value) {
+                                el.classList.add('border-red-500');
+                                errors[field] = 'Field ini wajib diisi';
+                                isValid = false;
+                            } else if (el) {
+                                el.classList.remove('border-red-500');
+                            }
+                        });
+
+                    } else if (step === 2) {
+                        if (this.priceTypes.length === 0) {
+                            errors.priceTypes = 'Pilih minimal satu jenis harga';
+                            isValid = false;
+                        }
+
+                        if (this.priceTypes.includes('daily') && this.dailyPrice <= 0) {
+                            errors.dailyPrice = 'Masukkan harga harian yang valid';
+                            isValid = false;
+                        }
+
+                        if (this.priceTypes.includes('monthly') && this.monthlyPrice <= 0) {
+                            errors.monthlyPrice = 'Masukkan harga bulanan yang valid';
+                            isValid = false;
                         }
                     }
+
+                    if (!isValid) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validasi Gagal',
+                            html: Object.values(errors).join('<br>'),
+                        });
+                    }
+
+                    return isValid;
+                },
+
+                // Form submission
+                submitForm() {
+                    if (!this.validateStep(4)) return;
+
+                    const form = document.getElementById('roomForm');
+                    const formData = new FormData(form);
+
+                    // Tambahkan CSRF token secara manual jika diperlukan
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]')
+                        .content);
+
+                    // Clear any existing file inputs
+                    formData.delete('room_images[]');
+
+                    // Add each selected image
+                    this.images.forEach((image) => {
+                        formData.append('room_images[]', image.file);
+                    });
+
+                    // Add price types
+                    this.priceTypes.forEach(type => {
+                        formData.append('price_types[]', type);
+                    });
+
+                    fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        })
+                        .then(async response => {
+                            const contentType = response.headers.get('content-type');
+                            if (!contentType || !contentType.includes('application/json')) {
+                                const text = await response.text();
+                                throw new Error(text || 'Invalid response from server');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: data.message || 'Berhasil!',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true
+                                });
+
+                                // Delay sebentar agar toast sempat tampil
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1500);
+                            } else {
+                                throw new Error(data.message || 'Terjadi kesalahan');
+                            }
+                        })
+                        .catch(error => {
+                            let errorMessage = 'Terjadi kesalahan';
+
+                            try {
+                                const errorData = JSON.parse(error.message);
+                                if (errorData.errors) {
+                                    errorMessage = Object.values(errorData.errors).flat().join(
+                                        '<br>');
+                                } else if (errorData.message) {
+                                    errorMessage = errorData.message;
+                                }
+                            } catch (e) {
+                                errorMessage = error.message;
+                            }
+
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: 'Gagal',
+                                html: errorMessage,
+                                showConfirmButton: false,
+                                timer: 4000,
+                                timerProgressBar: true
+                            });
+                        });
                 }
-            }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                // Toggle status
+            }));
+        });
 
-                // Filter functionality
-                const filterBtn = document.getElementById('filter-btn');
-                if (filterBtn) {
-                    filterBtn.addEventListener('click', function() {
-                        const search = document.getElementById('search-input').value;
-                        const status = document.getElementById('status-filter').value;
-                        const property = document.getElementById('property-filter').value;
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('modalViewRoom', () => ({
+                selectedRoom: {
+                    currentImageIndex: 0,
+                    images: [],
+                    facilities: []
+                },
+                modalOpenDetail: false,
+                isLoading: false,
+                touchStartX: 0,
+                touchEndX: 0,
 
-                        const url = new URL(window.location.href);
-                        const params = new URLSearchParams();
+                openModal(room) {
+                    this.isLoading = true;
+                    this.modalOpenDetail = true;
+                    this.disableBodyScroll();
 
-                        if (search) params.append('search', search);
-                        if (status) params.append('status', status);
-                        if (property) params.append('property', property);
+                    this.$nextTick(() => {
+                        this.selectedRoom = {
+                            ...room,
+                            currentImageIndex: 0,
+                            images: Array.isArray(room.images) ?
+                                room.images.filter(img => img && img.startsWith(
+                                    'data:image')) : [],
+                            facilities: Array.isArray(room.facilities) ? room.facilities :
+                            []
+                        };
+                        this.isLoading = false;
+                    });
+                },
 
-                        window.location.href = url.pathname + '?' + params.toString();
+                closeModal() {
+                    this.modalOpenDetail = false;
+                    this.enableBodyScroll();
+                    setTimeout(() => {
+                        this.selectedRoom = {
+                            currentImageIndex: 0,
+                            images: [],
+                            facilities: []
+                        };
+                    }, 300);
+                },
+
+                nextImage() {
+                    if (this.hasMultipleImages) {
+                        this.selectedRoom.currentImageIndex =
+                            (this.selectedRoom.currentImageIndex + 1) % this.selectedRoom.images.length;
+                    }
+                },
+
+                prevImage() {
+                    if (this.hasMultipleImages) {
+                        this.selectedRoom.currentImageIndex =
+                            (this.selectedRoom.currentImageIndex - 1 + this.selectedRoom.images
+                                .length) %
+                            this.selectedRoom.images.length;
+                    }
+                },
+
+                goToImage(index) {
+                    if (this.hasMultipleImages && index >= 0 && index < this.selectedRoom.images
+                        .length) {
+                        this.selectedRoom.currentImageIndex = index;
+                    }
+                },
+
+                get hasMultipleImages() {
+                    return this.selectedRoom.images?.length > 1;
+                },
+
+                get currentImage() {
+                    return this.selectedRoom.images[this.selectedRoom.currentImageIndex];
+                },
+
+                handleTouchStart(e) {
+                    this.touchStartX = e.changedTouches[0].screenX;
+                },
+
+                handleTouchEnd(e) {
+                    this.touchEndX = e.changedTouches[0].screenX;
+                    this.handleSwipe();
+                },
+
+                handleSwipe() {
+                    const threshold = 50;
+                    const diff = this.touchStartX - this.touchEndX;
+
+                    if (diff > threshold) {
+                        this.nextImage();
+                    } else if (diff < -threshold) {
+                        this.prevImage();
+                    }
+                },
+
+                disableBodyScroll() {
+                    document.body.style.overflow = 'hidden';
+                    document.body.style.paddingRight = this.scrollbarWidth + 'px';
+                },
+
+                enableBodyScroll() {
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                },
+
+                get scrollbarWidth() {
+                    return window.innerWidth - document.documentElement.clientWidth;
+                },
+
+                init() {
+                    const handleKeyDown = (e) => {
+                        if (!this.modalOpenDetail) return;
+
+                        switch (e.key) {
+                            case 'Escape':
+                                this.closeModal();
+                                break;
+                            case 'ArrowRight':
+                                this.nextImage();
+                                break;
+                            case 'ArrowLeft':
+                                this.prevImage();
+                                break;
+                        }
+                    };
+
+                    document.addEventListener('keydown', handleKeyDown);
+
+                    this.$el.addEventListener('alpine:initialized', () => {
+                        this.$el.addEventListener('alpine:destroying', () => {
+                            document.removeEventListener('keydown', handleKeyDown);
+                        });
                     });
                 }
-            });
-        </script>
-    @endpush
+            }));
+        });
+
+        flatpickr.localize({
+            id: {
+                weekdays: {
+                    shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+                    longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+                },
+                months: {
+                    shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+                    longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus",
+                        "September", "Oktober", "November", "Desember"
+                    ]
+                },
+                firstDayOfWeek: 1, // Monday as first day
+                rangeSeparator: " hingga ",
+                weekAbbreviation: "Mgg",
+                scrollTitle: "Scroll untuk memperbesar",
+                toggleTitle: "Klik untuk mengganti",
+                time_24hr: true,
+                ordinal: () => {
+                    return "";
+                }
+            }
+        });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('priceModal', (roomId = null, basePrice = 0) => ({
+                isOpen: false,
+                isLoading: false,
+                startDate: '',
+                setPrice: '',
+                cleaveInstance: null,
+                priceMap: {},
+                roomId: roomId,
+                basePrice: basePrice,
+                fpInstance: null,
+
+                // Computed properties
+                get formattedDatePrice() {
+                    const price = this.priceMap[this.startDate];
+                    if (price === undefined || price === null || isNaN(price)) return '-';
+                    return this.formatCurrency(price);
+                },
+
+                get formattedBasePrice() {
+                    const price = this.basePrice;
+                    if (price === undefined || price === null || isNaN(price)) return '-';
+                    return this.formatCurrency(price);
+                },
+
+                // Methods
+                openModal() {
+                    this.isOpen = true;
+                    document.body.classList.add('overflow-hidden');
+                },
+
+                closeModal() {
+                    this.isOpen = false;
+                    document.body.classList.remove('overflow-hidden');
+                },
+
+                formatCurrency(value) {
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    }).format(value);
+                },
+
+                async fetchMonthPrices(year, month, fpInstance) {
+                    try {
+                        const res = await fetch(
+                            `/properties/rooms/${this.roomId}/prices?year=${year}&month=${month}`
+                        );
+
+                        if (!res.ok) throw new Error('Failed to fetch prices');
+
+                        const data = await res.json();
+                        this.priceMap = data;
+                        fpInstance.redraw();
+                    } catch (error) {
+                        console.error('Error fetching prices:', error);
+                        this.showAlert('error', 'Gagal memuat data harga');
+                    }
+                },
+
+                async updatePrice() {
+                    if (!this.startDate) {
+                        this.showAlert('warning', 'Silakan pilih tanggal terlebih dahulu');
+                        return;
+                    }
+
+                    this.isLoading = true;
+
+                    try {
+                        const priceValue = this.setPrice ? parseFloat(this.cleaveInstance
+                            .getRawValue()) : null;
+
+                        const res = await fetch(`/properties/rooms/${this.roomId}/update-price`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                start_date: this.startDate,
+                                end_date: this.startDate,
+                                price: priceValue
+                            })
+                        });
+
+                        const data = await res.json();
+
+                        if (!res.ok) {
+                            throw new Error(data.message || 'Gagal memperbarui harga');
+                        }
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Harga berhasil diperbarui!',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        const date = this.startDate;
+                        const [year, month] = date.split('-');
+                        await this.fetchMonthPrices(parseInt(year), parseInt(month), this
+                            .fpInstance);
+
+                        // Reset form
+                        this.cleaveInstance.setRawValue('');
+                        this.setPrice = '';
+                    } catch (error) {
+                        console.error('Update error:', error);
+                        this.showAlert('error', error.message ||
+                            'Terjadi kesalahan saat memperbarui harga');
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                showAlert(type, message) {
+                    Swal.fire({
+                        icon: type,
+                        title: message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                },
+
+                init() {
+                    const self = this;
+
+                    // Initialize calendar
+                    const calendar = flatpickr(this.$el.querySelector('.inline-calendar'), {
+                        inline: true,
+                        mode: 'single',
+                        dateFormat: 'Y-m-d',
+                        minDate: 'today',
+
+                        async onReady(selectedDates, dateStr, instance) {
+                            self.fpInstance = instance;
+                            await self.fetchMonthPrices(instance.currentYear, instance
+                                .currentMonth + 1, instance);
+
+                            // Select today's date by default
+                            if (selectedDates.length === 0) {
+                                instance.setDate(new Date());
+                            }
+                        },
+
+                        async onMonthChange(selectedDates, dateStr, instance) {
+                            await self.fetchMonthPrices(instance.currentYear, instance
+                                .currentMonth + 1, instance);
+                        },
+
+                        async onChange(dates) {
+                            if (dates.length > 0) {
+                                const localDate = dates[0];
+                                const year = localDate.getFullYear();
+                                const month = String(localDate.getMonth() + 1).padStart(2,
+                                    '0');
+                                const day = String(localDate.getDate()).padStart(2, '0');
+                                self.startDate = `${year}-${month}-${day}`;
+
+                                // Set current price in the input field if available
+                                const currentPrice = self.priceMap[self.startDate];
+                                if (currentPrice && self.cleaveInstance) {
+                                    self.cleaveInstance.setRawValue(currentPrice);
+                                }
+                            }
+                        },
+
+                        onDayCreate(dObj, dStr, fp, dayElem) {
+                            if (dayElem.classList.contains('prevMonthDay') || dayElem.classList
+                                .contains('nextMonthDay')) {
+                                return;
+                            }
+
+                            const localDate = dayElem.dateObj;
+                            const year = localDate.getFullYear();
+                            const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(localDate.getDate()).padStart(2, '0');
+                            const date = `${year}-${month}-${day}`;
+                            const price = self.priceMap[date];
+
+                            if (price === undefined || price === null || price == 0) {
+                                dayElem.style.backgroundColor = '#d1d5db'; // gray-300 for empty
+                            } else if (parseInt(price) === parseInt(self.basePrice)) {
+                                dayElem.style.backgroundColor =
+                                    '#3b82f6'; // blue-500 for base price
+                            } else if (parseInt(price) > parseInt(self.basePrice)) {
+                                dayElem.style.backgroundColor =
+                                    '#ef4444'; // red-500 for higher price
+                            } else {
+                                dayElem.style.backgroundColor =
+                                    '#4CAF50'; // green-500 for lower price
+                            }
+
+                            dayElem.style.color = '#ffffff';
+                        }
+                    });
+
+                    this.fpInstance = calendar;
+
+                    // Initialize price input formatter
+                    this.$nextTick(() => {
+                        this.cleaveInstance = new Cleave(this.$refs.setPrice, {
+                            numeral: true,
+                            numeralDecimalMark: ',',
+                            delimiter: '.',
+                            numeralThousandsGroupStyle: 'thousand',
+                            onValueChanged: (e) => {
+                                this.setPrice = parseFloat(e.target.rawValue || 0);
+                            }
+                        });
+                    });
+                }
+            }));
+        });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('modalEditRoom', () => ({
+                modalOpen: false,
+                step: 1,
+                roomData: {
+                    id: '',
+                    property_id: '',
+                    name: '',
+                    room_no: '',
+                    room_size: '',
+                    bed_type: '',
+                    capacity: '',
+                    descriptions: '',
+                    price_original_daily: '',
+                    price_original_monthly: '',
+                    facilities: [],
+                    images: [],
+                    property_name: ''
+                },
+                priceTypes: [],
+                dailyPrice: '',
+                monthlyPrice: '',
+                selectedFacilities: [],
+                existingImages: [],
+                images: [],
+                maxImages: 10,
+                facilities: [{
+                        value: 'wifi',
+                        label: 'WiFi'
+                    },
+                    {
+                        value: 'ac',
+                        label: 'AC'
+                    },
+                    {
+                        value: 'tv',
+                        label: 'TV'
+                    },
+                    {
+                        value: 'bathroom',
+                        label: 'Private Bathroom'
+                    },
+                    {
+                        value: 'hot_water',
+                        label: 'Hot Water'
+                    },
+                    {
+                        value: 'wardrobe',
+                        label: 'Wardrobe'
+                    },
+                    {
+                        value: 'desk',
+                        label: 'Study Desk'
+                    },
+                    {
+                        value: 'refrigerator',
+                        label: 'Refrigerator'
+                    },
+                    {
+                        value: 'breakfast',
+                        label: 'Breakfast Included'
+                    }
+                ],
+                updateRoute: '',
+
+                init() {
+                    this.$watch('priceTypes', (value) => {
+                        if (!value.includes('daily')) {
+                            this.dailyPrice = '';
+                        }
+                        if (!value.includes('monthly')) {
+                            this.monthlyPrice = '';
+                        }
+                    });
+
+                    this.$nextTick(() => {
+                        if (this.$refs.editDailyPriceInput) {
+                            this.initPriceInput(this.$refs.editDailyPriceInput, 'dailyPrice');
+                        }
+                        if (this.$refs.editMonthlyPriceInput) {
+                            this.initPriceInput(this.$refs.editMonthlyPriceInput,
+                                'monthlyPrice');
+                        }
+                    });
+                },
+
+                openModal(data) {
+                    this.roomData = {
+                        id: data.id,
+                        property_id: data.property_id,
+                        name: data.name,
+                        room_no: data.no,
+                        room_size: data.size,
+                        bed_type: data.bed_type,
+                        capacity: data.capacity,
+                        descriptions: data.descriptions,
+                        price_original_daily: data.price_original_daily ? data.price_original_daily
+                            .replace(/\./g, '') : '',
+                        price_original_monthly: data.price_original_monthly ? data
+                            .price_original_monthly.replace(/\./g, '') : '',
+                        property_name: data.property_name
+                    };
+
+                    // Set price types and values
+                    this.priceTypes = [];
+                    this.dailyPrice = data.price_original_daily ? data.price_original_daily.replace(
+                        /\./g, '') : '';
+                    this.monthlyPrice = data.price_original_monthly ? data.price_original_monthly
+                        .replace(/\./g, '') : '';
+
+                    if (data.price_original_daily && data.price_original_daily !== '0') {
+                        this.priceTypes.push('daily');
+                    }
+                    if (data.price_original_monthly && data.price_original_monthly !== '0') {
+                        this.priceTypes.push('monthly');
+                    }
+
+                    // Set facilities
+                    this.selectedFacilities = Array.isArray(data.facilities) ?
+                        data.facilities :
+                        (typeof data.facilities === 'string' ? JSON.parse(data.facilities) : []);
+
+                    // Set existing images
+                    this.existingImages = data.images ? data.images.map((image, index) => ({
+                        id: index,
+                        url: image
+                    })) : [];
+
+                    // Reset new images
+                    this.images = [];
+
+                    // Set update route
+                    this.updateRoute = `/admin/rooms/${data.id}`;
+
+                    // Reset step
+                    this.step = 1;
+
+                    // Open modal
+                    this.modalOpen = true;
+
+                    // Initialize price inputs
+                    this.$nextTick(() => {
+                        if (this.$refs.editDailyPriceInput) {
+                            this.initPriceInput(this.$refs.editDailyPriceInput, 'dailyPrice');
+                        }
+                        if (this.$refs.editMonthlyPriceInput) {
+                            this.initPriceInput(this.$refs.editMonthlyPriceInput,
+                                'monthlyPrice');
+                        }
+                    });
+                },
+
+                initPriceInput(inputElement, priceField) {
+                    const self = this;
+                    const cleave = new Cleave(inputElement, {
+                        numeral: true,
+                        numeralThousandsGroupStyle: 'thousand',
+                        numeralDecimalMark: ',',
+                        delimiter: '.'
+                    });
+
+                    inputElement.addEventListener('input', function(e) {
+                        const rawValue = cleave.getRawValue();
+                        self[priceField] = rawValue ? parseInt(rawValue) : '';
+                    });
+
+                    // Set initial value
+                    const priceValue = this.roomData[
+                        `price_original_${priceField.replace('Price', '')}`];
+                    if (priceValue) {
+                        cleave.setRawValue(priceValue);
+                    }
+                },
+
+                formatPrice(price) {
+                    if (!price) return '';
+                    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                },
+
+                validateStep(step) {
+                    if (step === 1) {
+                        if (!this.roomData.property_id || !this.roomData.name || !this.roomData
+                            .room_no ||
+                            !this.roomData.room_size || !this.roomData.bed_type || !this.roomData
+                            .capacity ||
+                            !this.roomData.descriptions) {
+                            alert('Harap lengkapi semua informasi dasar kamar');
+                            return false;
+                        }
+                    } else if (step === 2) {
+                        if (this.priceTypes.length === 0) {
+                            alert('Harap pilih minimal satu jenis harga');
+                            return false;
+                        }
+                        if (this.priceTypes.includes('daily') && !this.dailyPrice) {
+                            alert('Harap isi harga harian');
+                            return false;
+                        }
+                        if (this.priceTypes.includes('monthly') && !this.monthlyPrice) {
+                            alert('Harap isi harga bulanan');
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+
+                handleFileSelect(event) {
+                    const files = event.target.files;
+                    this.handleFiles(files);
+                },
+
+                handleDrop(event) {
+                    event.preventDefault();
+                    const files = event.dataTransfer.files;
+                    this.handleFiles(files);
+                },
+
+                handleFiles(files) {
+                    const remainingSlots = this.maxImages - (this.existingImages.length + this.images
+                        .length);
+                    if (files.length > remainingSlots) {
+                        alert(`Anda hanya dapat menambahkan ${remainingSlots} foto lagi`);
+                        return;
+                    }
+
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        if (!file.type.match('image.*')) continue;
+
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.images.push({
+                                name: file.name,
+                                url: e.target.result,
+                                file: file
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+
+                removeImage(index) {
+                    this.images.splice(index, 1);
+                },
+
+                removeExistingImage(id, index) {
+                    this.existingImages.splice(index, 1);
+                },
+
+                get remainingSlots() {
+                    return this.maxImages - (this.existingImages.length + this.images.length);
+                },
+
+                get canUploadMore() {
+                    return this.remainingSlots > 0;
+                },
+
+                submitForm() {
+                    if ((this.existingImages.length + this.images.length) < 3) {
+                        alert('Anda harus memiliki minimal 3 foto untuk kamar ini');
+                        return;
+                    }
+
+                    // Submit the form
+                    document.getElementById('roomEditForm').submit();
+                }
+            }));
+        });
+
+        function toggleStatus(checkbox) {
+            const room = checkbox.getAttribute('data-id');
+            const newStatus = checkbox.checked ? 1 : 0;
+
+            fetch(`/properties/rooms/${room}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const statusText = checkbox.nextElementSibling.nextElementSibling;
+                    statusText.textContent = newStatus ? 'Active' : 'Inactive';
+
+                    Toastify({
+                        text: "Status properti berhasil diperbarui",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "#4CAF50"
+                        },
+                        stopOnFocus: true
+                    }).showToast();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    checkbox.checked = !checkbox.checked;
+                    alert('Gagal memperbarui status properti');
+                });
+        }
+    </script>
+
 </x-app-layout>

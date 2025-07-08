@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('m_room_images', function (Blueprint $table) {
-            $table->integer('idrec')->primary();
+            $table->increments('idrec');
             $table->string('room_id', 100)->nullable();
             $table->binary('image')->nullable();
             $table->string('caption', 100)->nullable();          
