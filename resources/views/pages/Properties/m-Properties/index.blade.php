@@ -309,7 +309,6 @@
                                         x-transition:enter-start="opacity-0 translate-x-4"
                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                         <div class="space-y-6">
-                                            <!-- Combined Facilities (Amenities + Features) -->
                                             <div x-data="{ facilities: ['High-speed WiFi', 'Parking', 'Swimming Pool', 'Gym', 'Restaurant', '24/7 Security', 'Concierge', 'Laundry Service', 'Room Service'] }">
                                                 <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                     <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
@@ -764,8 +763,8 @@
                 selectedProperty: {},
                 modalOpenDetail: false,
                 images: [],
-                maxImages: 10, // Changed from 3 to 10
-                minImages: 3, // Added minimum images requirement
+                maxImages: 10, 
+                minImages: 3, 
                 map: null,
                 marker: null,
                 searchQuery: '',
@@ -1106,8 +1105,7 @@
                 removeImage(index) {
                     this.images.splice(index, 1);
                 },
-
-                // Updated computed properties
+                
                 get canUploadMore() {
                     return this.images.length < this.maxImages;
                 },
@@ -1222,7 +1220,7 @@
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = `
                                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                Processing...
+                                                Menyimpan...
                                             `;
                     }
 

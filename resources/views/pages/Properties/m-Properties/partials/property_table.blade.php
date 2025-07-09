@@ -952,8 +952,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-
-
+                                                        
                                                         <!-- Upload Area -->
                                                         <div x-show="editCanUploadMore" @drop="handleEditDrop($event)"
                                                             @dragover.prevent @dragenter.prevent

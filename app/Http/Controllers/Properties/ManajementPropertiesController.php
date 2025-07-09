@@ -204,8 +204,8 @@ class ManajementPropertiesController extends Controller
         }
 
         return $request->wantsJson()
-            ? response()->json(['status' => 'success', 'message' => 'Property created successfully!', 'data' => $property], 201)
-            : redirect()->route('properties.index')->with('success', 'Property created successfully!');
+            ? response()->json(['status' => 'success', 'message' => 'Properti berhasil dibuat!', 'data' => $property], 201)
+            : redirect()->route('properties.index')->with('success', 'Properti berhasil dibuat!');
     }
 
     public function update(Request $request, $id)

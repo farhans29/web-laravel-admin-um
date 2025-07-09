@@ -40,58 +40,11 @@ class Room extends Model
         'updated_at',
     ];
 
-
-    public function getFacilityAttribute($value)
-    {
-        // Handle null or empty
-        if (empty($value)) {
-            $decoded = [];
-        } else {
-            // First decode
-            $decoded = json_decode($value, true);
-
-            // If still a string after decode, decode again
-            if (is_string($decoded)) {
-                $decoded = json_decode($decoded, true);
-            }
-
-            // Fallback if somehow still not array
-            if (!is_array($decoded)) {
-                $decoded = [];
-            }
-        }
-
-        $allFacilities = ['wifi', 'tv', 'ac', 'bathroom'];
-
-        return collect($allFacilities)->mapWithKeys(function ($key) use ($decoded) {
-            return [$key => in_array($key, $decoded)];
-        })->toArray();
-    }
-
-    protected static function booted()
-    {
-        static::creating(function ($room) {
-            $property = Property::find($room->property_id);
-            $propertyInitials = $property
-                ? Str::upper($property->initial ?? 'UNK')
-                : 'UNK';
-
-            $roomNameInitials = Str::upper(
-                collect(explode(' ', $room->name))->map(fn($word) => Str::substr($word, 0, 1))->implode('')
-            );
-
-            $roomTypeInitials = Str::upper(
-                collect(explode(' ', $room->type))->map(fn($word) => Str::substr($word, 0, 1))->implode('')
-            );
-
-            $level = $room->level ?? '0';
-            $nextId = static::max('idrec') + 1;
-            $randomDigits = rand(100, 999);
-
-            $room->slug = "{$propertyInitials}_{$roomNameInitials}_{$level}_{$roomTypeInitials}_{$nextId}_{$randomDigits}";
-            $room->idrec = $nextId;
-        });
-    }
+    protected $casts = [
+        'facility' => 'array',
+        'periode' => 'array'
+    ];
+        
 
     // Relasi ke transaksi
     public function transactions()

@@ -358,9 +358,6 @@
         </div>
     </div>
 
-
-
-
     <script>
         // Tab switching functionality
         document.getElementById('initiateTab').addEventListener('click', function() {
