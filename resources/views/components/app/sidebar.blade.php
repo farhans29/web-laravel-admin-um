@@ -62,9 +62,9 @@
                         </li>
 
                         <!-- Bookings -->
-                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('checkin') || window.location.href.includes('checkout')">
+                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('checkin') || window.location.href.includes('checkout') || window.location.href.includes('bookings')">
                             <a @click="open = !open"
-                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative @if (Route::is('checkin.index', 'checkout.index')) bg-indigo-900 @endif">
+                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative @if (Route::is('checkin.index', 'checkout.index', 'bookings.index')) bg-indigo-900 @endif">
                                 <div class="flex items-center gap-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
@@ -91,8 +91,8 @@
                             <ul x-show="open && (sidebarExpanded || window.innerWidth < 1024)"
                                 class="pl-8 mt-1 space-y-1">
                                 <li>
-                                    <a href="#all-bookings"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors">
+                                    <a href="{{ route('bookings.index') }}"
+                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('bookings.index')) bg-indigo-900 @endif">
                                         <span class="text-xs">All Bookings</span>
                                     </a>
                                 </li>
@@ -183,7 +183,7 @@
 
                         <!-- Customers -->
                         <li>
-                            <a href="#customers"
+                            <a href="{{ route('progress') }}"
                                 class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -233,7 +233,7 @@
 
                         <!-- Invoices -->
                         <li>
-                            <a href="#invoices"
+                            <a href="{{ route('progress') }}"
                                 class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -253,7 +253,7 @@
 
                         <!-- Reports -->
                         <li>
-                            <a href="#reports"
+                            <a href="{{ route('progress') }}"
                                 class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -303,7 +303,7 @@
 
                         <!-- Settings -->
                         <li>
-                            <a href="#settings"
+                            <a href="{{ route('progress') }}"
                                 class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">

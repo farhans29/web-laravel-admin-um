@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Bookings\Booking\AllBookingController;
 use App\Http\Controllers\Bookings\CheckIn\CheckInController;
 use App\Http\Controllers\Bookings\CheckOut\CheckOutController;
 use App\Http\Controllers\Rooms\ChangeRoomController;
@@ -25,6 +26,7 @@ Route::get('/home', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/progress', [DashboardController::class, 'progress_index'])->name('progress');
 
     Route::get('/account/getData', [UserController::class, 'accountGetData'])->name('account.getData');
     Route::get('/users/getList', [UserController::class, 'userGetData'])->name('users.getList');
@@ -52,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/user-access/{userId}/update', [UserController::class, 'update']);
 
     Route::prefix('bookings')->group(function () {
+        Route::get('/bookings', [AllBookingController::class, 'index'])->name('bookings.index');
+
         Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
         Route::post('/checkin/{order_id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
         Route::get('/check-in/{order_id}/details', [CheckInController::class, 'getBookingDetails'])->name('bookings.checkin.details');
@@ -78,12 +82,13 @@ Route::middleware(['auth'])->group(function () {
         // ------------------------- ROOMS MANAGEMENT -------------------------
         Route::get('/rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
-        Route::post('/rooms/update/{idrec}', [ManajementRoomsController::class, 'update'])->name('rooms.update');
+        Route::put('/rooms/update/{idrec}', [ManajementRoomsController::class, 'update'])->name('rooms.update');
         Route::put('/rooms/{room}/status', [ManajementRoomsController::class, 'updateStatus'])->name('room.updateStatus');
         Route::get('/rooms/{id}', [ManajementRoomsController::class, 'show'])->where('id', '[0-9]+')->name('rooms.show');
 
         Route::get('/rooms/{room}/edit', [ManajementRoomsController::class, 'edit'])->name('rooms.edit');
-        Route::put('/rooms/{room}', [ManajementRoomsController::class, 'update'])->name('rooms.update');
+        Route::delete('/rooms/{idrec}/destroy', [ManajementRoomsController::class, 'destroy'])->name('rooms.destroy');
+
 
         Route::get('/rooms/{room}/edit-prices', [ManajementRoomsController::class, 'changePriceIndex'])->name('rooms.prices.change-price-index');
         // Route::put('/rooms/{room}/edit-prices', [ManajementRoomsController::class, 'updatePrice'])->name('rooms.prices.update');

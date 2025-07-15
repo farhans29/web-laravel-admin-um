@@ -210,6 +210,7 @@ class ManajementPropertiesController extends Controller
 
     public function update(Request $request, $id)
     {
+        
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -271,26 +272,26 @@ class ManajementPropertiesController extends Controller
                         'created_at' => now()
                     ]);
                 }
-            }
-
+            }            
             // Update data ke tabel `m_properties`
             $property->update([
-                'name' => $validated['name'],
-                'tags' => $validated['type'],
-                'description' => $validated['description'],
-                'address' => $validated['address'],
-                'latitude' => $validated['latitude'],
-                'longitude' => $validated['longitude'],
-                'location' => $validated['latitude'] . ',' . $validated['longitude'],
-                'province' => $validated['province'],
-                'city' => $validated['city'],
-                'subdistrict' => $validated['subdistrict'],
-                'village' => $validated['village'],
-                'postal_code' => $validated['postal_code'],
+                'name' => $request->input('name'),
+                'tags' => $request->input('tags'),
+                'description' => $request->input('description'),
+                'address' => $request->input('address'),
+                'latitude' => $request->input('latitude'),
+                'longitude' => $request->input('longitude'),
+                'location' => $request->input('latitude') . ',' . $request->input('longitude'),
+                'province' => $request->input('province'),
+                'city' => $request->input('city'),
+                'subdistrict' => $request->input('subdistrict'),
+                'village' => $request->input('village'),
+                'postal_code' => $request->input('postal_code'),
                 'features' => $filteredFeatures,
                 'updated_by' => Auth::id(),
                 'updated_at' => now(),
             ]);
+
 
             return response()->json([
                 'success' => true,

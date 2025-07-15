@@ -29,4 +29,9 @@ class DashboardController extends Controller
     {
         return view('pages/dashboard/fintech');
     }
+
+    public function progress_index()
+    {
+        return view('pages/progress_page/index');
+    }
 }

@@ -41,11 +41,47 @@ class ManajementRoomsController extends Controller
             ->with(['transactions', 'bookings', 'property', 'creator', 'roomImages'])
             ->orderBy('created_at', 'desc');
 
+        // Filter by property
+        if ($request->has('property_id') && $request->property_id != '') {
+            $query->where('property_id', $request->property_id);
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+
+        // Search functionality
+        if ($request->has('search') && $request->search != '') {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('no', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('name', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('property', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', '%' . $searchTerm . '%');
+                    });
+            });
+        }
+
         $rooms = $perPage === 'all'
             ? $query->get()
             : $query->paginate((int) $perPage)->withQueryString();
 
         $properties = Property::orderBy('name', 'asc')->get();
+
+        // Jika request AJAX, kembalikan partial view
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('pages.Properties.m-Rooms.partials.room_table', [
+                    'properties' => $properties,
+                    'rooms' => $rooms,
+                    'per_page' => $perPage,
+                ])->render(),
+                'pagination' => $rooms instanceof \Illuminate\Pagination\LengthAwarePaginator
+                    ? $rooms->appends($request->input())->links()->toHtml()
+                    : ''
+            ]);
+        }
 
         return view('pages.Properties.m-Rooms.index', [
             'rooms' => $rooms,
@@ -56,7 +92,7 @@ class ManajementRoomsController extends Controller
 
 
     public function store(Request $request)
-    {        
+    {
         $validated = $request->validate([
             'property_id' => 'required|numeric|exists:m_properties,idrec',
             'room_no' => 'required|string|max:255',
@@ -67,7 +103,7 @@ class ManajementRoomsController extends Controller
             'description_id' => 'required|string',
             'daily_price' => 'nullable|numeric|min:0',
             'monthly_price' => 'nullable|numeric|min:0',
-            'room_facilities' => 'nullable|array',            
+            'room_facilities' => 'nullable|array',
             'room_images' => 'required|array|min:3|max:10',
             'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
         ]);
@@ -96,7 +132,7 @@ class ManajementRoomsController extends Controller
         $idrec = Room::max('idrec') + 1;
         $tagShort = strtolower(substr($property->tags, 0, 3));
         $nameShort = strtolower(collect(explode(' ', $validated['room_name']))->map(fn($w) => substr($w, 0, 1))->implode(''));
-        $slug = $tagShort . '_' . $nameShort . '_' . $idrec;                
+        $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
 
         // Encode images to base64
         $imageBase64Array = [];
@@ -125,7 +161,7 @@ class ManajementRoomsController extends Controller
         $room->property_name = $property->name;
         $room->slug = $slug;
         $room->no = $validated['room_no'];
-        $room->name = $validated['room_name'];        
+        $room->name = $validated['room_name'];
         $room->descriptions = $validated['description_id'];
         $room->size = $validated['room_size'];
         $room->bed_type = $validated['room_bed'];
@@ -336,7 +372,7 @@ class ManajementRoomsController extends Controller
         $properties = Property::orderBy('name', 'asc')->get();
         return view('pages.Properties.m-Rooms.edit-prices', compact('room'));
     }
-    
+
     public function getPriceForDate(Request $request, $roomId)
     {
         $date = $request->query('date');
@@ -348,7 +384,7 @@ class ManajementRoomsController extends Controller
 
         return response()->json(['price' => $price ?? 'Price not found.']);
     }
-    
+
     public function updatePriceRange(Request $request, $roomId)
     {
         try {
@@ -395,7 +431,7 @@ class ManajementRoomsController extends Controller
             ], 500);
         }
     }
-    
+
     public function getRoomPrices(Request $request, $roomId)
     {
         $year = $request->get('year');
@@ -477,5 +513,19 @@ class ManajementRoomsController extends Controller
             'images' => $images
         ]);
     }
-    
+
+    public function destroy($idrec)
+    {
+        try {
+            $room = Room::findOrFail($idrec);
+
+            // Soft delete: update status jadi 2
+            $room->status = '2';
+            $room->save();
+
+            return response()->json(['message' => 'Room deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete room.'], 500);
+        }
+    }
 }

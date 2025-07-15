@@ -4,7 +4,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Manajemen Properti</h1>
             <div class="mt-4 md:mt-0">
-                {{-- New Input --}}
+                {{-- New Input Property --}}
                 <div x-data="modalProperty()">
                     <!-- Trigger Button -->
                     <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
@@ -437,7 +437,7 @@
                                                             </div>
 
                                                             <!-- Remove Button - Made smaller -->
-                                                            <button @click="removeImage(index)"
+                                                            <button @click="removeImage(index, $event)"
                                                                 class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
                                                                 <svg class="w-2 h-2" fill="none"
                                                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -763,8 +763,8 @@
                 selectedProperty: {},
                 modalOpenDetail: false,
                 images: [],
-                maxImages: 10, 
-                minImages: 3, 
+                maxImages: 10,
+                minImages: 3,
                 map: null,
                 marker: null,
                 searchQuery: '',
@@ -1102,10 +1102,11 @@
                     }
                 },
 
-                removeImage(index) {
+                removeImage(index, event) {
+                    if (event) event.preventDefault(); // mencegah form submit
                     this.images.splice(index, 1);
                 },
-                
+
                 get canUploadMore() {
                     return this.images.length < this.maxImages;
                 },
@@ -1674,13 +1675,7 @@
                 handleEditFileSelect(event) {
                     const files = Array.from(event.target.files);
                     this.processFiles(files);
-                },
-
-                handleDrop(event) {
-                    event.preventDefault();
-                    const files = Array.from(event.dataTransfer.files);
-                    this.processFiles(files);
-                },
+                },               
 
                 processFiles(files) {
                     const imageFiles = files.filter(file => file.type.startsWith('image/'));

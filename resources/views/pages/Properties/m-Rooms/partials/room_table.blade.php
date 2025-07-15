@@ -153,8 +153,6 @@
                                 @endif
                             </div>
                         </td>
-
-
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex space-x-2 justify-center">
                                 <!-- View -->
@@ -705,37 +703,40 @@
                                     </div>
                                 </div>
 
-                                {{-- <!-- Edit -->
-                                <div x-data="modalEditRoom()">
+                                <!-- Edit Room Modal -->
+                                <div x-data="modalRoomEdit({{ $room }})" class="relative group">
                                     @php
-                                        $roomImages = [];
-                                        foreach ($room->roomImages as $image) {
-                                            if (!empty($image->image)) {
-                                                $roomImages[] = 'data:image/jpeg;base64,' . $image->image;
-                                            }
-                                        }
+                                        $roomImages = $room->roomImages
+                                            ->map(function ($image) {
+                                                return [
+                                                    'id' => $image->idrec,
+                                                    'url' => 'data:image/jpeg;base64,' . $image->image,
+                                                    'caption' => $image->caption,
+                                                    'name' => 'Image_' . $image->idrec . '.jpg',
+                                                ];
+                                            })
+                                            ->toJson();
                                         $facilities = json_encode($room->facility, JSON_HEX_APOS | JSON_HEX_QUOT);
                                     @endphp
-                                    <!-- Trigger Button -->
+
                                     <button
-                                        class="p-2 text-yellow-500 hover:text-yellow-700 transition-colors duration-200 rounded-full hover:bg-yellow-50"
+                                        class="p-2 flex items-center justify-center text-amber-600 hover:text-amber-900 transition-colors duration-200 rounded-full hover:bg-amber-50"
                                         type="button"
                                         @click.prevent='openModal({
-                                                            id: @json($room->idrec),
-                                                            property_id: @json($room->property_id),
+                                                            id: {{ $room->idrec }},
+                                                            property_id: {{ $room->property_id }},
                                                             name: @json($room->name),
-                                                            no: @json($room->no),
+                                                            number: @json($room->no),
                                                             size: @json($room->size),
-                                                            bed_type: @json($room->bed_type),
+                                                            bed: @json($room->bed_type),
                                                             capacity: @json($room->capacity),
-                                                            descriptions: @json($room->descriptions),
-                                                            price_original_daily: "{{ number_format($room->price_original_daily, 0, ',', '.') }}",
-                                                            price_original_monthly: "{{ number_format($room->price_original_monthly, 0, ',', '.') }}",
+                                                            description: @json($room->descriptions),
+                                                            daily_price: "{{ $room->price_original_daily }}",
+                                                            monthly_price: "{{ $room->price_original_monthly }}",
                                                             facilities: {!! $facilities !!},
-                                                            images: {!! json_encode($roomImages) !!},
-                                                            property_name: @json($room->property_name ?? 'Unknown Property')
+                                                            existingImages: {!! $roomImages !!}
                                                         })'
-                                        aria-controls="room-edit-modal" title="Edit Room">
+                                        aria-controls="room-edit-modal-{{ $room->idrec }}" title="Edit Room">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                             fill="currentColor">
                                             <path
@@ -743,18 +744,18 @@
                                         </svg>
                                     </button>
 
-                                    <!-- Modal -->
+                                    <!-- Modal backdrop -->
                                     <div class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity"
-                                        x-show="modalOpen" x-transition:enter="transition ease-out duration-300"
+                                        x-show="editModalOpen" x-transition:enter="transition ease-out duration-300"
                                         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                                         x-transition:leave="transition ease-out duration-200"
                                         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                                        aria-hidden="true" x-cloak>
-                                    </div>
+                                        aria-hidden="true" x-cloak></div>
 
-                                    <div id="room-edit-modal"
+                                    <!-- Modal dialog -->
+                                    <div id="room-edit-modal-{{ $room->idrec }}"
                                         class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6"
-                                        role="dialog" aria-modal="true" x-show="modalOpen"
+                                        role="dialog" aria-modal="true" x-show="editModalOpen"
                                         x-transition:enter="transition ease-in-out duration-300"
                                         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
@@ -763,18 +764,17 @@
                                         x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak>
 
                                         <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
-                                            @click.outside="modalOpen = false"
-                                            @keydown.escape.window="modalOpen = false">
+                                            @click.outside="editModalOpen = false"
+                                            @keydown.escape.window="editModalOpen = false">
 
-                                            <!-- Modal header -->
+                                            <!-- Modal header with step indicator -->
                                             <div
                                                 class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
                                                 <div class="flex justify-between items-center mb-4">
-                                                    <div class="font-bold text-xl text-gray-800">Edit
-                                                        Kamar: <span x-text="roomData.name || ''"></span></div>
+                                                    <div class="font-bold text-xl text-gray-800">Edit Kamar</div>
                                                     <button type="button"
                                                         class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                                        @click="modalOpen = false">
+                                                        @click="editModalOpen = false">
                                                         <div class="sr-only">Close</div>
                                                         <svg class="w-6 h-6 fill-current">
                                                             <path
@@ -788,103 +788,107 @@
                                                     <!-- Step 1 -->
                                                     <div class="flex items-center">
                                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                                            :class="step >= 1 ?
+                                                            :class="editStep >= 1 ?
                                                                 'bg-blue-600 border-blue-600 text-white' :
                                                                 'border-gray-300 text-gray-500'">
                                                             <span class="text-sm font-semibold"
-                                                                x-show="step < 1">1</span>
-                                                            <svg x-show="step >= 1" class="w-5 h-5" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                x-show="editStep < 1">1</span>
+                                                            <svg x-show="editStep >= 1" class="w-5 h-5"
+                                                                fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                             </svg>
                                                         </div>
                                                         <div class="ml-3 text-sm">
                                                             <p class="font-medium transition-colors duration-300"
-                                                                :class="step >= 1 ? 'text-blue-600' :
-                                                                    'text-gray-500'">
-                                                                Informasi Dasar</p>
+                                                                :class="editStep >= 1 ? 'text-blue-600' : 'text-gray-500'">
+                                                                Informasi Dasar
+                                                            </p>
                                                         </div>
                                                     </div>
 
                                                     <!-- Connector -->
                                                     <div class="w-16 h-0.5 transition-colors duration-300"
-                                                        :class="step >= 2 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                        :class="editStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'">
                                                     </div>
 
                                                     <!-- Step 2 -->
                                                     <div class="flex items-center">
                                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                                            :class="step >= 2 ?
+                                                            :class="editStep >= 2 ?
                                                                 'bg-blue-600 border-blue-600 text-white' :
                                                                 'border-gray-300 text-gray-500'">
                                                             <span class="text-sm font-semibold"
-                                                                x-show="step < 2">2</span>
-                                                            <svg x-show="step >= 2" class="w-5 h-5" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                x-show="editStep < 2">2</span>
+                                                            <svg x-show="editStep >= 2" class="w-5 h-5"
+                                                                fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                             </svg>
                                                         </div>
                                                         <div class="ml-3 text-sm">
                                                             <p class="font-medium transition-colors duration-300"
-                                                                :class="step >= 2 ? 'text-blue-600' :
-                                                                    'text-gray-500'">
-                                                                Harga</p>
+                                                                :class="editStep >= 2 ? 'text-blue-600' : 'text-gray-500'">
+                                                                Harga
+                                                            </p>
                                                         </div>
                                                     </div>
 
                                                     <!-- Connector -->
                                                     <div class="w-16 h-0.5 transition-colors duration-300"
-                                                        :class="step >= 3 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                        :class="editStep >= 3 ? 'bg-blue-600' : 'bg-gray-300'">
                                                     </div>
 
                                                     <!-- Step 3 -->
                                                     <div class="flex items-center">
                                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                                            :class="step >= 3 ?
+                                                            :class="editStep >= 3 ?
                                                                 'bg-blue-600 border-blue-600 text-white' :
                                                                 'border-gray-300 text-gray-500'">
                                                             <span class="text-sm font-semibold"
-                                                                x-show="step < 3">3</span>
-                                                            <svg x-show="step >= 3" class="w-5 h-5" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                x-show="editStep < 3">3</span>
+                                                            <svg x-show="editStep >= 3" class="w-5 h-5"
+                                                                fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                             </svg>
                                                         </div>
                                                         <div class="ml-3 text-sm">
                                                             <p class="font-medium transition-colors duration-300"
-                                                                :class="step >= 3 ? 'text-blue-600' :
-                                                                    'text-gray-500'">
-                                                                Fasilitas</p>
+                                                                :class="editStep >= 3 ? 'text-blue-600' : 'text-gray-500'">
+                                                                Fasilitas
+                                                            </p>
                                                         </div>
                                                     </div>
 
                                                     <!-- Connector -->
                                                     <div class="w-16 h-0.5 transition-colors duration-300"
-                                                        :class="step >= 4 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                        :class="editStep >= 4 ? 'bg-blue-600' : 'bg-gray-300'">
                                                     </div>
 
                                                     <!-- Step 4 -->
                                                     <div class="flex items-center">
                                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                                            :class="step >= 4 ?
+                                                            :class="editStep >= 4 ?
                                                                 'bg-blue-600 border-blue-600 text-white' :
                                                                 'border-gray-300 text-gray-500'">
                                                             <span class="text-sm font-semibold"
-                                                                x-show="step < 4">4</span>
-                                                            <svg x-show="step >= 4" class="w-5 h-5" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                x-show="editStep < 4">4</span>
+                                                            <svg x-show="editStep >= 4" class="w-5 h-5"
+                                                                fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                             </svg>
                                                         </div>
                                                         <div class="ml-3 text-sm">
                                                             <p class="font-medium transition-colors duration-300"
-                                                                :class="step >= 4 ? 'text-blue-600' :
-                                                                    'text-gray-500'">
-                                                                Foto</p>
+                                                                :class="editStep >= 4 ? 'text-blue-600' : 'text-gray-500'">
+                                                                Foto
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -892,31 +896,33 @@
 
                                             <!-- Modal content -->
                                             <div class="flex-1 overflow-y-auto px-6 py-6">
-                                                <form id="roomEditForm" method="POST" x-bind:action="updateRoute"
-                                                    enctype="multipart/form-data" @submit.prevent="submitForm">
+                                                <form id="roomFormEdit-{{ $room->idrec }}" method="POST"
+                                                    action="{{ route('rooms.update', $room->idrec) }}"
+                                                    enctype="multipart/form-data" @submit.prevent="submitEditForm">
                                                     @csrf
                                                     @method('PUT')
 
                                                     <!-- Step 1 - Basic Information -->
-                                                    <div x-show="step === 1"
+                                                    <div x-show="editStep === 1"
                                                         x-transition:enter="transition ease-out duration-300"
                                                         x-transition:enter-start="opacity-0 translate-x-4"
                                                         x-transition:enter-end="opacity-100 translate-x-0">
                                                         <div class="space-y-6">
                                                             <!-- Property Selector -->
                                                             <div>
-                                                                <label for="edit_property_id"
+                                                                <label for="edit_property_id_{{ $room->idrec }}"
                                                                     class="block text-sm font-semibold text-gray-700 mb-2">
                                                                     Properti <span class="text-red-500">*</span>
                                                                 </label>
-                                                                <select id="edit_property_id" name="property_id"
-                                                                    required
-                                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                                    x-model="roomData.property_id">
-                                                                    <option value="" disabled>
-                                                                        Pilih Properti</option>
+                                                                <select id="edit_property_id_{{ $room->idrec }}"
+                                                                    name="property_id" required
+                                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                                                    <option value="" disabled>Pilih Properti
+                                                                    </option>
                                                                     @foreach ($properties as $property)
-                                                                        <option value="{{ $property->idrec }}">
+                                                                        <option value="{{ $property->idrec }}"
+                                                                            :selected="roomData.property_id ==
+                                                                                '{{ $property->idrec }}'">
                                                                             {{ $property->name }}
                                                                         </option>
                                                                     @endforeach
@@ -925,24 +931,26 @@
 
                                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                 <div>
-                                                                    <label for="edit_room_no"
+                                                                    <label for="edit_room_no_{{ $room->idrec }}"
                                                                         class="block text-sm font-semibold text-gray-700 mb-2">
                                                                         Nomor Kamar <span class="text-red-500">*</span>
                                                                     </label>
-                                                                    <input type="text" id="edit_room_no"
+                                                                    <input type="text"
+                                                                        id="edit_room_no_{{ $room->idrec }}"
                                                                         name="room_no" required
                                                                         class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                         placeholder="Masukkan nomor kamar"
-                                                                        x-model="roomData.room_no">
+                                                                        x-model="roomData.number">
                                                                 </div>
 
                                                                 <div>
-                                                                    <label for="edit_room_name"
+                                                                    <label for="edit_room_name_{{ $room->idrec }}"
                                                                         class="block text-sm font-semibold text-gray-700 mb-2">
                                                                         Nama Kamar <span class="text-red-500">*</span>
                                                                     </label>
-                                                                    <input type="text" id="edit_room_name"
-                                                                        name="name" required
+                                                                    <input type="text"
+                                                                        id="edit_room_name_{{ $room->idrec }}"
+                                                                        name="room_name" required
                                                                         class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                         placeholder="Masukkan nama kamar"
                                                                         x-model="roomData.name">
@@ -951,50 +959,48 @@
 
                                                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                                 <div>
-                                                                    <label for="edit_room_size"
+                                                                    <label for="edit_room_size_{{ $room->idrec }}"
                                                                         class="block text-sm font-semibold text-gray-700 mb-2">
                                                                         Ukuran Kamar (m²) <span
                                                                             class="text-red-500">*</span>
                                                                     </label>
-                                                                    <input type="number" id="edit_room_size"
+                                                                    <input type="number"
+                                                                        id="edit_room_size_{{ $room->idrec }}"
                                                                         name="room_size" required
                                                                         class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                         placeholder="Masukkan ukuran kamar"
-                                                                        x-model="roomData.room_size">
+                                                                        x-model="roomData.size">
                                                                 </div>
 
                                                                 <div>
-                                                                    <label for="edit_bed_type"
+                                                                    <label for="edit_room_bed_{{ $room->idrec }}"
                                                                         class="block text-sm font-semibold text-gray-700 mb-2">
                                                                         Jenis Kasur <span class="text-red-500">*</span>
                                                                     </label>
-                                                                    <select id="edit_bed_type" name="bed_type"
-                                                                        required
+                                                                    <select id="edit_room_bed_{{ $room->idrec }}"
+                                                                        name="room_bed" required
                                                                         class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                                        x-model="roomData.bed_type">
-                                                                        <option value="">Pilih
-                                                                            Jenis Kasur</option>
-                                                                        <option value="Single">Single
+                                                                        x-model="roomData.bed">
+                                                                        <option value="">Pilih Jenis Kasur
                                                                         </option>
-                                                                        <option value="Double">Double
-                                                                        </option>
-                                                                        <option value="King">King
-                                                                        </option>
-                                                                        <option value="Queen">Queen
-                                                                        </option>
-                                                                        <option value="Twin">Twin
-                                                                        </option>
+                                                                        <option value="Single">Single</option>
+                                                                        <option value="Double">Double</option>
+                                                                        <option value="King">King</option>
+                                                                        <option value="Queen">Queen</option>
+                                                                        <option value="Twin">Twin</option>
                                                                     </select>
                                                                 </div>
 
                                                                 <div>
-                                                                    <label for="edit_capacity"
+                                                                    <label
+                                                                        for="edit_room_capacity_{{ $room->idrec }}"
                                                                         class="block text-sm font-semibold text-gray-700 mb-2">
                                                                         Kapasitas (Pax) <span
                                                                             class="text-red-500">*</span>
                                                                     </label>
-                                                                    <input type="number" id="edit_capacity"
-                                                                        name="capacity" required
+                                                                    <input type="number"
+                                                                        id="edit_room_capacity_{{ $room->idrec }}"
+                                                                        name="room_capacity" required
                                                                         class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                         placeholder="Masukkan kapasitas kamar"
                                                                         x-model="roomData.capacity">
@@ -1002,19 +1008,19 @@
                                                             </div>
 
                                                             <div>
-                                                                <label for="edit_descriptions"
+                                                                <label for="edit_description_{{ $room->idrec }}"
                                                                     class="block text-sm font-semibold text-gray-700 mb-2">
                                                                     Deskripsi Kamar <span class="text-red-500">*</span>
                                                                 </label>
-                                                                <textarea id="edit_descriptions" name="descriptions" rows="4" required
+                                                                <textarea id="edit_description_{{ $room->idrec }}" name="description" rows="4" required
                                                                     class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                                    placeholder="Deskripsikan kamar Anda..." x-model="roomData.descriptions"></textarea>
+                                                                    placeholder="Deskripsikan kamar Anda..." x-model="roomData.description"></textarea>
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     <!-- Step 2 - Pricing -->
-                                                    <div x-show="step === 2"
+                                                    <div x-show="editStep === 2"
                                                         x-transition:enter="transition ease-out duration-300"
                                                         x-transition:enter-start="opacity-0 translate-x-4"
                                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
@@ -1048,12 +1054,11 @@
                                                                         class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                                         <span class="text-gray-500">Rp</span>
                                                                     </div>
-                                                                    <input type="text" x-ref="editDailyPriceInput"
+                                                                    <input type="text" x-ref="dailyPriceInput"
                                                                         class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                         placeholder="Masukkan harga harian"
-                                                                        :value="formatPrice(roomData
-                                                                            .price_original_daily)">
-                                                                    <input type="hidden" name="price_original_daily"
+                                                                        x-model="roomData.daily_price">
+                                                                    <input type="hidden" name="daily_price"
                                                                         x-model="dailyPrice">
                                                                 </div>
                                                             </div>
@@ -1069,14 +1074,11 @@
                                                                         class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                                         <span class="text-gray-500">Rp</span>
                                                                     </div>
-                                                                    <input type="text"
-                                                                        x-ref="editMonthlyPriceInput"
+                                                                    <input type="text" x-ref="monthlyPriceInput"
                                                                         class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                         placeholder="Masukkan harga bulanan"
-                                                                        :value="formatPrice(roomData
-                                                                            .price_original_monthly)">
-                                                                    <input type="hidden"
-                                                                        name="price_original_monthly"
+                                                                        x-model="roomData.monthly_price">
+                                                                    <input type="hidden" name="monthly_price"
                                                                         x-model="monthlyPrice">
                                                                 </div>
                                                             </div>
@@ -1097,10 +1099,10 @@
                                                                     </div>
                                                                     <div class="ml-3">
                                                                         <p class="text-sm text-blue-700">
-                                                                            Anda bisa memilih salah satu
-                                                                            atau kedua jenis harga.
-                                                                            Pastikan mengisi harga yang
-                                                                            sesuai dengan jenis yang
+                                                                            Anda bisa memilih salah satu atau kedua
+                                                                            jenis harga. Pastikan
+                                                                            mengisi harga yang sesuai dengan jenis
+                                                                            yang
                                                                             dipilih.
                                                                         </p>
                                                                     </div>
@@ -1110,7 +1112,7 @@
                                                     </div>
 
                                                     <!-- Step 3 - Facilities -->
-                                                    <div x-show="step === 3"
+                                                    <div x-show="editStep === 3"
                                                         x-transition:enter="transition ease-out duration-300"
                                                         x-transition:enter-start="opacity-0 translate-x-4"
                                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
@@ -1131,15 +1133,19 @@
                                                                     <template x-for="(facility, index) in facilities"
                                                                         :key="index">
                                                                         <div class="relative">
-                                                                            <input :id="'edit_facility-' + index"
+                                                                            <input
+                                                                                :id="'edit_facility-{{ $room->idrec }}-' +
+                                                                                index"
                                                                                 name="facilities[]" type="checkbox"
                                                                                 :value="facility.value"
                                                                                 class="sr-only peer"
-                                                                                x-model="selectedFacilities"
-                                                                                :checked="selectedFacilities
-                                                                                    .includes(facility
-                                                                                        .value)">
-                                                                            <label :for="'edit_facility-' + index"
+                                                                                x-model="roomData.facilities"
+                                                                                :checked="roomData.facilities.includes(
+                                                                                    facility
+                                                                                    .value)">
+                                                                            <label
+                                                                                :for="'edit_facility-{{ $room->idrec }}-' +
+                                                                                index"
                                                                                 class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
                                                                                 <span x-text="facility.label"></span>
                                                                             </label>
@@ -1151,7 +1157,7 @@
                                                     </div>
 
                                                     <!-- Step 4 - Photos -->
-                                                    <div x-show="step === 4"
+                                                    <div x-show="editStep === 4"
                                                         x-transition:enter="transition ease-out duration-300"
                                                         x-transition:enter-start="opacity-0 translate-x-4"
                                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
@@ -1159,11 +1165,12 @@
                                                             <div>
                                                                 <label
                                                                     class="block text-sm font-semibold text-gray-700 mb-3">
-                                                                    Foto Kamar
+                                                                    Foto Kamar <span class="text-red-500">*</span>
                                                                     <span class="text-sm font-normal text-gray-500">
-                                                                        (Minimal 3 foto - <span
-                                                                            x-text="remainingSlots"></span>
-                                                                        foto lagi)
+                                                                        (Minimal <span x-text="editMinImages"></span>
+                                                                        foto,
+                                                                        maksimal <span x-text="editMaxImages"></span>
+                                                                        foto)
                                                                     </span>
                                                                 </label>
 
@@ -1186,24 +1193,22 @@
                                                                             <p class="text-sm text-blue-700">
                                                                                 <span
                                                                                     class="font-semibold">Perhatian:</span>
-                                                                                Foto pertama yang Anda
-                                                                                upload akan menjadi
-                                                                                <span class="font-bold">thumbnail
-                                                                                    utama</span> kamar
-                                                                                ini. Anda dapat
-                                                                                menghapus foto yang ada
-                                                                                dan menambahkan yang
-                                                                                baru.
+                                                                                Foto pertama yang Anda upload akan
+                                                                                menjadi <span
+                                                                                    class="font-bold">thumbnail
+                                                                                    utama</span> kamar ini. Pastikan
+                                                                                foto pertama adalah yang terbaik!
                                                                             </p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
 
                                                                 <!-- Upload Area -->
-                                                                <div x-show="canUploadMore" @drop="handleDrop($event)"
-                                                                    @dragover.prevent @dragenter.prevent
+                                                                <div x-show="editCanUploadMore"
+                                                                    @drop="handleEditDrop($event)" @dragover.prevent
+                                                                    @dragenter.prevent
                                                                     class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer"
-                                                                    :class="{ 'border-blue-400 bg-blue-50': canUploadMore }">
+                                                                    :class="{ 'border-blue-400 bg-blue-50': editCanUploadMore }">
                                                                     <div class="space-y-2">
                                                                         <svg class="w-12 h-12 mx-auto text-gray-400"
                                                                             fill="none" stroke="currentColor"
@@ -1216,30 +1221,40 @@
                                                                         </svg>
                                                                         <div
                                                                             class="flex text-sm text-gray-600 justify-center">
-                                                                            <label for="edit_room_images"
+                                                                            <label
+                                                                                for="edit_room_images_{{ $room->idrec }}"
                                                                                 class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                                                                <span>Upload foto
-                                                                                    baru</span>
-                                                                                <input id="edit_room_images"
-                                                                                    name="room_images[]"
+                                                                                <span>Upload foto</span>
+                                                                                <input
+                                                                                    id="edit_room_images_{{ $room->idrec }}"
+                                                                                    name="edit_room_images[]"
                                                                                     type="file" multiple
                                                                                     accept="image/*"
-                                                                                    @change="handleFileSelect($event)"
+                                                                                    @change="handleEditFileSelect($event)"
                                                                                     class="sr-only">
                                                                             </label>
-                                                                            <p class="pl-1">atau
-                                                                                drag and drop</p>
+                                                                            <p class="pl-1">atau drag and drop
+                                                                            </p>
                                                                         </div>
-                                                                        <p class="text-xs text-gray-500">
-                                                                            PNG, JPG, JPEG up to 5MB</p>
-                                                                        <p class="text-xs text-blue-600"
-                                                                            x-text="`Dapat upload ${remainingSlots} foto lagi`">
+                                                                        <p class="text-xs text-gray-500">PNG, JPG,
+                                                                            JPEG
+                                                                            (maks. 5MB per file)</p>
+                                                                        <p class="text-xs"
+                                                                            :class="{
+                                                                                'text-red-600': editRemainingSlots <=
+                                                                                    0,
+                                                                                'text-yellow-600': editRemainingSlots >
+                                                                                    0 && editRemainingSlots < 3,
+                                                                                'text-blue-600': editRemainingSlots >=
+                                                                                    3
+                                                                            }"
+                                                                            x-text="editImageUploadStatus.message">
                                                                         </p>
                                                                     </div>
                                                                 </div>
 
                                                                 <!-- Full Upload Message -->
-                                                                <div x-show="!canUploadMore"
+                                                                <div x-show="!editCanUploadMore"
                                                                     class="border-2 border-green-300 rounded-lg p-8 text-center bg-green-50">
                                                                     <div class="space-y-2">
                                                                         <svg class="w-12 h-12 mx-auto text-green-500"
@@ -1251,80 +1266,49 @@
                                                                             </path>
                                                                         </svg>
                                                                         <p class="text-sm text-green-600 font-medium">
-                                                                            Maksimal foto telah
-                                                                            diupload!</p>
+                                                                            <span x-text="editMaxImages"></span>
+                                                                            foto
+                                                                            telah diupload!
+                                                                        </p>
+                                                                        <p class="text-xs text-green-500">Maksimal
+                                                                            upload foto tercapai</p>
                                                                     </div>
                                                                 </div>
 
-                                                                <!-- Current Images -->
-                                                                <div x-show="existingImages.length > 0"
-                                                                    class="mb-6">
-                                                                    <h4
-                                                                        class="text-sm font-semibold text-gray-700 mb-3">
-                                                                        Foto Saat Ini</h4>
-                                                                    <div class="grid grid-cols-5 gap-2">
-                                                                        <template
-                                                                            x-for="(image, index) in existingImages"
-                                                                            :key="'existing-' + index">
-                                                                            <div class="relative group">
-                                                                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200"
-                                                                                    :class="{
-                                                                                        'border-2 border-blue-600': index ===
-                                                                                            0
-                                                                                    }">
-                                                                                    <img :src="image.url"
-                                                                                        :alt="'Existing Image ' +
-                                                                                        (index + 1)"
-                                                                                        class="w-full h-full object-cover">
-                                                                                </div>
-                                                                                <button
-                                                                                    @click="removeExistingImage(image.id, index)"
-                                                                                    class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                                                    <svg class="w-2 h-2"
-                                                                                        fill="none"
-                                                                                        stroke="currentColor"
-                                                                                        viewBox="0 0 24 24">
-                                                                                        <path stroke-linecap="round"
-                                                                                            stroke-linejoin="round"
-                                                                                            stroke-width="2"
-                                                                                            d="M6 18L18 6M6 6l12 12">
-                                                                                        </path>
-                                                                                    </svg>
-                                                                                </button>
-                                                                                <div
-                                                                                    class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                                    <span x-text="index + 1"></span>
-                                                                                </div>
-                                                                                <div x-show="index === 0"
-                                                                                    class="absolute top-1 right-1">
-                                                                                    <span
-                                                                                        class="bg-yellow-500 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">Thumbnail</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </template>
-                                                                    </div>
-                                                                </div>                                                                                                                                
-
-                                                                <!-- New Image Preview Grid -->
-                                                                <div x-show="images.length > 0"
+                                                                <!-- Image Preview Grid -->
+                                                                <div x-show="roomData.existingImages.filter(img => !img.markedForDeletion).length > 0 || editImages.length > 0"
                                                                     class="mt-2 grid grid-cols-5 gap-1"
                                                                     x-transition:enter="transition ease-out duration-300"
                                                                     x-transition:enter-start="opacity-0 scale-95"
                                                                     x-transition:enter-end="opacity-100 scale-100">
-                                                                    <template x-for="(image, index) in images"
-                                                                        :key="'new-' + index">
-                                                                        <div class="relative group">
-                                                                            <!-- Image Container -->
+
+                                                                    <!-- Existing Images -->
+                                                                    <template
+                                                                        x-for="(image, index) in roomData.existingImages"
+                                                                        :key="'existing-' + index">
+                                                                        <div class="relative group"
+                                                                            x-show="!image.markedForDeletion">
+                                                                            <!-- Image Preview -->
                                                                             <div
-                                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200">
+                                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
                                                                                 <img :src="image.url"
-                                                                                    :alt="'Preview ' + (
-                                                                                        index + 1)"
+                                                                                    :alt="'Existing Image ' + (index + 1)"
                                                                                     class="w-full h-full object-cover">
+                                                                                <div
+                                                                                    class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                    <span x-text="index + 1"></span>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div
+                                                                                class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
+                                                                                <p class="text-[8px] text-gray-600 truncate"
+                                                                                    x-text="image.name"></p>
                                                                             </div>
 
                                                                             <!-- Remove Button -->
-                                                                            <button @click="removeImage(index)"
+                                                                            <button type="button"
+                                                                                @click="removeEditExistingImage(index)"
                                                                                 class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
                                                                                 <svg class="w-2 h-2" fill="none"
                                                                                     stroke="currentColor"
@@ -1337,19 +1321,48 @@
                                                                                 </svg>
                                                                             </button>
 
-                                                                            <!-- Image Number Badge -->
+                                                                            <!-- Hidden Image ID -->
+                                                                            <input type="hidden"
+                                                                                name="existing_images[]"
+                                                                                :value="image.id">
+                                                                        </div>
+                                                                    </template>
+
+                                                                    <!-- New Images -->
+                                                                    <template x-for="(image, index) in editImages"
+                                                                        :key="'new-' + index">
+                                                                        <div class="relative group">
                                                                             <div
-                                                                                class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                                <span
-                                                                                    x-text="existingImages.length + index + 1"></span>
+                                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
+                                                                                <img :src="image.url"
+                                                                                    :alt="'New Image ' + (index + 1)"
+                                                                                    class="w-full h-full object-cover">
+                                                                                <div
+                                                                                    class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
+                                                                                    <span
+                                                                                        x-text="roomData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                                                </div>
                                                                             </div>
 
-                                                                            <!-- File Name -->
+                                                                            <!-- Remove Button -->
+                                                                            <button @click="removeEditImage(index)"
+                                                                                class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                                <svg class="w-2 h-2" fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M6 18L18 6M6 6l12 12">
+                                                                                    </path>
+                                                                                </svg>
+                                                                            </button>
+
+                                                                            <!-- File Name (Optional) -->
                                                                             <div
-                                                                                class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                                                class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
                                                                                 <p class="text-[8px] text-gray-600 truncate"
-                                                                                    x-text="image.name">
-                                                                                </p>
+                                                                                    x-text="image.name"></p>
                                                                             </div>
                                                                         </div>
                                                                     </template>
@@ -1359,32 +1372,44 @@
                                                                 <div class="mt-4">
                                                                     <div
                                                                         class="flex justify-between text-sm text-gray-600 mb-2">
-                                                                        <span>Total Foto</span>
+                                                                        <span>Progress Upload</span>
                                                                         <span
-                                                                            x-text="`${existingImages.length + images.length} foto`"></span>
+                                                                            x-text="`${roomData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length}/${editMaxImages} foto`"></span>
                                                                     </div>
-                                                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                                                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                                                            :style="`width: ${((existingImages.length + images.length) / maxImages) * 100}%`">
+                                                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                                        <div class="h-2.5 rounded-full transition-all duration-300"
+                                                                            :style="`width: ${editUploadProgress.percentage}%`"
+                                                                            :class="{
+                                                                                'bg-red-500': editUploadProgress
+                                                                                    .status === 'danger',
+                                                                                'bg-yellow-500': editUploadProgress
+                                                                                    .status === 'warning',
+                                                                                'bg-green-500': editUploadProgress
+                                                                                    .status === 'success'
+                                                                            }">
                                                                         </div>
                                                                     </div>
-                                                                </div>
-
-                                                                <!-- Validation Message -->
-                                                                <div x-show="(existingImages.length + images.length) < 3"
-                                                                    class="mt-3">
-                                                                    <p class="text-sm text-red-600">
-                                                                        <span class="font-medium">Perhatian:</span>
-                                                                        Anda harus memiliki minimal 3
-                                                                        foto untuk kamar ini.
+                                                                    <p class="text-sm mt-1"
+                                                                        :class="editImageUploadStatus.class"
+                                                                        x-text="editImageUploadStatus.message">
                                                                     </p>
                                                                 </div>
 
-                                                                <div x-show="(existingImages.length + images.length) >= 3"
-                                                                    class="mt-3">
-                                                                    <p class="text-sm text-green-600">
+                                                                <!-- Validation Messages -->
+                                                                <div x-show="(roomData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) < editMinImages"
+                                                                    class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                                    <p class="text-red-600 text-sm">
+                                                                        <span class="font-medium">Perhatian:</span>
+                                                                        Anda harus mengupload minimal <span
+                                                                            x-text="editMinImages"></span> foto.
+                                                                    </p>
+                                                                </div>
+
+                                                                <div x-show="(roomData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) >= editMinImages"
+                                                                    class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                                    <p class="text-green-600 text-sm">
                                                                         <span class="font-medium">Sempurna!</span>
-                                                                        Minimal foto telah terpenuhi.
+                                                                        Foto sudah memenuhi syarat minimal.
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1394,7 +1419,8 @@
                                                     <!-- Form Actions -->
                                                     <div class="mt-6 flex justify-end">
                                                         <div>
-                                                            <button type="button" x-show="step > 1" @click="step--"
+                                                            <button type="button" x-show="editStep > 1"
+                                                                @click="editStep--"
                                                                 class="px-6 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                                                                 <svg class="w-4 h-4 inline mr-2" fill="none"
                                                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -1404,8 +1430,8 @@
                                                                 </svg>
                                                                 Sebelumnya
                                                             </button>
-                                                            <button type="button" x-show="step < 4"
-                                                                @click="validateStep(step) && step++"
+                                                            <button type="button" x-show="editStep < 4"
+                                                                @click="validateEditStep(editStep) && editStep++"
                                                                 class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                                                                 Selanjutnya
                                                                 <svg class="w-4 h-4 inline ml-2" fill="none"
@@ -1415,7 +1441,7 @@
                                                                         d="M9 5l7 7-7 7"></path>
                                                                 </svg>
                                                             </button>
-                                                            <button type="submit" x-show="step === 4"
+                                                            <button type="submit" x-show="editStep === 4"
                                                                 class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
                                                                 <svg class="w-4 h-4 inline mr-2" fill="none"
                                                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -1423,7 +1449,7 @@
                                                                         stroke-linejoin="round" stroke-width="2"
                                                                         d="M5 13l4 4L19 7"></path>
                                                                 </svg>
-                                                                Simpan Perubahan
+                                                                Update
                                                             </button>
                                                         </div>
                                                     </div>
@@ -1431,169 +1457,178 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div> --}}
+                                </div>
 
-                                <!-- Edit Price (Calendar) -->
-                                <div x-data="priceModal({{ $room->idrec }}, {{ $room->price_original_daily ?? 0 }})">
-                                    <!-- Trigger Button -->
-                                    <button @click="openModal()"
-                                        class="p-2 text-green-600 hover:text-green-900 transition-colors duration-200 rounded-full hover:bg-green-50"
-                                        title="Edit Harga">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M8 7V3m8 4V3m-9 8h10m-12 8h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                    </button>
+                                @if ($isDaily)
+                                    <!-- Edit Price (Calendar) -->
+                                    <div x-data="priceModal({{ $room->idrec }}, {{ $room->price_original_daily ?? 0 }})">
+                                        <!-- Trigger Button -->
+                                        <button @click="openModal()"
+                                            class="p-2 text-green-600 hover:text-green-900 transition-colors duration-200 rounded-full hover:bg-green-50"
+                                            title="Edit Harga">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M8 7V3m8 4V3m-9 8h10m-12 8h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </button>
 
-                                    <!-- Modal -->
-                                    <div x-show="isOpen" x-cloak x-transition
-                                        class="fixed inset-0 z-50 overflow-y-auto" @keydown.escape="closeModal()">
-                                        <!-- Overlay -->
-                                        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-                                            x-show="isOpen" x-transition:enter="ease-out duration-300"
-                                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                                            x-transition:leave="ease-in duration-200"
-                                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-                                        </div>
-
-                                        <!-- Modal Container -->
-                                        <div class="flex min-h-screen items-center justify-center p-4 text-center">
-                                            <!-- Modal Panel -->
-                                            <div x-show="isOpen" @click.away="closeModal()"
-                                                x-transition:enter="ease-out duration-300"
-                                                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                        <!-- Modal -->
+                                        <div x-show="isOpen" x-cloak x-transition
+                                            class="fixed inset-0 z-50 overflow-y-auto" @keydown.escape="closeModal()">
+                                            <!-- Overlay -->
+                                            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+                                                x-show="isOpen" x-transition:enter="ease-out duration-300"
+                                                x-transition:enter-start="opacity-0"
+                                                x-transition:enter-end="opacity-100"
                                                 x-transition:leave="ease-in duration-200"
-                                                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                                                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                                class="relative w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all">
+                                                x-transition:leave-start="opacity-100"
+                                                x-transition:leave-end="opacity-0">
+                                            </div>
 
-                                                <!-- Header -->
-                                                <div class="flex items-center justify-between p-6 border-b">
-                                                    <h3 class="text-xl font-semibold text-gray-900">
-                                                        Manajemen Harga Harian
-                                                    </h3>
-                                                    <button @click="closeModal()"
-                                                        class="text-gray-400 hover:text-gray-500">
-                                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                                            stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
+                                            <!-- Modal Container -->
+                                            <div class="flex min-h-screen items-center justify-center p-4 text-center">
+                                                <!-- Modal Panel -->
+                                                <div x-show="isOpen" @click.away="closeModal()"
+                                                    x-transition:enter="ease-out duration-300"
+                                                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                                    x-transition:leave="ease-in duration-200"
+                                                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                                    class="relative w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all">
 
-                                                <!-- Content -->
-                                                <div class="p-6">
-                                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                                        <!-- Calendar Section -->
-                                                        <div
-                                                            class="bg-gray-50 p-4 rounded-lg flex flex-col items-center">
-                                                            <div class="mb-4 w-full flex justify-center">
-                                                                <div class="inline-calendar"></div>
-                                                            </div>
+                                                    <!-- Header -->
+                                                    <div class="flex items-center justify-between p-6 border-b">
+                                                        <h3 class="text-xl font-semibold text-gray-900">
+                                                            Manajemen Harga Harian
+                                                        </h3>
+                                                        <button @click="closeModal()"
+                                                            class="text-gray-400 hover:text-gray-500">
+                                                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                                                stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
 
-                                                            <!-- Legend -->
-                                                            <div class="flex flex-wrap justify-center gap-4 text-sm">
-                                                                <div class="flex items-center space-x-2">
-                                                                    <span
-                                                                        class="w-4 h-4 rounded bg-gray-300 border border-gray-400"></span>
-                                                                    <span>Belum ada harga</span>
+                                                    <!-- Content -->
+                                                    <div class="p-6">
+                                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                            <!-- Calendar Section -->
+                                                            <div
+                                                                class="bg-gray-50 p-4 rounded-lg flex flex-col items-center">
+                                                                <div class="mb-4 w-full flex justify-center">
+                                                                    <div class="inline-calendar"></div>
                                                                 </div>
-                                                                <div class="flex items-center space-x-2">
-                                                                    <span
-                                                                        class="w-4 h-4 rounded bg-blue-500 border border-blue-600"></span>
-                                                                    <span>Harga standar</span>
+
+                                                                <!-- Legend -->
+                                                                <div
+                                                                    class="flex flex-wrap justify-center gap-4 text-sm">
+                                                                    <div class="flex items-center space-x-2">
+                                                                        <span
+                                                                            class="w-4 h-4 rounded bg-gray-300 border border-gray-400"></span>
+                                                                        <span>Belum ada harga</span>
+                                                                    </div>
+                                                                    <div class="flex items-center space-x-2">
+                                                                        <span
+                                                                            class="w-4 h-4 rounded bg-blue-500 border border-blue-600"></span>
+                                                                        <span>Harga standar</span>
+                                                                    </div>
+                                                                    <div class="flex items-center space-x-2">
+                                                                        <span
+                                                                            class="w-4 h-4 rounded bg-red-500 border border-red-600"></span>
+                                                                        <span>Harga lebih tinggi</span>
+                                                                    </div>
+                                                                    <div class="flex items-center space-x-2">
+                                                                        <span
+                                                                            class="w-4 h-4 rounded bg-green-500 border border-green-600"></span>
+                                                                        <span>Harga lebih rendah</span>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="flex items-center space-x-2">
-                                                                    <span
-                                                                        class="w-4 h-4 rounded bg-red-500 border border-red-600"></span>
-                                                                    <span>Harga lebih tinggi</span>
+                                                            </div>
+
+
+                                                            <!-- Form Section -->
+                                                            <div class="space-y-6">
+                                                                <!-- Date Input -->
+                                                                <div>
+                                                                    <label
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">
+                                                                        Tanggal Terpilih
+                                                                    </label>
+                                                                    <input type="text" x-model="startDate"
+                                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                                                                        readonly>
                                                                 </div>
-                                                                <div class="flex items-center space-x-2">
-                                                                    <span
-                                                                        class="w-4 h-4 rounded bg-green-500 border border-green-600"></span>
-                                                                    <span>Harga lebih rendah</span>
+
+                                                                <!-- Current Price -->
+                                                                <div>
+                                                                    <label
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">
+                                                                        Harga Saat Ini
+                                                                    </label>
+                                                                    <input type="text" x-model="formattedDatePrice"
+                                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 font-medium"
+                                                                        readonly>
+                                                                    <p class="mt-1 text-xs text-gray-500">
+                                                                        Harga original: <span
+                                                                            x-text="formattedBasePrice"
+                                                                            class="font-medium"></span>
+                                                                    </p>
                                                                 </div>
-                                                            </div>
-                                                        </div>
 
+                                                                <!-- New Price -->
+                                                                <div>
+                                                                    <label
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">
+                                                                        Harga Baru
+                                                                    </label>
+                                                                    <input type="text" x-ref="setPrice"
+                                                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                        placeholder="Masukkan harga baru">
+                                                                    <p class="mt-1 text-xs text-gray-500">
+                                                                        Kosongkan untuk reset ke harga
+                                                                        original
+                                                                    </p>
+                                                                </div>
 
-                                                        <!-- Form Section -->
-                                                        <div class="space-y-6">
-                                                            <!-- Date Input -->
-                                                            <div>
-                                                                <label
-                                                                    class="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Tanggal Terpilih
-                                                                </label>
-                                                                <input type="text" x-model="startDate"
-                                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                                                                    readonly>
-                                                            </div>
-
-                                                            <!-- Current Price -->
-                                                            <div>
-                                                                <label
-                                                                    class="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Harga Saat Ini
-                                                                </label>
-                                                                <input type="text" x-model="formattedDatePrice"
-                                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 font-medium"
-                                                                    readonly>
-                                                                <p class="mt-1 text-xs text-gray-500">
-                                                                    Harga original: <span x-text="formattedBasePrice"
-                                                                        class="font-medium"></span>
-                                                                </p>
-                                                            </div>
-
-                                                            <!-- New Price -->
-                                                            <div>
-                                                                <label
-                                                                    class="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Harga Baru
-                                                                </label>
-                                                                <input type="text" x-ref="setPrice"
-                                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                                    placeholder="Masukkan harga baru">
-                                                                <p class="mt-1 text-xs text-gray-500">
-                                                                    Kosongkan untuk reset ke harga
-                                                                    original
-                                                                </p>
-                                                            </div>
-
-                                                            <!-- Actions -->
-                                                            <div class="flex justify-end space-x-3 pt-4">
-                                                                <button @click="closeModal()"
-                                                                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                                                                    Batal
-                                                                </button>
-                                                                <button @click="updatePrice()" :disabled="isLoading"
-                                                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed">
-                                                                    <svg x-show="!isLoading"
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        class="h-5 w-5" viewBox="0 0 20 20"
-                                                                        fill="currentColor">
-                                                                        <path fill-rule="evenodd"
-                                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                                            clip-rule="evenodd" />
-                                                                    </svg>
-                                                                    <svg x-show="isLoading"
-                                                                        class="animate-spin h-5 w-5"
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        fill="none" viewBox="0 0 24 24">
-                                                                        <circle class="opacity-25" cx="12"
-                                                                            cy="12" r="10"
-                                                                            stroke="currentColor" stroke-width="4">
-                                                                        </circle>
-                                                                        <path class="opacity-75" fill="currentColor"
-                                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                                                        </path>
-                                                                    </svg>
-                                                                    <span
-                                                                        x-text="isLoading ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
-                                                                </button>
+                                                                <!-- Actions -->
+                                                                <div class="flex justify-end space-x-3 pt-4">
+                                                                    <button @click="closeModal()"
+                                                                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                                                                        Batal
+                                                                    </button>
+                                                                    <button @click="updatePrice()"
+                                                                        :disabled="isLoading"
+                                                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                                        <svg x-show="!isLoading"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            class="h-5 w-5" viewBox="0 0 20 20"
+                                                                            fill="currentColor">
+                                                                            <path fill-rule="evenodd"
+                                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                                clip-rule="evenodd" />
+                                                                        </svg>
+                                                                        <svg x-show="isLoading"
+                                                                            class="animate-spin h-5 w-5"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            fill="none" viewBox="0 0 24 24">
+                                                                            <circle class="opacity-25" cx="12"
+                                                                                cy="12" r="10"
+                                                                                stroke="currentColor"
+                                                                                stroke-width="4">
+                                                                            </circle>
+                                                                            <path class="opacity-75"
+                                                                                fill="currentColor"
+                                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                            </path>
+                                                                        </svg>
+                                                                        <span
+                                                                            x-text="isLoading ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1601,16 +1636,18 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
 
                                 <!-- Delete (Bin) -->
-                                <button title="Delete" class="text-red-500 hover:text-red-700">
+                                <button title="Delete" class="p-2 flex items-center justify-center text-red-600 hover:text-red-900 transition-colors duration-200 rounded-full hover:bg-red-50"
+                                    onclick="deleteRoom({{ $room->idrec }})">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
+
                             </div>
                         </td>
                     </tr>

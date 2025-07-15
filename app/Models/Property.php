@@ -63,17 +63,11 @@ class Property extends Model
         'rules' => 'array',
     ];
 
-    /**
-     * Get the user who created the property.
-     */
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Get the room types associated with the property.
-     */
     public function roomTypes()
     {
         return $this->hasMany(RoomType::class, 'property_id', 'idrec');
@@ -82,5 +76,10 @@ class Property extends Model
     public function images()
     {
         return $this->hasMany(PropertyImage::class, 'property_id', 'idrec');
+    }
+    
+    public function rooms()
+    {
+        return $this->hasMany(Room::class, 'property_id', 'idrec');
     }
 }

@@ -4,7 +4,7 @@
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Manajemen Kamar</h1>
-            <!-- New Room -->
+            <!-- New Input Room -->
             <div x-data="modalRoom()">
                 <!-- Trigger Button -->
                 <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
@@ -558,10 +558,11 @@
                         <select id="room-filter"
                             class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                             <option value="" hidden>Pilih Properti</option>
-                            @foreach ($rooms as $property)
+                            @foreach ($properties as $property)
                                 <option value="{{ $property->idrec }}">{{ $property->name }}</option>
                             @endforeach
                         </select>
+
                     </div>
                     <div>
                         <select id="status-filter"
@@ -590,13 +591,10 @@
 
             <!-- Pagination -->
             <div class="bg-gray-50 rounded p-4" id="paginationContainer">
-                {{-- {{ $room->appends(request()->input())->links() }} --}}
+                {{ $rooms->appends(request()->input())->links() }}
             </div>
         </div>
     </div>
-    </div>
-
-
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('modalRoom', () => ({
@@ -605,87 +603,81 @@
                 images: [],
                 maxImages: 10,
                 minImages: 3,
-                priceTypes: [],
+                priceTypes: [], // For tracking daily/monthly price selection
                 dailyPrice: 0,
                 monthlyPrice: 0,
-                cleaveDaily: null,
-                cleaveMonthly: null,
                 facilities: [{
-                        label: 'WiFi',
-                        value: 'wifi'
-                    },
-                    {
                         label: 'AC',
-                        value: 'ac'
+                        value: 'AC'
                     },
                     {
                         label: 'TV',
-                        value: 'tv'
+                        value: 'TV'
                     },
                     {
-                        label: 'Kamar Mandi',
-                        value: 'bathroom'
+                        label: 'Kamar Mandi Pribadi',
+                        value: 'Private Bathroom'
                     },
                     {
-                        label: 'Air Panas',
-                        value: 'hot_water'
+                        label: 'WiFi',
+                        value: 'WiFi'
                     },
                     {
                         label: 'Lemari',
-                        value: 'wardrobe'
+                        value: 'Wardrobe'
                     },
                     {
                         label: 'Meja Kerja',
-                        value: 'desk'
+                        value: 'Desk'
                     },
                     {
-                        label: 'Kulkas',
-                        value: 'refrigerator'
+                        label: 'Kulkas Mini',
+                        value: 'Mini Fridge'
+                    },
+                    {
+                        label: 'Air Panas',
+                        value: 'Hot Water'
                     },
                     {
                         label: 'Sarapan',
-                        value: 'breakfast'
+                        value: 'Breakfast'
                     }
                 ],
 
                 init() {
-                    this.$watch('priceTypes', (types) => {
-                        this.$nextTick(() => {
-                            if (types.includes('daily') && !this.cleaveDaily) {
-                                this.cleaveDaily = new Cleave(this.$refs
-                                    .dailyPriceInput, {
-                                        numeral: true,
-                                        numeralDecimalMark: ',',
-                                        delimiter: '.',
-                                        numeralThousandsGroupStyle: 'thousand',
-                                        onValueChanged: (e) => {
-                                            this.dailyPrice = parseFloat(e
-                                                .target.rawValue || 0);
-                                        }
-                                    });
-                            }
-
-                            if (types.includes('monthly') && !this.cleaveMonthly) {
-                                this.cleaveMonthly = new Cleave(this.$refs
-                                    .monthlyPriceInput, {
-                                        numeral: true,
-                                        numeralDecimalMark: ',',
-                                        delimiter: '.',
-                                        numeralThousandsGroupStyle: 'thousand',
-                                        onValueChanged: (e) => {
-                                            this.monthlyPrice = parseFloat(e
-                                                .target.rawValue || 0);
-                                        }
-                                    });
-                            }
+                    // Initialize price input formatting
+                    if (this.$refs.dailyPriceInput) {
+                        new Cleave(this.$refs.dailyPriceInput, {
+                            numeral: true,
+                            numeralThousandsGroupStyle: 'thousand'
                         });
-                    });
+                    }
+
+                    if (this.$refs.monthlyPriceInput) {
+                        new Cleave(this.$refs.monthlyPriceInput, {
+                            numeral: true,
+                            numeralThousandsGroupStyle: 'thousand'
+                        });
+                    }
                 },
 
-                // Image handling methods
+                // Enhanced photo upload methods
                 handleFileSelect(event) {
                     const files = Array.from(event.target.files);
+                    const wasEmpty = this.images.length === 0;
                     this.processFiles(files);
+
+                    if (wasEmpty && this.images.length > 0) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: 'Foto pertama akan menjadi thumbnail kamar',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    }
                 },
 
                 handleDrop(event) {
@@ -742,16 +734,17 @@
                         }
                     });
 
+                    // Clear the file input to allow re-selection
                     if (event.target) {
                         event.target.value = '';
                     }
                 },
 
-                removeImage(index) {
+                removeImage(index, event) {
+                    if (event) event.preventDefault();
                     this.images.splice(index, 1);
                 },
 
-                // Computed properties
                 get canUploadMore() {
                     return this.images.length < this.maxImages;
                 },
@@ -760,14 +753,23 @@
                     return this.maxImages - this.images.length;
                 },
 
+                get imageUploadStatus() {
+                    const current = this.images.length;
+                    if (current < this.minImages) {
+                        return `Minimal ${this.minImages} foto diperlukan (${current}/${this.minImages})`;
+                    } else if (current >= this.minImages && current < this.maxImages) {
+                        return `${current}/${this.maxImages} foto (dapat menambah ${this.remainingSlots} lagi)`;
+                    } else {
+                        return `${current}/${this.maxImages} foto (maksimal tercapai)`;
+                    }
+                },
+
                 get isImageRequirementMet() {
                     return this.images.length >= this.minImages;
                 },
 
-                // Step validation
                 validateStep(step) {
                     let isValid = true;
-                    const errors = {};
 
                     if (step === 1) {
                         const requiredFields = ['property_id', 'room_no', 'room_name', 'room_size',
@@ -776,131 +778,193 @@
 
                         requiredFields.forEach(field => {
                             const el = document.getElementById(field);
-                            if (el && !el.value) {
-                                el.classList.add('border-red-500');
-                                errors[field] = 'Field ini wajib diisi';
-                                isValid = false;
-                            } else if (el) {
-                                el.classList.remove('border-red-500');
+                            if (el) {
+                                if (!el.value) {
+                                    el.classList.add('border-red-500');
+                                    isValid = false;
+                                } else {
+                                    el.classList.remove('border-red-500');
+                                }
                             }
                         });
 
                     } else if (step === 2) {
+                        // Validate at least one price type is selected
                         if (this.priceTypes.length === 0) {
-                            errors.priceTypes = 'Pilih minimal satu jenis harga';
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'warning',
+                                title: 'Pilih minimal satu jenis harga!',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
                             isValid = false;
                         }
 
-                        if (this.priceTypes.includes('daily') && this.dailyPrice <= 0) {
-                            errors.dailyPrice = 'Masukkan harga harian yang valid';
+                        // Validate the selected price types have values
+                        if (this.priceTypes.includes('daily') && !this.$refs.dailyPriceInput.value) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'warning',
+                                title: 'Masukkan harga harian!',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
                             isValid = false;
                         }
 
-                        if (this.priceTypes.includes('monthly') && this.monthlyPrice <= 0) {
-                            errors.monthlyPrice = 'Masukkan harga bulanan yang valid';
+                        if (this.priceTypes.includes('monthly') && !this.$refs.monthlyPriceInput
+                            .value) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'warning',
+                                title: 'Masukkan harga bulanan!',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
                             isValid = false;
                         }
-                    }
 
-                    if (!isValid) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validasi Gagal',
-                            html: Object.values(errors).join('<br>'),
-                        });
+                        // Convert formatted prices to numbers
+                        if (this.priceTypes.includes('daily')) {
+                            this.dailyPrice = this.$refs.dailyPriceInput.value.replace(/\D/g, '');
+                            if (this.dailyPrice === '0') {
+                                isValid = false;
+                                alert('Harga harian tidak boleh 0');
+                            }
+                        }
+
+                        if (this.priceTypes.includes('monthly')) {
+                            this.monthlyPrice = this.$refs.monthlyPriceInput.value.replace(/\D/g, '');
+                            if (this.monthlyPrice === '0') {
+                                isValid = false;
+                                alert('Harga bulanan tidak boleh 0');
+                            }
+                        }
+
+                    } else if (step === 3) {
+                        // No validation needed for step 3 (facilities) as they're optional
+                    } else if (step === 4) {
+                        if (this.images.length < this.minImages) {
+                            alert(
+                                `Minimal ${this.minImages} foto kamar harus diupload. Saat ini: ${this.images.length} foto.`
+                            );
+                            isValid = false;
+                        } else if (this.images.length > this.maxImages) {
+                            alert(
+                                `Maksimal ${this.maxImages} foto kamar dapat diupload. Saat ini: ${this.images.length} foto.`
+                            );
+                            isValid = false;
+                        }
                     }
 
                     return isValid;
                 },
 
-                // Form submission
+                getImageFiles() {
+                    return this.images.map(img => img.file);
+                },
+
+                resetImages() {
+                    this.images = [];
+                },
+
                 submitForm() {
                     if (!this.validateStep(4)) return;
 
+                    // Store original button state
+                    const submitBtn = document.querySelector('#roomForm button[type="submit"]');
+                    const originalBtnContent = submitBtn?.innerHTML;
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                Menyimpan...
+                                            `;
+                    }
+
                     const form = document.getElementById('roomForm');
                     const formData = new FormData(form);
-
-                    // Tambahkan CSRF token secara manual jika diperlukan
-                    formData.append('_token', document.querySelector('meta[name="csrf-token"]')
-                        .content);
 
                     // Clear any existing file inputs
                     formData.delete('room_images[]');
 
                     // Add each selected image
-                    this.images.forEach((image) => {
+                    this.images.forEach((image, index) => {
                         formData.append('room_images[]', image.file);
                     });
 
-                    // Add price types
-                    this.priceTypes.forEach(type => {
-                        formData.append('price_types[]', type);
-                    });
+                    // Add image count for backend validation
+                    formData.append('image_count', this.images.length);
 
+                    // Add price types
+                    formData.append('price_types', JSON.stringify(this.priceTypes));
+
+                    // Submit the form
                     fetch(form.action, {
                             method: 'POST',
                             body: formData,
                             headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                            },
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content,
+                                'Accept': 'application/json'
+                            }
                         })
                         .then(async response => {
                             const contentType = response.headers.get('content-type');
                             if (!contentType || !contentType.includes('application/json')) {
                                 const text = await response.text();
-                                throw new Error(text || 'Invalid response from server');
+                                throw new Error(
+                                    `Expected JSON but got: ${text.substring(0, 100)}...`);
                             }
-                            return response.json();
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                let errorMsg = data.message || 'Submission failed';
+                                if (data.errors) {
+                                    errorMsg = Object.values(data.errors).join('\n');
+                                }
+                                throw new Error(errorMsg);
+                            }
+
+                            return data;
                         })
                         .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'success',
-                                    title: data.message || 'Berhasil!',
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true
-                                });
-
-                                // Delay sebentar agar toast sempat tampil
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            } else {
-                                throw new Error(data.message || 'Terjadi kesalahan');
-                            }
-                        })
-                        .catch(error => {
-                            let errorMessage = 'Terjadi kesalahan';
-
-                            try {
-                                const errorData = JSON.parse(error.message);
-                                if (errorData.errors) {
-                                    errorMessage = Object.values(errorData.errors).flat().join(
-                                        '<br>');
-                                } else if (errorData.message) {
-                                    errorMessage = errorData.message;
-                                }
-                            } catch (e) {
-                                errorMessage = error.message;
-                            }
-
                             Swal.fire({
                                 toast: true,
                                 position: 'top-end',
-                                icon: 'error',
-                                title: 'Gagal',
-                                html: errorMessage,
+                                icon: 'success',
+                                title: `Kamar berhasil disimpan dengan ${this.images.length} foto!`,
                                 showConfirmButton: false,
-                                timer: 4000,
-                                timerProgressBar: true
+                                timer: 1000,
+                                timerProgressBar: true,
+                                didClose: () => {
+                                    window.location.reload();
+                                }
                             });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: error.message || 'Failed to submit form',
+                            });
+                        })
+                        .finally(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnContent;
+                            }
                         });
                 }
-
             }));
         });
 
@@ -1288,34 +1352,15 @@
         });
 
         document.addEventListener('alpine:init', () => {
-            Alpine.data('modalEditRoom', () => ({
-                modalOpen: false,
-                step: 1,
-                originalData: {}, // Store original data separately
-                editedData: {     // Store edited data separately
-                    id: null,
-                    property_id: '',
-                    property_name: '',
-                    room_no: '',
-                    name: '',
-                    room_size: '',
-                    bed_type: '',
-                    capacity: '',
-                    descriptions: '',
-                    price_original_daily: 0,
-                    price_original_monthly: 0,
-                    facilities: [],
-                    images: []
-                },
-                existingImages: [],
-                newImages: [],
-                maxImages: 10,
-                minImages: 3,
-                priceTypes: [],
+            Alpine.data('modalRoomEdit', (room) => ({
+                editModalOpen: false,
+                editStep: 1,
+                editMinImages: 3,
+                editMaxImages: 10,
+                editImages: [],
+                priceTypes: ['daily', 'monthly'],
                 dailyPrice: 0,
                 monthlyPrice: 0,
-                cleaveDaily: null,
-                cleaveMonthly: null,
                 facilities: [{
                         value: 'wifi',
                         label: 'Wi-Fi'
@@ -1353,115 +1398,119 @@
                         label: 'Sarapan'
                     }
                 ],
-                selectedFacilities: [],
-                removedImageIds: [],
+                isSubmitting: false,
+                originalRoomData: {},
+                roomData: {
+                    id: room.idrec || '',
+                    property_id: room.property_id || '',
+                    name: room.name || '',
+                    number: room.no || '',
+                    size: room.size || '',
+                    bed: room.bed_type || 'Single',
+                    capacity: room.capacity || '',
+                    description: room.descriptions || '',
+                    daily_price: room.price_original_daily ? room.price_original_daily : '',
+                    monthly_price: room.price_original_monthly ? room.price_original_monthly : '',
+
+                    facilities: room.facility || [],
+                    existingImages: room.roomImages || []
+                },
 
                 init() {
-                    this.$watch('priceTypes', (types) => {
-                        this.$nextTick(() => {
-                            if (types.includes('daily') && this.$refs.editDailyPriceInput && !this.cleaveDaily) {
-                                this.cleaveDaily = new Cleave(this.$refs.editDailyPriceInput, {
-                                    numeral: true,
-                                    numeralDecimalMark: ',',
-                                    delimiter: '.',
-                                    numeralThousandsGroupStyle: 'thousand',
-                                    onValueChanged: (e) => {
-                                        this.dailyPrice = parseFloat(e.target.rawValue) || 0;
-                                    }
-                                });
-                            }
+                    this.originalRoomData = JSON.parse(JSON.stringify(this.roomData));
 
-                            if (types.includes('monthly') && this.$refs.editMonthlyPriceInput && !this.cleaveMonthly) {
-                                this.cleaveMonthly = new Cleave(this.$refs.editMonthlyPriceInput, {
-                                    numeral: true,
-                                    numeralDecimalMark: ',',
-                                    delimiter: '.',
-                                    numeralThousandsGroupStyle: 'thousand',
-                                    onValueChanged: (e) => {
-                                        this.monthlyPrice = parseFloat(e.target.rawValue) || 0;
-                                    }
-                                });
-                            }
-                        });
-                    });
+                    // Initialize price types based on existing prices
+                    this.priceTypes = [];
+                    if (this.roomData.daily_price) this.priceTypes.push('daily');
+                    if (this.roomData.monthly_price) this.priceTypes.push('monthly');
+
+                    // Convert price strings to numbers for hidden inputs
+                    this.dailyPrice = this.roomData.daily_price ? parseInt(this.roomData.daily_price
+                        .replace(/\./g, '')) : 0;
+                    this.monthlyPrice = this.roomData.monthly_price ? parseInt(this.roomData
+                        .monthly_price.replace(/\./g, '')) : 0;
+                },
+
+                get editRemainingSlots() {
+                    return this.editMaxImages - (this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length + this.editImages.length);
+                },
+
+                get editCanUploadMore() {
+                    return (this.roomData.existingImages.filter(img => !img.markedForDeletion)
+                        .length + this.editImages.length) < this.editMaxImages;
+                },
+
+                get editUploadProgress() {
+                    const totalCurrentImages = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length + this.editImages.length;
+                    const percentage = Math.min(100, (totalCurrentImages / this.editMaxImages) *
+                        100);
+
+                    return {
+                        percentage,
+                        status: totalCurrentImages < this.editMinImages ? 'danger' :
+                            totalCurrentImages >= this.editMinImages && totalCurrentImages < this
+                            .editMaxImages ? 'warning' : 'success'
+                    };
+                },
+
+                get editImageUploadStatus() {
+                    const totalCurrentImages = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length + this.editImages.length;
+
+                    if (totalCurrentImages < this.editMinImages) {
+                        return {
+                            class: 'text-red-600',
+                            message: `Minimal ${this.editMinImages} foto diperlukan (${totalCurrentImages}/${this.editMinImages})`
+                        };
+                    } else if (totalCurrentImages >= this.editMinImages && totalCurrentImages < this
+                        .editMaxImages) {
+                        return {
+                            class: 'text-yellow-600',
+                            message: `${totalCurrentImages}/${this.editMaxImages} foto (dapat menambah ${this.editMaxImages - totalCurrentImages} lagi)`
+                        };
+                    } else {
+                        return {
+                            class: 'text-green-600',
+                            message: `${totalCurrentImages}/${this.editMaxImages} foto (maksimal tercapai)`
+                        };
+                    }
                 },
 
                 openModal(data) {
-                    this.modalOpen = true;
-                    this.step = 1;
-                    
-                    // Store original data
-                    this.originalData = {
-                        id: data.id,
-                        property_id: data.property_id,
-                        property_name: data.property_name,
-                        room_no: data.no,
-                        name: data.name,
-                        room_size: data.size,
-                        bed_type: data.bed_type,
-                        capacity: data.capacity,
-                        descriptions: data.descriptions,
-                        price_original_daily: parseFloat(data.price_original_daily) || 0,
-                        price_original_monthly: parseFloat(data.price_original_monthly) || 0,
-                        facilities: data.facilities || [],
-                        images: data.images || []
+                    this.roomData = {
+                        ...this.roomData,
+                        ...data
                     };
-                    
-                    // Initialize edited data with original values
-                    this.editedData = JSON.parse(JSON.stringify(this.originalData));
-
-                    // Set price types based on existing prices
+                    this.editModalOpen = true;
+                    this.editStep = 1;
+                    this.editImages = [];
                     this.priceTypes = [];
-                    if (this.editedData.price_original_daily > 0) {
-                        this.priceTypes.push('daily');
-                        this.dailyPrice = this.editedData.price_original_daily;
-                    }
-                    if (this.editedData.price_original_monthly > 0) {
-                        this.priceTypes.push('monthly');
-                        this.monthlyPrice = this.editedData.price_original_monthly;
-                    }
-
-                    // Set facilities
-                    this.selectedFacilities = [...this.originalData.facilities];
-
-                    // Set existing images
-                    this.existingImages = this.originalData.images.map((img, index) => ({
-                        id: index, // Temporary ID for tracking
-                        url: img,
-                        isExisting: true
-                    }));
-
-                    // Clear any previous new images and removed image IDs
-                    this.newImages = [];
-                    this.removedImageIds = [];
+                    if (this.roomData.daily_price) this.priceTypes.push('daily');
+                    if (this.roomData.monthly_price) this.priceTypes.push('monthly');
                 },
 
-                // [Rest of the methods remain the same but use editedData instead of roomData]
-                formatPrice(price) {
-                    if (!price) return '0';
-                    return parseFloat(price).toLocaleString('id-ID');
-                },
-
-                handleFileSelect(event) {
+                handleEditFileSelect(event) {
                     const files = Array.from(event.target.files);
-                    this.processNewFiles(files);
+                    this.processEditFiles(files);
                 },
 
-                handleDrop(event) {
+                handleEditDrop(event) {
                     event.preventDefault();
                     const files = Array.from(event.dataTransfer.files);
-                    this.processNewFiles(files);
+                    this.processEditFiles(files);
                 },
 
-                processNewFiles(files) {
+                processEditFiles(files) {
                     const imageFiles = files.filter(file => file.type.startsWith('image/'));
-                    const availableSlots = this.maxImages - (this.existingImages.length + this.newImages.length);
+                    const availableSlots = this.editMaxImages - this.editImages.length;
 
                     if (availableSlots <= 0) {
                         Swal.fire({
                             toast: true,
                             icon: 'error',
-                            title: `Maksimal hanya ${this.maxImages} foto yang dapat diupload.`,
+                            title: `Maksimal hanya ${this.editMaxImages} foto yang dapat diupload.`,
                             position: 'top-end',
                             showConfirmButton: false,
                             timer: 3000,
@@ -1486,258 +1535,214 @@
                     }
 
                     filesToProcess.forEach(file => {
-                        if (file.size <= 5 * 1024 * 1024) {
+                        if (file.size <= 5 * 1024 * 1024) { // 5MB limit
                             const reader = new FileReader();
                             reader.onload = (e) => {
-                                this.newImages.push({
+                                this.editImages.push({
                                     file: file,
                                     url: e.target.result,
                                     name: file.name,
-                                    isExisting: false
+                                    isNew: true
                                 });
                             };
                             reader.readAsDataURL(file);
                         } else {
-                            Swal.fire({
-                                toast: true,
-                                icon: 'error',
-                                title: `File ${file.name} terlalu besar. Maksimal 5MB.`,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                            });
+                            alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
                         }
                     });
 
+                    // Clear the file input to allow re-selection
                     if (event.target) {
                         event.target.value = '';
                     }
                 },
 
-                removeImage(index) {
-                    this.newImages.splice(index, 1);
+                removeEditImage(index) {
+                    this.editImages.splice(index, 1);
                 },
 
-                removeExistingImage(id, index) {
-                    this.removedImageIds.push(id);
-                    this.existingImages.splice(index, 1);
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Foto akan dihapus saat perubahan disimpan',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
+                removeEditExistingImage(index) {
+                    this.roomData.existingImages[index].markedForDeletion = true;
                 },
 
-                get canUploadMore() {
-                    return (this.existingImages.length + this.newImages.length) < this.maxImages;
-                },
-
-                get remainingSlots() {
-                    return this.maxImages - (this.existingImages.length + this.newImages.length);
-                },
-
-                get isImageRequirementMet() {
-                    return (this.existingImages.length + this.newImages.length) >= this.minImages;
-                },
-
-                get updateRoute() {
-                    return `/properties/rooms/${this.editedData.id}`;
-                },
-
-                validateStep(step) {
-                    let isValid = true;
-                    const errors = {};
-
+                validateEditStep(step) {
                     if (step === 1) {
-                        const requiredFields = [
-                            { id: 'edit_property_id', name: 'Properti' },
-                            { id: 'edit_room_no', name: 'Nomor Kamar' },
-                            { id: 'edit_room_name', name: 'Nama Kamar' },
-                            { id: 'edit_room_size', name: 'Ukuran Kamar' },
-                            { id: 'edit_bed_type', name: 'Jenis Kasur' },
-                            { id: 'edit_capacity', name: 'Kapasitas' },
-                            { id: 'edit_descriptions', name: 'Deskripsi' }
-                        ];
-
-                        requiredFields.forEach(field => {
-                            const el = document.getElementById(field.id);
-                            if (el && !el.value) {
-                                el.classList.add('border-red-500');
-                                errors[field.id] = `${field.name} wajib diisi`;
-                                isValid = false;
-                            } else if (el) {
-                                el.classList.remove('border-red-500');
-
-                                if ((field.id === 'edit_room_size' || field.id === 'edit_capacity') && el.value <= 0) {
-                                    el.classList.add('border-red-500');
-                                    errors[field.id] = `${field.name} harus lebih dari 0`;
-                                    isValid = false;
-                                }
-                            }
-                        });
-
+                        if (!this.roomData.property_id) {
+                            alert('Properti harus dipilih');
+                            return false;
+                        }
+                        if (!this.roomData.name.trim()) {
+                            alert('Nama kamar harus diisi');
+                            return false;
+                        }
+                        if (!this.roomData.number.trim()) {
+                            alert('Nomor kamar harus diisi');
+                            return false;
+                        }
+                        if (!this.roomData.size) {
+                            alert('Ukuran kamar harus diisi');
+                            return false;
+                        }
+                        if (!this.roomData.bed) {
+                            alert('Jenis kasur harus dipilih');
+                            return false;
+                        }
+                        if (!this.roomData.capacity) {
+                            alert('Kapasitas kamar harus diisi');
+                            return false;
+                        }
+                        if (!this.roomData.description.trim()) {
+                            alert('Deskripsi kamar harus diisi');
+                            return false;
+                        }
                     } else if (step === 2) {
+                        if (this.priceTypes.includes('daily') && !this.roomData.daily_price) {
+                            alert('Harga harian harus diisi');
+                            return false;
+                        }
+                        if (this.priceTypes.includes('monthly') && !this.roomData.monthly_price) {
+                            alert('Harga bulanan harus diisi');
+                            return false;
+                        }
                         if (this.priceTypes.length === 0) {
-                            errors.priceTypes = 'Pilih minimal satu jenis harga';
-                            isValid = false;
-                        }
-
-                        if (this.priceTypes.includes('daily') && this.dailyPrice <= 0) {
-                            if (this.$refs.editDailyPriceInput) {
-                                this.$refs.editDailyPriceInput.classList.add('border-red-500');
-                            }
-                            errors.dailyPrice = 'Masukkan harga harian yang valid';
-                            isValid = false;
-                        } else if (this.$refs.editDailyPriceInput) {
-                            this.$refs.editDailyPriceInput.classList.remove('border-red-500');
-                        }
-
-                        if (this.priceTypes.includes('monthly') && this.monthlyPrice <= 0) {
-                            if (this.$refs.editMonthlyPriceInput) {
-                                this.$refs.editMonthlyPriceInput.classList.add('border-red-500');
-                            }
-                            errors.monthlyPrice = 'Masukkan harga bulanan yang valid';
-                            isValid = false;
-                        } else if (this.$refs.editMonthlyPriceInput) {
-                            this.$refs.editMonthlyPriceInput.classList.remove('border-red-500');
+                            alert('Pilih minimal satu jenis harga');
+                            return false;
                         }
                     } else if (step === 4) {
-                        if (!this.isImageRequirementMet) {
-                            errors.images = `Anda harus memiliki minimal ${this.minImages} foto`;
-                            isValid = false;
-                        }
-                    }
-
-                    if (!isValid) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validasi Gagal',
-                            html: Object.values(errors).join('<br>'),
-                        });
-                    }
-
-                    return isValid;
-                },
-
-                submitForm() {
-                    if (!this.validateStep(4)) return;
-
-                    const form = document.getElementById('roomEditForm');
-                    const formData = new FormData();
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    const originalBtnContent = submitBtn.innerHTML;
-
-                    // Show loading state
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = `
-                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Menyimpan...
-                    `;
-
-                    // Add all form data
-                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-                    formData.append('_method', 'PUT');
-                    
-                    // Add edited data
-                    formData.append('property_id', this.editedData.property_id);
-                    formData.append('room_no', this.editedData.room_no);
-                    formData.append('name', this.editedData.name);
-                    formData.append('room_size', this.editedData.room_size);
-                    formData.append('bed_type', this.editedData.bed_type);
-                    formData.append('capacity', this.editedData.capacity);
-                    formData.append('descriptions', this.editedData.descriptions);
-                    
-                    // Add price data
-                    if (this.priceTypes.includes('daily')) {
-                        formData.append('price_original_daily', this.dailyPrice);
-                    } else {
-                        formData.append('price_original_daily', 0);
-                    }
-
-                    if (this.priceTypes.includes('monthly')) {
-                        formData.append('price_original_monthly', this.monthlyPrice);
-                    } else {
-                        formData.append('price_original_monthly', 0);
-                    }
-
-                    // Add removed image IDs
-                    this.removedImageIds.forEach(id => {
-                        formData.append('removed_images[]', id);
-                    });
-
-                    // Add new images
-                    this.newImages.forEach(image => {
-                        formData.append('room_images[]', image.file);
-                    });
-
-                    // Add facilities
-                    this.selectedFacilities.forEach(facility => {
-                        formData.append('facilities[]', facility);
-                    });
-
-                    fetch(this.updateRoute, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                        })
-                        .then(async response => {
-                            const contentType = response.headers.get('content-type');
-                            if (!contentType || !contentType.includes('application/json')) {
-                                const text = await response.text();
-                                throw new Error(text || 'Invalid response from server');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.status === 'success') {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'success',
-                                    title: data.message || 'Perubahan kamar berhasil disimpan',
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                    didOpen: (toast) => {
-                                        toast.addEventListener('mouseenter', Swal.stopTimer);
-                                        toast.addEventListener('mouseleave', Swal.resumeTimer);
-                                    },
-                                    willClose: () => {
-                                        window.location.reload();
-                                    }
-                                });
-                            } else {
-                                throw new Error(data.message || 'Terjadi kesalahan saat menyimpan perubahan');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
+                        const totalImages = this.editImages.length + this.roomData.existingImages
+                            .filter(img => !img.markedForDeletion).length;
+                        if (totalImages < this.editMinImages) {
                             Swal.fire({
                                 toast: true,
                                 position: 'top-end',
-                                icon: 'error',
-                                title: error.message || 'Terjadi kesalahan saat menyimpan perubahan',
+                                icon: 'warning',
+                                title: `Harap unggah minimal ${this.editMinImages} foto kamar (Saat ini: ${totalImages})`,
                                 showConfirmButton: false,
                                 timer: 3000,
                                 timerProgressBar: true
                             });
-                        })
-                        .finally(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalBtnContent;
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+
+                closeModal() {
+                    this.editModalOpen = false;
+                    this.editStep = 1;
+                    this.editImages = [];
+                },
+
+                async submitEditForm() {
+                    if (!this.validateEditStep(4) || this.isSubmitting) return;
+                    this.isSubmitting = true;
+
+                    // Store the submit button reference and original text
+                    const submitBtn = document.querySelector(
+                        `#roomFormEdit-${this.roomData.id} button[type="submit"]`);
+                    const originalText = submitBtn?.innerHTML;
+
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Memproses...
+                `;
+                    }
+
+                    try {
+                        // Create FormData for the submission
+                        const formData = new FormData();
+
+                        // Add all room data
+                        for (const [key, value] of Object.entries(this.roomData)) {
+                            if (key === 'existingImages') continue; // Handled separately
+
+                            if (Array.isArray(value)) {
+                                value.forEach(item => formData.append(`${key}[]`, item));
+                            } else {
+                                formData.append(key, value);
+                            }
+                        }
+
+                        // Append new images
+                        this.editImages.forEach((image, index) => {
+                            formData.append(`room_images[${index}]`, image.file);
+                        });
+
+                        // Append images to delete
+                        this.roomData.existingImages
+                            .filter(img => img.markedForDeletion)
+                            .forEach(img => {
+                                formData.append('delete_images[]', img.id);
+                            });
+
+                        // Add price values
+                        formData.append('daily_price', this.dailyPrice);
+                        formData.append('monthly_price', this.monthlyPrice);
+
+                        // Add CSRF token
+                        formData.append('_token', document.querySelector('meta[name="csrf-token"]')
+                            .content);
+                        formData.append('_method', 'PUT');
+
+                        const response = await fetch(document.getElementById(
+                            `roomFormEdit-${this.roomData.id}`).action, {
+                            method: 'POST', // Laravel handles PUT via POST with _method
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json'
                             }
                         });
+
+                        let data;
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            data = await response.json();
+                        } else {
+                            const text = await response.text();
+                            throw new Error('Server returned non-JSON response: ' + text.substring(
+                                0, 100));
+                        }
+
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Gagal memperbarui kamar');
+                        }
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Kamar berhasil diperbarui!',
+                            showConfirmButton: false,
+                            timer: 1000,
+                            timerProgressBar: true,
+                            didClose: () => {
+                                this.closeModal();
+                                window.location.reload();
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: `Error: ${error.message}`,
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    } finally {
+                        this.isSubmitting = false;
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        }
+                    }
                 }
             }));
         });
@@ -1784,6 +1789,155 @@
                     alert('Gagal memperbarui status properti');
                 });
         }
+
+        function deleteRoom(id) {
+            Swal.fire({
+                title: 'Hapus kamar ini?',
+                text: 'Data kamar tidak akan tampil lagi setelah dihapus.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/properties/rooms/${id}/destroy`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Gagal menghapus data');
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Notifikasi sukses
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload(); // refresh halaman setelah toast hilang
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // Notifikasi error
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Terjadi kesalahan saat menghapus!',
+                            });
+                        });
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elemen filter
+            const roomFilter = document.getElementById('room-filter');
+            const statusFilter = document.getElementById('status-filter');
+            const searchInput = document.getElementById('search-input');
+            const filterBtn = document.getElementById('filter-btn');
+
+            // Fungsi untuk memproses filter
+            function applyFilters() {
+                const propertyId = roomFilter.value;
+                const status = statusFilter.value;
+                const searchQuery = searchInput.value.trim();
+
+                // Kirim permintaan AJAX
+                fetchRooms(propertyId, status, searchQuery);
+            }
+
+            // Event listeners
+            filterBtn.addEventListener('click', applyFilters);
+
+            // Juga bisa trigger filter saat enter di search input
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    applyFilters();
+                }
+            });
+
+            // Fungsi AJAX untuk mengambil data
+            function fetchRooms(propertyId, status, searchQuery) {
+                const url = new URL(window.location.href);
+                const params = new URLSearchParams(url.search);
+
+                // Update parameter
+                if (propertyId) params.set('property_id', propertyId);
+                else params.delete('property_id');
+
+                if (status !== '') params.set('status', status);
+                else params.delete('status');
+
+                if (searchQuery) params.set('search', searchQuery);
+                else params.delete('search');
+
+                // Simpan per_page value jika ada
+                const perPage = params.get('per_page') || '8';
+                params.set('per_page', perPage);
+
+                // Tampilkan loading indicator jika diperlukan
+                document.getElementById('roomTableContainer').innerHTML =
+                    '<div class="p-4 text-center">Loading...</div>';
+
+                // Kirim permintaan
+                fetch(`{{ route('rooms.index') }}?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Pastikan container ada sebelum mengupdate
+                        const tableContainer = document.getElementById('roomTableContainer');
+                        const paginationContainer = document.getElementById('paginationContainer');
+
+                        if (tableContainer) tableContainer.innerHTML = data.html || '';
+                        if (paginationContainer) {
+                            paginationContainer.innerHTML = data.pagination || '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        const container = document.getElementById('roomTableContainer');
+                        if (container) {
+                            container.innerHTML =
+                                '<div class="p-4 text-center text-red-500">Error loading data</div>';
+                        }
+                    });
+            }
+
+            // Inisialisasi filter dari URL jika ada
+            function initializeFiltersFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+
+                if (urlParams.has('property_id')) {
+                    roomFilter.value = urlParams.get('property_id');
+                }
+
+                if (urlParams.has('status')) {
+                    statusFilter.value = urlParams.get('status');
+                }
+
+                if (urlParams.has('search')) {
+                    searchInput.value = urlParams.get('search');
+                }
+            }
+
+            initializeFiltersFromUrl();
+        });
     </script>
 
 </x-app-layout>

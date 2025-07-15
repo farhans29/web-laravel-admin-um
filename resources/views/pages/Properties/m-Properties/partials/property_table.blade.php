@@ -1051,7 +1051,7 @@
 
                                                                     <!-- Remove Button -->
                                                                     <button type="button"
-                                                                        @click="removeEditExistingImage(index)"
+                                                                    @click.prevent.stop="removeEditExistingImage(index)"
                                                                         class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
                                                                         <svg class="w-2 h-2" fill="none"
                                                                             stroke="currentColor" viewBox="0 0 24 24">
