@@ -703,7 +703,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Edit Room Modal -->
+                                {{-- <!-- Edit Room Modal -->
                                 <div x-data="modalRoomEdit({{ $room }})" class="relative group">
                                     @php
                                         $roomImages = $room->roomImages
@@ -1457,7 +1457,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 @if ($isDaily)
                                     <!-- Edit Price (Calendar) -->
