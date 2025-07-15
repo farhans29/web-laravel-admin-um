@@ -44,20 +44,6 @@ class Room extends Model
         'facility' => 'array',
         'periode' => 'array'
     ];
-        
-
-    // Relasi ke transaksi
-    public function transactions()
-    {
-        return $this->hasMany(Transaction::class, 'room_id', 'idrec');
-    }
-
-    // Relasi ke booking
-    public function bookings()
-    {
-        return $this->hasMany(Booking::class, 'room_id', 'idrec');
-    }
-    
     public function property()
     {
         return $this->belongsTo(Property::class, 'property_id', 'idrec');

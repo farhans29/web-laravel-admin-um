@@ -276,6 +276,8 @@
                                                     placeholder="Masukkan harga harian">
                                                 <input type="hidden" name="daily_price" x-model="dailyPrice">
                                             </div>
+                                            <p x-show="dailyPriceError" class="text-red-500 text-xs mt-1"
+                                                x-text="dailyPriceError"></p>
                                         </div>
 
                                         <div x-show="priceTypes.includes('monthly')" x-transition class="mt-4">
@@ -292,6 +294,8 @@
                                                     placeholder="Masukkan harga bulanan">
                                                 <input type="hidden" name="monthly_price" x-model="monthlyPrice">
                                             </div>
+                                            <p x-show="monthlyPriceError" class="text-red-500 text-xs mt-1"
+                                                x-text="monthlyPriceError"></p>
                                         </div>
 
                                         <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-4">
@@ -603,9 +607,11 @@
                 images: [],
                 maxImages: 10,
                 minImages: 3,
-                priceTypes: [], // For tracking daily/monthly price selection
+                priceTypes: [],
                 dailyPrice: 0,
                 monthlyPrice: 0,
+                dailyPriceError: '',
+                monthlyPriceError: '',
                 facilities: [{
                         label: 'AC',
                         value: 'ac'
@@ -649,15 +655,69 @@
                     if (this.$refs.dailyPriceInput) {
                         new Cleave(this.$refs.dailyPriceInput, {
                             numeral: true,
-                            numeralThousandsGroupStyle: 'thousand'
+                            numeralThousandsGroupStyle: 'thousand',
+                            onValueChanged: (e) => {
+                                this.validatePriceInput(this.$refs.dailyPriceInput,
+                                    'dailyPrice');
+                            }
                         });
                     }
 
                     if (this.$refs.monthlyPriceInput) {
                         new Cleave(this.$refs.monthlyPriceInput, {
                             numeral: true,
-                            numeralThousandsGroupStyle: 'thousand'
+                            numeralThousandsGroupStyle: 'thousand',
+                            onValueChanged: (e) => {
+                                this.validatePriceInput(this.$refs.monthlyPriceInput,
+                                    'monthlyPrice');
+                            }
                         });
+                    }
+                },
+
+                validatePriceInput(inputRef, priceType) {
+                    // Get the raw value without formatting
+                    let rawValue = inputRef.value.replace(/[^\d.]/g, '');
+
+                    // Ensure only one decimal point
+                    const decimalParts = rawValue.split('.');
+                    if (decimalParts.length > 2) {
+                        rawValue = decimalParts[0] + '.' + decimalParts.slice(1).join('');
+                    }
+
+                    // Limit to 4 decimal places
+                    if (decimalParts.length === 2 && decimalParts[1].length > 4) {
+                        rawValue = decimalParts[0] + '.' + decimalParts[1].substring(0, 4);
+                        this[priceType + 'Error'] = 'Maksimal 4 digit di belakang koma';
+                    } else {
+                        this[priceType + 'Error'] = '';
+                    }
+
+                    // Limit total digits (14 before decimal + 4 after = 18)
+                    const withoutDecimal = rawValue.replace('.', '');
+                    if (withoutDecimal.length > 18) {
+                        rawValue = rawValue.substring(0, rawValue.length - (withoutDecimal.length -
+                            18));
+                        this[priceType + 'Error'] =
+                            'Maksimal 18 digit total (14 sebelum koma, 4 setelah)';
+                    }
+
+                    // Convert to number and check maximum value
+                    const numericValue = parseFloat(rawValue) || 0;
+                    if (numericValue > 999999999999) {
+                        this[priceType + 'Error'] = 'Nilai maksimum adalah 999,999,999,999.9999';
+                    }
+
+                    // Update the model value (without formatting)
+                    this[priceType] = numericValue;
+
+                    // Update the input value with proper formatting
+                    if (inputRef) {
+                        // Format with Cleave (it will handle the thousands separators)
+                        const cleave = inputRef._cleave;
+                        if (cleave) {
+                            cleave.setRawValue(rawValue);
+                        }
                     }
                 },
 
@@ -789,7 +849,6 @@
                         });
 
                     } else if (step === 2) {
-                        // Validate at least one price type is selected
                         if (this.priceTypes.length === 0) {
                             Swal.fire({
                                 toast: true,
@@ -803,51 +862,51 @@
                             isValid = false;
                         }
 
-                        // Validate the selected price types have values
-                        if (this.priceTypes.includes('daily') && !this.$refs.dailyPriceInput.value) {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'warning',
-                                title: 'Masukkan harga harian!',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                            });
-                            isValid = false;
-                        }
-
-                        if (this.priceTypes.includes('monthly') && !this.$refs.monthlyPriceInput
-                            .value) {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'warning',
-                                title: 'Masukkan harga bulanan!',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                            });
-                            isValid = false;
-                        }
-
-                        // Convert formatted prices to numbers
+                        // Validate the selected price types have valid values
                         if (this.priceTypes.includes('daily')) {
-                            this.dailyPrice = this.$refs.dailyPriceInput.value.replace(/\D/g, '');
-                            if (this.dailyPrice === '0') {
+                            if (!this.dailyPrice || this.dailyPrice <= 0) {
+                                this.dailyPriceError = 'Masukkan harga harian yang valid';
                                 isValid = false;
-                                alert('Harga harian tidak boleh 0');
+                            } else if (this.dailyPriceError) {
+                                isValid = false;
                             }
                         }
 
                         if (this.priceTypes.includes('monthly')) {
-                            this.monthlyPrice = this.$refs.monthlyPriceInput.value.replace(/\D/g, '');
-                            if (this.monthlyPrice === '0') {
+                            if (!this.monthlyPrice || this.monthlyPrice <= 0) {
+                                this.monthlyPriceError = 'Masukkan harga bulanan yang valid';
                                 isValid = false;
-                                alert('Harga bulanan tidak boleh 0');
+                            } else if (this.monthlyPriceError) {
+                                isValid = false;
                             }
                         }
 
+                        // Show error messages if any
+                        if (!isValid) {
+                            if (this.priceTypes.includes('daily') && this.dailyPriceError) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: this.dailyPriceError,
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                });
+                            }
+
+                            if (this.priceTypes.includes('monthly') && this.monthlyPriceError) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: this.monthlyPriceError,
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                });
+                            }
+                        }
                     } else if (step === 3) {
                         // No validation needed for step 3 (facilities) as they're optional
                     } else if (step === 4) {
@@ -1351,6 +1410,21 @@
             }));
         });
 
+        function formatRupiah(amount) {
+            if (amount === null || amount === undefined || amount === '') return '0';
+            const num = typeof amount === 'string' ?
+                Number(amount.replace(/,/g, '').replace(/\s/g, '')) :
+                Number(amount);
+
+            const roundedNum = Math.round(num);
+
+            return new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(roundedNum);
+        }
+
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('modalRoomEdit', (room) => ({
                 editModalOpen: false,
@@ -1358,7 +1432,7 @@
                 editMinImages: 3,
                 editMaxImages: 10,
                 editImages: [],
-                priceTypes: ['daily', 'monthly'],
+                priceTypes: [],
                 dailyPrice: 0,
                 monthlyPrice: 0,
                 facilities: [{
@@ -1409,9 +1483,9 @@
                     bed: room.bed_type || 'Single',
                     capacity: room.capacity || '',
                     description: room.descriptions || '',
-                    daily_price: room.price_original_daily ? room.price_original_daily : '',
-                    monthly_price: room.price_original_monthly ? room.price_original_monthly : '',
-
+                    daily_price: room.price_original_daily ? room.price_original_daily.toString() : '',
+                    monthly_price: room.price_original_monthly ? room.price_original_monthly
+                        .toString() : '',
                     facilities: room.facility || [],
                     existingImages: room.roomImages || []
                 },
@@ -1419,26 +1493,44 @@
                 init() {
                     this.originalRoomData = JSON.parse(JSON.stringify(this.roomData));
 
-                    // Initialize price types based on existing prices
-                    this.priceTypes = [];
-                    if (this.roomData.daily_price) this.priceTypes.push('daily');
-                    if (this.roomData.monthly_price) this.priceTypes.push('monthly');
+                    this.roomData.daily_price = this.roomData.daily_price !== null ?
+                        formatRupiah(this.roomData.daily_price) : '';
+                    this.roomData.monthly_price = this.roomData.monthly_price !== null ?
+                        formatRupiah(this.roomData.monthly_price) : '';
 
-                    // Convert price strings to numbers for hidden inputs
-                    this.dailyPrice = this.roomData.daily_price ? parseInt(this.roomData.daily_price
-                        .replace(/\./g, '')) : 0;
-                    this.monthlyPrice = this.roomData.monthly_price ? parseInt(this.roomData
-                        .monthly_price.replace(/\./g, '')) : 0;
+                    this.priceTypes = [];
+
+                    const rawDailyPrice = this.roomData.daily_price !== null ?
+                        parseFloat(this.originalRoomData.daily_price) : 0;
+                    if (rawDailyPrice > 0) {
+                        this.priceTypes.push('daily');
+                        this.dailyPrice = rawDailyPrice;
+                    }
+
+                    const rawMonthlyPrice = this.roomData.monthly_price !== null ?
+                        parseFloat(this.originalRoomData.monthly_price) : 0;
+                    if (rawMonthlyPrice > 0) {
+                        this.priceTypes.push('monthly');
+                        this.monthlyPrice = rawMonthlyPrice;
+                    }
+
+                    if (!Array.isArray(this.roomData.facilities)) {
+                        this.roomData.facilities = this.roomData.facilities ? [this.roomData
+                            .facilities
+                        ] : [];
+                    }
                 },
 
                 get editRemainingSlots() {
-                    return this.editMaxImages - (this.roomData.existingImages.filter(img => !img
-                        .markedForDeletion).length + this.editImages.length);
+                    const existingImagesCount = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length;
+                    return this.editMaxImages - (existingImagesCount + this.editImages.length);
                 },
 
                 get editCanUploadMore() {
-                    return (this.roomData.existingImages.filter(img => !img.markedForDeletion)
-                        .length + this.editImages.length) < this.editMaxImages;
+                    const existingImagesCount = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length;
+                    return (existingImagesCount + this.editImages.length) < this.editMaxImages;
                 },
 
                 get editUploadProgress() {
@@ -1479,16 +1571,38 @@
                 },
 
                 openModal(data) {
+                    this.originalRoomData = JSON.parse(JSON.stringify(data));
+
+                    data.daily_price = data.daily_price !== null ? formatRupiah(data.daily_price) : '';
+                    data.monthly_price = data.monthly_price !== null ? formatRupiah(data
+                        .monthly_price) : '';
+
                     this.roomData = {
                         ...this.roomData,
-                        ...data
+                        ...data,
+                        facilities: Array.isArray(data.facilities) ? data.facilities : (data
+                            .facilities ? [data.facilities] : [])
                     };
+
                     this.editModalOpen = true;
                     this.editStep = 1;
                     this.editImages = [];
+
                     this.priceTypes = [];
-                    if (this.roomData.daily_price) this.priceTypes.push('daily');
-                    if (this.roomData.monthly_price) this.priceTypes.push('monthly');
+
+                    const rawDailyPrice = data.daily_price !== null ?
+                        parseFloat(this.originalRoomData.daily_price) : 0;
+                    if (rawDailyPrice > 0) {
+                        this.priceTypes.push('daily');
+                        this.dailyPrice = rawDailyPrice;
+                    }
+
+                    const rawMonthlyPrice = data.monthly_price !== null ?
+                        parseFloat(this.originalRoomData.monthly_price) : 0;
+                    if (rawMonthlyPrice > 0) {
+                        this.priceTypes.push('monthly');
+                        this.monthlyPrice = rawMonthlyPrice;
+                    }
                 },
 
                 handleEditFileSelect(event) {
@@ -1504,7 +1618,10 @@
 
                 processEditFiles(files) {
                     const imageFiles = files.filter(file => file.type.startsWith('image/'));
-                    const availableSlots = this.editMaxImages - this.editImages.length;
+                    const existingImagesCount = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length;
+                    const availableSlots = this.editMaxImages - (existingImagesCount + this.editImages
+                        .length);
 
                     if (availableSlots <= 0) {
                         Swal.fire({
@@ -1637,7 +1754,6 @@
                     if (!this.validateEditStep(4) || this.isSubmitting) return;
                     this.isSubmitting = true;
 
-                    // Store the submit button reference and original text
                     const submitBtn = document.querySelector(
                         `#roomFormEdit-${this.roomData.id} button[type="submit"]`);
                     const originalText = submitBtn?.innerHTML;
@@ -1645,21 +1761,20 @@
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Memproses...
-                `;
+                                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Memproses...
+                                            `;
                     }
 
                     try {
-                        // Create FormData for the submission
                         const formData = new FormData();
 
                         // Add all room data
                         for (const [key, value] of Object.entries(this.roomData)) {
-                            if (key === 'existingImages') continue; // Handled separately
+                            if (key === 'existingImages') continue;
 
                             if (Array.isArray(value)) {
                                 value.forEach(item => formData.append(`${key}[]`, item));
@@ -1681,8 +1796,10 @@
                             });
 
                         // Add price values
-                        formData.append('daily_price', this.dailyPrice);
-                        formData.append('monthly_price', this.monthlyPrice);
+                        formData.append('daily_price', this.priceTypes.includes('daily') ? this
+                            .dailyPrice : 0);
+                        formData.append('monthly_price', this.priceTypes.includes('monthly') ? this
+                            .monthlyPrice : 0);
 
                         // Add CSRF token
                         formData.append('_token', document.querySelector('meta[name="csrf-token"]')
@@ -1691,7 +1808,7 @@
 
                         const response = await fetch(document.getElementById(
                             `roomFormEdit-${this.roomData.id}`).action, {
-                            method: 'POST', // Laravel handles PUT via POST with _method
+                            method: 'POST',
                             body: formData,
                             headers: {
                                 'Accept': 'application/json'
@@ -1743,7 +1860,29 @@
                             submitBtn.innerHTML = originalText;
                         }
                     }
-                }
+                },
+
+                formatPriceInput(event, field) {
+                    let value = event.target.value.replace(/[^\d]/g, '');
+
+                    const numericValue = value ? parseInt(value) : 0;
+                    if (field === 'daily_price') {
+                        this.dailyPrice = numericValue;
+                    } else {
+                        this.monthlyPrice = numericValue;
+                    }
+
+                    this.roomData[field] = formatRupiah(value);
+
+                    const formattedValue = this.roomData[field];
+                    const originalCursorPos = event.target.selectionStart;
+                    const diff = formattedValue.length - event.target.value.length;
+
+                    this.$nextTick(() => {
+                        event.target.setSelectionRange(originalCursorPos + diff,
+                            originalCursorPos + diff);
+                    });
+                },
             }));
         });
 

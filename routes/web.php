@@ -86,7 +86,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/rooms/{room}/status', [ManajementRoomsController::class, 'updateStatus'])->name('room.updateStatus');
         Route::get('/rooms/{id}', [ManajementRoomsController::class, 'show'])->where('id', '[0-9]+')->name('rooms.show');
 
-        Route::get('/rooms/{room}/edit', [ManajementRoomsController::class, 'edit'])->name('rooms.edit');
+        // Route::get('/rooms/{room}/edit', [ManajementRoomsController::class, 'edit'])->name('rooms.edit');
         Route::delete('/rooms/{idrec}/destroy', [ManajementRoomsController::class, 'destroy'])->name('rooms.destroy');
 
 

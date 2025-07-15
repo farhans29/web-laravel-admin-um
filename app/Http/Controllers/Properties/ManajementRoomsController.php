@@ -38,7 +38,7 @@ class ManajementRoomsController extends Controller
         $perPage = $request->input('per_page', 8);
 
         $query = Room::where('status', '!=', '2')
-            ->with(['transactions', 'bookings', 'property', 'creator', 'roomImages'])
+            ->with(['property', 'creator'])
             ->orderBy('created_at', 'desc');
 
         // Filter by property
@@ -226,29 +226,26 @@ class ManajementRoomsController extends Controller
 
 
     public function update(Request $request, $idrec)
-    {
+    {                                
         $validated = $request->validate([
-            'edit_property_id' => 'required|numeric|exists:m_properties,idrec',
-            'edit_room_no' => 'required|string|max:255',
-            'edit_room_name' => 'required|string|max:255',
-            'edit_room_size' => 'required|numeric|min:0',
-            'edit_room_bed' => 'required|string|in:Single,Double,King,Queen,Twin',
-            'edit_room_capacity' => 'required|numeric|min:1',
-            'edit_description_id' => 'required|string',
-            'edit_daily_price' => 'nullable|numeric|min:0',
-            'edit_monthly_price' => 'nullable|numeric|min:0',
-            'edit_room_facilities' => 'nullable|array',
-            'edit_room_images' => 'nullable|array|min:3|max:10',
-            'edit_room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+            'property_id' => 'required|numeric|exists:m_properties,idrec',
+            'number' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'size' => 'required|numeric|min:0',
+            'bed' => 'required|string|in:Single,Double,King,Queen,Twin',
+            'capacity' => 'required|numeric|min:1',
+            'description' => 'required|string',
+            'daily_price' => 'nullable|numeric|min:0',
+            'monthly_price' => 'nullable|numeric|min:0',
+            'facilities' => 'nullable|array',
+            'room_images' => 'nullable|array|min:0|max:10',
+            'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+            'delete_images' => 'nullable|array',
+            'delete_images.*' => 'integer',
         ]);
-
-        // Cari data kamar yang akan diupdate
-        $room = Room::findOrFail($idrec);
-
-        // Dapatkan data properti
-        $property = Property::findOrFail($validated['edit_property_id']);
-
-        // Proses fasilitas
+        
+        $room = Room::findOrFail($idrec);        
+        $property = Property::findOrFail($validated['property_id']);        
         $allFacilities = [
             'wifi',
             'ac',
@@ -261,97 +258,101 @@ class ManajementRoomsController extends Controller
             'breakfast'
         ];
         $facilityData = [
-            'features' => array_intersect($request->input('edit_room_facilities', []), $allFacilities),
+            'features' => array_intersect($request->input('facilities', []), $allFacilities),
         ];
 
         // Generate slug baru berdasarkan nama dan properti
         $tagShort = strtolower(substr($property->tags, 0, 3));
-        $nameShort = strtolower(collect(explode(' ', $validated['edit_room_name']))->map(fn($w) => substr($w, 0, 1))->implode(''));
+        $nameShort = strtolower(collect(explode(' ', $validated['name']))->map(fn($w) => substr($w, 0, 1))->implode(''));
         $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
 
         // Update data kamar
-        $room->property_id = $validated['edit_property_id'];
+        $room->property_id = $validated['property_id'];
         $room->property_name = $property->name;
         $room->slug = $slug;
-        $room->no = $validated['edit_room_no'];
-        $room->name = $validated['edit_room_name'];
-        $room->descriptions = $validated['edit_description_id'];
-        $room->size = $validated['edit_room_size'];
-        $room->bed_type = $validated['edit_room_bed'];
-        $room->capacity = $validated['edit_room_capacity'];
+        $room->no = $validated['number'];
+        $room->name = $validated['name'];
+        $room->descriptions = $validated['description'];
+        $room->size = $validated['size'];
+        $room->bed_type = $validated['bed'];
+        $room->capacity = $validated['capacity'];
         $periode = [
-            'daily' => !empty($validated['edit_daily_price']),
-            'monthly' => !empty($validated['edit_monthly_price'])
+            'daily' => !empty($validated['daily_price']),
+            'monthly' => !empty($validated['monthly_price'])
         ];
         $room->periode = json_encode($periode);
         $room->type = $property->type;
         $room->level = 1;
         $room->facility = $facilityData['features'];
-        $room->price = $validated['edit_daily_price'] ?? $validated['edit_monthly_price'] ?? 0;
-        $room->price_original_daily = $validated['edit_daily_price'] ?? 0;
-        $room->price_original_monthly = $validated['edit_monthly_price'] ?? 0;
+        $room->price = $validated['daily_price'] ?? $validated['monthly_price'] ?? 0;
+        $room->price_original_daily = $validated['daily_price'] ?? 0;
+        $room->price_original_monthly = $validated['monthly_price'] ?? 0;
         $room->updated_at = now();
         $room->save();
 
-        // Jika ada gambar baru, hapus gambar lama dan simpan gambar baru
-        if ($request->hasFile('edit_room_images')) {
-            // Hapus semua gambar lama dari DB
-            MRoomImage::where('room_id', $idrec)->delete();
+        $imagesToDelete = $request->input('delete_images', []);
+        if (!empty($imagesToDelete)) {
+            MRoomImage::whereIn('idrec', $imagesToDelete)
+                ->where('room_id', $idrec)
+                ->delete();
+        }
 
-            $imageBase64Array = [];
-            $imageCaptionArray = [];
+        if ($request->hasFile('room_images')) {
+            foreach ($request->file('room_images') as $file) {
+                if (!$file->isValid()) continue;
 
-            foreach ($request->file('edit_room_images') as $file) {
-                if (!$file->isValid()) {
-                    return back()->withErrors(['edit_room_images' => 'Invalid file uploaded.']);
-                }
                 $fileContents = file_get_contents($file->getRealPath());
-                $imageBase64Array[] = base64_encode($fileContents);
-                $imageCaptionArray[] = $file->getClientOriginalName();
-            }
+                $base64 = base64_encode($fileContents);
+                $caption = $file->getClientOriginalName();
 
-            foreach ($imageBase64Array as $index => $base64) {
-                $image = new MRoomImage();
-                $image->room_id = $idrec;
-                $image->image = $base64;
-                $image->caption = $imageCaptionArray[$index] ?? 'No caption';
-                $image->created_by = Auth::id();
-                $image->created_at = now();
-                $image->save();
+                MRoomImage::create([
+                    'room_id' => $idrec,
+                    'image' => $base64,
+                    'caption' => $caption,
+                    'created_by' => Auth::id(),
+                    'created_at' => now(),
+                ]);
             }
         }
 
-        // Update harga harian jika ada perubahan daily_price
         if ($periode['daily']) {
-            // Hapus harga harian lama
-            RoomPrices::where('room_id', $idrec)->delete();
+            // Hanya proses jika daily_price lebih dari 0
+            if ($validated['daily_price'] > 0) {
+                RoomPrices::where('room_id', $idrec)->delete();
 
-            $startDate = Carbon::now();
-            $endDate = $startDate->copy()->addYear();
-            $dailyPrice = $validated['edit_daily_price'];
+                $startDate = Carbon::now();
+                $endDate = $startDate->copy()->addYear();
+                $dailyPrice = $validated['daily_price'];
 
-            $priceInserts = [];
-            while ($startDate->lessThan($endDate)) {
-                $priceInserts[] = [
-                    'room_id' => $idrec,
-                    'date' => $startDate->format('Y-m-d'),
-                    'price' => $dailyPrice,
-                    'created_at' => now(),
-                    'created_by' => Auth::id(),
-                    'status' => '1',
-                ];
+                $priceInserts = [];
+                while ($startDate->lessThan($endDate)) {
+                    $priceInserts[] = [
+                        'room_id' => $idrec,
+                        'date' => $startDate->format('Y-m-d'),
+                        'price' => $dailyPrice,
+                        'created_at' => now(),
+                        'created_by' => Auth::id(),
+                        'status' => '1',
+                    ];
 
-                if (count($priceInserts) >= 1000) {
-                    RoomPrices::insert($priceInserts);
-                    $priceInserts = [];
+                    if (count($priceInserts) >= 1000) {
+                        RoomPrices::insert($priceInserts);
+                        $priceInserts = [];
+                    }
+
+                    $startDate->addDay();
                 }
 
-                $startDate->addDay();
+                if (!empty($priceInserts)) {
+                    RoomPrices::insert($priceInserts);
+                }
+            } else {
+                // Jika daily_price adalah 0, hapus semua harga harian
+                RoomPrices::where('room_id', $idrec)->delete();
             }
-
-            if (!empty($priceInserts)) {
-                RoomPrices::insert($priceInserts);
-            }
+        } else {
+            // Jika daily tidak tercentang, hapus semua harga harian
+            RoomPrices::where('room_id', $idrec)->delete();
         }
 
         return $request->wantsJson()

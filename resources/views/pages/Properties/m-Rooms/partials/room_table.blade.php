@@ -616,7 +616,7 @@
                                                                         x-text="facility === 'wifi' ? 'WiFi' : 
                                                                                 facility === 'ac' ? 'AC' : 
                                                                                 facility === 'tv' ? 'TV' : 
-                                                                                facility === 'bathroom' ? 'Private Bathroom' : 
+                                                                                facility === 'bathroom' ? 'Bathroom' : 
                                                                                 facility === 'hot_water' ? 'Hot Water' : 
                                                                                 facility === 'wardrobe' ? 'Wardrobe' : 
                                                                                 facility === 'desk' ? 'Work Desk' : 
@@ -703,7 +703,7 @@
                                     </div>
                                 </div>
 
-                                {{-- <!-- Edit Room Modal -->
+                                <!-- Edit Room Modal -->
                                 <div x-data="modalRoomEdit({{ $room }})" class="relative group">
                                     @php
                                         $roomImages = $room->roomImages
@@ -914,20 +914,17 @@
                                                                     class="block text-sm font-semibold text-gray-700 mb-2">
                                                                     Properti <span class="text-red-500">*</span>
                                                                 </label>
-                                                                <select id="edit_property_id_{{ $room->idrec }}"
-                                                                    name="property_id" required
-                                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                                                                    <option value="" disabled>Pilih Properti
-                                                                    </option>
-                                                                    @foreach ($properties as $property)
-                                                                        <option value="{{ $property->idrec }}"
-                                                                            :selected="roomData.property_id ==
-                                                                                '{{ $property->idrec }}'">
-                                                                            {{ $property->name }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
+                                                                <input type="text"
+                                                                    id="edit_property_id_{{ $room->idrec }}"
+                                                                    name="property_name"
+                                                                    value="{{ $room->property->name ?? '' }}" readonly
+                                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 bg-gray-100 text-gray-700 focus:outline-none transition-all duration-200">
+
+                                                                {{-- Hidden input untuk menyimpan ID-nya ke database --}}
+                                                                <input type="hidden" name="property_id"
+                                                                    value="{{ $room->property_id }}">
                                                             </div>
+
 
                                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                 <div>
@@ -1057,7 +1054,8 @@
                                                                     <input type="text" x-ref="dailyPriceInput"
                                                                         class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                         placeholder="Masukkan harga harian"
-                                                                        x-model="roomData.daily_price">
+                                                                        x-model="roomData.daily_price"
+                                                                        @input="formatPriceInput($event, 'daily_price')">
                                                                     <input type="hidden" name="daily_price"
                                                                         x-model="dailyPrice">
                                                                 </div>
@@ -1077,7 +1075,8 @@
                                                                     <input type="text" x-ref="monthlyPriceInput"
                                                                         class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                                         placeholder="Masukkan harga bulanan"
-                                                                        x-model="roomData.monthly_price">
+                                                                        x-model="roomData.monthly_price"
+                                                                        @input="formatPriceInput($event, 'monthly_price')">
                                                                     <input type="hidden" name="monthly_price"
                                                                         x-model="monthlyPrice">
                                                                 </div>
@@ -1457,7 +1456,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div> --}}
+                                </div>
 
                                 @if ($isDaily)
                                     <!-- Edit Price (Calendar) -->
@@ -1639,7 +1638,8 @@
                                 @endif
 
                                 <!-- Delete (Bin) -->
-                                <button title="Delete" class="p-2 flex items-center justify-center text-red-600 hover:text-red-900 transition-colors duration-200 rounded-full hover:bg-red-50"
+                                <button title="Delete"
+                                    class="p-2 flex items-center justify-center text-red-600 hover:text-red-900 transition-colors duration-200 rounded-full hover:bg-red-50"
                                     onclick="deleteRoom({{ $room->idrec }})">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
