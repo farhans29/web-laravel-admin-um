@@ -608,39 +608,39 @@
                 monthlyPrice: 0,
                 facilities: [{
                         label: 'AC',
-                        value: 'AC'
+                        value: 'ac'
                     },
                     {
                         label: 'TV',
-                        value: 'TV'
+                        value: 'tv'
                     },
                     {
-                        label: 'Kamar Mandi Pribadi',
-                        value: 'Private Bathroom'
+                        label: 'Kamar Mandi',
+                        value: 'bathroom'
                     },
                     {
                         label: 'WiFi',
-                        value: 'WiFi'
+                        value: 'wifi'
                     },
                     {
                         label: 'Lemari',
-                        value: 'Wardrobe'
+                        value: 'wardrobe'
                     },
                     {
                         label: 'Meja Kerja',
-                        value: 'Desk'
+                        value: 'desk'
                     },
                     {
                         label: 'Kulkas Mini',
-                        value: 'Mini Fridge'
+                        value: 'refrigerator'
                     },
                     {
                         label: 'Air Panas',
-                        value: 'Hot Water'
+                        value: 'hot_water'
                     },
                     {
                         label: 'Sarapan',
-                        value: 'Breakfast'
+                        value: 'breakfast'
                     }
                 ],
 
@@ -1362,40 +1362,40 @@
                 dailyPrice: 0,
                 monthlyPrice: 0,
                 facilities: [{
-                        value: 'wifi',
-                        label: 'Wi-Fi'
+                        label: 'AC',
+                        value: 'ac'
                     },
                     {
-                        value: 'ac',
-                        label: 'AC'
+                        label: 'TV',
+                        value: 'tv'
                     },
                     {
-                        value: 'tv',
-                        label: 'TV'
+                        label: 'Kamar Mandi',
+                        value: 'bathroom'
                     },
                     {
-                        value: 'bathroom',
-                        label: 'Kamar Mandi'
+                        label: 'WiFi',
+                        value: 'wifi'
                     },
                     {
-                        value: 'hot_water',
-                        label: 'Air Panas'
+                        label: 'Lemari',
+                        value: 'wardrobe'
                     },
                     {
-                        value: 'wardrobe',
-                        label: 'Lemari'
+                        label: 'Meja Kerja',
+                        value: 'desk'
                     },
                     {
-                        value: 'desk',
-                        label: 'Meja'
+                        label: 'Kulkas Mini',
+                        value: 'refrigerator'
                     },
                     {
-                        value: 'refrigerator',
-                        label: 'Kulkas'
+                        label: 'Air Panas',
+                        value: 'hot_water'
                     },
                     {
-                        value: 'breakfast',
-                        label: 'Sarapan'
+                        label: 'Sarapan',
+                        value: 'breakfast'
                     }
                 ],
                 isSubmitting: false,

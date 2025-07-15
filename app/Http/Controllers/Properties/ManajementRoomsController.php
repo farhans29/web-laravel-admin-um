@@ -92,7 +92,7 @@ class ManajementRoomsController extends Controller
 
 
     public function store(Request $request)
-    {
+    {        
         $validated = $request->validate([
             'property_id' => 'required|numeric|exists:m_properties,idrec',
             'room_no' => 'required|string|max:255',
@@ -103,7 +103,7 @@ class ManajementRoomsController extends Controller
             'description_id' => 'required|string',
             'daily_price' => 'nullable|numeric|min:0',
             'monthly_price' => 'nullable|numeric|min:0',
-            'room_facilities' => 'nullable|array',
+            'facilities' => 'nullable|array',
             'room_images' => 'required|array|min:3|max:10',
             'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
         ]);
@@ -125,7 +125,7 @@ class ManajementRoomsController extends Controller
         ];
 
         $facilityData = [
-            'features' => array_intersect($request->input('room_facilities', []), $allFacilities),
+            'features' => array_intersect($request->input('facilities', []), $allFacilities),
         ];
 
         // Generate ID and unique slug
@@ -152,8 +152,7 @@ class ManajementRoomsController extends Controller
         $periode = [
             'daily' => !empty($validated['daily_price']),
             'monthly' => !empty($validated['monthly_price'])
-        ];
-
+        ];        
         // Save to rooms table
         $room = new Room();
         $room->idrec = $idrec;
