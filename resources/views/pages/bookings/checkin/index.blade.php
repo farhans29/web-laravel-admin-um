@@ -183,7 +183,8 @@
 
                         this.profilePhotoUrlDemo = data.user_profile_photo_demo || null;
                         this.profilePhotoUrlWeb = data.user_profile_photo_web || null;
-                        this.profilePhotoUrl = data.user_profile_photo || null;
+                        this.profilePhotoUrl = this.profilePhotoUrlWeb || this
+                            .profilePhotoUrlDemo || null;
 
                     } catch (error) {
                         console.error('Error fetching booking details:', error);
