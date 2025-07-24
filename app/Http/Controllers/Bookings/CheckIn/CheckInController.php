@@ -81,11 +81,16 @@ class CheckInController extends Controller
 
     public function getBookingDetails($orderId)
     {
-        $booking = Booking::with(['transaction', 'property', 'room'])
+        $booking = Booking::with(['transaction', 'property', 'room', 'transaction.user'])
             ->where('order_id', $orderId)
             ->firstOrFail();
 
-        return response()->json($booking);
+        $response = $booking->toArray();
+
+        // Add profile photo path if available
+        $response['user_profile_photo'] = optional($booking->transaction->user)->profile_photo_path;
+
+        return response()->json($response);
     }
 
     public function checkIn(Request $request, $order_id)

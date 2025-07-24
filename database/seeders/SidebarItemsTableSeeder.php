@@ -41,8 +41,7 @@ class SidebarItemsTableSeeder extends Seeder
             'route' => null,
             'permission_id' => null,
             'parent_id' => null,
-            'order' => 1,
-            'is_section' => true
+            'order' => 1,            
         ]);
 
         $financialSection = SidebarItem::create([
@@ -50,8 +49,7 @@ class SidebarItemsTableSeeder extends Seeder
             'route' => null,
             'permission_id' => null,
             'parent_id' => null,
-            'order' => 2,
-            'is_section' => true
+            'order' => 2,            
         ]);
 
         $settingsSection = SidebarItem::create([
@@ -59,8 +57,7 @@ class SidebarItemsTableSeeder extends Seeder
             'route' => null,
             'permission_id' => null,
             'parent_id' => null,
-            'order' => 3,
-            'is_section' => true
+            'order' => 3,            
         ]);
 
         // Management items
@@ -77,8 +74,7 @@ class SidebarItemsTableSeeder extends Seeder
             'route' => null,
             'permission_id' => $permissions['view_bookings'],
             'parent_id' => $managementSection->id,
-            'order' => 2,
-            'has_children' => true
+            'order' => 2,            
         ]);
 
         // Bookings children
@@ -119,8 +115,7 @@ class SidebarItemsTableSeeder extends Seeder
             'route' => null,
             'permission_id' => $permissions['view_properties'],
             'parent_id' => $managementSection->id,
-            'order' => 3,
-            'has_children' => true
+            'order' => 3,            
         ]);
 
         // Properties children
@@ -143,7 +138,7 @@ class SidebarItemsTableSeeder extends Seeder
         $roomUnits = SidebarItem::create([
             'name' => 'Rooms/Units',
             'route' => 'changerooom.index',
-            'permission_id' => $permissions['view_room_units'],
+            'permission_id' => $permissions['view_rooms'],
             'parent_id' => $managementSection->id,
             'order' => 4
         ]);

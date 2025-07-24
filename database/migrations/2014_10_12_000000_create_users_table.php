@@ -25,6 +25,8 @@ return new class extends Migration
             $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->integer('is_admin')->default(0);
             $table->integer('status')->default('1');
+            $table->binary('profile_picture')->nullable();
+            $table->string('profile_photo_path', 255)->nullable();
             $table->unsignedBigInteger('role_id')->nullable()->default(2);
             $table->string('dep')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

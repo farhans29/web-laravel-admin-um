@@ -35,7 +35,9 @@ class User extends Authenticatable
         'status',
         'created_by',
         'updated_by',
-        'employee_id'
+        'employee_id',
+        'profile_picture',
+        'profile_photo_path',
     ];
 
     /**

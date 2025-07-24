@@ -32,98 +32,77 @@
 
                 <!-- Quick Stats -->
                 <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Checked Out -->
+                    <!-- Confirm Booking (Upcoming) -->
                     <div
                         class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-blue-300 hover:bg-white/15 transition-all duration-200">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">Checked Out</p>
-                                <h3 class="text-white text-2xl font-bold mt-1">78</h3>
-                                <p class="text-green-200 text-xs mt-1 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    +5 today
-                                </p>
+                                <p class="text-blue-100 text-sm font-medium">Confirm Booking (Upcoming)</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">{{ $stats['upcoming'] }}</h3>
+                                <p class="text-blue-200 text-xs mt-1">Needs confirmation</p>
                             </div>
                             <div class="bg-blue-500/20 p-2 rounded-lg">
-                                <!-- Checkout/Exit icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-200" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Ready Room -->
+                    <!-- Confirm Booking (Today) -->
+                    <div
+                        class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-purple-300 hover:bg-white/15 transition-all duration-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-blue-100 text-sm font-medium">Confirm Booking (Today)</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">{{ $stats['today'] }}</h3>
+                                <p class="text-purple-200 text-xs mt-1">For today's arrival</p>
+                            </div>
+                            <div class="bg-purple-500/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-200" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Check-In -->
                     <div
                         class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-green-300 hover:bg-white/15 transition-all duration-200">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">Ready Room</p>
-                                <h3 class="text-white text-2xl font-bold mt-1">24</h3>
-                                <p class="text-blue-200 text-xs mt-1">8 cleaned today</p>
+                                <p class="text-blue-100 text-sm font-medium">Check-In</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">{{ $stats['checkin'] }}</h3>
+                                <p class="text-green-200 text-xs mt-1">Currently staying</p>
                             </div>
                             <div class="bg-green-500/20 p-2 rounded-lg">
-                                <!-- Clean/Ready room icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-200" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7" />
+                                        d="M5 10l7-7m0 0l7 7m-7-7v18" />
                                 </svg>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Today's Check-in -->
+                    <!-- Check-Out -->
                     <div
                         class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-yellow-300 hover:bg-white/15 transition-all duration-200">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">Today's Check-in</p>
-                                <h3 class="text-white text-2xl font-bold mt-1">32</h3>
-                                <p class="text-green-200 text-xs mt-1 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    +4 from yesterday
-                                </p>
+                                <p class="text-blue-100 text-sm font-medium">Check-Out</p>
+                                <h3 class="text-white text-2xl font-bold mt-1">{{ $stats['checkout'] }}</h3>
+                                <p class="text-yellow-200 text-xs mt-1">Completed stays</p>
                             </div>
                             <div class="bg-yellow-500/20 p-2 rounded-lg">
-                                <!-- Check-in/Enter icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-200" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 8l-4 4m0 0l4 4m-4-4h14m-6-4v-1a3 3 0 013-3h4a3 3 0 013 3v10a3 3 0 01-3 3h-4a3 3 0 01-3-3v-1" />
-                                </svg>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- Guest Staying -->
-                    <div
-                        class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-red-300 hover:bg-white/15 transition-all duration-200">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-blue-100 text-sm font-medium">Guest Staying</p>
-                                <h3 class="text-white text-2xl font-bold mt-1">120</h3>
-                                <p class="text-red-200 text-xs mt-1">15 extended stay</p>
-                            </div>
-                            <div class="bg-red-500/20 p-2 rounded-lg">
-                                <!-- Guests/People staying icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-200" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                 </svg>
                             </div>
                         </div>
@@ -144,67 +123,10 @@
                             class="text-sm font-medium text-blue-600 hover:text-blue-800">View All</a>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Booking ID</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Guest</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Room</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($bookings as $booking)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {{ $booking->order_id }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $booking->transaction->user_name ?? '-' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $booking->property->name ?? '-' }}
-                                            ({{ $booking->room->name ?? '-' }})
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @php
-                                                $status = $booking->status;
-                                                $badgeClass = match ($status) {
-                                                    'Checked-In' => 'bg-green-100 text-green-800',
-                                                    'Waiting for Check-In' => 'bg-yellow-100 text-yellow-800',
-                                                    'Checked-Out' => 'bg-blue-100 text-blue-800',
-                                                    'Cancelled' => 'bg-red-100 text-red-800',
-                                                    default => 'bg-gray-100 text-gray-800',
-                                                };
-                                            @endphp
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $badgeClass }}">
-                                                {{ $status }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <a href="" class="text-blue-600 hover:text-blue-900">Details</a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No
-                                            bookings found.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                        @include('pages.dashboard.partials.booking_table', [
+                            'bookings' => $bookings,
+                            'per_page' => request('per_page', 4),
+                        ])
 
                         <!-- Pagination -->
                         <div class="px-5 py-4 border-t border-gray-200">
@@ -260,7 +182,7 @@
                                         </div>
                                     </div>
                                 @endforeach
-                            </div>                            
+                            </div>
                         </div>
                     </div>
                 </div>

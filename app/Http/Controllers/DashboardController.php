@@ -18,6 +18,20 @@ class DashboardController extends Controller
             ->orderByDesc('check_in_at')
             ->paginate(4);
 
+        // Stats data
+        $stats = [
+            'upcoming' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'pending'))->count(),
+            'today' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'waiting'))->count(),
+            'checkin' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
+                ->whereNotNull('check_in_at')
+                ->whereNull('check_out_at')
+                ->count(),
+            'checkout' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
+                ->whereNotNull('check_in_at')
+                ->whereNotNull('check_out_at')
+                ->count(),
+        ];        
+
         // Get room availability for the next 7 days
         $startDate = now();
         $endDate = now()->addDays(7);
@@ -61,7 +75,7 @@ class DashboardController extends Controller
             ];
         }
 
-        return view('pages/dashboard/dashboard', compact('dataFeed', 'bookings', 'roomAvailability'));
+        return view('pages/dashboard/dashboard', compact('dataFeed', 'bookings', 'roomAvailability', 'stats'));
     }
 
 

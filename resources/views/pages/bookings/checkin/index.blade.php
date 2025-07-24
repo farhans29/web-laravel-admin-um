@@ -70,33 +70,6 @@
             {{ $bookings->appends(request()->input())->links() }}
         </div>
     </div>
-    <style>
-        #qr-reader video {
-            width: 100% !important;
-            height: auto !important;
-        }
-
-        #qr-reader__dashboard_section_csr {
-            padding: 10px !important;
-        }
-
-        #qr-reader__dashboard_section_csr button {
-            background-color: #059669 !important;
-            color: white !important;
-            border: none !important;
-            padding: 8px 12px !important;
-            margin: 5px !important;
-            border-radius: 4px !important;
-            font-size: 14px !important;
-        }
-
-        #qr-reader__dashboard_section_csr select {
-            border: 1px solid #d1d5db !important;
-            border-radius: 4px !important;
-            padding: 6px !important;
-            margin: 5px !important;
-        }
-    </style>
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('checkInModal', (initialOrderId) => ({
@@ -104,6 +77,7 @@
                 isDragging: false,
                 docPreview: null,
                 docPreviewType: null,
+                profilePhotoUrl: null,
                 selectedDocType: 'ktp',
                 bookingId: initialOrderId,
                 currentDateTime: new Date().toLocaleString('en-US', {
@@ -124,11 +98,6 @@
                     duration: '',
                     total_payment: ''
                 },
-                activeTab: 'upload',
-                manualIdNumber: '',
-                scannedIdData: null,
-                html5QrCode: null,
-                scannerActive: false,
 
                 init() {
                     // Update time every second
@@ -177,7 +146,7 @@
                                     day: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit',
-                                    hour12: false // gunakan true untuk format AM/PM
+                                    hour12: false
                                 }) : 'N/A',
 
                             check_out: data.transaction?.check_out ?
@@ -195,8 +164,13 @@
                             duration: this.calculateDuration(data.transaction?.check_in, data
                                 .transaction?.check_out),
                             total_payment: data.transaction?.grandtotal_price ?
-                                this.formatRupiah(data.transaction.grandtotal_price) : 'N/A'
+                                this.formatRupiah(data.transaction.grandtotal_price) : 'N/A',
+
                         };
+
+                        this.profilePhotoUrl = data.user_profile_photo ?
+                            `/storage/${data.user_profile_photo}` :
+                            null;
                     } catch (error) {
                         console.error('Error fetching booking details:', error);
                         this.showErrorToast('Failed to load booking details');
@@ -213,11 +187,6 @@
 
                     return `${diffDays} night${diffDays > 1 ? 's' : ''}`;
                 },
-
-                // closeModal() {
-                //     this.isOpen = false;
-                //     this.resetForm();
-                // },
 
                 handleDocDrop(e) {
                     this.isDragging = false;
@@ -316,15 +285,6 @@
                     });
                 },
 
-                // resetForm() {
-                //     this.docPreview = null;
-                //     this.docPreviewType = null;
-                //     this.selectedDocType = 'ktp';
-                //     if (this.$refs.docInput) {
-                //         this.$refs.docInput.value = '';
-                //     }
-                // },
-
                 formatRupiah(value) {
                     const numericValue = parseFloat(value);
 
@@ -340,167 +300,15 @@
                     }).format(numericValue);
                 },
 
-                initScanner() {
-                    if (this.html5QrCode) {
-                        // Scanner already initialized
-                        if (!this.scannerActive) {
-                            this.startScanner();
-                        }
-                        return;
-                    }
-
-                    // Initialize the scanner
-                    this.html5QrCode = new Html5Qrcode("qr-reader");
-
-                    const config = {
-                        fps: 10,
-                        qrbox: {
-                            width: 250,
-                            height: 250
-                        },
-                        rememberLastUsedCamera: true,
-                        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-                    };
-
-                    this.startScanner();
-                },
-
-                async startScanner() {
-                    try {
-                        const cameras = await Html5Qrcode.getCameras();
-                        if (cameras && cameras.length > 0) {
-                            await this.html5QrCode.start(
-                                cameras[0].id,
-                                config,
-                                this.onScanSuccess.bind(this),
-                                this.onScanError.bind(this)
-                            );
-                            this.scannerActive = true;
-                        } else {
-                            this.showErrorToast('No cameras found');
-                        }
-                    } catch (err) {
-                        this.showErrorToast('Failed to start scanner: ' + err);
-                    }
-                },
-
-                stopScanner() {
-                    if (this.html5QrCode && this.scannerActive) {
-                        this.html5QrCode.stop().then(() => {
-                            this.scannerActive = false;
-                        }).catch(err => {
-                            console.error("Failed to stop scanner", err);
-                        });
-                    }
-                },
-
-                onScanSuccess(decodedText, decodedResult) {
-                    this.stopScanner();
-
-                    try {
-                        // Try to parse as JSON if it's a structured barcode
-                        const parsedData = JSON.parse(decodedText);
-                        this.scannedIdData = parsedData;
-                    } catch (e) {
-                        // If not JSON, treat as simple ID number
-                        this.scannedIdData = {
-                            id_number: decodedText,
-                            type: this.selectedDocType
-                        };
-                    }
-
-                    this.showSuccessToast('ID scanned successfully!');
-                },
-
-                onScanError(errorMessage) {
-                    // Don't show errors if we're not actively scanning
-                    if (this.scannerActive) {
-                        console.log('Scan error:', errorMessage);
-                    }
-                },
-
-                useManualId() {
-                    if (this.manualIdNumber.trim()) {
-                        this.scannedIdData = {
-                            id_number: this.manualIdNumber,
-                            type: this.selectedDocType
-                        };
-                        this.showSuccessToast('ID number entered');
-                    } else {
-                        this.showErrorToast('Please enter an ID number');
-                    }
-                },
-
-                useScannedId() {
-                    if (this.scannedIdData) {
-                        // Convert the scanned data to an image (simulated)
-                        this.docPreview = this.generateIdImage(this.scannedIdData);
-                        this.docPreviewType = 'image';
-                        this.scannedIdData = null;
-                        this.manualIdNumber = '';
-                        this.activeTab = 'upload'; // Switch back to upload tab to show preview
-                        this.stopScanner();
-                    }
-                },
-
-                generateIdImage(data) {
-                    // Create a canvas with the ID data
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 400;
-                    canvas.height = 250;
-                    const ctx = canvas.getContext('2d');
-
-                    // Background
-                    ctx.fillStyle = '#f8fafc';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                    // Title
-                    ctx.fillStyle = '#1e293b';
-                    ctx.font = 'bold 16px Arial';
-                    ctx.fillText('SCANNED ID DOCUMENT', 20, 30);
-
-                    // Data
-                    ctx.font = '12px Arial';
-                    let y = 60;
-
-                    // Safely handle the data object
-                    if (data && typeof data === 'object') {
-                        for (const [key, value] of Object.entries(data)) {
-                            // Ensure key is a string before calling replace
-                            const displayKey = typeof key === 'string' ? key.replace(/_/g, ' ') :
-                                String(key);
-                            const displayValue = value !== null && value !== undefined ? String(value) :
-                                '';
-
-                            ctx.fillText(`${displayKey}: ${displayValue}`, 20, y);
-                            y += 20;
-                        }
-                    }
-
-                    // Border
-                    ctx.strokeStyle = '#10b981';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
-
-                    return canvas.toDataURL();
-                },
-
-                // Modify closeModal to stop scanner
                 closeModal() {
-                    this.stopScanner();
                     this.isOpen = false;
                     this.resetForm();
                 },
 
-                // Modify resetForm to clear scanner data
                 resetForm() {
-                    this.stopScanner();
                     this.docPreview = null;
                     this.docPreviewType = null;
                     this.selectedDocType = 'ktp';
-                    this.activeTab = 'upload';
-                    this.manualIdNumber = '';
-                    this.scannedIdData = null;
                     if (this.$refs.docInput) {
                         this.$refs.docInput.value = '';
                     }

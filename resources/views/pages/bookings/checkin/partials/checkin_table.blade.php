@@ -217,6 +217,37 @@
 
                                             <!-- Document Upload Section -->
                                             <div>
+                                                <!-- Profile Photo Display -->
+                                                <div class="mb-6 text-center">
+                                                    <h3 class="font-semibold text-lg text-gray-800 mb-2">Guest Profile
+                                                    </h3>
+                                                    <template x-if="profilePhotoUrl">
+                                                        <div class="flex flex-col items-center">
+                                                            <img :src="profilePhotoUrl" alt="Profile Photo"
+                                                                class="w-24 h-24 rounded-full object-cover border-2 border-green-200">
+                                                            <span class="mt-2 text-sm text-gray-600"
+                                                                x-text="bookingDetails.guest_name"></span>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="!profilePhotoUrl">
+                                                        <div class="flex flex-col items-center">
+                                                            <div
+                                                                class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                    class="h-12 w-12 text-gray-400" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                                </svg>
+                                                            </div>
+                                                            <span class="mt-2 text-sm text-gray-600"
+                                                                x-text="bookingDetails.guest_name"></span>
+                                                            <span class="text-xs text-red-500 mt-1">Account not
+                                                                Verified</span>
+                                                        </div>
+                                                    </template>
+                                                </div>
                                                 <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                     <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
@@ -227,21 +258,7 @@
                                                     Upload Identification
                                                 </h3>
 
-                                                <!-- Toggle between upload and scan -->
-                                                <div class="mb-4 flex rounded-md shadow-sm">
-                                                    <button type="button" @click="activeTab = 'upload'"
-                                                        :class="{ 'bg-green-600 text-white': activeTab === 'upload', 'bg-white text-gray-700': activeTab !== 'upload' }"
-                                                        class="flex-1 py-2 px-4 text-sm font-medium rounded-l-md border border-gray-300 focus:z-10 focus:outline-none focus:ring-1 focus:ring-green-500">
-                                                        Upload
-                                                    </button>
-                                                    <button type="button" @click="activeTab = 'scan'; initScanner()"
-                                                        :class="{ 'bg-green-600 text-white': activeTab === 'scan', 'bg-white text-gray-700': activeTab !== 'scan' }"
-                                                        class="flex-1 py-2 px-4 text-sm font-medium rounded-r-md border border-gray-300 focus:z-10 focus:outline-none focus:ring-1 focus:ring-green-500">
-                                                        Scan Barcode
-                                                    </button>
-                                                </div>
-
-                                                <!-- Document Type Selection (shown for both options) -->
+                                                <!-- Document Type Selection -->
                                                 <div class="mb-4">
                                                     <label
                                                         class="block text-sm font-medium text-gray-700 mb-1">Document
@@ -256,8 +273,7 @@
                                                 </div>
 
                                                 <!-- Upload Section -->
-                                                <div x-show="activeTab === 'upload'">
-                                                    <!-- Existing upload content... -->
+                                                <div>
                                                     <div x-show="!docPreview"
                                                         class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200 cursor-pointer"
                                                         @click="$refs.docInput.click()"
@@ -323,59 +339,8 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Scanner Section -->
-                                                <div x-show="activeTab === 'scan'">
-                                                    <div class="mb-4">
-                                                        <label
-                                                            class="block text-sm font-medium text-gray-700 mb-2">Scan
-                                                            Barcode/QR Code</label>
-
-                                                        <!-- Scanner container -->
-                                                        <div id="scanner-container"
-                                                            class="border-2 border-gray-300 rounded-lg overflow-hidden">
-                                                            <div id="qr-reader"
-                                                                style="width: 100%; min-height: 300px;"></div>
-                                                        </div>
-
-                                                        <!-- Or enter manually -->
-                                                        <div class="mt-4">
-                                                            <label
-                                                                class="block text-sm font-medium text-gray-700 mb-1">Or
-                                                                enter ID number manually</label>
-                                                            <input type="text" x-model="manualIdNumber"
-                                                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"
-                                                                placeholder="Enter ID number">
-                                                            <button @click="useManualId"
-                                                                class="mt-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                                                                Use This ID
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Preview of scanned ID -->
-                                                    <div x-show="scannedIdData"
-                                                        class="mt-4 p-4 border border-green-200 bg-green-50 rounded-lg">
-                                                        <h4 class="text-sm font-medium text-green-800 mb-2">Scanned ID
-                                                            Data:</h4>
-                                                        <div class="grid grid-cols-2 gap-2">
-                                                            <template x-for="(value, key) in scannedIdData">
-                                                                <div>
-                                                                    <span class="text-xs font-medium text-gray-600"
-                                                                        x-text="key.replace(/_/g, ' ') + ':'"></span>
-                                                                    <span class="text-xs text-gray-800"
-                                                                        x-text="value"></span>
-                                                                </div>
-                                                            </template>
-                                                        </div>
-                                                        <button @click="useScannedId"
-                                                            class="mt-3 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
-                                                            Use This ID for Check-In
-                                                        </button>
-                                                    </div>
-                                                </div>
-
                                                 <!-- Validation Message -->
-                                                <div class="mt-3" x-show="!docPreview && activeTab === 'upload'">
+                                                <div class="mt-3" x-show="!docPreview">
                                                     <p class="text-sm text-red-600">
                                                         <span class="font-medium">Note:</span> Identification document
                                                         is required for check-in.
