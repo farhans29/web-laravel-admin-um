@@ -87,15 +87,19 @@ class CheckInController extends Controller
 
         $response = $booking->toArray();
 
-        // Tambahkan URL foto profil secara manual ke domain yang benar
+        // Tambahkan dua versi URL foto profil jika tersedia
         if ($booking->transaction->user && $booking->transaction->user->profile_photo_path) {
-            $response['user_profile_photo'] = 'https://demo-ulinmahoni.integrated-os.cloud/storage/' . $booking->transaction->user->profile_photo_path;
+            $photoPath = $booking->transaction->user->profile_photo_path;
+            $response['user_profile_photo_demo'] = 'https://demo-ulinmahoni.integrated-os.cloud/storage/' . $photoPath;
+            $response['user_profile_photo_web'] = 'https://web.ulinmahoni.com/storage/' . $photoPath;
         } else {
-            $response['user_profile_photo'] = null;
+            $response['user_profile_photo_demo'] = null;
+            $response['user_profile_photo_web'] = null;
         }
 
         return response()->json($response);
     }
+
 
 
     public function checkIn(Request $request, $order_id)
