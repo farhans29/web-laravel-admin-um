@@ -612,6 +612,8 @@
                 monthlyPrice: 0,
                 dailyPriceError: '',
                 monthlyPriceError: '',
+                isCheckingRoomNo: false,
+                roomNoError: '',
                 facilities: [{
                         label: 'AC',
                         value: 'ac'
@@ -847,6 +849,56 @@
                                 }
                             }
                         });
+
+                        if (isValid) {
+                            const propertyId = document.getElementById('property_id').value;
+                            const roomNo = document.getElementById('room_no').value;
+
+                            // Tampilkan loading
+                            this.isCheckingRoomNo = true;
+                            this.roomNoError = '';
+
+                            // Lakukan AJAX request untuk mengecek nomor kamar
+                            return fetch('/properties/rooms/check-room-number', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
+                                    },
+                                    body: JSON.stringify({
+                                        property_id: propertyId,
+                                        room_no: roomNo
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    this.isCheckingRoomNo = false;
+
+                                    if (data.exists) {
+                                        document.getElementById('room_no').classList.add(
+                                            'border-red-500');
+                                        this.roomNoError = data.message;
+
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Nomor Kamar Sudah Ada',
+                                            text: data.message,
+                                            confirmButtonText: 'OK'
+                                        });
+
+                                        return false;
+                                    }
+
+                                    return true;
+                                })
+                                .catch(error => {
+                                    this.isCheckingRoomNo = false;
+                                    console.error('Error:', error);
+                                    return true; // Biarkan lanjut meskipun error
+                                });
+                        }
 
                     } else if (step === 2) {
                         if (this.priceTypes.length === 0) {
@@ -1688,11 +1740,11 @@
                             alert('Properti harus dipilih');
                             return false;
                         }
-                        if (!this.roomData.name.trim()) {
+                        if (!this.roomData.name || !this.roomData.name.toString().trim()) {
                             alert('Nama kamar harus diisi');
                             return false;
                         }
-                        if (!this.roomData.number.trim()) {
+                        if (!this.roomData.number || !this.roomData.number.toString().trim()) {
                             alert('Nomor kamar harus diisi');
                             return false;
                         }
@@ -1708,7 +1760,8 @@
                             alert('Kapasitas kamar harus diisi');
                             return false;
                         }
-                        if (!this.roomData.description.trim()) {
+                        if (!this.roomData.description || !this.roomData.description.toString()
+                        .trim()) {
                             alert('Deskripsi kamar harus diisi');
                             return false;
                         }

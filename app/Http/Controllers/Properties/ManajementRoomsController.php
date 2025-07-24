@@ -92,7 +92,7 @@ class ManajementRoomsController extends Controller
 
 
     public function store(Request $request)
-    {        
+    {
         $validated = $request->validate([
             'property_id' => 'required|numeric|exists:m_properties,idrec',
             'room_no' => 'required|string|max:255',
@@ -152,7 +152,7 @@ class ManajementRoomsController extends Controller
         $periode = [
             'daily' => !empty($validated['daily_price']),
             'monthly' => !empty($validated['monthly_price'])
-        ];        
+        ];
         // Save to rooms table
         $room = new Room();
         $room->idrec = $idrec;
@@ -224,9 +224,28 @@ class ManajementRoomsController extends Controller
             : redirect()->route('rooms.index')->with('success', 'Ruangan berhasil dibuat!');
     }
 
+    public function checkRoomNumber(Request $request)
+    {
+        // dd($request->all());
+        $request->validate([
+            'property_id' => 'required|exists:properties,idrec',
+            'room_no' => 'required|string|max:20'
+        ]);
+
+        $exists = Room::where('property_id', $request->property_id)
+            ->where('no', $request->room_no)
+            ->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists
+                ? 'Nomor kamar ini sudah ada di properti yang dipilih.'
+                : 'Nomor kamar tersedia.'
+        ]);
+    }
 
     public function update(Request $request, $idrec)
-    {                                
+    {
         $validated = $request->validate([
             'property_id' => 'required|numeric|exists:m_properties,idrec',
             'number' => 'required|string|max:255',
@@ -243,9 +262,9 @@ class ManajementRoomsController extends Controller
             'delete_images' => 'nullable|array',
             'delete_images.*' => 'integer',
         ]);
-        
-        $room = Room::findOrFail($idrec);        
-        $property = Property::findOrFail($validated['property_id']);        
+
+        $room = Room::findOrFail($idrec);
+        $property = Property::findOrFail($validated['property_id']);
         $allFacilities = [
             'wifi',
             'ac',
@@ -465,7 +484,7 @@ class ManajementRoomsController extends Controller
         ]);
 
         return response()->json(['success' => true]);
-    }   
+    }
 
     public function destroy($idrec)
     {
