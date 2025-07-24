@@ -78,6 +78,8 @@
                 docPreview: null,
                 docPreviewType: null,
                 profilePhotoUrl: null,
+                profilePhotoUrlDemo: null,
+                profilePhotoUrlWeb: null,
                 selectedDocType: 'ktp',
                 bookingId: initialOrderId,
                 isBeforeCheckInTime: false,
@@ -179,6 +181,8 @@
 
                         };
 
+                        this.profilePhotoUrlDemo = data.user_profile_photo_demo || null;
+                        this.profilePhotoUrlWeb = data.user_profile_photo_web || null;
                         this.profilePhotoUrl = data.user_profile_photo || null;
 
                     } catch (error) {
