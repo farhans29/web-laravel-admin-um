@@ -87,8 +87,12 @@ class CheckInController extends Controller
 
         $response = $booking->toArray();
 
-        // Add profile photo path if available
-        $response['user_profile_photo'] = optional($booking->transaction->user)->profile_photo_path;
+        // Add profile photo URL if available
+        if ($booking->transaction->user && $booking->transaction->user->profile_photo_path) {
+            $response['user_profile_photo'] = asset('storage/' . $booking->transaction->user->profile_photo_path);
+        } else {
+            $response['user_profile_photo'] = null;
+        }
 
         return response()->json($response);
     }

@@ -5,7 +5,7 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Completed Bookings
+                    Completed
                 </h1>
             </div>
         </div>

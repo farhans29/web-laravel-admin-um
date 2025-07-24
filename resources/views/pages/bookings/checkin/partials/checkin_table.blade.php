@@ -218,36 +218,40 @@
                                             <!-- Document Upload Section -->
                                             <div>
                                                 <!-- Profile Photo Display -->
-                                                <div class="mb-6 text-center">
+                                                <div class="mb-6">
                                                     <h3 class="font-semibold text-lg text-gray-800 mb-2">Guest Profile
                                                     </h3>
-                                                    <template x-if="profilePhotoUrl">
-                                                        <div class="flex flex-col items-center">
-                                                            <img :src="profilePhotoUrl" alt="Profile Photo"
-                                                                class="w-24 h-24 rounded-full object-cover border-2 border-green-200">
-                                                            <span class="mt-2 text-sm text-gray-600"
-                                                                x-text="bookingDetails.guest_name"></span>
-                                                        </div>
-                                                    </template>
-                                                    <template x-if="!profilePhotoUrl">
-                                                        <div class="flex flex-col items-center">
-                                                            <div
-                                                                class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                    class="h-12 w-12 text-gray-400" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                                </svg>
+                                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                                                        <template x-if="profilePhotoUrl">
+                                                            <div class="flex flex-col items-center">
+                                                                <img :src="profilePhotoUrl" alt="Profile Photo"
+                                                                    class="w-full h-48 object-contain rounded-lg">
+                                                                <span class="mt-2 text-sm text-gray-600"
+                                                                    x-text="bookingDetails.guest_name"></span>
                                                             </div>
-                                                            <span class="mt-2 text-sm text-gray-600"
-                                                                x-text="bookingDetails.guest_name"></span>
-                                                            <span class="text-xs text-red-500 mt-1">Account not
-                                                                Verified</span>
-                                                        </div>
-                                                    </template>
+                                                        </template>
+                                                        <template x-if="!profilePhotoUrl">
+                                                            <div
+                                                                class="flex flex-col items-center justify-center h-48">
+                                                                <div
+                                                                    class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="h-12 w-12 text-gray-400" fill="none"
+                                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                                    </svg>
+                                                                </div>
+                                                                <span class="mt-2 text-sm text-gray-600"
+                                                                    x-text="bookingDetails.guest_name"></span>
+                                                                <span class="text-xs text-red-500 mt-1">Account not
+                                                                    Verified</span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
                                                 </div>
+
                                                 <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                     <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
