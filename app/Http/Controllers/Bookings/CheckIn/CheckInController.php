@@ -101,7 +101,8 @@ class CheckInController extends Controller
     {
         $validated = $request->validate([
             'doc_type' => 'required|string|in:ktp,passport,sim,other',
-            'doc_image' => 'required|string',
+            'doc_image' => 'sometimes|string',  // Changed to sometimes
+            'has_profile_photo' => 'sometimes|boolean'
         ]);
 
         try {
@@ -116,24 +117,27 @@ class CheckInController extends Controller
                 ], 400);
             }
 
-            // Process the document image (base64 encoded)
-            $imageData = $validated['doc_image'];
+            $path = null;
 
-            // Validate it's a proper image or PDF (basic check)
-            if (!preg_match('/^data:(image\/(png|jpeg|jpg)|application\/pdf);base64,/', $imageData)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid document format'
-                ], 400);
+            // Only process document if there's no profile photo and document is provided
+            if (empty($validated['has_profile_photo']) && isset($validated['doc_image'])) {
+                $imageData = $validated['doc_image'];
+
+                // Validate it's a proper image or PDF (basic check)
+                if (!preg_match('/^data:(image\/(png|jpeg|jpg)|application\/pdf);base64,/', $imageData)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid document format'
+                    ], 400);
+                }
+
+                // Save the document to storage
+                $fileName = 'doc_' . $booking->order_id . '_' . time() . '.' .
+                    (str_contains($imageData, 'image/jpeg') ? 'jpg' : (str_contains($imageData, 'image/png') ? 'png' : 'pdf'));
+
+                $path = 'documents/' . $fileName;
+                Storage::disk('public')->put($path, base64_decode(preg_replace('/^data:\w+\/\w+;base64,/', '', $imageData)));
             }
-
-            // Save the document to storage
-            $fileName = 'doc_' . $booking->order_id . '_' . time() . '.' . (
-                str_contains($imageData, 'image/jpeg') ? 'jpg' : (str_contains($imageData, 'image/png') ? 'png' : 'pdf')
-            );
-
-            $path = 'documents/' . $fileName;
-            Storage::disk('public')->put($path, base64_decode(preg_replace('/^data:\w+\/\w+;base64,/', '', $imageData)));
 
             // Update booking
             $updated = $booking->update([
@@ -141,11 +145,10 @@ class CheckInController extends Controller
                 'doc_type' => $validated['doc_type'],
                 'doc_path' => $path,
                 'updated_by' => Auth::id(),
+                'verified_with_profile' => !empty($validated['has_profile_photo']),
             ]);
 
-            // Optionally send notification
             if ($updated) {
-
                 return response()->json([
                     'success' => true,
                     'message' => 'Check-in successful',

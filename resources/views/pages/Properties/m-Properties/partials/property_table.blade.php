@@ -697,7 +697,7 @@
                                                         </label>
                                                         <div class="grid grid-cols-2 gap-4" x-data="{
                                                             types: [
-                                                                { label: 'Rumah', value: 'House' },
+                                                                { label: 'Kos', value: 'Kos' },
                                                                 { label: 'Apartment', value: 'Apartment' },
                                                                 { label: 'Villa', value: 'Villa' },
                                                                 { label: 'Hotel', value: 'Hotel' }

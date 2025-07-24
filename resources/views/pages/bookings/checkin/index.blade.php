@@ -168,9 +168,8 @@
 
                         };
 
-                        this.profilePhotoUrl = data.user_profile_photo ?
-                            `/storage/${data.user_profile_photo}` :
-                            null;
+                        this.profilePhotoUrl = data.user_profile_photo || null;
+
                     } catch (error) {
                         console.error('Error fetching booking details:', error);
                         this.showErrorToast('Failed to load booking details');
@@ -225,24 +224,32 @@
                 },
 
                 async submitCheckIn() {
-                    if (!this.docPreview) {
-                        this.showErrorToast('Please upload your identification document first');
-                        return;
-                    }
-
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
+
+                        // Prepare the data to send
+                        const requestData = {
+                            doc_type: this.selectedDocType,
+                            has_profile_photo: !!this
+                                .profilePhotoUrl // Add flag for profile photo existence
+                        };
+
+                        // Include doc_image only if there's no profile photo
+                        if (!this.profilePhotoUrl && this.docPreview) {
+                            requestData.doc_image = this.docPreview;
+                        } else if (!this.profilePhotoUrl && !this.docPreview) {
+                            this.showErrorToast('Please upload your identification document first');
+                            return;
+                        }
+
                         const response = await fetch(`/bookings/checkin/${this.bookingId}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': csrfToken
                             },
-                            body: JSON.stringify({
-                                doc_type: this.selectedDocType,
-                                doc_image: this.docPreview
-                            })
+                            body: JSON.stringify(requestData)
                         });
 
                         const data = await response.json();
