@@ -83,7 +83,7 @@
             ])
         </div>
 
-        <!-- Pagination -->        
+        <!-- Pagination -->
         <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
             {{ $payments->appends(request()->except('page'))->links() }}
         </div>
@@ -138,15 +138,40 @@
                 text: "Pembayaran akan disetujui!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#16a34a', // green-600
+                confirmButtonColor: '#16a34a',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Ya, setujui!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('approve-form-' + id).submit();
+                    const form = document.getElementById('approve-form-' + id);
+                    fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({})
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Berhasil!', data.message, 'success');
+                                // Refresh the page or update the UI
+                                location.reload();
+                            } else {
+                                throw new Error(data.message || 'Unknown error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Gagal!', error.message, 'error');
+                            console.error('Error:', error);
+                        });
                 }
-            })
+            });
         }
 
         let currentTransactionId = null;
