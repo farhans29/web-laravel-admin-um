@@ -28,4 +28,14 @@ class Payment extends Model
     {
         return $this->belongsTo(Transaction::class, 'order_id', 'order_id');
     }
+
+    public function booking()
+    {
+        return $this->hasOne(Booking::class, 'order_id', 'order_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

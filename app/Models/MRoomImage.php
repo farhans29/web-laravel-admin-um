@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class MRoomImage extends Model
 {
@@ -19,4 +20,16 @@ class MRoomImage extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            $baseUrl = rtrim(config('app.url', 'http://localhost:8000'), '/');
+            $imageContent = Storage::disk('public')->get($this->image);
+            return $baseUrl . '/storage/' . 'data:image/jpeg;base64,' . base64_encode($imageContent);
+        }
+    }
+
+
+    protected $appends = ['image_url'];
 }

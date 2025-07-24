@@ -3,33 +3,158 @@
 namespace App\Http\Controllers\Bookings\CheckOut;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 use App\Models\Booking;
+use App\Models\Transaction;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class CheckOutController extends Controller
 {
     public function index()
     {
-        
-        $perPage = 10;
+        $perPage = request('per_page', 8);
 
-        // Start building the query with eager loading
-        $query = Booking::with(['transaction', 'property', 'room']);
-            
-        // Order and paginate results
-        $bookings = $query->orderBy('check_in_at', 'desc')
-        ->paginate($perPage);
+        $bookings = Booking::with(['transaction', 'property', 'room', 'user'])
+            ->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid');
+            })
+            ->whereNotNull('check_in_at')
+            ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
+            ->orderBy('check_out_at', 'desc') // Then sort by check_out_at
+            ->paginate($perPage);
 
         return view('pages.bookings.checkout.index', compact('bookings'));
     }
 
-    public function checkOut($id)
+    public function filter(Request $request)
     {
-        $booking = Booking::findOrFail($id);
+        $query = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid');
+            })
+            ->whereNotNull('check_in_at')
+            ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
+            ->orderBy('check_out_at', 'desc'); // Then sort by check_out_at
+
+        // Search by order_id or user name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_id', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('username', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Date range filter - using check_in_at from booking table
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+
+            $query->where(function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('check_in_at', [
+                    $startDate,
+                    Carbon::parse($endDate)->endOfDay()
+                ]);
+            });
+        } else {
+            // Default filter: from today to 1 month ahead
+            $query->whereBetween('check_in_at', [
+                now()->startOfDay(),
+                now()->addMonth()->endOfDay()
+            ]);
+        }
+
+        $bookings = $query->paginate($request->input('per_page', 8));
+
+        return response()->json([
+            'table' => view('pages.bookings.checkout.partials.checkout_table', [
+                'bookings' => $bookings,
+                'per_page' => $request->input('per_page', 8),
+            ])->render(),
+            'pagination' => $bookings->appends($request->input())->links()->toHtml()
+        ]);
+    }
+
+
+    public function checkOut($order_id)
+    {
+        // Cari booking berdasarkan order_id
+        $booking = Booking::where('order_id', $order_id)->firstOrFail();
+
         $booking->check_out_at = now();
         $booking->save();
 
-        return redirect()->back()->with('success', 'Guest successfully checked out.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Guest successfully checked out.'
+        ]);
+    }
+
+    // public function checkOut($id)
+    // {
+    //     try {
+    //         $booking = Booking::findOrFail($id);
+
+    //         // Update booking status
+    //         $booking->check_out_at = now();
+    //         $booking->status = 'checked_out';
+    //         $booking->save();
+
+    //         // Process damaged items if any
+    //         if (request()->has('damaged_items')) {
+    //             foreach (request('damaged_items') as $item) {
+    //                 RoomDamage::create([
+    //                     'booking_id' => $booking->id,
+    //                     'item_name' => $item['name'],
+    //                     'condition' => $item['condition'],
+    //                     'notes' => request('additional_notes'),
+    //                     'charge_amount' => request('damage_charges', 0),
+    //                     'reported_at' => now()
+    //                 ]);
+    //             }
+    //         }
+
+    //         // Process late checkout if applicable
+    //         if (request('is_late_checkout')) {
+    //             // You can add late checkout logic here
+    //             // For example, calculate and store late fees
+    //         }
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Guest successfully checked out.'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+    public function getBookingDetails($orderId)
+    {
+        $booking = Booking::with(['transaction', 'property', 'room', 'user'])
+            ->where('order_id', $orderId)
+            ->firstOrFail();
+
+        $transaction = Transaction::where('order_id', $orderId)->firstOrFail();
+
+        return response()->json([
+            'order_id' => $booking->order_id,
+            'user_name' => $transaction->user_name,
+            'property_name' => $transaction->property_name,
+            'room_name' => $transaction->room_name,
+            'check_in' => $transaction->check_in,
+            'check_out' => $transaction->check_out,
+            'grandtotal_price' => $transaction->grandtotal_price,
+            // Add any other fields you need from either model
+            'actual_check_in' => $booking->check_in_at, // From booking model
+            'actual_check_out' => $booking->check_out_at // Will be null until checked out
+        ]);
     }
 }

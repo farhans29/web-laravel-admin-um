@@ -1907,11 +1907,14 @@
                     return response.json();
                 })
                 .then(data => {
-                    const statusText = checkbox.nextElementSibling.nextElementSibling;
-                    statusText.textContent = newStatus ? 'Active' : 'Inactive';
+                    fetch(`/properties/rooms/table?per_page=8`)
+                        .then(res => res.text())
+                        .then(html => {
+                            document.getElementById('roomTableContainer').innerHTML = html;
+                        });
 
                     Toastify({
-                        text: "Status properti berhasil diperbarui",
+                        text: "Status kamar berhasil diperbarui",
                         duration: 3000,
                         close: true,
                         gravity: "top",

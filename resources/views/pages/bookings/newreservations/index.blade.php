@@ -5,13 +5,13 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Guest Bookings
+                    New Guest Reservations
                 </h1>
             </div>
         </div>
         <!-- Search and Filter Section -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
-            <form method="GET" action="{{ route('bookings.filter') }}"
+            <form method="GET" action="{{ route('newReserv.filter') }}"
                 onsubmit="event.preventDefault(); fetchFilteredBookings();"
                 class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
 
@@ -28,30 +28,10 @@
                             value="{{ request('search') }}">
                     </div>
 
-                    <!-- Status -->
-                    <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md">
-                        <option value="">All Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Payment
-                        </option>
-                        <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }}>Waiting
-                            Confirmation</option>
-                        <option value="waiting-check-in" {{ request('status') == 'ready' ? 'selected' : '' }}>Ready for
-                            Check-In
-                        </option>
-                        <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>Checked-In
-                        </option>
-                        <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>Completed
-                        </option>
-                        <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>Canceled
-                        </option>
-                        <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired
-                        </option>
-                    </select>
-
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-50">
-                                <input type="text" id="date_picker" placeholder="Select date range (Max 30 days)"
+                                <input type="text" id="date_picker" placeholder="Select date range (Max 3 months)"
                                     data-input
                                     class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
@@ -62,7 +42,7 @@
                     </div>
 
                     <!-- Show Per Page (aligned to the right) -->
-                    <div class="md:col-span-1 flex justify-end items-end">
+                    <div class="md:col-span-1 md:col-start-5 flex justify-end items-end">
                         <div class="flex items-center gap-2">
                             <label for="per_page" class="text-sm text-gray-600">Show:</label>
                             <select name="per_page" id="per_page"
@@ -79,7 +59,7 @@
 
 
         <!-- Bookings Table -->
-        <div class="overflow-x-auto" id="bookingsTableContainer">
+        <div class="overflow-x-auto">
             @include('pages.bookings.allbookings.partials.allbookings_table', [
                 'bookings' => $bookings,
                 'per_page' => request('per_page', 8),
@@ -94,8 +74,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const defaultStartDate = '{{ $startDate ?? now()->format('Y-m-d') }}';
-            const defaultEndDate = '{{ $endDate ?? now()->addMonth()->format('Y-m-d') }}';
+            const defaultStartDate = new Date();
+            const defaultEndDate = new Date();
+            defaultEndDate.setMonth(defaultEndDate.getMonth() + 3);
 
             // Initialize Flatpickr with default range
             const datePicker = flatpickr("#date_picker", {
@@ -158,10 +139,11 @@
             });
 
             // Set initial hidden input values
-            document.getElementById('start_date').value = defaultStartDate;
-            document.getElementById('end_date').value = defaultEndDate;
+            document.getElementById('start_date').value = formatDate(defaultStartDate);
+            document.getElementById('end_date').value = formatDate(defaultEndDate);
 
-            // Fungsi format tanggal
+
+            // Format date function
             function formatDate(date) {
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -174,7 +156,6 @@
                 const startDate = new Date('{{ request('start_date') }}');
                 const endDate = new Date('{{ request('end_date') }}');
 
-                // Jika start_date dan end_date sama, set hanya 1 tanggal
                 if (formatDate(startDate) === formatDate(endDate)) {
                     datePicker.setDate(startDate);
                 } else {
@@ -184,7 +165,6 @@
 
             // Get all filter elements
             const searchInput = document.getElementById('search');
-            const statusSelect = document.getElementById('status');
             const perPageSelect = document.getElementById('per_page');
 
             // Debounce function for search
@@ -200,7 +180,6 @@
 
             // Event listeners
             searchInput.addEventListener('input', debounce(fetchFilteredBookings, 300));
-            statusSelect.addEventListener('change', fetchFilteredBookings);
             perPageSelect.addEventListener('change', fetchFilteredBookings);
 
             // Function to fetch filtered bookings
@@ -211,10 +190,6 @@
                 // Get search value
                 const search = document.getElementById('search').value;
                 if (search) params.append('search', search);
-
-                // Get status value
-                const status = document.getElementById('status').value;
-                if (status) params.append('status', status);
 
                 // Get date range values
                 const startDate = document.getElementById('start_date').value;
@@ -229,13 +204,13 @@
                 // Show loading state
                 const tableContainer = document.querySelector('.overflow-x-auto');
                 tableContainer.innerHTML = `
-                                                <div class="flex justify-center items-center h-64">
-                                                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                                                </div>
-                                            `;
+                    <div class="flex justify-center items-center h-64">
+                        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                `;
 
-                // Make AJAX request to the filter endpoint
-                fetch(`{{ route('bookings.filter') }}?${params.toString()}`, {
+                // Make AJAX request
+                fetch(`{{ route('newReserv.filter') }}?${params.toString()}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'
@@ -252,10 +227,10 @@
                     .catch(error => {
                         console.error('Error:', error);
                         tableContainer.innerHTML = `
-                                                        <div class="text-center py-8 text-red-500">
-                                                            Error loading data. Please try again.
-                                                        </div>
-                                                    `;
+                            <div class="text-center py-8 text-red-500">
+                                Error loading data. Please try again.
+                            </div>
+                        `;
                     });
             }
         });

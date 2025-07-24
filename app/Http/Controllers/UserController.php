@@ -299,6 +299,7 @@ class UserController extends Controller
 
         return view('pages/settings/user-access-management', compact('users', 'permissions', 'sidebarItems'));
     }
+    
     public function getUserPermissions($userId)
     {
         $userPermissions = DB::table('role_permission')

@@ -36,8 +36,7 @@ return new class extends Migration
             $table->dateTime('transaction_date');
             $table->string('transaction_type', 100)->nullable();
             $table->string('transaction_code', 100)->nullable();
-            $table->string('transaction_status', 100)->nullable();            
-            $table->string('payment_method', 100)->nullable();
+            $table->string('transaction_status', 100)->nullable();                        
             $table->longText('notes')->nullable();
             $table->integer('status')->default(1);
             $table->timestamp('paid_at')->nullable();

@@ -5,13 +5,13 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Guest Bookings
+                    Pending Guest Bookings
                 </h1>
             </div>
         </div>
         <!-- Search and Filter Section -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
-            <form method="GET" action="{{ route('bookings.filter') }}"
+            <form method="GET" action="{{ route('pendings.filter') }}"
                 onsubmit="event.preventDefault(); fetchFilteredBookings();"
                 class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
 
@@ -27,27 +27,7 @@
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value="{{ request('search') }}">
                     </div>
-
-                    <!-- Status -->
-                    <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md">
-                        <option value="">All Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Payment
-                        </option>
-                        <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }}>Waiting
-                            Confirmation</option>
-                        <option value="waiting-check-in" {{ request('status') == 'ready' ? 'selected' : '' }}>Ready for
-                            Check-In
-                        </option>
-                        <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>Checked-In
-                        </option>
-                        <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>Completed
-                        </option>
-                        <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>Canceled
-                        </option>
-                        <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired
-                        </option>
-                    </select>
-
+                                        
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-50">
@@ -62,7 +42,7 @@
                     </div>
 
                     <!-- Show Per Page (aligned to the right) -->
-                    <div class="md:col-span-1 flex justify-end items-end">
+                    <div class="md:col-span-1 md:col-start-5 flex justify-end items-end">
                         <div class="flex items-center gap-2">
                             <label for="per_page" class="text-sm text-gray-600">Show:</label>
                             <select name="per_page" id="per_page"
@@ -79,7 +59,7 @@
 
 
         <!-- Bookings Table -->
-        <div class="overflow-x-auto" id="bookingsTableContainer">
+        <div class="overflow-x-auto">
             @include('pages.bookings.allbookings.partials.allbookings_table', [
                 'bookings' => $bookings,
                 'per_page' => request('per_page', 8),
@@ -94,10 +74,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const defaultStartDate = '{{ $startDate ?? now()->format('Y-m-d') }}';
-            const defaultEndDate = '{{ $endDate ?? now()->addMonth()->format('Y-m-d') }}';
-
-            // Initialize Flatpickr with default range
+            // Initialize Flatpickr
             const datePicker = flatpickr("#date_picker", {
                 mode: "range",
                 dateFormat: "Y-m-d",
@@ -106,8 +83,6 @@
                 allowInput: true,
                 static: true,
                 monthSelectorType: 'static',
-                defaultDate: [defaultStartDate, defaultEndDate],
-                minDate: "today",
                 maxDate: new Date().fp_incr(365),
                 onOpen: function(selectedDates, dateStr, instance) {
                     instance.set('minDate', null);
@@ -115,13 +90,14 @@
                 onChange: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length > 0) {
                         const startDate = selectedDates[0];
-                        const endDate = selectedDates[1] || selectedDates[0];
+                        const endDate = selectedDates[1] || selectedDates[0]; // Jika single date
 
                         // Hitung selisih hari (inklusif)
                         const diffInDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
                         // Batasi maksimal 30 hari
                         if (diffInDays > 31) {
+                            // SweetAlert2 toast untuk notifikasi
                             Swal.fire({
                                 toast: true,
                                 position: 'top-end',
@@ -157,10 +133,6 @@
                 }
             });
 
-            // Set initial hidden input values
-            document.getElementById('start_date').value = defaultStartDate;
-            document.getElementById('end_date').value = defaultEndDate;
-
             // Fungsi format tanggal
             function formatDate(date) {
                 const year = date.getFullYear();
@@ -183,8 +155,7 @@
             @endif
 
             // Get all filter elements
-            const searchInput = document.getElementById('search');
-            const statusSelect = document.getElementById('status');
+            const searchInput = document.getElementById('search');            
             const perPageSelect = document.getElementById('per_page');
 
             // Debounce function for search
@@ -199,8 +170,7 @@
             };
 
             // Event listeners
-            searchInput.addEventListener('input', debounce(fetchFilteredBookings, 300));
-            statusSelect.addEventListener('change', fetchFilteredBookings);
+            searchInput.addEventListener('input', debounce(fetchFilteredBookings, 300));            
             perPageSelect.addEventListener('change', fetchFilteredBookings);
 
             // Function to fetch filtered bookings
@@ -211,11 +181,7 @@
                 // Get search value
                 const search = document.getElementById('search').value;
                 if (search) params.append('search', search);
-
-                // Get status value
-                const status = document.getElementById('status').value;
-                if (status) params.append('status', status);
-
+               
                 // Get date range values
                 const startDate = document.getElementById('start_date').value;
                 const endDate = document.getElementById('end_date').value;
@@ -235,7 +201,7 @@
                                             `;
 
                 // Make AJAX request to the filter endpoint
-                fetch(`{{ route('bookings.filter') }}?${params.toString()}`, {
+                fetch(`{{ route('pendings.filter') }}?${params.toString()}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'

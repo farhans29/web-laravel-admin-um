@@ -14,7 +14,8 @@
                         <h1 class="text-2xl md:text-3xl text-white font-bold mb-1">
                             MANAGEMENT DASHBOARD
                         </h1>
-                        <p class="text-blue-100 font-medium">Welcome back, {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+                        <p class="text-blue-100 font-medium">Welcome back, {{ Auth::user()->first_name }}
+                            {{ Auth::user()->last_name }}</p>
                     </div>
 
                     <div class="mt-4 md:mt-0 flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2">
@@ -104,7 +105,7 @@
                                         d="M7 8l-4 4m0 0l4 4m-4-4h14m-6-4v-1a3 3 0 013-3h4a3 3 0 013 3v10a3 3 0 01-3 3h-4a3 3 0 01-3-3v-1" />
                                 </svg>
                             </div>
-                                                                         
+
                         </div>
                     </div>
 
@@ -139,98 +140,77 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                     <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
                         <h2 class="font-semibold text-gray-800">Recent Bookings</h2>
-                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800">View All</a>
+                        <a href="{{ route('bookings.index') }}"
+                            class="text-sm font-medium text-blue-600 hover:text-blue-800">View All</a>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col"
+                                    <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Booking ID</th>
-                                    <th scope="col"
+                                    <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Guest</th>
-                                    <th scope="col"
+                                    <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Room</th>
-                                    <th scope="col"
+                                    <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status</th>
-                                    <th scope="col"
+                                    <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Action</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #BK-10245
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">John Smith</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Deluxe Suite
-                                        (305)
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Checked
-                                            In</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900">Details</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #BK-10244
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sarah Johnson
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Executive Room
-                                        (412)
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900">Details</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #BK-10243
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Robert Chen</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Presidential
-                                        Suite
-                                        (801)</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Confirmed</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900">Details</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #BK-10242
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maria Garcia</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Standard Room
-                                        (207)
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Cancelled</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <a href="#" class="text-blue-600 hover:text-blue-900">Details</a>
-                                    </td>
-                                </tr>
+                                @forelse ($bookings as $booking)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {{ $booking->order_id }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $booking->transaction->user_name ?? '-' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $booking->property->name ?? '-' }}
+                                            ({{ $booking->room->name ?? '-' }})
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @php
+                                                $status = $booking->status;
+                                                $badgeClass = match ($status) {
+                                                    'Checked-In' => 'bg-green-100 text-green-800',
+                                                    'Waiting for Check-In' => 'bg-yellow-100 text-yellow-800',
+                                                    'Checked-Out' => 'bg-blue-100 text-blue-800',
+                                                    'Cancelled' => 'bg-red-100 text-red-800',
+                                                    default => 'bg-gray-100 text-gray-800',
+                                                };
+                                            @endphp
+                                            <span
+                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $badgeClass }}">
+                                                {{ $status }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <a href="" class="text-blue-600 hover:text-blue-900">Details</a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No
+                                            bookings found.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
+
+                        <!-- Pagination -->
+                        <div class="px-5 py-4 border-t border-gray-200">
+                            {{ $bookings->links() }}
+                        </div>
+
                     </div>
                 </div>
 
@@ -240,89 +220,51 @@
                         <h2 class="font-semibold text-gray-800">Room Availability (Next 7 Days)</h2>
                     </div>
                     <div class="p-5">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                            <!-- Room Type 1 -->
-                            <div class="border rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h3 class="font-medium text-gray-800">Deluxe Suite</h3>
-                                        <p class="text-sm text-gray-500">Total: 12 rooms</p>
+                        <div class="swiper mySwiper">
+                            <div class="swiper-wrapper">
+                                @foreach ($roomAvailability as $room)
+                                    <div class="swiper-slide">
+                                        <div class="border rounded-lg p-4 w-[250px]">
+                                            <div class="flex justify-between items-start">
+                                                <div>
+                                                    <h3 class="font-medium text-gray-800">{{ $room['type'] }}</h3>
+                                                    <p class="text-sm text-gray-500">Total: {{ $room['total'] }} rooms
+                                                    </p>
+                                                </div>
+                                                @if ($room['is_popular'] ?? false)
+                                                    <span
+                                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Popular</span>
+                                                @elseif($room['is_luxury'] ?? false)
+                                                    <span
+                                                        class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Luxury</span>
+                                                @endif
+                                            </div>
+                                            <div class="mt-4">
+                                                <div class="flex justify-between text-sm mb-1">
+                                                    <span class="text-gray-600">Available</span>
+                                                    <span class="font-medium">{{ $room['available'] }}</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    @php
+                                                        $color = match (true) {
+                                                            $room['percentage'] >= 70 => 'bg-green-600',
+                                                            $room['percentage'] >= 40 => 'bg-blue-600',
+                                                            $room['percentage'] >= 20 => 'bg-yellow-600',
+                                                            default => 'bg-purple-600',
+                                                        };
+                                                    @endphp
+                                                    <div class="{{ $color }} h-2 rounded-full"
+                                                        style="width: {{ $room['percentage'] }}%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span
-                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Popular</span>
-                                </div>
-                                <div class="mt-4">
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-600">Available</span>
-                                        <span class="font-medium">8</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 66%"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Room Type 2 -->
-                            <div class="border rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h3 class="font-medium text-gray-800">Executive Room</h3>
-                                        <p class="text-sm text-gray-500">Total: 20 rooms</p>
-                                    </div>
-                                </div>
-                                <div class="mt-4">
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-600">Available</span>
-                                        <span class="font-medium">15</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-green-600 h-2 rounded-full" style="width: 75%"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Room Type 3 -->
-                            <div class="border rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h3 class="font-medium text-gray-800">Standard Room</h3>
-                                        <p class="text-sm text-gray-500">Total: 30 rooms</p>
-                                    </div>
-                                </div>
-                                <div class="mt-4">
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-600">Available</span>
-                                        <span class="font-medium">12</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-yellow-600 h-2 rounded-full" style="width: 40%"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Room Type 4 -->
-                            <div class="border rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h3 class="font-medium text-gray-800">Presidential Suite</h3>
-                                        <p class="text-sm text-gray-500">Total: 2 rooms</p>
-                                    </div>
-                                    <span
-                                        class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Luxury</span>
-                                </div>
-                                <div class="mt-4">
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-600">Available</span>
-                                        <span class="font-medium">1</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 50%"></div>
-                                    </div>
-                                </div>
-                            </div>
+                                @endforeach
+                            </div>                            
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Right Column -->
@@ -549,7 +491,33 @@
                         <div class="py-2 text-center text-gray-400">1</div>
                     </div>
                 </div>
-            </div>            
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            new Swiper(".mySwiper", {
+                slidesPerView: 1,
+                spaceBetween: 16,
+                breakpoints: {
+                    640: {
+                        slidesPerView: 2
+                    },
+                    768: {
+                        slidesPerView: 3
+                    },
+                    1024: {
+                        slidesPerView: 4
+                    },
+                },
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev",
+                },
+                loop: false,
+            });
+        });
+    </script>
+
 </x-app-layout>

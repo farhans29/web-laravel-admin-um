@@ -1,577 +1,536 @@
 <x-app-layout>
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
         <!-- Page Header -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                     Guest Check-out
                 </h1>
-                {{-- <p class="text-gray-500 mt-2">Process check-outs and finalize guest stays</p> --}}
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        {{-- <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Today's Check-outs</p>
-                        <p class="text-2xl font-semibold text-gray-900 mt-1">12</p>
-                    </div>
-                    <div class="p-3 rounded-full bg-blue-50 text-blue-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Pending Check-outs</p>
-                        <p class="text-2xl font-semibold text-gray-900 mt-1">8</p>
-                    </div>
-                    <div class="p-3 rounded-full bg-yellow-50 text-yellow-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Completed (Week)</p>
-                        <p class="text-2xl font-semibold text-gray-900 mt-1">42</p>
-                    </div>
-                    <div class="p-3 rounded-full bg-green-50 text-green-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Late Check-outs</p>
-                        <p class="text-2xl font-semibold text-gray-900 mt-1">3</p>
-                    </div>
-                    <div class="p-3 rounded-full bg-red-50 text-red-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
+            <form method="GET" action="{{ route('completed.filter') }}"
+                onsubmit="event.preventDefault(); fetchFilteredBookings();"
+                class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
 
-        <!-- Card Container -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <!-- Card Header -->
-            <div
-                class="flex flex-col md:flex-row md:items-center md:justify-between px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">Active Stays Ready for Check-out</h2>
-                <div class="flex flex-col md:flex-row md:items-center md:space-x-3 mt-3 md:mt-0 ml-auto">
-
-                    <div class="relative group">
-                        <input type="text" placeholder="Search bookings..."
-                            class="block w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 placeholder-gray-400">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <!-- Search Booking -->
+                    <div class="md:col-span-1 relative">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
+                        <input type="text" id="search" name="search" placeholder="Order ID or Guest Name"
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value="{{ request('search') }}">
                     </div>
 
-                    <form method="GET" class="flex items-center">
-                        <label for="per_page" class="text-sm text-gray-600 mr-2">Show:</label>
-                        <select name="per_page" id="per_page" onchange="this.form.submit()"
-                            class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                        </select>
-                    </form>
+                    <div class="md:col-span-2 flex gap-2">
+                        <div class="flex-1">
+                            <div class="relative z-50">
+                                <input type="text" id="date_picker" placeholder="Select date range (Max 30 days)"
+                                    data-input
+                                    class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                <input type="hidden" id="start_date" name="start_date"
+                                    value="{{ request('start_date') }}">
+                                <input type="hidden" id="end_date" name="end_date" value="{{ request('end_date') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Show Per Page (aligned to the right) -->
+                    <div class="md:col-span-1 md:col-start-5 flex justify-end items-end">
+                        <div class="flex items-center gap-2">
+                            <label for="per_page" class="text-sm text-gray-600">Show:</label>
+                            <select name="per_page" id="per_page"
+                                class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
+                                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-
-            <!-- Table Container -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Order ID</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Guest</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Property</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Room</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Check-in</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Scheduled Check-out</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th>
-                            <th scope="col"
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <!-- Sample Data Row 1 -->
-                        {{-- <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-indigo-600">#BK-2023-0567</div>
-                                <div class="text-sm text-gray-500">ID: 1042</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div
-                                        class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">John Doe</div>
-                                        <div class="text-sm text-gray-500">john@example.com</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">Grand Hotel</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">Room 301</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">15 Jun 2023</div>
-                                <div class="text-sm text-gray-500">14:00</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">Today, 12:00</div>
-                                <div class="text-sm text-gray-500">Scheduled</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span
-                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    Pending
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" x-data="{ open: false }">
-                                @if (true)
-                                <!-- Trigger Button -->
-                                <button @click="open = true"
-                                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none">
-                                    <!-- Heroicon: door-open -->
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                        stroke-width="2" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2">
-                                        </path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1">
-                                        </path>
-                                    </svg>
-                                    Check-Out
-                                </button>
-
-                                <!-- Modal -->
-                                <div x-show="open" x-cloak
-                                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-                                    <div
-                                        class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mt-20 text-left">
-                                        <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Check-In
-                                        </h2>
-                                        <p class="mb-6 text-sm text-gray-600">Are you sure you want to check-in
-                                            this guest?</p>
-                                        <div class="flex justify-end gap-3">
-                                            <button @click="open = false"
-                                                class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
-                                                Cancel
-                                            </button>
-                                            <form method="POST"
-                                                action="{{ route('bookings.checkin', '1') }}">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="px-4 py-2 text-sm text-white bg-purple-600 rounded hover:bg-purple-700">
-                                                    Yes, Check-In
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                            </td>
-                        </tr> --}}
-                        @forelse ($bookings as $booking)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-indigo-600">{{ $booking->order_id }}</div>                                
-                                </td>
-
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div
-                                            class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                {{ $booking->transaction->user_name }}</div>
-                                            <div class="text-sm text-gray-500">{{ $booking->transaction->user_email }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $booking->transaction->property_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $booking->transaction->room_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($booking->check_in_at)
-                                        <div class="text-sm text-gray-900">
-                                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}
-                                        </div>
-                                        <div class="text-sm text-gray-500">
-                                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}
-                                        </div>
-                                    @else
-                                        <div class="text-sm text-gray-500 italic">Not Checked-In Yet</div>
-                                    @endif
-                                </td>
-                                
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($booking->check_out_at)
-                                        <div class="text-sm text-gray-900">
-                                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}
-                                        </div>
-                                        <div class="text-sm text-gray-500">
-                                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}
-                                        </div>
-                                    @else
-                                        <div class="text-sm text-gray-500 italic">Not Checked-Out Yet</div>
-                                    @endif
-                                </td>                                    
-
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($booking->check_in_at)
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            Checked-In
-                                        </span>
-                                    @elseif ($booking->check_out_at)
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                            Checked-Out
-                                        </span>
-                                    @else
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Waiting for Check-In
-                                        </span>
-                                    @endif
-                                </td>
-
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
-                                    @if ((($booking->check_in_at) && is_null($booking->check_out_at)) && \Carbon\Carbon::parse($booking->transaction->check_out)->isToday())
-                                        <!-- Trigger Button -->
-                                        <button @click="open = true"
-                                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none">
-                                            <!-- Heroicon: door-open -->
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                stroke-width="2" viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2">
-                                                </path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1">
-                                                </path>
-                                            </svg>
-                                            Check-Out
-                                        </button>
-
-                                        <!-- Modal -->
-                                        <div x-show="open" x-cloak
-                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-                                            <div
-                                                class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mt-20 text-left">
-                                                <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Check-Out
-                                                </h2>
-                                                <p class="mb-6 text-sm text-gray-600">Are you sure you want to check-out
-                                                    this guest?</p>
-                                                <div class="flex justify-end gap-3">
-                                                    <button @click="open = false"
-                                                        class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
-                                                        Cancel
-                                                    </button>
-                                                    <form method="POST"
-                                                        action="{{ route('bookings.checkout', $booking->idrec) }}">
-                                                        @csrf
-                                                        <button type="submit"
-                                                            class="px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">
-                                                            Yes, Check-Out
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    No bookings found
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                <nav class="flex items-center justify-between">
-                    <div class="flex-1 flex justify-between sm:hidden">
-                        <a href="#"
-                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Previous </a>
-                        <a href="#"
-                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Next </a>
-                    </div>
-                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                        <div>
-                            <p class="text-sm text-gray-700">
-                                Showing <span class="font-medium">1</span> to <span class="font-medium">2</span> of
-                                <span class="font-medium">12</span> results
-                            </p>
-                        </div>
-                        <div>
-                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                                aria-label="Pagination">
-                                <a href="#"
-                                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <span class="sr-only">Previous</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                        fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd"
-                                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                                <a href="#" aria-current="page"
-                                    class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                    1 </a>
-                                <a href="#"
-                                    class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                    2 </a>
-                                <a href="#"
-                                    class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                    3 </a>
-                                <a href="#"
-                                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                    <span class="sr-only">Next</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                        fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd"
-                                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                            </nav>
-                        </div>
-                    </div>
-                </nav>
-            </div>
+            </form>
         </div>
-    </div>
 
-    <!-- Check-out Modal -->
-    <div id="checkoutModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div
-                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="checkoutModalTitle">
-                                Process Check-out</h3>
-                            <form id="checkoutForm">
-                                <div class="space-y-4">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Booking ID</label>
-                                            <input type="text" id="checkoutBookingId" readonly
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Guest Name</label>
-                                            <input type="text" id="checkoutGuestName" readonly
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Property</label>
-                                            <input type="text" id="checkoutProperty" readonly
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Room</label>
-                                            <input type="text" id="checkoutRoom" readonly
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Check-in
-                                                Date</label>
-                                            <input type="text" id="checkoutCheckin" readonly
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700">Scheduled
-                                                Check-out</label>
-                                            <input type="text" id="checkoutScheduled" readonly
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Actual Check-out
-                                            Time</label>
-                                        <input type="datetime-local" id="checkoutActual"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    </div>
-                                    <div id="lateCheckoutSection" class="hidden">
-                                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                                            <div class="flex">
-                                                <div class="flex-shrink-0">
-                                                    <svg class="h-5 w-5 text-yellow-400"
-                                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                        fill="currentColor">
-                                                        <path fill-rule="evenodd"
-                                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                </div>
-                                                <div class="ml-3">
-                                                    <p class="text-sm text-yellow-700">
-                                                        This is a late check-out. Please confirm any additional charges
-                                                        with the guest.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="mt-4">
-                                            <label class="block text-sm font-medium text-gray-700">Late Check-out
-                                                Fee</label>
-                                            <div class="mt-1 relative rounded-md shadow-sm">
-                                                <div
-                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500 sm:text-sm">Rp</span>
-                                                </div>
-                                                <input type="text" id="lateFee"
-                                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-12 pr-12 sm:text-sm border-gray-300 rounded-md"
-                                                    placeholder="0.00">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Notes</label>
-                                        <textarea id="checkoutNotes" rows="3"
-                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="roomInspection" name="roomInspection" type="checkbox"
-                                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                        <label for="roomInspection" class="ml-2 block text-sm text-gray-700">
-                                            Room inspection completed
-                                        </label>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="button" onclick="processCheckout()"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Confirm Check-out
-                    </button>
-                    <button type="button" onclick="closeCheckoutModal()"
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Cancel
-                    </button>
-                </div>
-            </div>
+
+        <!-- Table Container -->
+        <div class="overflow-x-auto" id="bookingsTable">
+            @include('pages.bookings.checkout.partials.checkout_table', [
+                'bookings' => $bookings,
+                'per_page' => request('per_page', 8),
+            ])
+        </div>
+
+        <!-- Pagination -->
+        <div id="paginationContainer" class="bg-gray-50 rounded p-4">
+            {{ $bookings->appends(request()->input())->links() }}
         </div>
     </div>
 
     <script>
-        function openCheckoutModal(bookingId, isLate = false) {
-            // In a real application, you would fetch booking details from your API
-            // Here we're just simulating with sample data
-            document.getElementById('checkoutBookingId').value = '#' + bookingId;
-            document.getElementById('checkoutGuestName').value = bookingId === '1042' ? 'John Doe' : 'Sarah Johnson';
-            document.getElementById('checkoutProperty').value = bookingId === '1042' ? 'Grand Hotel' : 'Sunset Kos';
-            document.getElementById('checkoutRoom').value = bookingId === '1042' ? 'Room 305 (Deluxe)' : 'Room B12';
-            document.getElementById('checkoutCheckin').value = bookingId === '1042' ? '15 Jun 2023, 14:00' :
-                '10 Jun 2023, 13:00';
-            document.getElementById('checkoutScheduled').value = bookingId === '1042' ? 'Today, 12:00' : 'Yesterday, 11:00';
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('checkOutModal', (orderId) => ({
+                isOpen: false,
+                currentDateTime: '',
+                isLateCheckout: false,
+                bookingDetails: {
+                    order_id: '',
+                    guest_name: '',
+                    property_name: '',
+                    room_name: '',
+                    check_in: '',
+                    check_out: '',
+                    duration: '',
+                    total_payment: ''
+                },
+                roomInventory: [{
+                        name: 'TV',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Air Conditioner',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Bed',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Wardrobe',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Desk',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Chair',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Lamp',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Bathroom Mirror',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Shower',
+                        missingOrDamaged: false,
+                        condition: ''
+                    },
+                    {
+                        name: 'Toilet',
+                        missingOrDamaged: false,
+                        condition: ''
+                    }
+                ],
+                additionalNotes: '',
+                damageCharges: 0,
+                scheduledCheckoutTime: null,
 
-            if (isLate) {
-                document.getElementById('checkoutModalTitle').textContent = 'Process Late Check-out';
-                document.getElementById('lateCheckoutSection').classList.remove('hidden');
-            } else {
-                document.getElementById('checkoutModalTitle').textContent = 'Process Check-out';
-                document.getElementById('lateCheckoutSection').classList.add('hidden');
+                init() {
+                    // Initialize with current time
+                    this.updateCurrentTime();
+
+                    // Update time every second for real-time clock
+                    this.timeInterval = setInterval(() => {
+                        this.updateCurrentTime();
+                        this.checkLateCheckout();
+                    }, 1000);
+                },
+
+                toggleSelectAll(checked) {
+                    this.roomInventory.forEach(item => {
+                        item.missingOrDamaged = checked;
+                        // You might want to set a default condition when selecting all
+                        if (checked && !item.condition) {
+                            item.condition =
+                            'damaged'; // or 'missing' depending on your preference
+                        }
+                    });
+                },
+
+                updateCurrentTime() {
+                    const now = new Date();
+                    this.currentDateTime = now.toLocaleString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    });
+                },
+
+                checkLateCheckout() {
+                    if (this.scheduledCheckoutTime) {
+                        const now = new Date();
+                        this.isLateCheckout = now > this.scheduledCheckoutTime;
+                    }
+                },
+
+                openModal(idrec, orderId) {
+                    this.isOpen = true;
+                    this.fetchBookingDetails(orderId);
+                },
+
+                closeModal() {
+                    this.isOpen = false;
+                    // Reset form when closing
+                    this.roomInventory.forEach(item => {
+                        item.missingOrDamaged = false;
+                        item.condition = '';
+                    });
+                    this.additionalNotes = '';
+                    this.damageCharges = 0;
+                },
+
+                async fetchBookingDetails(orderId) {
+                    try {
+                        const response = await fetch(`/bookings/check-out/${orderId}/details`);
+                        const data = await response.json();
+
+                        // Format dates properly
+                        const formatDate = (dateString) => {
+                            if (!dateString) return 'Not checked in yet';
+                            const date = new Date(dateString);
+                            return date.toLocaleString();
+                        };
+
+                        // Store scheduled checkout time for comparison
+                        if (data.check_out) {
+                            this.scheduledCheckoutTime = new Date(data.check_out);
+                        }
+
+                        this.bookingDetails = {
+                            order_id: data.order_id,
+                            guest_name: data.user_name,
+                            property_name: data.property_name,
+                            room_name: data.room_name,
+                            check_in: formatDate(data.actual_check_in || data.check_in),
+                            check_out: formatDate(data.check_out), // Scheduled check-out
+                            duration: this.calculateDuration(data.actual_check_in || data
+                                .check_in, data.check_out),
+                            total_payment: this.formatRupiah(data.grandtotal_price)
+                        };
+
+                        // Immediately check if checkout is late
+                        this.checkLateCheckout();
+                    } catch (error) {
+                        console.error('Error fetching booking details:', error);
+                        // You might want to show an error message to the user here
+                    }
+                },
+
+                calculateDuration(checkIn, checkOut) {
+                    if (!checkIn) return 'Not checked in';
+
+                    const start = new Date(checkIn);
+                    const end = checkOut ? new Date(checkOut) : new Date();
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return `${diffDays} ${diffDays > 1 ? 'days' : 'day'}`;
+                },
+
+                formatRupiah(value) {
+                    const numericValue = parseFloat(value);
+
+                    if (isNaN(numericValue)) {
+                        return 'Rp 0';
+                    }
+
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    }).format(numericValue);
+                },
+
+                get hasDamagedItems() {
+                    return this.roomInventory.some(item => item.missingOrDamaged);
+                },
+
+                submitCheckOut() {
+                    // Show confirmation dialog
+                    Swal.fire({
+                        title: 'Confirm Check-Out',
+                        text: 'Are you sure you want to complete the check-out process?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, check-out',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Prepare damaged items data
+                            const damagedItems = this.roomInventory
+                                .filter(item => item.missingOrDamaged)
+                                .map(item => ({
+                                    name: item.name,
+                                    condition: item.condition
+                                }));
+
+                            // Prepare payload
+                            const payload = {
+                                check_out_time: new Date().toISOString(),
+                                // damaged_items: damagedItems,
+                                // additional_notes: this.additionalNotes,
+                                // damage_charges: this.damageCharges,
+                                // is_late_checkout: this.isLateCheckout
+                            };
+
+                            // Show loading state
+                            this.isSubmitting = true;
+
+                            // Send data to server
+                            fetch(`/bookings/check-out/${this.bookingDetails.order_id}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                                'meta[name="csrf-token"]')
+                                            .content,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify(payload)
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        return response.json().then(err => {
+                                            throw err;
+                                        });
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        // Show success notification
+                                        Swal.fire({
+                                            title: 'Success!',
+                                            text: data.message ||
+                                                'Guest successfully checked out.',
+                                            icon: 'success',
+                                            confirmButtonText: 'OK'
+                                        }).then(() => {
+                                            // Close modal and refresh
+                                            this.closeModal();
+                                            window.location.reload();
+                                        });
+                                    } else {
+                                        throw new Error(data.message ||
+                                            'Unknown error occurred');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    // Show error notification
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: error.message ||
+                                            'An error occurred during check-out',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                })
+                                .finally(() => {
+                                    this.isSubmitting = false;
+                                });
+                        }
+                    });
+                },
+
+                // Clean up interval when component is destroyed
+                destroy() {
+                    if (this.timeInterval) {
+                        clearInterval(this.timeInterval);
+                    }
+                }
+            }));
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const defaultStartDate = new Date();
+            const defaultEndDate = new Date();
+            defaultEndDate.setMonth(defaultEndDate.getMonth() + 1);
+
+            // Initialize Flatpickr with default range
+            const datePicker = flatpickr("#date_picker", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j F Y",
+                allowInput: true,
+                static: true,
+                monthSelectorType: 'static',
+                defaultDate: [defaultStartDate, defaultEndDate],
+                minDate: "today",
+                maxDate: new Date().fp_incr(365),
+                onOpen: function(selectedDates, dateStr, instance) {
+                    instance.set('minDate', null);
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        const startDate = selectedDates[0];
+                        const endDate = selectedDates[1] || selectedDates[0];
+
+                        // Hitung selisih hari (inklusif)
+                        const diffInDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+                        // Batasi maksimal 30 hari
+                        if (diffInDays > 31) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'warning',
+                                title: 'Maximum date range is 30 days',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                            });
+
+                            instance.clear();
+                            document.getElementById('start_date').value = '';
+                            document.getElementById('end_date').value = '';
+                            return;
+                        }
+
+                        // Format tanggal ke YYYY-MM-DD
+                        document.getElementById('start_date').value = formatDate(startDate);
+                        document.getElementById('end_date').value = formatDate(endDate);
+                        fetchFilteredBookings();
+                    }
+                },
+                onClose: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 0) {
+                        document.getElementById('start_date').value = '';
+                        document.getElementById('end_date').value = '';
+                        fetchFilteredBookings();
+                    }
+                }
+            });
+
+            // Set initial hidden input values
+            document.getElementById('start_date').value = formatDate(defaultStartDate);
+            document.getElementById('end_date').value = formatDate(defaultEndDate);
+
+
+            // Fungsi format tanggal
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             }
 
-            document.getElementById('checkoutModal').classList.remove('hidden');
-        }
+            // Set initial values if they exist
+            @if (request('start_date') && request('end_date'))
+                const startDate = new Date('{{ request('start_date') }}');
+                const endDate = new Date('{{ request('end_date') }}');
 
-        function closeCheckoutModal() {
-            document.getElementById('checkoutModal').classList.add('hidden');
-        }
+                // Jika start_date dan end_date sama, set hanya 1 tanggal
+                if (formatDate(startDate) === formatDate(endDate)) {
+                    datePicker.setDate(startDate);
+                } else {
+                    datePicker.setDate([startDate, endDate]);
+                }
+            @endif
 
-        function processCheckout() {
-            // Here you would handle the form submission to your backend
-            alert('Check-out processed successfully!');
-            closeCheckoutModal();
-            // In a real app, you would refresh the data or update the UI accordingly
-        }
+            // Get all filter elements
+            const searchInput = document.getElementById('search');
+            const perPageSelect = document.getElementById('per_page');
+
+            // Debounce function for search
+            const debounce = (func, delay) => {
+                let timeout;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), delay);
+                };
+            };
+
+            // Event listeners
+            searchInput.addEventListener('input', debounce(fetchFilteredBookings, 300));
+            perPageSelect.addEventListener('change', function() {
+                fetchFilteredBookings();
+            });
+
+            // Function to fetch filtered bookings
+            function fetchFilteredBookings() {
+                // Collect all filter values
+                const params = new URLSearchParams();
+
+                // Get search value
+                const search = document.getElementById('search').value;
+                if (search) params.append('search', search);
+
+                // Get date range values
+                const startDate = document.getElementById('start_date').value;
+                const endDate = document.getElementById('end_date').value;
+                if (startDate) params.append('start_date', startDate);
+                if (endDate) params.append('end_date', endDate);
+
+                // Get per page value
+                const perPage = document.getElementById('per_page').value;
+                params.append('per_page', perPage);
+
+                // Show loading state
+                const tableContainer = document.querySelector('.overflow-x-auto');
+                tableContainer.innerHTML = `
+                                                <div class="flex justify-center items-center h-64">
+                                                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                                                </div>
+                                            `;
+
+                // Make AJAX request to the filter endpoint
+                fetch(`{{ route('completed.filter') }}?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.querySelector('.overflow-x-auto').innerHTML = data.table;
+                        document.getElementById('paginationContainer').innerHTML = data.pagination;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        tableContainer.innerHTML = `
+                                                        <div class="text-center py-8 text-red-500">
+                                                            Error loading data. Please try again.
+                                                        </div>
+                                                    `;
+                    });
+            }
+        });
     </script>
 </x-app-layout>

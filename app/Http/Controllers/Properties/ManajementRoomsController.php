@@ -465,54 +465,7 @@ class ManajementRoomsController extends Controller
         ]);
 
         return response()->json(['success' => true]);
-    }
-
-
-
-
-
-
-
-    public function edit(Room $room)
-    {
-        // Load relasi property dan roomImages
-        $room->load('property', 'roomImages');
-
-        // Ambil facility (sudah dalam bentuk JSON string, decode dulu)
-        $facilities = [];
-        if ($room->facility) {
-            $decodedFacility = json_decode($room->facility, true);
-            if (is_array($decodedFacility)) {
-                $facilities = array_keys(array_filter($decodedFacility));
-            }
-        }
-
-        // Ambil data image tanpa menggunakan Storage::url
-        $images = $room->roomImages->map(function ($image) {
-            return [
-                'idrec' => $image->idrec,
-                'image_url' => $image->image, // langsung dari field 'image'
-                'image_name' => basename($image->image)
-            ];
-        });
-
-        return response()->json([
-            'room' => [
-                'idrec' => $room->idrec,
-                'property_id' => $room->property_id,
-                'room_no' => $room->no, // disesuaikan ke field `no`
-                'name' => $room->name,
-                'descriptions' => $room->descriptions,
-                'bed_type' => $room->bed_type,
-                'capacity' => $room->capacity,
-                'room_size' => $room->size,
-                'price_original_daily' => $room->price_original_daily,
-                'price_original_monthly' => $room->price_original_monthly,
-                'facility' => $facilities
-            ],
-            'images' => $images
-        ]);
-    }
+    }   
 
     public function destroy($idrec)
     {
@@ -528,4 +481,153 @@ class ManajementRoomsController extends Controller
             return response()->json(['error' => 'Failed to delete room.'], 500);
         }
     }
+
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'property_id' => 'required|numeric|exists:m_properties,idrec',
+    //         'room_no' => 'required|string|max:255',
+    //         'room_name' => 'required|string|max:255',
+    //         'room_size' => 'required|numeric|min:0',
+    //         'room_bed' => 'required|string|in:Single,Double,King,Queen,Twin',
+    //         'room_capacity' => 'required|numeric|min:1',
+    //         'description_id' => 'required|string',
+    //         'daily_price' => 'nullable|numeric|min:0',
+    //         'monthly_price' => 'nullable|numeric|min:0',
+    //         'facilities' => 'nullable|array',
+    //         'room_images' => 'required|array|min:3|max:10',
+    //         'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+    //     ]);
+
+    //     // Get property data
+    //     $property = Property::findOrFail($validated['property_id']);
+
+    //     // Process facilities
+    //     $allFacilities = [
+    //         'wifi',
+    //         'ac',
+    //         'tv',
+    //         'bathroom',
+    //         'hot_water',
+    //         'wardrobe',
+    //         'desk',
+    //         'refrigerator',
+    //         'breakfast'
+    //     ];
+
+    //     $facilityData = [
+    //         'features' => array_intersect($request->input('facilities', []), $allFacilities),
+    //     ];
+
+    //     // Generate ID and unique slug
+    //     $idrec = Room::max('idrec') + 1;
+    //     $tagShort = strtolower(substr($property->tags, 0, 3));
+    //     $nameShort = strtolower(collect(explode(' ', $validated['room_name']))->map(fn($w) => substr($w, 0, 1))->implode(''));
+    //     $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
+
+    //     // Process and store images as base64 files
+    //     $imagePaths = [];
+    //     foreach ($request->file('room_images') as $file) {
+    //         if (!$file->isValid()) {
+    //             return back()->withErrors(['room_images' => 'Invalid file uploaded.']);
+    //         }
+
+    //         // Convert to base64
+    //         $base64Image = base64_encode(file_get_contents($file->getRealPath()));
+
+    //         // Determine file extension
+    //         $extension = $file->getClientOriginalExtension();
+    //         $mimeType = $file->getClientMimeType();
+
+    //         // Generate filename
+    //         $filename = 'room_' . $idrec . '_' . time() . '_' . uniqid() . '.' . $extension;
+    //         $path = 'room_images/' . $filename;
+
+    //         // Save base64 to file
+    //         Storage::disk('public')->put($path, base64_decode($base64Image));
+
+    //         $imagePaths[] = [
+    //             'path' => $path,
+    //             'caption' => $file->getClientOriginalName(),
+    //             'mime_type' => $mimeType
+    //         ];
+    //     }
+
+    //     // Determine price period
+    //     $periode = [
+    //         'daily' => !empty($validated['daily_price']),
+    //         'monthly' => !empty($validated['monthly_price'])
+    //     ];
+
+    //     // Save to rooms table
+    //     $room = new Room();
+    //     $room->idrec = $idrec;
+    //     $room->property_id = $validated['property_id'];
+    //     $room->property_name = $property->name;
+    //     $room->slug = $slug;
+    //     $room->no = $validated['room_no'];
+    //     $room->name = $validated['room_name'];
+    //     $room->descriptions = $validated['description_id'];
+    //     $room->size = $validated['room_size'];
+    //     $room->bed_type = $validated['room_bed'];
+    //     $room->capacity = $validated['room_capacity'];
+    //     $room->periode = json_encode($periode);
+    //     $room->type = $property->type;
+    //     $room->level = 1;
+    //     $room->facility = $facilityData['features'];
+    //     $room->price = $validated['daily_price'] ?? $validated['monthly_price'] ?? 0;
+    //     $room->discount_percent = 0;
+    //     $room->price_original_daily = $validated['daily_price'] ?? 0;
+    //     $room->price_original_monthly = $validated['monthly_price'] ?? 0;
+    //     $room->created_by = Auth::id();
+    //     $room->status = 1;
+    //     $room->created_at = now();
+    //     $room->save();
+
+    //     // Save to room_images table
+    //     foreach ($imagePaths as $image) {
+    //         $roomImage = new MRoomImage();
+    //         $roomImage->room_id = $idrec;
+    //         $roomImage->image = $image['path']; // Store the path to the base64 file
+    //         $roomImage->caption = $image['caption'];
+    //         $roomImage->mime_type = $image['mime_type'];
+    //         $roomImage->created_by = Auth::id();
+    //         $roomImage->created_at = now();
+    //         $roomImage->save();
+    //     }
+
+    //     // Generate daily prices if daily price is set
+    //     if ($periode['daily']) {
+    //         $startDate = Carbon::now();
+    //         $endDate = $startDate->copy()->addYear();
+    //         $dailyPrice = $validated['daily_price'];
+
+    //         $priceInserts = [];
+    //         while ($startDate->lessThan($endDate)) {
+    //             $priceInserts[] = [
+    //                 'room_id' => $idrec,
+    //                 'date' => $startDate->format('Y-m-d'),
+    //                 'price' => $dailyPrice,
+    //                 'created_at' => now(),
+    //                 'created_by' => Auth::id(),
+    //                 'status' => '1',
+    //             ];
+
+    //             if (count($priceInserts) >= 1000) {
+    //                 RoomPrices::insert($priceInserts);
+    //                 $priceInserts = [];
+    //             }
+
+    //             $startDate->addDay();
+    //         }
+
+    //         if (!empty($priceInserts)) {
+    //             RoomPrices::insert($priceInserts);
+    //         }
+    //     }
+
+    //     return $request->wantsJson()
+    //         ? response()->json(['status' => 'success', 'message' => 'Ruangan berhasil dibuat!', 'data' => $room], 201)
+    //         : redirect()->route('rooms.index')->with('success', 'Ruangan berhasil dibuat!');
+    // }
 }

@@ -22,10 +22,11 @@ class Booking extends Model
         'room_id',
         'property_id',
         'check_in_at',
-        'ktp_img',
+        'doc_type',
+        'doc_path',
         'check_out_at',
         'created_by',
-        'updated_by',        
+        'updated_by',
         'reason',
         'description',
     ];
@@ -54,14 +55,38 @@ class Booking extends Model
 
     public function getStatusAttribute()
     {
-        if (is_null($this->check_in_at) && is_null($this->check_out_at)) {
-            return 'Waiting for Check-In';
-        } elseif (!is_null($this->check_in_at) && is_null($this->check_out_at)) {
-            return 'Checked-In';
-        } elseif (!is_null($this->check_in_at) && !is_null($this->check_out_at)) {
-            return 'Checked-Out';
+        // Jika tidak ada transaksi terkait
+        if (!$this->transaction) {
+            return 'Unknown';
         }
-    
+
+        // Pastikan order_id match
+        if ($this->order_id !== $this->transaction->order_id) {
+            return 'Order ID Mismatch';
+        }
+
+        switch ($this->transaction->transaction_status) {
+            case 'pending':
+                return 'Waiting For Payment';
+            case 'waiting':
+                return 'Waiting For Confirmation';
+            case 'paid':
+                if (is_null($this->check_in_at) && is_null($this->check_out_at)) {
+                    return 'Waiting For Check-In';
+                } elseif (!is_null($this->check_in_at) && is_null($this->check_out_at)) {
+                    return 'Checked-In';
+                } elseif (!is_null($this->check_in_at) && !is_null($this->check_out_at)) {
+                    return 'Checked-Out';
+                }
+                break;
+            case 'canceled':
+                return 'Canceled';
+            case 'expired':
+                return 'Expired';
+            case 'failed':
+                return 'Payment Failed';
+        }
+
         return 'Unknown';
     }
 

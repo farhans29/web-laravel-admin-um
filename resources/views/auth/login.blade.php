@@ -93,14 +93,14 @@
         <x-validation-errors />
 
         <!-- Footer Links -->
-        <div class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-3">
+        {{-- <div class="text-center text-sm text-gray-500 dark:text-gray-400 space-y-3">
             <p class="border-t border-gray-200 dark:border-gray-700 pt-4">
                 {{ __('New here?') }}
                 <a href="{{ route('register') }}" class="font-medium text-amber-600 hover:text-amber-700 transition-colors">
                     {{ __('Create account') }}
                 </a>
             </p>
-        </div>
+        </div> --}}
     </div>
 
     <script>

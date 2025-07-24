@@ -38,8 +38,7 @@ class Transaction extends Model
         'transaction_type',
         'transaction_code',
         'transaction_status',
-        'booking_type',
-        'payment_method',
+        'booking_type',        
         'notes',
         'attachment',
         'status',
@@ -72,5 +71,15 @@ class Transaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function property()
+    {
+        return $this->belongsTo(Property::class, 'property_id', 'idrec');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id', 'idrec');
     }
 }

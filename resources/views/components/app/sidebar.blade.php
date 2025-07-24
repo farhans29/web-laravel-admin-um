@@ -62,9 +62,9 @@
                         </li>
 
                         <!-- Bookings -->
-                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('checkin') || window.location.href.includes('checkout') || window.location.href.includes('bookings')">
+                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('checkin') || window.location.href.includes('checkout') || window.location.href.includes('bookings') || window.location.href.includes('pendings') || window.location.href.includes('newReserv') || window.location.href.includes('completed')">
                             <a @click="open = !open"
-                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative @if (Route::is('checkin.index', 'checkout.index', 'bookings.index')) bg-indigo-900 @endif">
+                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative @if (Route::is('checkin.index', 'checkout.index', 'bookings.index', 'pendings.index', 'completed.index', 'newReserv.index')) bg-indigo-900 @endif">
                                 <div class="flex items-center gap-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
@@ -97,21 +97,33 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#new-reservations"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors">
+                                    <a href="{{ route('pendings.index') }}"
+                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('pendings.index')) bg-indigo-900 @endif">
+                                        <span class="text-xs">Pending</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('newReserv.index') }}"
+                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('newReserv.index')) bg-indigo-900 @endif">
                                         <span class="text-xs">New Reservations</span>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="{{ route('checkin.index') }}"
                                         class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('checkin.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">Check-ins</span>
+                                        <span class="text-xs">Checked-ins</span>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="{{ route('checkout.index') }}"
                                         class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('checkout.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">Check-outs</span>
+                                        <span class="text-xs">Checked-outs</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('completed.index') }}"
+                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('completed.index')) bg-indigo-900 @endif">
+                                        <span class="text-xs">Completed</span>
                                     </a>
                                 </li>
                             </ul>

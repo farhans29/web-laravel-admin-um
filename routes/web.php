@@ -9,10 +9,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Bookings\Booking\AllBookingController;
 use App\Http\Controllers\Bookings\CheckIn\CheckInController;
 use App\Http\Controllers\Bookings\CheckOut\CheckOutController;
+use App\Http\Controllers\Bookings\Completed\CompletedController;
+use App\Http\Controllers\Bookings\NewReservation\NewReservController;
+use App\Http\Controllers\Bookings\Pending\PendingController;
 use App\Http\Controllers\Rooms\ChangeRoomController;
 use App\Http\Controllers\Properties\ManajementPropertiesController;
 use App\Http\Controllers\Properties\ManajementRoomsController;
 use App\Http\Controllers\Payment\PaymentController;
+use Symfony\Component\Console\Command\CompleteCommand;
 
 // Route::redirect('/', 'login');
 
@@ -55,13 +59,26 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('bookings')->group(function () {
         Route::get('/bookings', [AllBookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/filter', [AllBookingController::class, 'filter'])->name('bookings.filter');
+
+        Route::get('/pendings', [PendingController::class, 'index'])->name('pendings.index');
+        Route::get('/pendings/filter', [PendingController::class, 'filter'])->name('pendings.filter');
+
+        Route::get('/newReserv', [NewReservController::class, 'index'])->name('newReserv.index');
+        Route::get('/newReserv/filter', [NewReservController::class, 'filter'])->name('newReserv.filter');
+
+        Route::get('/completed', [CompletedController::class, 'index'])->name('completed.index');
+        Route::get('/completed/filter', [CompletedController::class, 'filter'])->name('completed.filter');
 
         Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
+        Route::get('/checkin/filter', [CheckInController::class, 'filter'])->name('checkin.filter');
         Route::post('/checkin/{order_id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
         Route::get('/check-in/{order_id}/details', [CheckInController::class, 'getBookingDetails'])->name('bookings.checkin.details');
 
         Route::get('/checkout', [CheckOutController::class, 'index'])->name('checkout.index');
-        Route::post('/check-out/{id}', [CheckOutController::class, 'checkOut'])->name('bookings.checkout');
+        Route::get('/checkout/filter', [CheckOutController::class, 'filter'])->name('checkout.filter');
+        Route::post('/check-out/{order_id}', [CheckOutController::class, 'checkOut'])->name('bookings.checkout');
+        Route::get('/check-out/{order_id}/details', [CheckOutController::class, 'getBookingDetails'])->name('bookings.checkin.details');
     });
 
     Route::prefix('rooms')->group(function () {
@@ -85,6 +102,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/rooms/update/{idrec}', [ManajementRoomsController::class, 'update'])->name('rooms.update');
         Route::put('/rooms/{room}/status', [ManajementRoomsController::class, 'updateStatus'])->name('room.updateStatus');
         Route::get('/rooms/{id}', [ManajementRoomsController::class, 'show'])->where('id', '[0-9]+')->name('rooms.show');
+        Route::get('/rooms/table', [ManajementRoomsController::class, 'tablePartial'])->name('properties.table');
 
         // Route::get('/rooms/{room}/edit', [ManajementRoomsController::class, 'edit'])->name('rooms.edit');
         Route::delete('/rooms/{idrec}/destroy', [ManajementRoomsController::class, 'destroy'])->name('rooms.destroy');

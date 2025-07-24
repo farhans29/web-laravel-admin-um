@@ -15,7 +15,7 @@ class Room extends Model
 
     protected $fillable = [
         'property_id',
-        'property_name',        
+        'property_name',
         'slug',
         'no',
         'name',
@@ -32,7 +32,7 @@ class Room extends Model
         'price_original_daily',
         'price_discounted_daily',
         'price_original_monthly',
-        'price_discounted_monthly',        
+        'price_discounted_monthly',
         'created_by',
         'updated_by',
         'status',
@@ -62,5 +62,10 @@ class Room extends Model
     public function roomImages()
     {
         return $this->hasMany(MRoomImage::class, 'room_id', 'idrec');
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'room_id');
     }
 }

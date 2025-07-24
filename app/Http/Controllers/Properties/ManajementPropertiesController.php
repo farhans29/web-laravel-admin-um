@@ -72,7 +72,6 @@ class ManajementPropertiesController extends Controller
         ]);
     }
 
-
     public function updateStatus(Property $property, Request $request)
     {
         $request->validate([

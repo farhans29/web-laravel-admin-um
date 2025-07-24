@@ -144,12 +144,11 @@ class PropertySystemSeeder extends Seeder
         // Seed t_transactions, t_booking, and t_payment
         $transactions = [];
         $bookings = [];
-        $payments = [];
+        $payments = [];        
 
-        // Create 5 transactions (one for each property)
-        for ($k = 1; $k <= 5; $k++) {
+        for ($k = 1; $k <= 10; $k++) {
             $userId = rand(1, 22);
-            $propertyId = $k;
+            $propertyId = rand(1, 5); // Acak 5 properti
             $property = $properties[$propertyId];
 
             // Get random room from this property
@@ -189,13 +188,12 @@ class PropertySystemSeeder extends Seeder
                 'admin_fees' => $adminFees,
                 'grandtotal_price' => $grandTotal,
                 'property_type' => 'Hotel',
-                'transaction_type' => 'Booking',
+                'transaction_type' => null,
                 'transaction_code' => 'TRX-' . strtoupper(Str::random(8)),
-                'transaction_status' => 'Completed',
+                'transaction_status' => 'pending', // belum diproses
                 'status' => '1',
-                'paid_at' => now(),
-                'payment_method' => 'Bank Transfer',
-                'notes' => 'Pembayaran dilakukan via transfer bank BCA',
+                'paid_at' => null,                
+                'notes' => 'Booking belum dibayar',
                 'created_at' => now(),
                 'updated_at' => now()
             ];
@@ -204,8 +202,8 @@ class PropertySystemSeeder extends Seeder
                 'property_id' => $propertyId,
                 'order_id' => $orderId,
                 'room_id' => (string)$room['idrec'],
-                'check_in_at' => $checkIn,
-                'check_out_at' => $checkOut,
+                'check_in_at' => null, // belum check in
+                'check_out_at' => null, // belum check out
                 'created_by' => $userId,
                 'updated_by' => $userId,
                 'status' => 1,
@@ -213,18 +211,18 @@ class PropertySystemSeeder extends Seeder
                 'updated_at' => now()
             ];
 
-            $payments[] = [                
-                'order_id'          => $orderId, // this is the alphanumeric order ID
+            $payments[] = [
+                'order_id'          => $orderId,
                 'user_id'           => $userId,
                 'grandtotal_price'  => $grandTotal,
-                'verified_by'       => 1, // assuming admin user with ID 1
-                'verified_at'       => now(),
+                'verified_by'       => null,
+                'verified_at'       => null,
                 'notes'             => 'Pembayaran untuk booking ' . $orderId,
-                'payment_status'    => 'pending',
+                'payment_status'    => 'unpaid',
                 'created_at'        => now(),
                 'updated_at'        => now(),
-                'created_by'        => $userId                
-            ];            
+                'created_by'        => $userId
+            ];
         }
 
         DB::table('t_transactions')->insert($transactions);

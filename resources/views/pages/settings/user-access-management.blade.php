@@ -9,7 +9,7 @@
                     class="block w-full sm:w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                     <option value="">-- Select User --</option>
                     @foreach ($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                        <option value="{{ $user->id }}">{{ $user->username }} ({{ $user->email }})</option>
                     @endforeach
                 </select>
             </div>
@@ -37,7 +37,7 @@
                     <select id="mainMenuSelect" class="border border-gray-300 rounded-md text-xs px-2 py-1 w-64">
                         <option value="">Select All</option>
                         @foreach ($sidebarItems->whereNull('parent_id') as $menu)
-                            <option value="{{ $menu->id }}">{{ $menu->name }}</option>
+                            <option value="{{ $menu->id }}">{{ $menu->username }}</option>
                         @endforeach
                     </select>
                 </div>

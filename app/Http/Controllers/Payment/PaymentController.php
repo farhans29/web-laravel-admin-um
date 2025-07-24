@@ -11,44 +11,68 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Transaction::with(['booking', 'payment', 'user'])
-            ->where('status', 0)
-            ->orderBy('transaction_date', 'desc')
-            ->paginate(8);
+        $perPage = $request->input('per_page', 8);
 
-        return view('pages.payment.pay.index', compact('transactions'));
+        $query = Payment::with(['booking', 'transaction', 'user'])
+            ->orderBy('idrec', 'desc');
+
+        $payments = $perPage === 'all'
+            ? $query->get()
+            : $query->paginate((int) $perPage)->withQueryString();
+
+        return view('pages.payment.pay.index', [
+            'payments' => $payments,
+            'per_page' => $perPage,
+        ]);
     }
 
     public function filter(Request $request)
     {
-        $query = Transaction::with(['booking', 'payment', 'user'])
-            ->orderBy('transaction_date', 'desc');
+        $perPage = $request->input('per_page', 8);
+        $search = $request->input('search');
+        $status = $request->input('status', 'all');
 
-        if ($request->has('status') && $request->status != 'all') {
-            $query->where('transaction_status', $request->status);
-        }
+        $query = Payment::with(['booking', 'transaction', 'user'])
+            ->orderBy('idrec', 'desc');
 
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
+        // Filter based on search
+        if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', '%' . $search . '%')
                     ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('user_name', 'like', '%' . $search . '%')
-                            ->orWhere('email', 'like', '%' . $search . '%');
-                    })
-                    ->orWhereHas('booking.property', function ($propertyQuery) use ($search) {
-                        $propertyQuery->where('name', 'like', '%' . $search . '%');
+                        $userQuery->where('name', 'like', '%' . $search . '%');
                     });
             });
         }
 
-        $transactions = $query->paginate(8);
+        // Filter based on status
+        if ($status !== 'all') {
+            $query->whereHas('transaction', function ($q) use ($status) {
+                $q->where('transaction_status', $status);
+            });
+        }
 
-        return response()->json([
-            'transactions' => $transactions,
-            'pagination' => $transactions->links()->toHtml()
+        $payments = $perPage === 'all'
+            ? $query->get()
+            : $query->paginate((int) $perPage);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('pages.payment.pay.partials.pay_table', [
+                    'payments' => $payments,
+                    'per_page' => $perPage,
+                ])->render(),
+                'pagination' => $perPage !== 'all'
+                    ? $payments->appends(request()->input())->links()->toHtml()
+                    : ''
+            ]);
+        }
+
+        return view('pages.payment.pay.index', [
+            'payments' => $payments,
+            'per_page' => $perPage,
         ]);
     }
 
