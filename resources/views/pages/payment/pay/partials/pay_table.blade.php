@@ -52,7 +52,7 @@
                     Rp{{ number_format($payment->grandtotal_price, 0, ',', '.') }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ $payment->payment_type ?? '-' }}
+                    {{ $payment->transaction->transaction_type ?? '-' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     @if ($payment->transaction->paid_at)
@@ -71,18 +71,20 @@
                     @php
                         $status = $payment->transaction->transaction_status;
                         $statusStyles = [
-                            'pending' => 'bg-yellow-100 text-yellow-800',
-                            'waiting' => 'bg-yellow-100 text-yellow-800',
-                            'paid' => 'bg-blue-100 text-blue-800',
-                            'completed' => 'bg-green-100 text-green-800',
-                            'rejected' => 'bg-red-100 text-red-800',
-                            'canceled' => 'bg-red-100 text-red-800',
-                            'failed' => 'bg-red-100 text-red-800',
-                            'expired' => 'bg-gray-200 text-gray-700',
+                            'pending' => 'bg-yellow-100 text-yellow-800', 
+                            'waiting' => 'bg-orange-100 text-orange-800', 
+                            'paid' => 'bg-blue-100 text-blue-800', 
+                            'completed' => 'bg-green-100 text-green-800', 
+                            'rejected' => 'bg-red-200 text-red-900', 
+                            'canceled' => 'bg-pink-100 text-pink-800', 
+                            'failed' => 'bg-rose-100 text-rose-800', 
+                            'expired' => 'bg-gray-300 text-gray-800', 
                         ];
+
                         $badgeStyle = $statusStyles[$status] ?? 'bg-gray-100 text-gray-800';
                         $hasTooltip = $status === 'rejected' && isset($payment->notes);
                     @endphp
+
 
                     <div class="relative inline-block group">
                         <span
@@ -102,17 +104,17 @@
                     @if (in_array($payment->transaction->transaction_status, ['waiting']))
                         <div x-data="attachmentModal()" class="relative group">
                             <button type="button"
-                                class="flex items-center gap-1 text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-600 px-3 py-1 rounded transition duration-200"
+                                class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
                                 @click="openModal('{{ $payment->transaction->attachment }}', '{{ $payment->order_id }}')"
                                 title="Confirm Payment">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M9 12l2 2l4 -4m-7 9a9 9 0 1 1 0 -18a9 9 0 0 1 0 18z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 6L9 17l-5-5" />
+                                    <circle cx="12" cy="12" r="10" />
                                 </svg>
-                                <span class="text-sm font-medium">Confirm</span>
+                                <span class="text-sm font-semibold">Confirm</span>
                             </button>
-
                             <!-- Modal backdrop -->
                             <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity"
                                 x-show="isOpen" x-transition:enter="transition ease-out duration-300"
