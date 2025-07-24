@@ -42,7 +42,11 @@ class PaymentController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', '%' . $search . '%')
                     ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('name', 'like', '%' . $search . '%');
+                        $userQuery->where('username', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('transaction', function ($transactionQuery) use ($search) {
+                        $transactionQuery->where('order_id', 'like', '%' . $search . '%');
                     });
             });
         }
@@ -54,19 +58,21 @@ class PaymentController extends Controller
             });
         }
 
+        // Date range filter if needed
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $query->whereBetween('created_at', [
+                $request->input('start_date') . ' 00:00:00',
+                $request->input('end_date') . ' 23:59:59'
+            ]);
+        }
+
         $payments = $perPage === 'all'
             ? $query->get()
             : $query->paginate((int) $perPage);
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('pages.payment.pay.partials.pay_table', [
-                    'payments' => $payments,
-                    'per_page' => $perPage,
-                ])->render(),
-                'pagination' => $perPage !== 'all'
-                    ? $payments->appends(request()->input())->links()->toHtml()
-                    : ''
+                'html' => view('pages.payment.pay.partials.pay_table', ['payments' => $payments])->render(),                
             ]);
         }
 
