@@ -102,11 +102,22 @@ class CheckInController extends Controller
     {
         $validated = $request->validate([
             'doc_type' => 'required|string|in:ktp,passport,sim,other',
-            'doc_image' => 'sometimes|string',  // Changed to sometimes
+            'doc_image' => 'sometimes|string',
             'has_profile_photo' => 'sometimes|boolean'
         ]);
 
         try {
+            // Check if current time is before 3:00 PM
+            $currentTime = now();
+            $checkInTime = $currentTime->copy()->setTime(15, 0, 0); // 3:00 PM
+
+            if ($currentTime->lt($checkInTime)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Check-in is only allowed after 3:00 PM'
+                ], 400);
+            }
+
             // Find the booking
             $booking = Booking::where('order_id', $order_id)->firstOrFail();
 
@@ -120,11 +131,9 @@ class CheckInController extends Controller
 
             $path = null;
 
-            // Only process document if there's no profile photo and document is provided
             if (empty($validated['has_profile_photo']) && isset($validated['doc_image'])) {
                 $imageData = $validated['doc_image'];
 
-                // Validate it's a proper image or PDF (basic check)
                 if (!preg_match('/^data:(image\/(png|jpeg|jpg)|application\/pdf);base64,/', $imageData)) {
                     return response()->json([
                         'success' => false,
@@ -132,7 +141,6 @@ class CheckInController extends Controller
                     ], 400);
                 }
 
-                // Save the document to storage
                 $fileName = 'doc_' . $booking->order_id . '_' . time() . '.' .
                     (str_contains($imageData, 'image/jpeg') ? 'jpg' : (str_contains($imageData, 'image/png') ? 'png' : 'pdf'));
 
@@ -140,7 +148,6 @@ class CheckInController extends Controller
                 Storage::disk('public')->put($path, base64_decode(preg_replace('/^data:\w+\/\w+;base64,/', '', $imageData)));
             }
 
-            // Update booking
             $updated = $booking->update([
                 'check_in_at' => now(),
                 'doc_type' => $validated['doc_type'],

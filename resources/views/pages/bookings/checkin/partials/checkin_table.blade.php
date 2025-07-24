@@ -151,12 +151,37 @@
 
                                     <!-- Modal Content -->
                                     <div class="flex-1 overflow-y-auto px-6 py-6">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <!-- Booking Details -->
-                                            <div class="bg-gray-50 p-4 rounded-lg">
+                                        <!-- Early Check-in Warning -->
+                                        <div x-show="isBeforeCheckInTime"
+                                            class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                                            <div class="flex">
+                                                <div class="flex-shrink-0">
+                                                    <svg class="h-5 w-5 text-yellow-400"
+                                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                        fill="currentColor" aria-hidden="true">
+                                                        <path fill-rule="evenodd"
+                                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                            clip-rule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="text-sm text-yellow-700">
+                                                        Check-in is only available after <span class="font-bold">3:00
+                                                            PM</span>.
+                                                        Please come back later to complete your check-in.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Check-in Content -->
+                                        <div x-show="!isBeforeCheckInTime"
+                                            class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <!-- Booking Details Section -->
+                                            <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
                                                 <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                     <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
                                                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -168,7 +193,7 @@
                                                     <div class="flex justify-between">
                                                         <span class="text-sm font-medium text-gray-600">Order
                                                             ID:</span>
-                                                        <span class="text-sm text-gray-800"
+                                                        <span class="text-sm text-gray-800 font-mono"
                                                             x-text="bookingDetails.order_id"></span>
                                                     </div>
                                                     <div class="flex justify-between">
@@ -216,16 +241,17 @@
                                             </div>
 
                                             <!-- Document Upload Section -->
-                                            <div>
-                                                <!-- Profile Photo Display -->
-                                                <div class="mb-6">
+                                            <div class="space-y-6">
+                                                <!-- Guest Profile Section -->
+                                                <div>
                                                     <h3 class="font-semibold text-lg text-gray-800 mb-2">Guest Profile
                                                     </h3>
-                                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                                                    <div
+                                                        class="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-white">
                                                         <template x-if="profilePhotoUrl">
                                                             <div class="flex flex-col items-center">
                                                                 <img :src="profilePhotoUrl" alt="Profile Photo"
-                                                                    class="w-full h-48 object-contain rounded-lg">
+                                                                    class="w-full h-48 object-cover rounded-lg">
                                                                 <span class="mt-2 text-sm text-gray-600"
                                                                     x-text="bookingDetails.guest_name"></span>
                                                             </div>
@@ -237,7 +263,8 @@
                                                                     class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         class="h-12 w-12 text-gray-400" fill="none"
-                                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                                        viewBox="0 0 24 24" stroke="currentColor"
+                                                                        aria-hidden="true">
                                                                         <path stroke-linecap="round"
                                                                             stroke-linejoin="round" stroke-width="2"
                                                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -252,103 +279,112 @@
                                                     </div>
                                                 </div>
 
-                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                    </svg>
-                                                    Upload Identification
-                                                </h3>
-
-                                                <!-- Document Type Selection -->
-                                                <div class="mb-4">
-                                                    <label
-                                                        class="block text-sm font-medium text-gray-700 mb-1">Document
-                                                        Type</label>
-                                                    <select x-model="selectedDocType"
-                                                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
-                                                        <option value="ktp">KTP</option>
-                                                        <option value="passport">Passport</option>
-                                                        <option value="sim">SIM</option>
-                                                        <option value="other">Other ID</option>
-                                                    </select>
-                                                </div>
-
-                                                <!-- Upload Section -->
+                                                <!-- Document Upload Section -->
                                                 <div>
-                                                    <div x-show="!docPreview"
-                                                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200 cursor-pointer"
-                                                        @click="$refs.docInput.click()"
-                                                        @drop.prevent="handleDocDrop($event)" @dragover.prevent
-                                                        @dragenter.prevent
-                                                        :class="{ 'border-green-400 bg-green-50': isDragging }">
-                                                        <input type="file" id="document" name="document"
-                                                            accept="image/*,.pdf" class="hidden" x-ref="docInput"
-                                                            @change="handleDocUpload($event)">
+                                                    <h3
+                                                        class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24"
+                                                            aria-hidden="true">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        </svg>
+                                                        Upload Identification
+                                                    </h3>
 
-                                                        <div class="space-y-2">
-                                                            <svg class="w-12 h-12 mx-auto text-gray-400"
-                                                                fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                                </path>
-                                                            </svg>
-                                                            <p class="text-sm text-gray-600">
-                                                                <span class="font-medium text-green-600">Click to
-                                                                    upload</span> or drag and drop
-                                                            </p>
-                                                            <p class="text-xs text-gray-500">JPG, PNG, PDF up to 5MB
-                                                            </p>
-                                                        </div>
+                                                    <!-- Document Type Selection -->
+                                                    <div class="mb-4">
+                                                        <label for="documentType"
+                                                            class="block text-sm font-medium text-gray-700 mb-1">Document
+                                                            Type</label>
+                                                        <select id="documentType" x-model="selectedDocType"
+                                                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+                                                            <option value="ktp">KTP</option>
+                                                            <option value="passport">Passport</option>
+                                                            <option value="sim">SIM</option>
+                                                            <option value="other">Other ID</option>
+                                                        </select>
                                                     </div>
 
-                                                    <!-- Document Preview -->
-                                                    <div class="mt-4" x-show="docPreview" x-transition>
-                                                        <h4 class="text-sm font-medium text-gray-700 mb-2">Document
-                                                            Preview
-                                                            (<span x-text="selectedDocType.toUpperCase()"></span>)
-                                                            :</h4>
-                                                        <div class="border border-gray-200 rounded-lg p-2">
-                                                            <template x-if="docPreviewType === 'image'">
-                                                                <img :src="docPreview" alt="Document Preview"
-                                                                    class="w-full h-auto max-h-48 object-contain">
-                                                            </template>
-                                                            <template x-if="docPreviewType === 'pdf'">
-                                                                <div class="bg-gray-100 p-4 text-center">
-                                                                    <svg class="w-12 h-12 mx-auto text-red-500"
-                                                                        fill="none" stroke="currentColor"
-                                                                        viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round" stroke-width="2"
-                                                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                                                        </path>
-                                                                    </svg>
-                                                                    <p class="text-sm text-gray-600 mt-2">PDF Document
-                                                                    </p>
+                                                    <!-- Upload Area -->
+                                                    <div>
+                                                        <div x-show="!docPreview"
+                                                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200 cursor-pointer"
+                                                            @click="$refs.docInput.click()"
+                                                            @drop.prevent="handleDocDrop($event)" @dragover.prevent
+                                                            @dragenter.prevent
+                                                            :class="{ 'border-green-400 bg-green-50': isDragging }"
+                                                            role="button" tabindex="0"
+                                                            aria-label="Upload identification document">
+                                                            <input type="file" id="document" name="document"
+                                                                accept="image/*,.pdf" class="hidden" x-ref="docInput"
+                                                                @change="handleDocUpload($event)">
+
+                                                            <div class="space-y-2">
+                                                                <svg class="w-12 h-12 mx-auto text-gray-400"
+                                                                    fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24" aria-hidden="true">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                                    </path>
+                                                                </svg>
+                                                                <p class="text-sm text-gray-600">
+                                                                    <span class="font-medium text-green-600">Click to
+                                                                        upload</span> or drag and drop
+                                                                </p>
+                                                                <p class="text-xs text-gray-500">JPG, PNG, PDF up to
+                                                                    5MB</p>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Document Preview -->
+                                                        <div class="mt-4" x-show="docPreview" x-transition>
+                                                            <h4 class="text-sm font-medium text-gray-700 mb-2">Document
+                                                                Preview (<span
+                                                                    x-text="selectedDocType.toUpperCase()"></span>):
+                                                            </h4>
+                                                            <div
+                                                                class="border border-gray-200 rounded-lg p-2 bg-white">
+                                                                <template x-if="docPreviewType === 'image'">
+                                                                    <img :src="docPreview" alt="Document Preview"
+                                                                        class="w-full h-auto max-h-48 object-contain">
+                                                                </template>
+                                                                <template x-if="docPreviewType === 'pdf'">
+                                                                    <div class="bg-gray-100 p-4 text-center">
+                                                                        <svg class="w-12 h-12 mx-auto text-red-500"
+                                                                            fill="none" stroke="currentColor"
+                                                                            viewBox="0 0 24 24" aria-hidden="true">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                                                            </path>
+                                                                        </svg>
+                                                                        <p class="text-sm text-gray-600 mt-2">PDF
+                                                                            Document</p>
+                                                                    </div>
+                                                                </template>
+                                                                <div class="mt-2 flex justify-between items-center">
+                                                                    <span class="text-xs text-gray-500">Uploaded
+                                                                        document</span>
+                                                                    <button type="button" @click="removeDoc"
+                                                                        class="text-red-500 hover:text-red-700 text-xs font-medium">
+                                                                        Remove
+                                                                    </button>
                                                                 </div>
-                                                            </template>
-                                                            <div class="mt-2 flex justify-between items-center">
-                                                                <span class="text-xs text-gray-500">Uploaded
-                                                                    document</span>
-                                                                <button type="button" @click="removeDoc"
-                                                                    class="text-red-500 hover:text-red-700 text-xs">
-                                                                    Remove
-                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
 
-                                                <!-- Validation Message -->
-                                                <div class="mt-3" x-show="!docPreview">
-                                                    <p class="text-sm text-red-600">
-                                                        <span class="font-medium">Note:</span> Identification document
-                                                        is required for check-in.
-                                                    </p>
+                                                    <!-- Validation Message -->
+                                                    <div class="mt-3" x-show="!docPreview">
+                                                        <p class="text-sm text-red-600">
+                                                            <span class="font-medium">Note:</span> Identification
+                                                            document is required for check-in.
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

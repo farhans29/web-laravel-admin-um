@@ -80,6 +80,8 @@
                 profilePhotoUrl: null,
                 selectedDocType: 'ktp',
                 bookingId: initialOrderId,
+                isBeforeCheckInTime: false,
+                checkInTime: '15:00',
                 currentDateTime: new Date().toLocaleString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
@@ -115,7 +117,7 @@
                     }, 1000);
                 },
 
-                openModal(idrec, orderId) {
+                async openModal(idrec, orderId) {
                     this.bookingId = orderId;
                     this.isOpen = true;
                     this.currentDateTime = new Date().toLocaleString('en-US', {
@@ -128,7 +130,16 @@
                         second: '2-digit',
                         hour12: false
                     });
-                    this.fetchBookingDetails();
+
+                    const now = new Date();
+                    const checkInTime = new Date();
+                    checkInTime.setHours(15, 0, 0, 0); // Set to 3:00 PM
+
+                    this.isBeforeCheckInTime = now < checkInTime;
+
+                    if (!this.isBeforeCheckInTime) {
+                        await this.fetchBookingDetails();
+                    }
                 },
 
                 async fetchBookingDetails() {
