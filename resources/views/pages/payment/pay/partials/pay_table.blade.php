@@ -102,7 +102,7 @@
                     @if (in_array($payment->transaction->transaction_status, ['waiting']))
                         <div x-data="attachmentModal()" class="relative group">
                             <button type="button"
-                                class="text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-600 p-2 rounded transition duration-200"
+                                class="flex items-center gap-1 text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-600 px-3 py-1 rounded transition duration-200"
                                 @click="openModal('{{ $payment->transaction->attachment }}', '{{ $payment->order_id }}')"
                                 title="Confirm Payment">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -110,8 +110,8 @@
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M9 12l2 2l4 -4m-7 9a9 9 0 1 1 0 -18a9 9 0 0 1 0 18z" />
                                 </svg>
+                                <span class="text-sm font-medium">Confirm</span>
                             </button>
-
 
                             <!-- Modal backdrop -->
                             <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity"
