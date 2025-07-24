@@ -46,7 +46,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">                    
                     <div class="text-sm font-medium text-gray-900">
                         {{ $payment->transaction->property->name ?? 'N/A' }}</div>
-                    <span class="text-xs text-gray-400">{{ $payment->transaction->room->name }}</span>
+                    <span class="text-xs text-gray-400">{{ $payment->transaction->room->name ?? '-' }}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     Rp{{ number_format($payment->grandtotal_price, 0, ',', '.') }}
