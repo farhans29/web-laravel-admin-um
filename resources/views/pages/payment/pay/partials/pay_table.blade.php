@@ -210,7 +210,7 @@
                                                 action="{{ route('admin.payments.approve', $payment->idrec) }}"
                                                 method="POST">
                                                 @csrf
-                                                <button type="submit"
+                                                <button type="button"
                                                     class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
                                                     onclick="confirmApprove({{ $payment->idrec }})">
                                                     Approve

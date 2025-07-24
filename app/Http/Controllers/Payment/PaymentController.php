@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\Booking;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -72,7 +73,7 @@ class PaymentController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('pages.payment.pay.partials.pay_table', ['payments' => $payments])->render(),                
+                'html' => view('pages.payment.pay.partials.pay_table', ['payments' => $payments])->render(),
             ]);
         }
 
@@ -83,31 +84,54 @@ class PaymentController extends Controller
     }
 
     public function approve($id)
-    {        
-        $transaction = Transaction::findOrFail($id);
+    {
+        try {
+            // First try to find the payment record
+            $payment = Payment::where('idrec', $id)->first();
 
-        // Update transaction
-        $transaction->update([
-            'transaction_status' => 'paid',
-            'paid_at' => now()
-        ]);
+            if (!$payment) {
+                // Fallback to transaction if payment not found
+                $transaction = Transaction::where('order_id', $id)->orWhere('id', $id)->firstOrFail();
 
-        // Create or update payment record
-        Payment::updateOrCreate(
-            ['order_id' => $transaction->order_id],
-            [
-                'property_id' => $transaction->property_id,
-                'room_id' => $transaction->room_id,
-                'user_id' => $transaction->user_id,
-                'grandtotal_price' => $transaction->grandtotal_price,
-                'verified_by' => Auth::id(),
-                'verified_at' => now(),
-                'payment_status' => 'paid',
-                'updated_at' => now()
-            ]
-        );
+                $payment = Payment::updateOrCreate(
+                    ['order_id' => $transaction->order_id],
+                    [
+                        'property_id' => $transaction->property_id,
+                        'room_id' => $transaction->room_id,
+                        'user_id' => $transaction->user_id,
+                        'grandtotal_price' => $transaction->grandtotal_price,
+                        'verified_by' => Auth::id() ?? 1, // Fallback to admin ID 1 if not authenticated
+                        'verified_at' => now(),
+                        'payment_status' => 'paid',
+                    ]
+                );
 
-        return redirect()->back()->with('success', 'Payment approved successfully');
+                $transaction->update([
+                    'transaction_status' => 'paid',
+                    'paid_at' => now()
+                ]);
+            } else {
+                // Update existing payment
+                $payment->update([
+                    'verified_by' => Auth::id() ?? 1,
+                    'verified_at' => now(),
+                    'payment_status' => 'paid',
+                ]);
+
+                // Update related transaction
+                if ($payment->order_id) {
+                    Transaction::where('order_id', $payment->order_id)->update([
+                        'transaction_status' => 'paid',
+                        'paid_at' => now()
+                    ]);
+                }
+            }
+
+            return redirect()->back()->with('success', 'Payment approved successfully');
+        } catch (\Exception $e) {
+            Log::error('Payment approval failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Payment approval failed. Error: ' . $e->getMessage());
+        }
     }
 
     public function reject($id)
