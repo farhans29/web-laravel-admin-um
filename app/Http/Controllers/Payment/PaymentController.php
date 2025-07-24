@@ -84,6 +84,7 @@ class PaymentController extends Controller
 
     public function approve($id)
     {
+        dd($id);
         $transaction = Transaction::findOrFail($id);
 
         // Update transaction
