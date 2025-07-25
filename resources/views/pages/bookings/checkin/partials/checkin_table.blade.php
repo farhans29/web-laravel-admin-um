@@ -2,35 +2,29 @@
     <thead class="bg-gray-50">
         <tr>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order ID
-            </th>
+                Order ID</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Guest Name
-            </th>
+                Guest</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Property/Room
-            </th>
+                Property/Room</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Check-in Date
-            </th>
+                Check-in</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Check-out Date
-            </th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-            </th>
+                Check-out</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status</th>
             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-            </th>
+                Actions</th>
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
-        @foreach ($bookings as $booking)
+        @forelse ($bookings as $booking)
             <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-indigo-600">{{ $booking->order_id }}</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+
+                <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none"
@@ -47,65 +41,70 @@
                         </div>
                     </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div class="text-sm font-medium text-gray-900">
                         {{ $booking->property->name ?? 'N/A' }}</div>
                     <div class="text-sm text-gray-500">{{ $booking->room->name ?? 'N/A' }}</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                <td class="px-6 py-4 whitespace-nowrap">
                     @if ($booking->check_in_at)
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ $booking->check_in_at->format('Y-m-d') }}
+                        <div class="text-sm text-gray-900">
+                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}
                         </div>
-                        <div class="text-xs text-gray-400">
-                            {{ $booking->check_in_at->format('H:i') }}
+                        <div class="text-sm text-gray-500">
+                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}
                         </div>
                     @else
-                        <div class="text-sm text-gray-500 italic">Not checked in</div>
+                        <div class="text-sm text-gray-500 italic">Not Checked-In Yet</div>
                     @endif
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+
+                <td class="px-6 py-4 whitespace-nowrap">
                     @if ($booking->check_out_at)
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ $booking->check_out_at->format('Y M d') }}
+                        <div class="text-sm text-gray-900">
+                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}
                         </div>
-                        <div class="text-xs text-gray-400">
-                            {{ $booking->check_out_at->format('H:i') }}
+                        <div class="text-sm text-gray-500">
+                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}
                         </div>
                     @else
-                        <div class="text-sm text-gray-500 italic">Not checked out</div>
+                        <div class="text-sm text-gray-500 italic">Not Checked-Out Yet</div>
                     @endif
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    @php
-                        $statusClasses = [
-                            'Waiting for Check-In' => 'bg-yellow-100 text-yellow-800',
-                            'Checked-In' => 'bg-green-100 text-green-800',
-                            'Checked-Out' => 'bg-blue-100 text-blue-800',
-                            'Unknown' => 'bg-gray-100 text-gray-800',
-                        ];
-                    @endphp
-                    <span
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses[$booking->status] ?? 'bg-gray-100 text-gray-800' }}">
-                        {{ $booking->status }}
-                    </span>
+
+                <td class="px-6 py-4 whitespace-nowrap">
+                    @if ($booking->check_out_at)
+                        <span
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            Checked-Out
+                        </span>
+                    @else
+                        <span
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Waiting for Checked-Out
+                        </span>
+                    @endif
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    @if (is_null($booking->check_in_at))
-                        <div x-data="checkInModal('{{ $booking->order_id }}')">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
+                    @if (is_null($booking->check_out_at))
+                        <div x-data="checkOutModal('{{ $booking->order_id }}')">
                             <!-- Trigger Button -->
                             <button type="button"
                                 @click="openModal('{{ $booking->idrec }}', '{{ $booking->order_id }}')"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none">
-                                <!-- Heroicon: door-open -->
+                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700 focus:outline-none">
+                                <!-- Heroicon: door-closed -->
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2"
                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2">
                                     </path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18">
+                                    </path>
                                 </svg>
-                                Check-In
+                                Check-Out
                             </button>
 
                             <!-- Modal Backdrop -->
@@ -131,9 +130,10 @@
 
                                     <!-- Modal Header -->
                                     <div
-                                        class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-green-100">
+                                        class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-yellow-100">
                                         <div class="flex justify-between items-center">
-                                            <div class="font-bold text-xl text-gray-800">Check-In Process</div>
+                                            <div class="font-bold text-xl text-gray-800">Check-Out Process
+                                            </div>
                                             <button type="button"
                                                 class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
                                                 @click="closeModal">
@@ -144,44 +144,34 @@
                                                 </svg>
                                             </button>
                                         </div>
-                                        <p class="text-sm text-gray-600 mt-1">Please upload your identification document
-                                            to complete check-in</p>
-                                        <p class="text-lg font-bold text-gray-800 mt-1" x-text="currentDateTime"></p>
+                                        <p class="text-sm text-gray-600 mt-1">Please verify room condition
+                                            and complete check-out</p>
+                                        <p class="text-lg font-bold mt-1"
+                                            :class="{
+                                                'text-red-600': isLateCheckout,
+                                                'text-gray-800': !
+                                                    isLateCheckout
+                                            }"
+                                            x-text="currentDateTime"></p>
+                                        <div x-show="isLateCheckout" class="mt-2 flex items-center text-red-600">
+                                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="text-sm font-medium">Late checkout! Guest has
+                                                exceeded scheduled checkout time.</span>
+                                        </div>
                                     </div>
 
                                     <!-- Modal Content -->
                                     <div class="flex-1 overflow-y-auto px-6 py-6">
-                                        <!-- Early Check-in Warning -->
-                                        <div x-show="isBeforeCheckInTime"
-                                            class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-                                            <div class="flex">
-                                                <div class="flex-shrink-0">
-                                                    <svg class="h-5 w-5 text-yellow-400"
-                                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                        fill="currentColor" aria-hidden="true">
-                                                        <path fill-rule="evenodd"
-                                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                </div>
-                                                <div class="ml-3">
-                                                    <p class="text-sm text-yellow-700">
-                                                        Check-in is only available after <span class="font-bold">3:00
-                                                            PM</span>.
-                                                        Please come back later to complete your check-in.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Check-in Content -->
-                                        <div x-show="!isBeforeCheckInTime"
-                                            class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <!-- Booking Details Section -->
-                                            <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <!-- Booking Details -->
+                                            <div class="bg-gray-50 p-4 rounded-lg">
                                                 <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                     <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
                                                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -193,7 +183,7 @@
                                                     <div class="flex justify-between">
                                                         <span class="text-sm font-medium text-gray-600">Order
                                                             ID:</span>
-                                                        <span class="text-sm text-gray-800 font-mono"
+                                                        <span class="text-sm text-gray-800"
                                                             x-text="bookingDetails.order_id"></span>
                                                     </div>
                                                     <div class="flex justify-between">
@@ -240,151 +230,85 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Document Upload Section -->
-                                            <div class="space-y-6">
-                                                <!-- Guest Profile Section -->
-                                                <div>
-                                                    <h3 class="font-semibold text-lg text-gray-800 mb-2">Guest Profile
-                                                    </h3>
-                                                    <div
-                                                        class="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-white">
-                                                        <template x-if="profilePhotoUrl">
-                                                            <div class="flex flex-col items-center">
-                                                                <img :src="profilePhotoUrl" alt="Profile Photo"
-                                                                    class="w-full h-48 object-cover rounded-lg">
-                                                                <span class="mt-2 text-sm text-gray-600"
-                                                                    x-text="bookingDetails.guest_name"></span>
-                                                            </div>
-                                                        </template>
-                                                        <template x-if="!profilePhotoUrl">
-                                                            <div
-                                                                class="flex flex-col items-center justify-center h-48">
-                                                                <div
-                                                                    class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        class="h-12 w-12 text-gray-400" fill="none"
-                                                                        viewBox="0 0 24 24" stroke="currentColor"
-                                                                        aria-hidden="true">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round" stroke-width="2"
-                                                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                                    </svg>
-                                                                </div>
-                                                                <span class="mt-2 text-sm text-gray-600"
-                                                                    x-text="bookingDetails.guest_name"></span>
-                                                                <span class="text-xs text-red-500 mt-1">Account not
-                                                                    Verified</span>
+                                            <!-- Room Inventory Check -->
+                                            <div>
+                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-red-600" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                    </svg>
+                                                    Room Inventory Check
+                                                </h3>
+
+                                                <div class="mb-4">
+                                                    <p class="text-sm text-gray-600 mb-3">Please check all items that
+                                                        are missing or damaged:</p>
+
+                                                    <!-- Add Select All checkbox -->
+                                                    <div class="flex items-center mb-2">
+                                                        <input id="select-all-items" type="checkbox"
+                                                            @change="toggleSelectAll($event.target.checked)"
+                                                            class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                                        <label for="select-all-items"
+                                                            class="ml-2 block text-sm font-medium text-gray-700">Select
+                                                            All</label>
+                                                    </div>
+
+                                                    <div class="space-y-2">
+                                                        <template x-for="(item, index) in roomInventory"
+                                                            :key="index">
+                                                            <div class="flex items-center">
+                                                                <input :id="'item-' + index" type="checkbox"
+                                                                    x-model="item.missingOrDamaged"
+                                                                    class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                                                <label :for="'item-' + index"
+                                                                    class="ml-2 block text-sm text-gray-700"
+                                                                    x-text="item.name"></label>
+                                                                <template x-if="item.missingOrDamaged">
+                                                                    <div class="ml-4 flex-1">
+                                                                        <select x-model="item.condition"
+                                                                            class="block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
+                                                                            <option value="missing">Missing</option>
+                                                                            <option value="damaged">Damaged</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </template>
                                                             </div>
                                                         </template>
                                                     </div>
                                                 </div>
 
-                                                <!-- Document Upload Section -->
-                                                <div>
-                                                    <h3
-                                                        class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24"
-                                                            aria-hidden="true">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                        </svg>
-                                                        Upload Identification
-                                                    </h3>
+                                                <!-- Additional Notes -->
+                                                <div class="mt-4">
+                                                    <label for="checkout-notes"
+                                                        class="block text-sm font-medium text-gray-700">Additional
+                                                        Notes</label>
+                                                    <textarea id="checkout-notes" x-model="additionalNotes" rows="3"
+                                                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"></textarea>
+                                                </div>
 
-                                                    <!-- Document Type Selection -->
-                                                    <div class="mb-4">
-                                                        <label for="documentType"
-                                                            class="block text-sm font-medium text-gray-700 mb-1">Document
-                                                            Type</label>
-                                                        <select id="documentType" x-model="selectedDocType"
-                                                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
-                                                            <option value="ktp">KTP</option>
-                                                            <option value="passport">Passport</option>
-                                                            <option value="sim">SIM</option>
-                                                            <option value="other">Other ID</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <!-- Upload Area -->
-                                                    <div>
-                                                        <div x-show="!docPreview"
-                                                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200 cursor-pointer"
-                                                            @click="$refs.docInput.click()"
-                                                            @drop.prevent="handleDocDrop($event)" @dragover.prevent
-                                                            @dragenter.prevent
-                                                            :class="{ 'border-green-400 bg-green-50': isDragging }"
-                                                            role="button" tabindex="0"
-                                                            aria-label="Upload identification document">
-                                                            <input type="file" id="document" name="document"
-                                                                accept="image/*,.pdf" class="hidden" x-ref="docInput"
-                                                                @change="handleDocUpload($event)">
-
-                                                            <div class="space-y-2">
-                                                                <svg class="w-12 h-12 mx-auto text-gray-400"
-                                                                    fill="none" stroke="currentColor"
-                                                                    viewBox="0 0 24 24" aria-hidden="true">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                                    </path>
-                                                                </svg>
-                                                                <p class="text-sm text-gray-600">
-                                                                    <span class="font-medium text-green-600">Click to
-                                                                        upload</span> or drag and drop
-                                                                </p>
-                                                                <p class="text-xs text-gray-500">JPG, PNG, PDF up to
-                                                                    5MB</p>
-                                                            </div>
+                                                <!-- Damage Charges -->
+                                                <div class="mt-4" x-show="hasDamagedItems">
+                                                    <label class="block text-sm font-medium text-gray-700">Damage
+                                                        Charges</label>
+                                                    <div class="mt-1 relative rounded-md shadow-sm">
+                                                        <div
+                                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                            <span class="text-gray-500 sm:text-sm">Rp</span>
                                                         </div>
-
-                                                        <!-- Document Preview -->
-                                                        <div class="mt-4" x-show="docPreview" x-transition>
-                                                            <h4 class="text-sm font-medium text-gray-700 mb-2">Document
-                                                                Preview (<span
-                                                                    x-text="selectedDocType.toUpperCase()"></span>):
-                                                            </h4>
-                                                            <div
-                                                                class="border border-gray-200 rounded-lg p-2 bg-white">
-                                                                <template x-if="docPreviewType === 'image'">
-                                                                    <img :src="docPreview" alt="Document Preview"
-                                                                        class="w-full h-auto max-h-48 object-contain">
-                                                                </template>
-                                                                <template x-if="docPreviewType === 'pdf'">
-                                                                    <div class="bg-gray-100 p-4 text-center">
-                                                                        <svg class="w-12 h-12 mx-auto text-red-500"
-                                                                            fill="none" stroke="currentColor"
-                                                                            viewBox="0 0 24 24" aria-hidden="true">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                                                            </path>
-                                                                        </svg>
-                                                                        <p class="text-sm text-gray-600 mt-2">PDF
-                                                                            Document</p>
-                                                                    </div>
-                                                                </template>
-                                                                <div class="mt-2 flex justify-between items-center">
-                                                                    <span class="text-xs text-gray-500">Uploaded
-                                                                        document</span>
-                                                                    <button type="button" @click="removeDoc"
-                                                                        class="text-red-500 hover:text-red-700 text-xs font-medium">
-                                                                        Remove
-                                                                    </button>
-                                                                </div>
-                                                            </div>
+                                                        <input type="number" x-model="damageCharges"
+                                                            class="focus:ring-red-500 focus:border-red-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md"
+                                                            placeholder="0">
+                                                        <div class="absolute inset-y-0 right-0 flex items-center">
+                                                            <label for="currency" class="sr-only">Currency</label>
                                                         </div>
                                                     </div>
-
-                                                    <!-- Validation Message -->
-                                                    <div class="mt-3" x-show="!docPreview">
-                                                        <p class="text-sm text-red-600">
-                                                            <span class="font-medium">Note:</span> Identification
-                                                            document is required for check-in.
-                                                        </p>
-                                                    </div>
+                                                    <p class="mt-1 text-sm text-gray-500" x-show="damageCharges > 0">
+                                                        This amount will be deducted from the security
+                                                        deposit.
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -393,27 +317,28 @@
                                     <!-- Modal Footer -->
                                     <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between">
                                         <button type="button" @click="closeModal"
-                                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                             Cancel
                                         </button>
-                                        <button type="button" @click="submitCheckIn"
-                                            :disabled="!profilePhotoUrl && !docPreview"
-                                            class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                                            Complete Check-In
+                                        <button type="button" @click="submitCheckOut"
+                                            class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                                            Complete Check-Out
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    @elseif (!is_null($booking->check_in_at) && is_null($booking->check_out_at))
-                        {{-- Sudah check-in, belum check-out --}}
-                        <span class="text-yellow-600">Currently Staying</span>
                     @elseif (!is_null($booking->check_in_at) && !is_null($booking->check_out_at))
-                        {{-- Sudah check-in dan check-out --}}
                         <span class="text-green-600">Checked-Out</span>
                     @endif
                 </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                    No bookings found
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>

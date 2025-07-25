@@ -79,7 +79,6 @@ class CheckOutController extends Controller
         ]);
     }
 
-
     public function checkOut($order_id)
     {
         // Cari booking berdasarkan order_id
@@ -93,48 +92,6 @@ class CheckOutController extends Controller
             'message' => 'Guest successfully checked out.'
         ]);
     }
-
-    // public function checkOut($id)
-    // {
-    //     try {
-    //         $booking = Booking::findOrFail($id);
-
-    //         // Update booking status
-    //         $booking->check_out_at = now();
-    //         $booking->status = 'checked_out';
-    //         $booking->save();
-
-    //         // Process damaged items if any
-    //         if (request()->has('damaged_items')) {
-    //             foreach (request('damaged_items') as $item) {
-    //                 RoomDamage::create([
-    //                     'booking_id' => $booking->id,
-    //                     'item_name' => $item['name'],
-    //                     'condition' => $item['condition'],
-    //                     'notes' => request('additional_notes'),
-    //                     'charge_amount' => request('damage_charges', 0),
-    //                     'reported_at' => now()
-    //                 ]);
-    //             }
-    //         }
-
-    //         // Process late checkout if applicable
-    //         if (request('is_late_checkout')) {
-    //             // You can add late checkout logic here
-    //             // For example, calculate and store late fees
-    //         }
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Guest successfully checked out.'
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
 
     public function getBookingDetails($orderId)
     {

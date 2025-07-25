@@ -74,299 +74,299 @@
     </div>
 
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('checkOutModal', (orderId) => ({
-                isOpen: false,
-                currentDateTime: '',
-                isLateCheckout: false,
-                bookingDetails: {
-                    order_id: '',
-                    guest_name: '',
-                    property_name: '',
-                    room_name: '',
-                    check_in: '',
-                    check_out: '',
-                    duration: '',
-                    total_payment: ''
-                },
-                roomInventory: [{
-                        name: 'TV',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Air Conditioner',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Bed',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Wardrobe',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Desk',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Chair',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Lamp',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Bathroom Mirror',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Shower',
-                        missingOrDamaged: false,
-                        condition: ''
-                    },
-                    {
-                        name: 'Toilet',
-                        missingOrDamaged: false,
-                        condition: ''
-                    }
-                ],
-                additionalNotes: '',
-                damageCharges: 0,
-                scheduledCheckoutTime: null,
+        // document.addEventListener('alpine:init', () => {
+        //     Alpine.data('checkOutModal', (orderId) => ({
+        //         isOpen: false,
+        //         currentDateTime: '',
+        //         isLateCheckout: false,
+        //         bookingDetails: {
+        //             order_id: '',
+        //             guest_name: '',
+        //             property_name: '',
+        //             room_name: '',
+        //             check_in: '',
+        //             check_out: '',
+        //             duration: '',
+        //             total_payment: ''
+        //         },
+        //         roomInventory: [{
+        //                 name: 'TV',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Air Conditioner',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Bed',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Wardrobe',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Desk',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Chair',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Lamp',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Bathroom Mirror',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Shower',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             },
+        //             {
+        //                 name: 'Toilet',
+        //                 missingOrDamaged: false,
+        //                 condition: ''
+        //             }
+        //         ],
+        //         additionalNotes: '',
+        //         damageCharges: 0,
+        //         scheduledCheckoutTime: null,
 
-                init() {
-                    // Initialize with current time
-                    this.updateCurrentTime();
+        //         init() {
+        //             // Initialize with current time
+        //             this.updateCurrentTime();
 
-                    // Update time every second for real-time clock
-                    this.timeInterval = setInterval(() => {
-                        this.updateCurrentTime();
-                        this.checkLateCheckout();
-                    }, 1000);
-                },
+        //             // Update time every second for real-time clock
+        //             this.timeInterval = setInterval(() => {
+        //                 this.updateCurrentTime();
+        //                 this.checkLateCheckout();
+        //             }, 1000);
+        //         },
 
-                toggleSelectAll(checked) {
-                    this.roomInventory.forEach(item => {
-                        item.missingOrDamaged = checked;
-                        // You might want to set a default condition when selecting all
-                        if (checked && !item.condition) {
-                            item.condition =
-                            'damaged'; // or 'missing' depending on your preference
-                        }
-                    });
-                },
+        //         toggleSelectAll(checked) {
+        //             this.roomInventory.forEach(item => {
+        //                 item.missingOrDamaged = checked;
+        //                 // You might want to set a default condition when selecting all
+        //                 if (checked && !item.condition) {
+        //                     item.condition =
+        //                     'damaged'; // or 'missing' depending on your preference
+        //                 }
+        //             });
+        //         },
 
-                updateCurrentTime() {
-                    const now = new Date();
-                    this.currentDateTime = now.toLocaleString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: true
-                    });
-                },
+        //         updateCurrentTime() {
+        //             const now = new Date();
+        //             this.currentDateTime = now.toLocaleString('en-US', {
+        //                 weekday: 'long',
+        //                 year: 'numeric',
+        //                 month: 'long',
+        //                 day: 'numeric',
+        //                 hour: '2-digit',
+        //                 minute: '2-digit',
+        //                 second: '2-digit',
+        //                 hour12: true
+        //             });
+        //         },
 
-                checkLateCheckout() {
-                    if (this.scheduledCheckoutTime) {
-                        const now = new Date();
-                        this.isLateCheckout = now > this.scheduledCheckoutTime;
-                    }
-                },
+        //         checkLateCheckout() {
+        //             if (this.scheduledCheckoutTime) {
+        //                 const now = new Date();
+        //                 this.isLateCheckout = now > this.scheduledCheckoutTime;
+        //             }
+        //         },
 
-                openModal(idrec, orderId) {
-                    this.isOpen = true;
-                    this.fetchBookingDetails(orderId);
-                },
+        //         openModal(idrec, orderId) {
+        //             this.isOpen = true;
+        //             this.fetchBookingDetails(orderId);
+        //         },
 
-                closeModal() {
-                    this.isOpen = false;
-                    // Reset form when closing
-                    this.roomInventory.forEach(item => {
-                        item.missingOrDamaged = false;
-                        item.condition = '';
-                    });
-                    this.additionalNotes = '';
-                    this.damageCharges = 0;
-                },
+        //         closeModal() {
+        //             this.isOpen = false;
+        //             // Reset form when closing
+        //             this.roomInventory.forEach(item => {
+        //                 item.missingOrDamaged = false;
+        //                 item.condition = '';
+        //             });
+        //             this.additionalNotes = '';
+        //             this.damageCharges = 0;
+        //         },
 
-                async fetchBookingDetails(orderId) {
-                    try {
-                        const response = await fetch(`/bookings/check-out/${orderId}/details`);
-                        const data = await response.json();
+        //         async fetchBookingDetails(orderId) {
+        //             try {
+        //                 const response = await fetch(`/bookings/check-out/${orderId}/details`);
+        //                 const data = await response.json();
 
-                        // Format dates properly
-                        const formatDate = (dateString) => {
-                            if (!dateString) return 'Not checked in yet';
-                            const date = new Date(dateString);
-                            return date.toLocaleString();
-                        };
+        //                 // Format dates properly
+        //                 const formatDate = (dateString) => {
+        //                     if (!dateString) return 'Not checked in yet';
+        //                     const date = new Date(dateString);
+        //                     return date.toLocaleString();
+        //                 };
 
-                        // Store scheduled checkout time for comparison
-                        if (data.check_out) {
-                            this.scheduledCheckoutTime = new Date(data.check_out);
-                        }
+        //                 // Store scheduled checkout time for comparison
+        //                 if (data.check_out) {
+        //                     this.scheduledCheckoutTime = new Date(data.check_out);
+        //                 }
 
-                        this.bookingDetails = {
-                            order_id: data.order_id,
-                            guest_name: data.user_name,
-                            property_name: data.property_name,
-                            room_name: data.room_name,
-                            check_in: formatDate(data.actual_check_in || data.check_in),
-                            check_out: formatDate(data.check_out), // Scheduled check-out
-                            duration: this.calculateDuration(data.actual_check_in || data
-                                .check_in, data.check_out),
-                            total_payment: this.formatRupiah(data.grandtotal_price)
-                        };
+        //                 this.bookingDetails = {
+        //                     order_id: data.order_id,
+        //                     guest_name: data.user_name,
+        //                     property_name: data.property_name,
+        //                     room_name: data.room_name,
+        //                     check_in: formatDate(data.actual_check_in || data.check_in),
+        //                     check_out: formatDate(data.check_out), // Scheduled check-out
+        //                     duration: this.calculateDuration(data.actual_check_in || data
+        //                         .check_in, data.check_out),
+        //                     total_payment: this.formatRupiah(data.grandtotal_price)
+        //                 };
 
-                        // Immediately check if checkout is late
-                        this.checkLateCheckout();
-                    } catch (error) {
-                        console.error('Error fetching booking details:', error);
-                        // You might want to show an error message to the user here
-                    }
-                },
+        //                 // Immediately check if checkout is late
+        //                 this.checkLateCheckout();
+        //             } catch (error) {
+        //                 console.error('Error fetching booking details:', error);
+        //                 // You might want to show an error message to the user here
+        //             }
+        //         },
 
-                calculateDuration(checkIn, checkOut) {
-                    if (!checkIn) return 'Not checked in';
+        //         calculateDuration(checkIn, checkOut) {
+        //             if (!checkIn) return 'Not checked in';
 
-                    const start = new Date(checkIn);
-                    const end = checkOut ? new Date(checkOut) : new Date();
-                    const diffTime = Math.abs(end - start);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    return `${diffDays} ${diffDays > 1 ? 'days' : 'day'}`;
-                },
+        //             const start = new Date(checkIn);
+        //             const end = checkOut ? new Date(checkOut) : new Date();
+        //             const diffTime = Math.abs(end - start);
+        //             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        //             return `${diffDays} ${diffDays > 1 ? 'days' : 'day'}`;
+        //         },
 
-                formatRupiah(value) {
-                    const numericValue = parseFloat(value);
+        //         formatRupiah(value) {
+        //             const numericValue = parseFloat(value);
 
-                    if (isNaN(numericValue)) {
-                        return 'Rp 0';
-                    }
+        //             if (isNaN(numericValue)) {
+        //                 return 'Rp 0';
+        //             }
 
-                    return new Intl.NumberFormat('id-ID', {
-                        style: 'currency',
-                        currency: 'IDR',
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0
-                    }).format(numericValue);
-                },
+        //             return new Intl.NumberFormat('id-ID', {
+        //                 style: 'currency',
+        //                 currency: 'IDR',
+        //                 minimumFractionDigits: 0,
+        //                 maximumFractionDigits: 0
+        //             }).format(numericValue);
+        //         },
 
-                get hasDamagedItems() {
-                    return this.roomInventory.some(item => item.missingOrDamaged);
-                },
+        //         get hasDamagedItems() {
+        //             return this.roomInventory.some(item => item.missingOrDamaged);
+        //         },
 
-                submitCheckOut() {
-                    // Show confirmation dialog
-                    Swal.fire({
-                        title: 'Confirm Check-Out',
-                        text: 'Are you sure you want to complete the check-out process?',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Yes, check-out',
-                        cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Prepare damaged items data
-                            const damagedItems = this.roomInventory
-                                .filter(item => item.missingOrDamaged)
-                                .map(item => ({
-                                    name: item.name,
-                                    condition: item.condition
-                                }));
+        //         submitCheckOut() {
+        //             // Show confirmation dialog
+        //             Swal.fire({
+        //                 title: 'Confirm Check-Out',
+        //                 text: 'Are you sure you want to complete the check-out process?',
+        //                 icon: 'question',
+        //                 showCancelButton: true,
+        //                 confirmButtonColor: '#d33',
+        //                 cancelButtonColor: '#3085d6',
+        //                 confirmButtonText: 'Yes, check-out',
+        //                 cancelButtonText: 'Cancel'
+        //             }).then((result) => {
+        //                 if (result.isConfirmed) {
+        //                     // Prepare damaged items data
+        //                     const damagedItems = this.roomInventory
+        //                         .filter(item => item.missingOrDamaged)
+        //                         .map(item => ({
+        //                             name: item.name,
+        //                             condition: item.condition
+        //                         }));
 
-                            // Prepare payload
-                            const payload = {
-                                check_out_time: new Date().toISOString(),
-                                // damaged_items: damagedItems,
-                                // additional_notes: this.additionalNotes,
-                                // damage_charges: this.damageCharges,
-                                // is_late_checkout: this.isLateCheckout
-                            };
+        //                     // Prepare payload
+        //                     const payload = {
+        //                         check_out_time: new Date().toISOString(),
+        //                         // damaged_items: damagedItems,
+        //                         // additional_notes: this.additionalNotes,
+        //                         // damage_charges: this.damageCharges,
+        //                         // is_late_checkout: this.isLateCheckout
+        //                     };
 
-                            // Show loading state
-                            this.isSubmitting = true;
+        //                     // Show loading state
+        //                     this.isSubmitting = true;
 
-                            // Send data to server
-                            fetch(`/bookings/check-out/${this.bookingDetails.order_id}`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector(
-                                                'meta[name="csrf-token"]')
-                                            .content,
-                                        'Accept': 'application/json'
-                                    },
-                                    body: JSON.stringify(payload)
-                                })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        return response.json().then(err => {
-                                            throw err;
-                                        });
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        // Show success notification
-                                        Swal.fire({
-                                            title: 'Success!',
-                                            text: data.message ||
-                                                'Guest successfully checked out.',
-                                            icon: 'success',
-                                            confirmButtonText: 'OK'
-                                        }).then(() => {
-                                            // Close modal and refresh
-                                            this.closeModal();
-                                            window.location.reload();
-                                        });
-                                    } else {
-                                        throw new Error(data.message ||
-                                            'Unknown error occurred');
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    // Show error notification
-                                    Swal.fire({
-                                        title: 'Error!',
-                                        text: error.message ||
-                                            'An error occurred during check-out',
-                                        icon: 'error',
-                                        confirmButtonText: 'OK'
-                                    });
-                                })
-                                .finally(() => {
-                                    this.isSubmitting = false;
-                                });
-                        }
-                    });
-                },
+        //                     // Send data to server
+        //                     fetch(`/bookings/check-out/${this.bookingDetails.order_id}`, {
+        //                             method: 'POST',
+        //                             headers: {
+        //                                 'Content-Type': 'application/json',
+        //                                 'X-CSRF-TOKEN': document.querySelector(
+        //                                         'meta[name="csrf-token"]')
+        //                                     .content,
+        //                                 'Accept': 'application/json'
+        //                             },
+        //                             body: JSON.stringify(payload)
+        //                         })
+        //                         .then(response => {
+        //                             if (!response.ok) {
+        //                                 return response.json().then(err => {
+        //                                     throw err;
+        //                                 });
+        //                             }
+        //                             return response.json();
+        //                         })
+        //                         .then(data => {
+        //                             if (data.success) {
+        //                                 // Show success notification
+        //                                 Swal.fire({
+        //                                     title: 'Success!',
+        //                                     text: data.message ||
+        //                                         'Guest successfully checked out.',
+        //                                     icon: 'success',
+        //                                     confirmButtonText: 'OK'
+        //                                 }).then(() => {
+        //                                     // Close modal and refresh
+        //                                     this.closeModal();
+        //                                     window.location.reload();
+        //                                 });
+        //                             } else {
+        //                                 throw new Error(data.message ||
+        //                                     'Unknown error occurred');
+        //                             }
+        //                         })
+        //                         .catch(error => {
+        //                             console.error('Error:', error);
+        //                             // Show error notification
+        //                             Swal.fire({
+        //                                 title: 'Error!',
+        //                                 text: error.message ||
+        //                                     'An error occurred during check-out',
+        //                                 icon: 'error',
+        //                                 confirmButtonText: 'OK'
+        //                             });
+        //                         })
+        //                         .finally(() => {
+        //                             this.isSubmitting = false;
+        //                         });
+        //                 }
+        //             });
+        //         },
 
-                // Clean up interval when component is destroyed
-                destroy() {
-                    if (this.timeInterval) {
-                        clearInterval(this.timeInterval);
-                    }
-                }
-            }));
-        });
+        //         // Clean up interval when component is destroyed
+        //         destroy() {
+        //             if (this.timeInterval) {
+        //                 clearInterval(this.timeInterval);
+        //             }
+        //         }
+        //     }));
+        // });
 
         document.addEventListener('DOMContentLoaded', function() {
             const defaultStartDate = new Date();
