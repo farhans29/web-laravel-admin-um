@@ -2,19 +2,19 @@
     <thead class="bg-gray-50">
         <tr>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Check-in
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Check-out
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Order ID
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Guest Name
+                Name
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Property/Room
-            </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Check-in Date
-            </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Check-out Date
             </th>
             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -25,8 +25,32 @@
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
-        @foreach ($bookings as $booking)
+        @forelse ($checkIns as $booking)
             <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                    @if ($booking->check_in_at)
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ $booking->check_in_at->format('Y-m-d') }}
+                        </div>
+                        <div class="text-xs text-gray-400">
+                            {{ $booking->check_in_at->format('H:i') }}
+                        </div>
+                    @else
+                        <div class="text-sm text-gray-500 italic">Not checked in</div>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                    @if ($booking->check_out_at)
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ $booking->check_out_at->format('Y M d') }}
+                        </div>
+                        <div class="text-xs text-gray-400">
+                            {{ $booking->check_out_at->format('H:i') }}
+                        </div>
+                    @else
+                        <div class="text-sm text-gray-500 italic">Not checked out</div>
+                    @endif
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div class="text-sm font-medium text-indigo-600">{{ $booking->order_id }}</div>
                 </td>
@@ -52,34 +76,10 @@
                         {{ $booking->property->name ?? 'N/A' }}</div>
                     <div class="text-sm text-gray-500">{{ $booking->room->name ?? 'N/A' }}</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($booking->check_in_at)
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ $booking->check_in_at->format('Y-m-d') }}
-                        </div>
-                        <div class="text-xs text-gray-400">
-                            {{ $booking->check_in_at->format('H:i') }}
-                        </div>
-                    @else
-                        <div class="text-sm text-gray-500 italic">Not checked in</div>
-                    @endif
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($booking->check_out_at)
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ $booking->check_out_at->format('Y M d') }}
-                        </div>
-                        <div class="text-xs text-gray-400">
-                            {{ $booking->check_out_at->format('H:i') }}
-                        </div>
-                    @else
-                        <div class="text-sm text-gray-500 italic">Not checked out</div>
-                    @endif
-                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     @php
                         $statusClasses = [
-                            'Waiting for Check-In' => 'bg-yellow-100 text-yellow-800',
+                            'Waiting For Check-In' => 'bg-yellow-100 text-yellow-800',
                             'Checked-In' => 'bg-green-100 text-green-800',
                             'Checked-Out' => 'bg-blue-100 text-blue-800',
                             'Unknown' => 'bg-gray-100 text-gray-800',
@@ -414,6 +414,12 @@
                     @endif
                 </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                    No bookings found
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>

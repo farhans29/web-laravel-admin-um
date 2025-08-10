@@ -18,7 +18,7 @@ class CheckInController extends Controller
     {
         $perPage = request('per_page', 8);
 
-        $bookings = Booking::with(['transaction', 'property', 'room', 'user'])
+        $checkOuts = Booking::with(['transaction', 'property', 'room', 'user'])
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })
@@ -27,7 +27,7 @@ class CheckInController extends Controller
             ->orderBy('check_out_at', 'desc') // Then sort by check_out_at
             ->paginate($perPage);
 
-        return view('pages.bookings.checkin.index', compact('bookings'));
+        return view('pages.bookings.checkin.index', compact('checkOuts'));
     }
 
     public function filter(Request $request)
@@ -72,14 +72,14 @@ class CheckInController extends Controller
             ]);
         }
 
-        $bookings = $query->paginate($request->input('per_page', 8));
+        $checkOuts = $query->paginate($request->input('per_page', 8));
 
         return response()->json([
             'table' => view('pages.bookings.checkin.partials.checkin_table', [
-                'bookings' => $bookings,
+                'bookings' => $checkOuts,
                 'per_page' => $request->input('per_page', 8),
             ])->render(),
-            'pagination' => $bookings->appends($request->input())->links()->toHtml()
+            'pagination' => $checkOuts->appends($request->input())->links()->toHtml()
         ]);
     }
 

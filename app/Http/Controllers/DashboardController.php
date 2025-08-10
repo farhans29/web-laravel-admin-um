@@ -7,6 +7,7 @@ use App\Models\DataFeed;
 use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Support\Facades\DB;
+use App\Models\Transaction;
 
 class DashboardController extends Controller
 {
@@ -14,36 +15,64 @@ class DashboardController extends Controller
     {
         $dataFeed = new DataFeed();
 
-        $bookings = Booking::with(['user', 'room', 'property', 'transaction'])
-            ->orderByDesc('check_in_at')
-            ->paginate(4);
-                
-        $stats = [            
-            'upcoming' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
+        // Get today's check-ins (paid bookings with today's check-in date, not checked in yet)
+        $checkIns = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid')
+                    ->whereDate('check_in', now()->toDateString());
+            })
+            ->whereNull('check_in_at')
+            ->whereNull('check_out_at')
+            ->orderBy(
+                Transaction::select('check_in')
+                    ->whereColumn('t_transactions.order_id', 't_booking.order_id')
+                    ->limit(1)
+            )
+            ->limit(4)
+            ->get();
+
+
+        // Get today's check-outs (paid bookings with today's check-out date, checked in but not checked out)
+        $checkOuts = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid')
+                    ->whereDate('check_out', now()->toDateString()); // dari tabel transactions
+            })
+            ->whereNotNull('check_in_at') // sudah check-in
+            ->whereNull('check_out_at') // belum check-out
+            ->orderBy(
+                Transaction::select('check_out')
+                    ->whereColumn('t_transactions.order_id', 't_booking.order_id')
+                    ->limit(1)
+            )
+            ->limit(4)
+            ->get();
+
+        $stats = [
+            'upcoming' => Booking::whereHas('transaction', fn($q) =>
+            $q->where('transaction_status', 'paid')
+                ->whereDate('check_in', '>=', now()))
                 ->whereNull('check_in_at')
                 ->whereNull('check_out_at')
-                ->whereHas('transaction', fn($q) => $q->whereDate('check_in', '>=', now()->addDay()))
                 ->count(),
-            
+
             'today' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
                 ->whereNull('check_in_at')
                 ->whereNull('check_out_at')
                 ->whereHas('transaction', fn($q) => $q->whereDate('check_in', now()->toDateString()))
                 ->count(),
-            
+
             'checkin' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
                 ->whereNotNull('check_in_at')
                 ->whereNull('check_out_at')
                 ->count(),
-            
+
             'checkout' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
                 ->whereNotNull('check_in_at')
                 ->whereNull('check_out_at')
                 ->whereHas('transaction', fn($q) => $q->whereDate('check_out', now()->toDateString()))
                 ->count(),
         ];
-
-        // dd($stats);
 
         // Get room availability for the next 7 days
         $startDate = now();
@@ -83,12 +112,18 @@ class DashboardController extends Controller
                 'total' => $roomType->total,
                 'available' => $available,
                 'percentage' => $percentage,
-                'is_popular' => $roomType->type === 'Deluxe Suite', // Example condition
-                'is_luxury' => $roomType->type === 'Presidential Suite' // Example condition
+                'is_popular' => $roomType->type === 'Deluxe Suite',
+                'is_luxury' => $roomType->type === 'Presidential Suite'
             ];
         }
 
-        return view('pages/dashboard/dashboard', compact('dataFeed', 'bookings', 'roomAvailability', 'stats'));
+        return view('pages/dashboard/dashboard', compact(
+            'dataFeed',
+            'checkIns',
+            'checkOuts',
+            'roomAvailability',
+            'stats'
+        ));
     }
 
 

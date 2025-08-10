@@ -61,137 +61,287 @@
                             </a>
                         </li>
 
-                        <!-- Bookings -->
-                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('checkin') || window.location.href.includes('checkout') || window.location.href.includes('bookings') || window.location.href.includes('pendings') || window.location.href.includes('newReserv') || window.location.href.includes('completed')">
+                        <!-- Bookings Menu Item -->
+                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('checkin') ||
+                            window.location.href.includes('checkout') ||
+                            window.location.href.includes('bookings') ||
+                            window.location.href.includes('pendings') ||
+                            window.location.href.includes('newReserv') ||
+                            window.location.href.includes('completed') ||
+                            window.location.href.includes('change-room')">
+
+                            <!-- Main Menu Button -->
                             <a @click="open = !open"
-                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative @if (Route::is('checkin.index', 'checkout.index', 'bookings.index', 'pendings.index', 'completed.index', 'newReserv.index')) bg-indigo-900 @endif">
+                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative @if (Route::is(
+                                        'checkin.index',
+                                        'checkout.index',
+                                        'bookings.index',
+                                        'pendings.index',
+                                        'completed.index',
+                                        'newReserv.index',
+                                        'changerooom.index')) bg-indigo-900 @endif">
                                 <div class="flex items-center gap-3">
+                                    <!-- Calendar Icon -->
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    <span class="transition-opacity duration-200 whitespace-nowrap"
-                                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                        x-show="sidebarExpanded || window.innerWidth < 1024">Bookings</span>
+
+                                    <!-- Menu Text -->
+                                    <span class="transition-all duration-300 whitespace-nowrap"
+                                        :class="sidebarExpanded ? 'opacity-100 ml-0' : 'lg:opacity-0 lg:ml-[-0.5rem]'"
+                                        x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        Bookings
+                                    </span>
                                 </div>
+
+                                <!-- Chevron Icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4 transition-transform duration-200 flex-shrink-0"
+                                    class="h-4 w-4 transition-all duration-300 flex-shrink-0"
                                     :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
-                                <!-- Tooltip for collapsed state -->
+
+                                <!-- Tooltip for Collapsed State -->
                                 <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                    class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 translate-x-1"
+                                    x-transition:enter-end="opacity-100 translate-x-0"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 translate-x-0"
+                                    x-transition:leave-end="opacity-0 translate-x-1"
+                                    class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
                                     Bookings
                                 </div>
                             </a>
-                            <ul x-show="open && (sidebarExpanded || window.innerWidth < 1024)"
-                                class="pl-8 mt-1 space-y-1">
-                                <li>
-                                    <a href="{{ route('bookings.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('bookings.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">All Bookings</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('pendings.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('pendings.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">Pending</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('newReserv.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('newReserv.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">New Reservations</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('checkin.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('checkin.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">Checked-ins</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('checkout.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('checkout.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">Checked-outs</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('completed.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('completed.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">Completed</span>
-                                    </a>
-                                </li>
-                            </ul>
+
+                            <!-- Submenu Items -->
+                            <div x-show="open && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
+                                x-transition:enter="transition-[height] ease-out duration-300"
+                                x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
+
+                                <ul class="pl-8 mt-1 space-y-1">
+                                    <!-- All Bookings -->
+                                    <li>
+                                        <a href="{{ route('bookings.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('bookings.index')) bg-indigo-900 @endif">
+                                            <span class="text-xs transition-all duration-300 hover:translate-x-1">All
+                                                Bookings</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- Pending -->
+                                    <li>
+                                        <a href="{{ route('pendings.index') }}"
+                                            class="flex items-center justify-between px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('pendings.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Pending</span>                                            
+                                        </a>
+                                    </li>
+
+                                    <!-- Confirm Bookings -->
+                                    <li>
+                                        <a href="{{ route('newReserv.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('newReserv.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Confirm
+                                                Bookings</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- Checked-ins -->
+                                    <li>
+                                        <a href="{{ route('checkin.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('checkin.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Checked-ins</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- Checked-outs -->
+                                    <li>
+                                        <a href="{{ route('checkout.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('checkout.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Checked-outs</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- Completed -->
+                                    <li>
+                                        <a href="{{ route('completed.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('completed.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Completed</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- Change Room -->
+                                    <li>
+                                        <a href="{{ route('changerooom.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('changerooom.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Change
+                                                Room</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
 
-                        <!-- Properties -->
-                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('properties') || window.location.href.includes('rooms')">
+                        <!-- Properties Menu Item -->
+                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('m-properties') ||
+                            window.location.href.includes('facilityProperty')">
+
+                            <!-- Main Menu Button -->
                             <a @click="open = !open"
-                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative @if (Route::is('properties.index', 'rooms.index')) bg-indigo-900 @endif">
+                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index')) bg-indigo-900 @endif">
+
                                 <div class="flex items-center gap-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
+                                    <!-- Building Icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
-                                    <span class="transition-opacity duration-200 whitespace-nowrap"
-                                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                        x-show="sidebarExpanded || window.innerWidth < 1024">Properties</span>
+
+                                    <!-- Menu Text -->
+                                    <span class="transition-all duration-300 whitespace-nowrap"
+                                        :class="sidebarExpanded ? 'opacity-100 ml-0' : 'lg:opacity-0 lg:ml-[-0.5rem]'"
+                                        x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        Properties
+                                    </span>
                                 </div>
+
+                                <!-- Chevron Icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4 transition-transform duration-200 flex-shrink-0"
+                                    class="h-4 w-4 transition-all duration-300 flex-shrink-0"
                                     :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
-                                <!-- Tooltip for collapsed state -->
+
+                                <!-- Tooltip for Collapsed State -->
                                 <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                    class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 translate-x-1"
+                                    x-transition:enter-end="opacity-100 translate-x-0"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 translate-x-0"
+                                    x-transition:leave-end="opacity-0 translate-x-1"
+                                    class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
                                     Properties
                                 </div>
                             </a>
-                            <ul x-show="open && (sidebarExpanded || window.innerWidth < 1024)"
-                                class="pl-8 mt-1 space-y-1">
-                                <li>
-                                    <a href="{{ route('properties.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('properties.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">Master Properties</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('rooms.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('rooms.index')) bg-indigo-900 @endif">
-                                        <span class="text-xs">Master Rooms</span>
-                                    </a>
-                                </li>
-                            </ul>
+
+                            <!-- Submenu Items -->
+                            <div x-show="open && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
+                                x-transition:enter="transition-[height] ease-out duration-300"
+                                x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
+
+                                <ul class="pl-8 mt-1 space-y-1">
+                                    <!-- Master Properties -->
+                                    <li>
+                                        <a href="{{ route('properties.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('properties.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Master
+                                                Properties</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- Master Facilities -->
+                                    <li>
+                                        <a href="{{ route('facilityProperty.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('facilityProperty.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Master
+                                                Facilities</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
 
-                        <!-- Rooms/Units -->
-                        <li>
-                            <a href="{{ route('changerooom.index') }}"
-                                class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('changerooom.index')) bg-indigo-900 @endif">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
+                        <!-- Rooms/Units Menu Item -->
+                        <li x-data="{ open: false }" x-init="open = window.location.href.includes('m-rooms') ||
+                            window.location.href.includes('facilityRooms')">
+
+                            <!-- Main Menu Button -->
+                            <a @click="open = !open"
+                                class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('rooms.index', 'facilityRooms.index')) bg-indigo-900 @endif">
+
+                                <div class="flex items-center gap-3">
+                                    <!-- Folder Icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                    </svg>
+
+                                    <!-- Menu Text -->
+                                    <span class="transition-all duration-300 whitespace-nowrap"
+                                        :class="sidebarExpanded ? 'opacity-100 ml-0' : 'lg:opacity-0 lg:ml-[-0.5rem]'"
+                                        x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        Rooms/Units
+                                    </span>
+                                </div>
+
+                                <!-- Chevron Icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 transition-all duration-300 flex-shrink-0"
+                                    :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                        d="M19 9l-7 7-7-7" />
                                 </svg>
-                                <span class="transition-opacity duration-200 whitespace-nowrap"
-                                    :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                    x-show="sidebarExpanded || window.innerWidth < 1024">Rooms/Units</span>
-                                <!-- Tooltip for collapsed state -->
+
+                                <!-- Tooltip for Collapsed State -->
                                 <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                    class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 translate-x-1"
+                                    x-transition:enter-end="opacity-100 translate-x-0"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 translate-x-0"
+                                    x-transition:leave-end="opacity-0 translate-x-1"
+                                    class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
                                     Rooms/Units
                                 </div>
                             </a>
+
+                            <!-- Submenu Items -->
+                            <div x-show="open && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
+                                x-transition:enter="transition-[height] ease-out duration-300"
+                                x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
+
+                                <ul class="pl-8 mt-1 space-y-1">
+                                    <!-- Master Rooms -->
+                                    <li>
+                                        <a href="{{ route('rooms.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('rooms.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Master
+                                                Rooms</span>
+                                        </a>
+                                    </li>
+
+                                    <!-- Master Facilities -->
+                                    <li>
+                                        <a href="{{ route('facilityRooms.index') }}"
+                                            class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('facilityRooms.index')) bg-indigo-900 @endif">
+                                            <span
+                                                class="text-xs transition-all duration-300 hover:translate-x-1">Master
+                                                Facilities</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
+
 
                         <!-- Customers -->
                         <li>

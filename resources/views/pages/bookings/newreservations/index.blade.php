@@ -5,7 +5,7 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    New Reservations
+                    Confirm Reservations
                 </h1>
             </div>
         </div>
@@ -31,7 +31,7 @@
 
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
-                            <div class="relative z-50">
+                            <div class="relative z-10">
                                 <input type="text" id="date_picker" placeholder="Select date range (Max 30 days)"
                                     data-input
                                     class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
@@ -61,15 +61,16 @@
         <!-- Bookings Table -->
         <div class="overflow-x-auto" id="bookingTableContainer">
             @include('pages.bookings.newreservations.partials.newreserve_table', [
-                'bookings' => $bookings,
+                'checkIns' => $checkIns,
                 'per_page' => request('per_page', 8),
             ])
         </div>
         <!-- Pagination -->
         <div class="bg-gray-50 rounded p-4" id="paginationContainer">
-            {{ $bookings->appends(request()->input())->links() }}
+            {{ $checkIns->appends(request()->input())->links() }}
         </div>
     </div>
+    
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('checkInModal', (initialOrderId) => ({
@@ -147,7 +148,7 @@
                 async fetchBookingDetails() {
                     try {
                         const response = await fetch(
-                            `/bookings/check-in/${this.bookingId}/details`);
+                            `/bookings/newReserv-in/${this.bookingId}/details`);
                         const data = await response.json();
 
                         this.bookingDetails = {
@@ -259,7 +260,7 @@
                             return;
                         }
 
-                        const response = await fetch(`/bookings/checkin/${this.bookingId}`, {
+                        const response = await fetch(`/bookings/newReserv/${this.bookingId}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

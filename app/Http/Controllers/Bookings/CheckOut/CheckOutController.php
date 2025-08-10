@@ -19,6 +19,7 @@ class CheckOutController extends Controller
                 $q->where('transaction_status', 'paid');
             })
             ->whereNotNull('check_in_at')
+            ->whereNotNull('check_out_at')
             ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
             ->orderBy('check_out_at', 'desc') // Then sort by check_out_at
             ->paginate($perPage);
@@ -33,6 +34,7 @@ class CheckOutController extends Controller
                 $q->where('transaction_status', 'paid');
             })
             ->whereNotNull('check_in_at')
+            ->whereNotNull('check_out_at')
             ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
             ->orderBy('check_out_at', 'desc'); // Then sort by check_out_at
 

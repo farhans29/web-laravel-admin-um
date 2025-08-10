@@ -2,7 +2,9 @@
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Manajemen Properti</h1>
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                Manajemen Properti
+            </h1>
             <div class="mt-4 md:mt-0">
                 {{-- New Input Property --}}
                 <div x-data="modalProperty()">
@@ -308,30 +310,81 @@
                                     <div x-show="step === 3" x-transition:enter="transition ease-out duration-300"
                                         x-transition:enter-start="opacity-0 translate-x-4"
                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
-                                        <div class="space-y-6">
-                                            <div x-data="{ facilities: ['High-speed WiFi', 'Parking', 'Swimming Pool', 'Gym', 'Restaurant', '24/7 Security', 'Concierge', 'Laundry Service', 'Room Service'] }">
+                                        <div class="space-y-8">
+                                            <!-- General Facilities -->
+                                            <div>
                                                 <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                     <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                            stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>
-                                                    Fasilitas Properti
+                                                    Fasilitas Umum
                                                 </h3>
                                                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                    <template x-for="(item, index) in facilities"
-                                                        :key="index">
+                                                    @foreach ($generalFacilities as $facility)
                                                         <div class="relative">
-                                                            <input :id="'facility-' + index" name="facilities[]"
-                                                                type="checkbox" :value="item"
-                                                                class="sr-only peer">
-                                                            <label :for="'facility-' + index"
+                                                            <input id="general-{{ $facility->idrec }}"
+                                                                name="general_facilities[]" type="checkbox"
+                                                                value="{{ $facility->idrec }}" class="sr-only peer">
+                                                            <label for="general-{{ $facility->idrec }}"
                                                                 class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
-                                                                <span x-text="item"></span>
+                                                                <span>{{ $facility->facility }}</span>
                                                             </label>
                                                         </div>
-                                                    </template>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- Security Facilities -->
+                                            <div>
+                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                    </svg>
+                                                    Fasilitas Keamanan
+                                                </h3>
+                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                    @foreach ($securityFacilities as $facility)
+                                                        <div class="relative">
+                                                            <input id="security-{{ $facility->idrec }}"
+                                                                name="security_facilities[]" type="checkbox"
+                                                                value="{{ $facility->idrec }}" class="sr-only peer">
+                                                            <label for="security-{{ $facility->idrec }}"
+                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-600 transition-all duration-200">
+                                                                <span>{{ $facility->facility }}</span>
+                                                            </label>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- Amenities -->
+                                            <div>
+                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-purple-600" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                                    </svg>
+                                                    Layanan Tambahan
+                                                </h3>
+                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                    @foreach ($amenitiesFacilities as $facility)
+                                                        <div class="relative">
+                                                            <input id="amenities-{{ $facility->idrec }}"
+                                                                name="amenities_facilities[]" type="checkbox"
+                                                                value="{{ $facility->idrec }}" class="sr-only peer">
+                                                            <label for="amenities-{{ $facility->idrec }}"
+                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-purple-600 peer-checked:bg-purple-50 peer-checked:text-purple-600 transition-all duration-200">
+                                                                <span>{{ $facility->facility }}</span>
+                                                            </label>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
                                             </div>
                                         </div>
@@ -351,25 +404,50 @@
                                                     </span>
                                                 </label>
 
-                                                <!-- Info about thumbnail -->
-                                                <div
-                                                    class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r-lg">
-                                                    <div class="flex items-start">
-                                                        <div class="flex-shrink-0">
-                                                            <svg class="h-5 w-5 text-blue-500" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                                </path>
-                                                            </svg>
+                                                <!-- Thumbnail Selection Area -->
+                                                <div class="mb-6">
+                                                    <h4 class="text-sm font-semibold text-gray-700 mb-2">
+                                                        Pilih Thumbnail <span class="text-red-500">*</span>
+                                                        <span class="text-xs font-normal text-gray-500">(Foto utama
+                                                            yang akan ditampilkan)</span>
+                                                    </h4>
+
+                                                    <div class="flex items-center space-x-4">
+                                                        <!-- Thumbnail Preview -->
+                                                        <div class="w-32 h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden relative"
+                                                            x-show="images.length > 0">
+                                                            <template x-if="thumbnailIndex !== null">
+                                                                <img :src="images[thumbnailIndex].url"
+                                                                    alt="Selected Thumbnail"
+                                                                    class="w-full h-full object-cover">
+                                                            </template>
+                                                            <div class="absolute inset-0 flex items-center justify-center text-gray-400"
+                                                                x-show="thumbnailIndex === null">
+                                                                <svg class="w-10 h-10" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                                    </path>
+                                                                </svg>
+                                                            </div>
                                                         </div>
-                                                        <div class="ml-3">
-                                                            <p class="text-sm text-blue-700">
-                                                                <span class="font-semibold">Perhatian:</span> Foto
-                                                                pertama yang Anda upload akan menjadi <span
-                                                                    class="font-bold">thumbnail utama</span> iklan
-                                                                properti ini. Pastikan foto pertama adalah yang terbaik!
+
+                                                        <!-- Thumbnail Selection Instructions -->
+                                                        <div class="flex-1">
+                                                            <p class="text-sm text-gray-600 mb-2">
+                                                                <span x-show="thumbnailIndex === null"
+                                                                    class="font-medium text-red-500">Belum ada
+                                                                    thumbnail dipilih!</span>
+                                                                <span x-show="thumbnailIndex !== null"
+                                                                    class="font-medium text-green-600">Thumbnail sudah
+                                                                    dipilih.</span>
+                                                                Klik salah satu foto di bawah untuk memilih sebagai
+                                                                thumbnail.
+                                                            </p>
+                                                            <p class="text-xs text-gray-500">
+                                                                Pastikan memilih foto terbaik sebagai thumbnail karena
+                                                                ini akan menjadi gambar utama properti Anda.
                                                             </p>
                                                         </div>
                                                     </div>
@@ -422,51 +500,51 @@
                                                 </div>
 
                                                 <!-- Image Preview Grid -->
-                                                <div x-show="images.length > 0" class="mt-2 grid grid-cols-5 gap-1"
-                                                    x-transition:enter="transition ease-out duration-300"
-                                                    x-transition:enter-start="opacity-0 scale-95"
-                                                    x-transition:enter-end="opacity-100 scale-100">
-                                                    <template x-for="(image, index) in images" :key="index">
-                                                        <div class="relative group">
-                                                            <!-- Image Container - Made smaller -->
-                                                            <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200"
-                                                                :class="{ 'border-2 border-blue-600': index === 0 }">
-                                                                <img :src="image.url"
-                                                                    :alt="`Preview ${index + 1}`"
-                                                                    class="w-full h-full object-cover">
-                                                            </div>
+                                                <div x-show="images.length > 0" class="mt-4">
+                                                    <h4 class="text-sm font-semibold text-gray-700 mb-2">Foto Terupload
+                                                    </h4>
+                                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
+                                                        x-transition:enter="transition ease-out duration-300"
+                                                        x-transition:enter-start="opacity-0 scale-95"
+                                                        x-transition:enter-end="opacity-100 scale-100">
+                                                        <template x-for="(image, index) in images"
+                                                            :key="index">
+                                                            <div class="relative group" @click="setThumbnail(index)">
+                                                                <!-- Image Container -->
+                                                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                    :class="thumbnailIndex === index ?
+                                                                        'border-blue-600 ring-2 ring-blue-400' :
+                                                                        'border-gray-200 hover:border-blue-400'">
+                                                                    <img :src="image.url"
+                                                                        :alt="`Preview ${index + 1}`"
+                                                                        class="w-full h-full object-cover">
 
-                                                            <!-- Remove Button - Made smaller -->
-                                                            <button @click="removeImage(index, $event)"
-                                                                class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                                <svg class="w-2 h-2" fill="none"
-                                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M6 18L18 6M6 6l12 12"></path>
-                                                                </svg>
-                                                            </button>
+                                                                    <!-- Thumbnail badge -->
+                                                                    <div x-show="thumbnailIndex === index"
+                                                                        class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                        Thumbnail
+                                                                    </div>
+                                                                </div>
 
-                                                            <!-- Image Number Badge - Made smaller -->
-                                                            <div
-                                                                class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                <span x-text="index + 1"></span>
-                                                            </div>
+                                                                <!-- Remove Button -->
+                                                                <button @click.stop="removeImage(index, $event)"
+                                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                    <svg class="w-3 h-3" fill="none"
+                                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M6 18L18 6M6 6l12 12"></path>
+                                                                    </svg>
+                                                                </button>
 
-                                                            <!-- Thumbnail indicator for first image -->
-                                                            <div x-show="index === 0" class="absolute top-1 right-1">
-                                                                <span
-                                                                    class="bg-yellow-500 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">Thumbnail</span>
+                                                                <!-- Image Number Badge -->
+                                                                <div
+                                                                    class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                    <span x-text="index + 1"></span>
+                                                                </div>
                                                             </div>
-
-                                                            <!-- File Name - Made smaller and hidden by default, shows on hover -->
-                                                            <div
-                                                                class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                                <p class="text-[8px] text-gray-600 truncate"
-                                                                    x-text="image.name"></p>
-                                                            </div>
-                                                        </div>
-                                                    </template>
+                                                        </template>
+                                                    </div>
                                                 </div>
 
                                                 <!-- Progress Indicator -->
@@ -482,22 +560,23 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Validation Message -->
-                                                <div x-show="images.length < 3" class="mt-3">
-                                                    <p class="text-sm text-red-600">
+                                                <!-- Validation Messages -->
+                                                <div class="mt-3 space-y-2">
+                                                    <p class="text-sm text-red-600" x-show="images.length < 3">
                                                         <span class="font-medium">Perhatian:</span>
                                                         Anda harus mengupload tepat 3 foto untuk melanjutkan.
                                                     </p>
-                                                </div>
 
-                                                <div x-show="images.length === 3" class="mt-3">
-                                                    <p class="text-sm text-green-600">
-                                                        <span class="font-medium">Sempurna!</span>
-                                                        Semua foto telah diupload.
+                                                    <p class="text-sm text-red-600"
+                                                        x-show="images.length >= 3 && thumbnailIndex === null">
+                                                        <span class="font-medium">Perhatian:</span>
+                                                        Anda harus memilih thumbnail untuk melanjutkan.
                                                     </p>
-                                                    <p class="text-xs text-gray-600 mt-1">
-                                                        Foto pertama (ditandai dengan label "Thumbnail") akan menjadi
-                                                        gambar utama properti Anda.
+
+                                                    <p class="text-sm text-green-600"
+                                                        x-show="images.length === 3 && thumbnailIndex !== null">
+                                                        <span class="font-medium">Sempurna!</span>
+                                                        Semua foto telah diupload dan thumbnail telah dipilih.
                                                     </p>
                                                 </div>
                                             </div>
@@ -621,7 +700,9 @@
                 selectedProperty: {
                     currentImageIndex: 0,
                     images: [],
-                    features: []
+                    general: [],
+                    security: [],
+                    amenities: []
                 },
                 modalOpenDetail: false,
                 isLoading: false,
@@ -640,7 +721,10 @@
                             currentImageIndex: 0,
                             images: Array.isArray(property.images) ? property.images.filter(
                                 img => img) : [],
-                            features: Array.isArray(property.features) ? property.features :
+                            general: property.general ? JSON.parse(property.general) : [],
+                            security: property.security ? JSON.parse(property.security) :
+                            [],
+                            amenities: property.amenities ? JSON.parse(property.amenities) :
                                 []
                         };
                         this.isLoading = false;
@@ -770,12 +854,31 @@
                 searchQuery: '',
                 searchResults: [],
                 isSearching: false,
+                thumbnailIndex: null,
 
                 openModal(property) {
                     this.selectedProperty = property;
                     this.modalOpenDetail = true;
                 },
                 step: 1,
+
+                setThumbnail(index) {
+                    this.thumbnailIndex = index;
+                },
+
+                removeImage(index, event) {
+                    if (event) event.preventDefault();
+
+                    // Adjust thumbnail index if we're removing the current thumbnail
+                    if (this.thumbnailIndex === index) {
+                        this.thumbnailIndex = null;
+                    } else if (this.thumbnailIndex > index) {
+                        // Decrement thumbnail index if it's after the removed image
+                        this.thumbnailIndex--;
+                    }
+
+                    this.images.splice(index, 1);
+                },
 
                 init() {
                     const provinceSelect = document.getElementById('province');
@@ -1092,7 +1195,21 @@
                             };
                             reader.readAsDataURL(file);
                         } else {
-                            alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: `File ${file.name} terlalu besar. Maksimal 5MB.`,
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal
+                                        .stopTimer)
+                                    toast.addEventListener('mouseleave', Swal
+                                        .resumeTimer)
+                                }
+                            });
                         }
                     });
 
@@ -1187,16 +1304,37 @@
                     } else if (step === 4) {
                         // Updated validation for new image requirements
                         if (this.images.length < this.minImages) {
-                            alert(
-                                `Minimal ${this.minImages} foto properti harus diupload. Saat ini: ${this.images.length} foto.`
-                            );
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'warning',
+                                title: `Minimal ${this.minImages} foto properti harus diupload. Saat ini: ${this.images.length} foto.`,
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                            });
                             isValid = false;
-                        } else if (this.images.length > this.maxImages) {
-                            alert(
-                                `Maksimal ${this.maxImages} foto properti dapat diupload. Saat ini: ${this.images.length} foto.`
-                            );
+                        } else if (this.thumbnailIndex === null) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'warning',
+                                title: 'Anda harus memilih thumbnail untuk melanjutkan',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                            });
                             isValid = false;
                         }
+
                     }
 
                     return isValid;
@@ -1230,6 +1368,7 @@
 
                     // Clear any existing file inputs
                     formData.delete('property_images[]');
+                    formData.append('thumbnail_index', this.thumbnailIndex);
 
                     // Add each selected image
                     this.images.forEach((image, index) => {
@@ -1330,6 +1469,8 @@
                 isSearching: false,
                 isSubmitting: false,
                 originalPropertyData: {},
+                thumbnailIndex: 0,
+                isDragging: false,
                 propertyData: {
                     name: property.name || '',
                     tags: property.tags || 'House',
@@ -1356,6 +1497,12 @@
                             });
                         }
                     });
+
+                    const firstNonDeleted = this.propertyData.existingImages.findIndex(img => !img
+                        .markedForDeletion);
+                    if (firstNonDeleted !== -1) {
+                        this.thumbnailIndex = firstNonDeleted;
+                    }
                 },
 
                 get editRemainingSlots() {
@@ -1422,6 +1569,14 @@
                     this.editImages = [];
                     this.searchResults = [];
                     this.searchQuery = '';
+
+                    // Find the existing thumbnail index
+                    const thumbnailIndex = this.propertyData.existingImages.findIndex(
+                        img => img.is_thumbnail
+                    );
+                    if (thumbnailIndex !== -1) {
+                        this.thumbnailIndex = thumbnailIndex;
+                    }
 
                     this.$nextTick(() => {
                         if (this.editStep === 2) {
@@ -1675,7 +1830,7 @@
                 handleEditFileSelect(event) {
                     const files = Array.from(event.target.files);
                     this.processFiles(files);
-                },               
+                },
 
                 processFiles(files) {
                     const imageFiles = files.filter(file => file.type.startsWith('image/'));
@@ -1722,8 +1877,23 @@
                             };
                             reader.readAsDataURL(file);
                         } else {
-                            alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: `File ${file.name} terlalu besar. Maksimal 5MB.`,
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal
+                                        .stopTimer)
+                                    toast.addEventListener('mouseleave', Swal
+                                        .resumeTimer)
+                                }
+                            });
                         }
+
                     });
 
                     // Clear the file input to allow re-selection
@@ -1733,10 +1903,60 @@
                 },
 
                 removeEditImage(index) {
+                    const existingCount = this.propertyData.existingImages.filter(img => !img
+                        .markedForDeletion).length;
+                    const totalIndex = existingCount + index;
+
+                    // If deleting the current thumbnail, reset to first available image
+                    if (this.thumbnailIndex === totalIndex) {
+                        const firstAvailable = this.getAllImages().findIndex((img, i) => i !==
+                            totalIndex);
+                        this.thumbnailIndex = firstAvailable >= 0 ? firstAvailable : null;
+                    }
+
                     this.editImages.splice(index, 1);
                 },
 
+                getAllImages() {
+                    const existing = this.propertyData.existingImages.filter(img => !img
+                        .markedForDeletion);
+                    return [...existing, ...this.editImages];
+                },
+
+                getCurrentThumbnail() {
+                    if (this.thumbnailIndex === null) {
+                        // Try to find the existing thumbnail if none is selected
+                        const thumbnailIndex = this.propertyData.existingImages.findIndex(
+                            img => img.is_thumbnail && !img.markedForDeletion
+                        );
+                        if (thumbnailIndex !== -1) {
+                            this.thumbnailIndex = thumbnailIndex;
+                            return this.propertyData.existingImages[thumbnailIndex];
+                        }
+                        return null;
+                    }
+                    const allImages = this.getAllImages();
+                    return allImages[this.thumbnailIndex] || null;
+                },
+
+                setThumbnail(index) {
+                    this.thumbnailIndex = index;
+                },
+
                 removeEditExistingImage(index) {
+                    // If deleting the current thumbnail, reset to first available image
+                    if (this.thumbnailIndex === index) {
+                        const firstAvailable = this.propertyData.existingImages.findIndex(
+                            (img, i) => !img.markedForDeletion && i !== index
+                        );
+                        this.thumbnailIndex = firstAvailable >= 0 ? firstAvailable :
+                            this.editImages.length > 0 ?
+                            this.propertyData.existingImages.filter(img => !img.markedForDeletion)
+                            .length :
+                            null;
+                    }
+
+                    // Mark image for deletion
                     this.propertyData.existingImages[index].markedForDeletion = true;
                 },
 
@@ -1823,6 +2043,81 @@
                     }
                 },
 
+                handleEditDrop(event) {
+                    event.preventDefault();
+                    this.isDragging = false;
+                    const files = Array.from(event.dataTransfer.files);
+                    this.processEditFiles(files);
+                },
+
+                handleEditDragOver(event) {
+                    event.preventDefault();
+                    this.isDragging = true;
+                },
+
+                handleEditDragLeave(event) {
+                    event.preventDefault();
+                    this.isDragging = false;
+                },
+
+                handleEditFileSelect(event) {
+                    const files = Array.from(event.target.files);
+                    this.processEditFiles(files);
+
+                    // Auto-select first image as thumbnail if none selected
+                    if (this.thumbnailIndex === null && files.length > 0) {
+                        const existingCount = this.propertyData.existingImages.filter(img => !img
+                            .markedForDeletion).length;
+                        this.thumbnailIndex = existingCount; // Select first new image
+                    }
+                },
+
+                processEditFiles(files) {
+                    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+                    const availableSlots = this.editMaxImages - this.getAllImages().length;
+
+                    if (availableSlots <= 0) {
+                        this.showAlert('error',
+                            `Maksimal hanya ${this.editMaxImages} foto yang dapat diupload.`);
+                        return;
+                    }
+
+                    const filesToProcess = imageFiles.slice(0, availableSlots);
+
+                    filesToProcess.forEach(file => {
+                        if (file.size <= 5 * 1024 * 1024) { // 5MB limit
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                this.editImages.push({
+                                    file: file,
+                                    url: e.target.result,
+                                    name: file.name,
+                                    isNew: true
+                                });
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            this.showAlert('error',
+                                `File ${file.name} terlalu besar. Maksimal 5MB.`);
+                        }
+                    });
+
+                    // Clear the file input
+                    event.target.value = '';
+                },
+
+                showAlert(type, message) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: type,
+                        title: message,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
+                },
+
                 async submitEditForm() {
                     if (!this.validateEditStep() || this.isSubmitting) return;
                     this.isSubmitting = true;
@@ -1869,6 +2164,8 @@
                             .forEach(img => {
                                 formData.append('delete_images[]', img.id);
                             });
+
+                        formData.append('thumbnail_index', this.thumbnailIndex);
 
                         // Add CSRF token
                         formData.append('_token', document.querySelector('meta[name="csrf-token"]')

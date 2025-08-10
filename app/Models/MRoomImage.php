@@ -14,12 +14,22 @@ class MRoomImage extends Model
     protected $fillable = [
         'room_id',
         'image',
+        'thumbnail',
         'caption',
         'created_at',
         'updated_at',
         'created_by',
         'updated_by',
     ];
+
+    protected $casts = [
+        'thumbnail' => 'boolean',
+    ];
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id', 'idrec');
+    }
 
     public function getImageUrlAttribute()
     {
@@ -32,4 +42,6 @@ class MRoomImage extends Model
 
 
     protected $appends = ['image_url'];
+
+   
 }

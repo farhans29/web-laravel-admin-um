@@ -19,10 +19,21 @@ class NewReservController extends Controller
         $defaultStartDate = now()->format('Y-m-d');
         $defaultEndDate = now()->addMonth()->format('Y-m-d');
 
-        $bookings = $this->filterBookings($defaultStartDate, $defaultEndDate)
-            ->paginate(request('per_page', 8));
+        $perPage = request('per_page', 8);
 
-        return view('pages.bookings.newreservations.index', compact('bookings'));
+        $checkIns = Booking::with(['transaction', 'property', 'room', 'user'])
+            ->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid');
+            })
+            ->whereNotNull('check_in_at')
+            ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('check_out_at', 'desc');
+
+        // Apply date filtering if filterBookings is a scope
+        $checkIns = $this->filterBookings($defaultStartDate, $defaultEndDate)
+            ->paginate($perPage);
+
+        return view('pages.bookings.newreservations.index', compact('checkIns'));
     }
 
     protected function filterBookings($startDate = null, $endDate = null)
@@ -84,14 +95,14 @@ class NewReservController extends Controller
 
         $query = $this->filterBookings($startDate, $endDate);
 
-        $bookings = $query->paginate($request->input('per_page', 8));
+        $checkIns = $query->paginate($request->input('per_page', 8));
 
         return response()->json([
             'table' => view('pages.bookings.newreservations.partials.newreserve_table', [
-                'bookings' => $bookings,
+                'bookings' => $checkIns,
                 'per_page' => $request->input('per_page', 8),
             ])->render(),
-            'pagination' => $bookings->appends($request->input())->links()->toHtml()
+            'pagination' => $checkIns->appends($request->input())->links()->toHtml()
         ]);
     }
     public function checkIn(Request $request, $order_id)

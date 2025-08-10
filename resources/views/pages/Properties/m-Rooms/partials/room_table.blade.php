@@ -31,7 +31,7 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200" id="rooms-table-body">
-                @foreach ($rooms as $room)
+                @forelse ($rooms as $room)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                             <div class="text-sm font-medium text-gray-900">
@@ -713,6 +713,7 @@
                                                     'url' => 'data:image/jpeg;base64,' . $image->image,
                                                     'caption' => $image->caption,
                                                     'name' => 'Image_' . $image->idrec . '.jpg',
+                                                    'is_thumbnail' => $image->thumbnail == 1,
                                                 ];
                                             })
                                             ->toJson();
@@ -1162,6 +1163,10 @@
                                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                                         <div class="space-y-6">
                                                             <div>
+                                                                <!-- Hidden field to store thumbnail index -->
+                                                                <input type="hidden" name="thumbnail_index"
+                                                                    x-model="thumbnailIndex">
+
                                                                 <label
                                                                     class="block text-sm font-semibold text-gray-700 mb-3">
                                                                     Foto Kamar <span class="text-red-500">*</span>
@@ -1173,30 +1178,57 @@
                                                                     </span>
                                                                 </label>
 
-                                                                <!-- Info about thumbnail -->
-                                                                <div
-                                                                    class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r-lg">
-                                                                    <div class="flex items-start">
-                                                                        <div class="flex-shrink-0">
-                                                                            <svg class="h-5 w-5 text-blue-500"
-                                                                                fill="none" stroke="currentColor"
-                                                                                viewBox="0 0 24 24">
-                                                                                <path stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    stroke-width="2"
-                                                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                                                </path>
-                                                                            </svg>
+                                                                <!-- Thumbnail Preview Section -->
+                                                                <div class="mb-6">
+                                                                    <h4
+                                                                        class="text-sm font-semibold text-gray-700 mb-2">
+                                                                        Thumbnail Saat Ini <span
+                                                                            class="text-red-500">*</span>
+                                                                        <span
+                                                                            class="text-xs font-normal text-gray-500">(Foto
+                                                                            utama kamar)</span>
+                                                                    </h4>
+
+                                                                    <div class="flex items-center space-x-4">
+                                                                        <!-- Thumbnail Preview -->
+                                                                        <div
+                                                                            class="w-32 h-32 bg-gray-100 rounded-lg border-2 border-gray-300 overflow-hidden relative flex items-center justify-center">
+                                                                            <template x-if="getCurrentThumbnail()">
+                                                                                <img :src="getCurrentThumbnail().url"
+                                                                                    class="w-full h-full object-cover"
+                                                                                    alt="Current Thumbnail">
+                                                                            </template>
+                                                                            <div class="absolute inset-0 flex items-center justify-center text-gray-400"
+                                                                                x-show="!getCurrentThumbnail()">
+                                                                                <svg class="w-10 h-10" fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                                </svg>
+                                                                            </div>
                                                                         </div>
-                                                                        <div class="ml-3">
-                                                                            <p class="text-sm text-blue-700">
-                                                                                <span
-                                                                                    class="font-semibold">Perhatian:</span>
-                                                                                Foto pertama yang Anda upload akan
-                                                                                menjadi <span
-                                                                                    class="font-bold">thumbnail
-                                                                                    utama</span> kamar ini. Pastikan
-                                                                                foto pertama adalah yang terbaik!
+
+                                                                        <!-- Thumbnail Selection Instructions -->
+                                                                        <div class="flex-1">
+                                                                            <p class="text-sm text-gray-600 mb-2">
+                                                                                <span x-show="thumbnailIndex === null"
+                                                                                    class="font-medium text-red-500">
+                                                                                    Belum ada thumbnail dipilih!
+                                                                                </span>
+                                                                                <span x-show="thumbnailIndex !== null"
+                                                                                    class="font-medium text-green-600">
+                                                                                    Thumbnail sudah dipilih.
+                                                                                </span>
+                                                                                Klik salah satu foto di bawah untuk
+                                                                                memilih sebagai thumbnail.
+                                                                            </p>
+                                                                            <p class="text-xs text-gray-500">
+                                                                                Pastikan memilih foto terbaik sebagai
+                                                                                thumbnail karena ini akan menjadi gambar
+                                                                                utama properti Anda.
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -1204,8 +1236,9 @@
 
                                                                 <!-- Upload Area -->
                                                                 <div x-show="editCanUploadMore"
-                                                                    @drop="handleEditDrop($event)" @dragover.prevent
-                                                                    @dragenter.prevent
+                                                                    @dragover="handleEditDragOver($event)"
+                                                                    @dragleave="handleEditDragLeave($event)"
+                                                                    @drop="handleEditDrop($event)"
                                                                     class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer"
                                                                     :class="{ 'border-blue-400 bg-blue-50': editCanUploadMore }">
                                                                     <div class="space-y-2">
@@ -1215,8 +1248,7 @@
                                                                             <path stroke-linecap="round"
                                                                                 stroke-linejoin="round"
                                                                                 stroke-width="2"
-                                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                                            </path>
+                                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                                         </svg>
                                                                         <div
                                                                             class="flex text-sm text-gray-600 justify-center">
@@ -1232,22 +1264,12 @@
                                                                                     @change="handleEditFileSelect($event)"
                                                                                     class="sr-only">
                                                                             </label>
-                                                                            <p class="pl-1">atau drag and drop
-                                                                            </p>
+                                                                            <p class="pl-1">atau drag and drop</p>
                                                                         </div>
-                                                                        <p class="text-xs text-gray-500">PNG, JPG,
-                                                                            JPEG
+                                                                        <p class="text-xs text-gray-500">PNG, JPG, JPEG
                                                                             (maks. 5MB per file)</p>
-                                                                        <p class="text-xs"
-                                                                            :class="{
-                                                                                'text-red-600': editRemainingSlots <=
-                                                                                    0,
-                                                                                'text-yellow-600': editRemainingSlots >
-                                                                                    0 && editRemainingSlots < 3,
-                                                                                'text-blue-600': editRemainingSlots >=
-                                                                                    3
-                                                                            }"
-                                                                            x-text="editImageUploadStatus.message">
+                                                                        <p class="text-xs text-blue-600"
+                                                                            x-text="`Dapat upload ${editRemainingSlots} foto lagi`">
                                                                         </p>
                                                                     </div>
                                                                 </div>
@@ -1261,12 +1283,10 @@
                                                                             viewBox="0 0 24 24">
                                                                             <path stroke-linecap="round"
                                                                                 stroke-linejoin="round"
-                                                                                stroke-width="2" d="M5 13l4 4L19 7">
-                                                                            </path>
+                                                                                stroke-width="2" d="M5 13l4 4L19 7" />
                                                                         </svg>
                                                                         <p class="text-sm text-green-600 font-medium">
-                                                                            <span x-text="editMaxImages"></span>
-                                                                            foto
+                                                                            <span x-text="editMaxImages"></span> foto
                                                                             telah diupload!
                                                                         </p>
                                                                         <p class="text-xs text-green-500">Maksimal
@@ -1275,96 +1295,118 @@
                                                                 </div>
 
                                                                 <!-- Image Preview Grid -->
-                                                                <div x-show="roomData.existingImages.filter(img => !img.markedForDeletion).length > 0 || editImages.length > 0"
-                                                                    class="mt-2 grid grid-cols-5 gap-1"
-                                                                    x-transition:enter="transition ease-out duration-300"
-                                                                    x-transition:enter-start="opacity-0 scale-95"
-                                                                    x-transition:enter-end="opacity-100 scale-100">
+                                                                <div x-show="getAllImages().length > 0"
+                                                                    class="mt-4">
+                                                                    <h4
+                                                                        class="text-sm font-semibold text-gray-700 mb-2">
+                                                                        Foto Terupload</h4>
+                                                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
+                                                                        x-transition:enter="transition ease-out duration-300"
+                                                                        x-transition:enter-start="opacity-0 scale-95"
+                                                                        x-transition:enter-end="opacity-100 scale-100">
 
-                                                                    <!-- Existing Images -->
-                                                                    <template
-                                                                        x-for="(image, index) in roomData.existingImages"
-                                                                        :key="'existing-' + index">
-                                                                        <div class="relative group"
-                                                                            x-show="!image.markedForDeletion">
-                                                                            <!-- Image Preview -->
-                                                                            <div
-                                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
-                                                                                <img :src="image.url"
-                                                                                    :alt="'Existing Image ' + (index + 1)"
-                                                                                    class="w-full h-full object-cover">
-                                                                                <div
-                                                                                    class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                                    <span x-text="index + 1"></span>
+                                                                        <!-- Existing Images -->
+                                                                        <template
+                                                                            x-for="(image, index) in roomData.existingImages"
+                                                                            :key="'existing-' + index">
+                                                                            <div class="relative group"
+                                                                                x-show="!image.markedForDeletion"
+                                                                                @click="setThumbnail(index)">
+                                                                                <!-- Image Container -->
+                                                                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                                    :class="thumbnailIndex === index || image
+                                                                                        .is_thumbnail ?
+                                                                                        'border-blue-600 ring-2 ring-blue-400' :
+                                                                                        'border-gray-200 hover:border-blue-400'">
+                                                                                    <img :src="image.url"
+                                                                                        class="w-full h-full object-cover"
+                                                                                        :alt="'Existing Image ' + (index + 1)">
+
+                                                                                    <!-- Thumbnail Badge -->
+                                                                                    <div x-show="thumbnailIndex === index || image.is_thumbnail"
+                                                                                        class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                                        Thumbnail
+                                                                                    </div>
+
+                                                                                    <!-- Image Number -->
+                                                                                    <div
+                                                                                        class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                                        <span
+                                                                                            x-text="index + 1"></span>
+                                                                                    </div>
                                                                                 </div>
+
+                                                                                <!-- Remove Button -->
+                                                                                <button type="button"
+                                                                                    @click.stop="removeEditExistingImage(index)"
+                                                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                                    <svg class="w-3 h-3"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M6 18L18 6M6 6l12 12" />
+                                                                                    </svg>
+                                                                                </button>
+
+                                                                                <!-- Hidden Image ID -->
+                                                                                <input type="hidden"
+                                                                                    name="existing_images[]"
+                                                                                    :value="image.id">
                                                                             </div>
+                                                                        </template>
 
-                                                                            <div
-                                                                                class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
-                                                                                <p class="text-[8px] text-gray-600 truncate"
-                                                                                    x-text="image.name"></p>
-                                                                            </div>
+                                                                        <!-- New Images -->
+                                                                        <template x-for="(image, index) in editImages"
+                                                                            :key="'new-' + index">
+                                                                            <div class="relative group"
+                                                                                @click="setThumbnail(roomData.existingImages.filter(img => !img.markedForDeletion).length + index)">
+                                                                                <!-- Image Container -->
+                                                                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                                    :class="thumbnailIndex === (roomData
+                                                                                            .existingImages.filter(
+                                                                                                img => !img
+                                                                                                .markedForDeletion)
+                                                                                            .length + index) ?
+                                                                                        'border-blue-600 ring-2 ring-blue-400' :
+                                                                                        'border-gray-200 hover:border-blue-400'">
+                                                                                    <img :src="image.url"
+                                                                                        class="w-full h-full object-cover"
+                                                                                        :alt="'New Image ' + (index + 1)">
 
-                                                                            <!-- Remove Button -->
-                                                                            <button type="button"
-                                                                                @click="removeEditExistingImage(index)"
-                                                                                class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                                                <svg class="w-2 h-2" fill="none"
-                                                                                    stroke="currentColor"
-                                                                                    viewBox="0 0 24 24">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M6 18L18 6M6 6l12 12">
-                                                                                    </path>
-                                                                                </svg>
-                                                                            </button>
+                                                                                    <!-- Thumbnail Badge -->
+                                                                                    <div x-show="thumbnailIndex === (roomData.existingImages.filter(img => !img.markedForDeletion).length + index)"
+                                                                                        class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                                        Thumbnail
+                                                                                    </div>
 
-                                                                            <!-- Hidden Image ID -->
-                                                                            <input type="hidden"
-                                                                                name="existing_images[]"
-                                                                                :value="image.id">
-                                                                        </div>
-                                                                    </template>
-
-                                                                    <!-- New Images -->
-                                                                    <template x-for="(image, index) in editImages"
-                                                                        :key="'new-' + index">
-                                                                        <div class="relative group">
-                                                                            <div
-                                                                                class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
-                                                                                <img :src="image.url"
-                                                                                    :alt="'New Image ' + (index + 1)"
-                                                                                    class="w-full h-full object-cover">
-                                                                                <div
-                                                                                    class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                                    <span
-                                                                                        x-text="roomData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                                                    <!-- Image Number -->
+                                                                                    <div
+                                                                                        class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                                        <span
+                                                                                            x-text="roomData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
 
-                                                                            <!-- Remove Button -->
-                                                                            <button @click="removeEditImage(index)"
-                                                                                class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                                                <svg class="w-2 h-2" fill="none"
-                                                                                    stroke="currentColor"
-                                                                                    viewBox="0 0 24 24">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        stroke-width="2"
-                                                                                        d="M6 18L18 6M6 6l12 12">
-                                                                                    </path>
-                                                                                </svg>
-                                                                            </button>
-
-                                                                            <!-- File Name (Optional) -->
-                                                                            <div
-                                                                                class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
-                                                                                <p class="text-[8px] text-gray-600 truncate"
-                                                                                    x-text="image.name"></p>
+                                                                                <!-- Remove Button -->
+                                                                                <button
+                                                                                    @click.stop="removeEditImage(index)"
+                                                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                                    <svg class="w-3 h-3"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round"
+                                                                                            stroke-linejoin="round"
+                                                                                            stroke-width="2"
+                                                                                            d="M6 18L18 6M6 6l12 12" />
+                                                                                    </svg>
+                                                                                </button>
                                                                             </div>
-                                                                        </div>
-                                                                    </template>
+                                                                        </template>
+                                                                    </div>
                                                                 </div>
 
                                                                 <!-- Progress Indicator -->
@@ -1373,43 +1415,43 @@
                                                                         class="flex justify-between text-sm text-gray-600 mb-2">
                                                                         <span>Progress Upload</span>
                                                                         <span
-                                                                            x-text="`${roomData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length}/${editMaxImages} foto`"></span>
+                                                                            x-text="`${getAllImages().length}/${editMaxImages} foto`"></span>
                                                                     </div>
-                                                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                                                        <div class="h-2.5 rounded-full transition-all duration-300"
-                                                                            :style="`width: ${editUploadProgress.percentage}%`"
-                                                                            :class="{
-                                                                                'bg-red-500': editUploadProgress
-                                                                                    .status === 'danger',
-                                                                                'bg-yellow-500': editUploadProgress
-                                                                                    .status === 'warning',
-                                                                                'bg-green-500': editUploadProgress
-                                                                                    .status === 'success'
-                                                                            }">
+                                                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                                                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                                            :style="`width: ${(getAllImages().length / editMaxImages) * 100}%`">
                                                                         </div>
                                                                     </div>
-                                                                    <p class="text-sm mt-1"
-                                                                        :class="editImageUploadStatus.class"
-                                                                        x-text="editImageUploadStatus.message">
-                                                                    </p>
                                                                 </div>
 
                                                                 <!-- Validation Messages -->
-                                                                <div x-show="(roomData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) < editMinImages"
-                                                                    class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                                    <p class="text-red-600 text-sm">
-                                                                        <span class="font-medium">Perhatian:</span>
-                                                                        Anda harus mengupload minimal <span
-                                                                            x-text="editMinImages"></span> foto.
-                                                                    </p>
-                                                                </div>
+                                                                <div class="mt-3 space-y-2">
+                                                                    <div x-show="getAllImages().length < editMinImages"
+                                                                        class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                                        <p class="text-sm text-red-600">
+                                                                            <span class="font-medium">Perhatian:</span>
+                                                                            Anda harus mengupload minimal <span
+                                                                                x-text="editMinImages"></span> foto.
+                                                                        </p>
+                                                                    </div>
 
-                                                                <div x-show="(roomData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) >= editMinImages"
-                                                                    class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                                                    <p class="text-green-600 text-sm">
-                                                                        <span class="font-medium">Sempurna!</span>
-                                                                        Foto sudah memenuhi syarat minimal.
-                                                                    </p>
+                                                                    <div x-show="thumbnailIndex === null && getAllImages().length > 0"
+                                                                        class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                                        <p class="text-sm text-yellow-600">
+                                                                            <span class="font-medium">Perhatian:</span>
+                                                                            Anda harus memilih thumbnail untuk
+                                                                            melanjutkan.
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div x-show="getAllImages().length >= editMinImages && thumbnailIndex !== null"
+                                                                        class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                                        <p class="text-sm text-green-600">
+                                                                            <span class="font-medium">Sempurna!</span>
+                                                                            Foto sudah memenuhi syarat dan thumbnail
+                                                                            telah dipilih.
+                                                                        </p>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1642,7 +1684,8 @@
                                     class="p-2 flex items-center justify-center text-red-600 hover:text-red-900 transition-colors duration-200 rounded-full hover:bg-red-50"
                                     onclick="deleteRoom({{ $room->idrec }})">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                        stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -1651,7 +1694,13 @@
                             </div>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No Rooms found
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

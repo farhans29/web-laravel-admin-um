@@ -18,7 +18,7 @@
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200" id="propertyTableBody">
-        @foreach ($properties as $property)
+        @forelse ($properties as $property)
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
@@ -321,139 +321,68 @@
                                                 </div>
                                             </div>
                                             <!-- Features Section -->
-                                            <div x-show="selectedProperty.features && selectedProperty.features.length > 0"
-                                                class="space-y-4">
-                                                <div class="flex items-center space-x-2 mb-4">
-                                                    <svg class="w-6 h-6 text-green-500" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <h4 class="text-lg font-bold text-gray-900">
-                                                        Features</h4>
+                                            <div x-show="selectedProperty.general || selectedProperty.security || selectedProperty.amenities"
+                                                class="space-y-8">
+                                                <!-- General Facilities -->
+                                                <div x-show="selectedProperty.general && selectedProperty.general.length > 0"
+                                                    class="space-y-4">
+                                                    <div class="flex items-center space-x-2">
+                                                        <h4 class="text-lg font-bold text-gray-900">General Facilities
+                                                        </h4>
+                                                    </div>
+                                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                        <template x-for="facilityId in selectedProperty.general">
+                                                            <div
+                                                                class="flex items-center space-x-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                                                <template x-for="facility in facilities.general">
+                                                                    <span x-show="facility.idrec == facilityId"
+                                                                        x-text="facility.facility"
+                                                                        class="text-gray-800 font-medium text-sm"></span>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
                                                 </div>
-                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                    <template x-for="feature in selectedProperty.features">
-                                                        <div
-                                                            class="flex items-center space-x-3 bg-green-50 p-3 rounded-lg border border-green-100">
-                                                            <!-- Feature Icons -->
-                                                            <template x-if="feature === '24/7 Security'">
-                                                                <svg class="h-5 w-5 text-green-600" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                                                </svg>
-                                                            </template>
-                                                            <template x-if="feature === 'Concierge'">
-                                                                <svg class="h-5 w-5 text-purple-600" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                                </svg>
-                                                            </template>
-                                                            <template x-if="feature === 'Laundry Service'">
-                                                                <svg class="h-5 w-5 text-indigo-600" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <rect x="4" y="4" width="16" height="16"
-                                                                        rx="2" stroke-width="1.5" />
-                                                                    <rect x="5" y="5" width="14" height="14"
-                                                                        rx="1" stroke-width="1.5" />
-                                                                    <circle cx="12" cy="12" r="4"
-                                                                        stroke-width="1.5" />
-                                                                    <circle cx="12" cy="12" r="3"
-                                                                        stroke-width="1" stroke-dasharray="1.5,1" />
-                                                                    <circle cx="15" cy="12" r="0.5"
-                                                                        fill="currentColor" />
-                                                                    <circle cx="18" cy="7" r="0.8"
-                                                                        fill="currentColor" />
-                                                                    <circle cx="18" cy="9.5" r="0.8"
-                                                                        fill="currentColor" />
-                                                                    <rect x="6" y="6" width="3" height="1.5"
-                                                                        rx="0.5" stroke-width="0.5" />
-                                                                    <rect x="6" y="9" width="3" height="1.5"
-                                                                        rx="0.5" stroke-width="0.5" />
-                                                                </svg>
-                                                            </template>
-                                                            <template x-if="feature === 'Room Service'">
-                                                                <svg class="h-5 w-5 text-pink-600" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v0M8 5v4m4-4v4m4-4v4" />
-                                                                </svg>
-                                                            </template>
-                                                            <template x-if="feature === 'High-speed WiFi'">
-                                                                <svg class="h-5 w-5 text-blue-500" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-                                                                </svg>
-                                                            </template>
-                                                            <template x-if="feature === 'Parking'">
-                                                                <svg class="h-5 w-5 text-yellow-600"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <rect x="3" y="3" width="18" height="18"
-                                                                        rx="2" stroke-width="2"
-                                                                        fill="none" />
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2.5"
-                                                                        d="M9 7h4a3 3 0 1 1 0 6H9v5" fill="none" />
-                                                                    <path stroke-linecap="round" stroke-width="2.5"
-                                                                        d="M9 7v11" fill="none" />
-                                                                </svg>
-                                                            </template>
-                                                            <template x-if="feature === 'Swimming Pool'">
-                                                                <svg class="h-5 w-5 text-cyan-600" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M2 16c2 2 5 2 7 0s5-2 7 0 5 2 7 0M2 12c2 2 5 2 7 0s5-2 7 0 5 2 7 0M2 8c2 2 5 2 7 0s5-2 7 0 5 2 7 0" />
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="1.5"
-                                                                        d="M8 4c1 1 2 1 3 0M16 4c1 1 2 1 3 0" />
-                                                                </svg>
-                                                            </template>
-                                                            <template x-if="feature === 'Gym'">
-                                                                <svg class="h-5 w-5 text-red-600" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="3"
-                                                                        d="M8 12h8" />
-                                                                    <circle cx="6" cy="12" r="3"
-                                                                        stroke-width="2" />
-                                                                    <circle cx="6" cy="12" r="1.5"
-                                                                        stroke-width="1" fill="currentColor" />
-                                                                    <circle cx="18" cy="12" r="3"
-                                                                        stroke-width="2" />
-                                                                    <circle cx="18" cy="12" r="1.5"
-                                                                        stroke-width="1" fill="currentColor" />
-                                                                    <path stroke-linecap="round" stroke-width="2"
-                                                                        d="M4 12h2M18 12h2" />
-                                                                </svg>
-                                                            </template>
-                                                            <template x-if="feature === 'Restaurant'">
-                                                                <svg class="h-5 w-5 text-orange-600" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M5 10h14a2 2 0 010 4H5a2 2 0 010-4z" />
-                                                                    <rect x="6" y="12" width="12" height="2"
-                                                                        rx="1" stroke-width="1.5" />
-                                                                    <path stroke-linecap="round" stroke-width="1.2"
-                                                                        d="M8 14.5h8M8 15.5h8M8 16.5h8" />
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M5 18h14a2 2 0 010 4H5a2 2 0 010-4z" />
-                                                                </svg>
-                                                            </template>
-                                                            <span x-text="feature"
-                                                                class="text-gray-800 font-medium text-sm"></span>
-                                                        </div>
-                                                    </template>
+
+                                                <!-- Security Facilities -->
+                                                <div x-show="selectedProperty.security && selectedProperty.security.length > 0"
+                                                    class="space-y-4">
+                                                    <div class="flex items-center space-x-2">
+                                                        <h4 class="text-lg font-bold text-gray-900">Security Facilities
+                                                        </h4>
+                                                    </div>
+                                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                        <template x-for="facilityId in selectedProperty.security">
+                                                            <div
+                                                                class="flex items-center space-x-3 bg-green-50 p-3 rounded-lg border border-green-100">
+                                                                <template x-for="facility in facilities.security">
+                                                                    <span x-show="facility.idrec == facilityId"
+                                                                        x-text="facility.facility"
+                                                                        class="text-gray-800 font-medium text-sm"></span>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Amenities Facilities -->
+                                                <div x-show="selectedProperty.amenities && selectedProperty.amenities.length > 0"
+                                                    class="space-y-4">
+                                                    <div class="flex items-center space-x-2">
+                                                        <h4 class="text-lg font-bold text-gray-900">Amenities</h4>
+                                                    </div>
+                                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                        <template x-for="facilityId in selectedProperty.amenities">
+                                                            <div
+                                                                class="flex items-center space-x-3 bg-purple-50 p-3 rounded-lg border border-purple-100">
+                                                                <template x-for="facility in facilities.amenities">
+                                                                    <span x-show="facility.idrec == facilityId"
+                                                                        x-text="facility.facility"
+                                                                        class="text-gray-800 font-medium text-sm"></span>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -487,6 +416,7 @@
                                             'url' => 'data:image/jpeg;base64,' . $image->image,
                                             'caption' => $image->caption,
                                             'name' => 'Image_' . $image->idrec . '.jpg',
+                                            'is_thumbnail' => $image->thumbnail == 1,
                                         ];
                                     })
                                     ->toJson();
@@ -494,25 +424,25 @@
 
                             <button class="text-amber-600 hover:text-amber-900" type="button"
                                 @click.prevent='openModal({
-                                    name: @json($property->name),
-                                    city: @json($property->city),
-                                    province: @json($property->province),
-                                    description: @json($property->description),
-                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
-                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
-                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
-                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                    location: @json($property->location),                                                                                                                                     
-                                    features: {!! $features !!},
-                                    existingImages: {!! $images !!},
-                                    latitude: {{ $property->latitude ?? 'null' }},
-                                    longitude: {{ $property->longitude ?? 'null' }},
-                                    address: @json($property->address),
-                                    subdistrict: @json($property->subdistrict),
-                                    village: @json($property->village),
-                                    postal_code: @json($property->postal_code),
-                                    type: @json($property->type)
-                                })'
+                                                    name: @json($property->name),
+                                                    city: @json($property->city),
+                                                    province: @json($property->province),
+                                                    description: @json($property->description),
+                                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
+                                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
+                                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
+                                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
+                                                    location: @json($property->location),                                                                                                                                     
+                                                    features: {!! $features !!},
+                                                    existingImages: {!! $images !!},
+                                                    latitude: {{ $property->latitude ?? 'null' }},
+                                                    longitude: {{ $property->longitude ?? 'null' }},
+                                                    address: @json($property->address),
+                                                    subdistrict: @json($property->subdistrict),
+                                                    village: @json($property->village),
+                                                    postal_code: @json($property->postal_code),
+                                                    type: @json($property->type)
+                                                })'
                                 aria-controls="property-edit-modal-{{ $property->idrec }}" title="Edit Property">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -917,42 +847,70 @@
                                                 x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                                 <div class="space-y-6">
                                                     <div>
+                                                        <!-- Hidden field to store thumbnail index -->
+                                                        <input type="hidden" name="thumbnail_index"
+                                                            x-model="thumbnailIndex">
+
                                                         <label class="block text-sm font-semibold text-gray-700 mb-3">
                                                             Foto Properti <span class="text-red-500">*</span>
                                                             <span class="text-sm font-normal text-gray-500">
-                                                                (Minimal <span x-text="editMinImages"></span>
-                                                                foto,
-                                                                maksimal <span x-text="editMaxImages"></span>
-                                                                foto)
+                                                                (Minimal <span x-text="editMinImages"></span> foto,
+                                                                maksimal <span x-text="editMaxImages"></span> foto)
                                                             </span>
                                                         </label>
-                                                        <!-- Info about thumbnail -->
-                                                        <div
-                                                            class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r-lg">
-                                                            <div class="flex items-start">
-                                                                <div class="flex-shrink-0">
-                                                                    <svg class="h-5 w-5 text-blue-500" fill="none"
-                                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round" stroke-width="2"
-                                                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                                        </path>
-                                                                    </svg>
+
+                                                        <!-- Thumbnail Preview Section -->
+                                                        <div class="mb-6">
+                                                            <h4 class="text-sm font-semibold text-gray-700 mb-2">
+                                                                Thumbnail Saat Ini <span class="text-red-500">*</span>
+                                                                <span class="text-xs font-normal text-gray-500">(Foto
+                                                                    utama properti)</span>
+                                                            </h4>
+
+                                                            <div class="flex items-center space-x-4">
+                                                                <!-- Thumbnail Preview -->
+                                                                <div
+                                                                    class="w-32 h-32 bg-gray-100 rounded-lg border-2 border-gray-300 overflow-hidden relative flex items-center justify-center">
+                                                                    <template x-if="getCurrentThumbnail()">
+                                                                        <img :src="getCurrentThumbnail().url"
+                                                                            class="w-full h-full object-cover"
+                                                                            alt="Current Thumbnail">
+                                                                    </template>
+                                                                    <div class="absolute inset-0 flex items-center justify-center text-gray-400"
+                                                                        x-show="!getCurrentThumbnail()">
+                                                                        <svg class="w-10 h-10" fill="none"
+                                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                        </svg>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="ml-3">
-                                                                    <p class="text-sm text-blue-700">
-                                                                        <span class="font-semibold">Perhatian:</span>
-                                                                        Foto
-                                                                        pertama yang Anda upload akan
-                                                                        menjadi <span class="font-bold">thumbnail
-                                                                            utama</span> iklan
-                                                                        properti ini. Pastikan foto
-                                                                        pertama adalah yang terbaik!
+
+                                                                <!-- Thumbnail Selection Instructions -->
+                                                                <div class="flex-1">
+                                                                    <p class="text-sm text-gray-600 mb-2">
+                                                                        <span x-show="thumbnailIndex === null"
+                                                                            class="font-medium text-red-500">
+                                                                            Belum ada thumbnail dipilih!
+                                                                        </span>
+                                                                        <span x-show="thumbnailIndex !== null"
+                                                                            class="font-medium text-green-600">
+                                                                            Thumbnail sudah dipilih.
+                                                                        </span>
+                                                                        Klik salah satu foto di bawah untuk memilih
+                                                                        sebagai thumbnail.
+                                                                    </p>
+                                                                    <p class="text-xs text-gray-500">
+                                                                        Pastikan memilih foto terbaik sebagai thumbnail
+                                                                        karena ini akan menjadi gambar utama properti
+                                                                        Anda.
                                                                     </p>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        
+
                                                         <!-- Upload Area -->
                                                         <div x-show="editCanUploadMore" @drop="handleEditDrop($event)"
                                                             @dragover.prevent @dragenter.prevent
@@ -978,21 +936,12 @@
                                                                             @change="handleEditFileSelect($event)"
                                                                             class="sr-only">
                                                                     </label>
-                                                                    <p class="pl-1">atau drag and
-                                                                        drop</p>
+                                                                    <p class="pl-1">atau drag and drop</p>
                                                                 </div>
-                                                                <p class="text-xs text-gray-500">PNG,
-                                                                    JPG, JPEG (maks. 5MB per file)</p>
-                                                                <p class="text-xs"
-                                                                    :class="{
-                                                                        'text-red-600': editRemainingSlots <=
-                                                                            0,
-                                                                        'text-yellow-600': editRemainingSlots >
-                                                                            0 && editRemainingSlots < 3,
-                                                                        'text-blue-600': editRemainingSlots >=
-                                                                            3
-                                                                    }"
-                                                                    x-text="editImageUploadStatus.message">
+                                                                <p class="text-xs text-gray-500">PNG, JPG, JPEG (maks.
+                                                                    5MB per file)</p>
+                                                                <p class="text-xs text-blue-600"
+                                                                    x-text="`Dapat upload ${editRemainingSlots} foto lagi`">
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -1009,101 +958,120 @@
                                                                         d="M5 13l4 4L19 7" />
                                                                 </svg>
                                                                 <p class="text-sm text-green-600 font-medium">
-                                                                    <span x-text="editMaxImages"></span>
-                                                                    foto telah diupload!
+                                                                    <span x-text="editMaxImages"></span> foto telah
+                                                                    diupload!
                                                                 </p>
-                                                                <p class="text-xs text-green-500">
-                                                                    Maksimal upload foto tercapai</p>
+                                                                <p class="text-xs text-green-500">Maksimal upload foto
+                                                                    tercapai</p>
                                                             </div>
                                                         </div>
 
                                                         <!-- Image Preview Grid -->
-                                                        <div x-show="propertyData.existingImages.filter(img => !img.markedForDeletion).length > 0 || editImages.length > 0"
-                                                            class="mt-2 grid grid-cols-5 gap-1"
-                                                            x-transition:enter="transition ease-out duration-300"
-                                                            x-transition:enter-start="opacity-0 scale-95"
-                                                            x-transition:enter-end="opacity-100 scale-100">
+                                                        <div x-show="getAllImages().length > 0" class="mt-4">
+                                                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Foto
+                                                                Terupload</h4>
 
-                                                            <!-- Existing Images -->
-                                                            <template
-                                                                x-for="(image, index) in propertyData.existingImages"
-                                                                :key="'existing-' + index">
-                                                                <div class="relative group"
-                                                                    x-show="!image.markedForDeletion">
-                                                                    <!-- Image Preview -->
-                                                                    <div
-                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
-                                                                        <img :src="image.url"
-                                                                            :alt="'Existing Image ' + (index +
-                                                                                1)"
-                                                                            class="w-full h-full object-cover">
-                                                                        <div
-                                                                            class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                            <span x-text="index + 1"></span>
+                                                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
+                                                                x-transition:enter="transition ease-out duration-300"
+                                                                x-transition:enter-start="opacity-0 scale-95"
+                                                                x-transition:enter-end="opacity-100 scale-100">
+
+                                                                <!-- Existing Images -->
+                                                                <template
+                                                                    x-for="(image, index) in propertyData.existingImages"
+                                                                    :key="'existing-' + index">
+                                                                    <div class="relative group"
+                                                                        x-show="!image.markedForDeletion"
+                                                                        @click="setThumbnail(index)">
+                                                                        <!-- Image Container -->
+                                                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                            :class="thumbnailIndex === index || image
+                                                                                .is_thumbnail ?
+                                                                                'border-blue-600 ring-2 ring-blue-400' :
+                                                                                'border-gray-200 hover:border-blue-400'">
+                                                                            <img :src="image.url"
+                                                                                :alt="'Existing Image ' + (index + 1)"
+                                                                                class="w-full h-full object-cover">
+
+                                                                            <!-- Thumbnail Badge -->
+                                                                            <div x-show="thumbnailIndex === index || image.is_thumbnail"
+                                                                                class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                                Thumbnail
+                                                                            </div>
+
+                                                                            <!-- Image Number -->
+                                                                            <div
+                                                                                class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                                <span x-text="index + 1"></span>
+                                                                            </div>
                                                                         </div>
+
+                                                                        <!-- Remove Button -->
+                                                                        <button type="button"
+                                                                            @click.stop="removeEditExistingImage(index)"
+                                                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                            <svg class="w-3 h-3" fill="none"
+                                                                                stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M6 18L18 6M6 6l12 12" />
+                                                                            </svg>
+                                                                        </button>
+
+                                                                        <!-- Hidden Image ID -->
+                                                                        <input type="hidden" name="existing_images[]"
+                                                                            :value="image.id">
                                                                     </div>
+                                                                </template>
 
-                                                                    <div
-                                                                        class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
-                                                                        <p class="text-[8px] text-gray-600 truncate"
-                                                                            x-text="image.name"></p>
-                                                                    </div>
+                                                                <!-- New Images -->
+                                                                <template x-for="(image, index) in editImages"
+                                                                    :key="'new-' + index">
+                                                                    <div class="relative group"
+                                                                        @click="setThumbnail(propertyData.existingImages.filter(img => !img.markedForDeletion).length + index)">
+                                                                        <!-- Image Container -->
+                                                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                            :class="thumbnailIndex === (propertyData
+                                                                                    .existingImages.filter(img => !img
+                                                                                        .markedForDeletion).length +
+                                                                                    index) ?
+                                                                                'border-blue-600 ring-2 ring-blue-400' :
+                                                                                'border-gray-200 hover:border-blue-400'">
+                                                                            <img :src="image.url"
+                                                                                :alt="'New Image ' + (index + 1)"
+                                                                                class="w-full h-full object-cover">
 
-                                                                    <!-- Remove Button -->
-                                                                    <button type="button"
-                                                                    @click.prevent.stop="removeEditExistingImage(index)"
-                                                                        class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                                        <svg class="w-2 h-2" fill="none"
-                                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M6 18L18 6M6 6l12 12" />
-                                                                        </svg>
-                                                                    </button>
+                                                                            <!-- Thumbnail Badge -->
+                                                                            <div x-show="thumbnailIndex === (propertyData.existingImages.filter(img => !img.markedForDeletion).length + index)"
+                                                                                class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                                Thumbnail
+                                                                            </div>
 
-                                                                    <!-- Hidden Image ID -->
-                                                                    <input type="hidden" name="existing_images[]"
-                                                                        :value="image.id">
-                                                                </div>
-                                                            </template>
-
-                                                            <!-- New Images -->
-                                                            <template x-for="(image, index) in editImages"
-                                                                :key="'new-' + index">
-                                                                <div class="relative group">
-                                                                    <div
-                                                                        class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200 relative">
-                                                                        <img :src="image.url"
-                                                                            :alt="'New Image ' + (index + 1)"
-                                                                            class="w-full h-full object-cover">
-                                                                        <div
-                                                                            class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                                            <span
-                                                                                x-text="propertyData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                                            <!-- Image Number -->
+                                                                            <div
+                                                                                class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                                <span
+                                                                                    x-text="propertyData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
 
-                                                                    <!-- Remove Button -->
-                                                                    <button @click="removeEditImage(index)"
-                                                                        class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                                        <svg class="w-2 h-2" fill="none"
-                                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M6 18L18 6M6 6l12 12" />
-                                                                        </svg>
-                                                                    </button>
-
-                                                                    <!-- File Name (Optional) -->
-                                                                    <div
-                                                                        class="w-full text-xs px-2 py-1 bg-transparent border-0 focus:outline-none focus:ring-0">
-                                                                        <p class="text-[8px] text-gray-600 truncate"
-                                                                            x-text="image.name"></p>
+                                                                        <!-- Remove Button -->
+                                                                        <button @click.stop="removeEditImage(index)"
+                                                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                            <svg class="w-3 h-3" fill="none"
+                                                                                stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M6 18L18 6M6 6l12 12" />
+                                                                            </svg>
+                                                                        </button>
                                                                     </div>
-                                                                </div>
-                                                            </template>
+                                                                </template>
+                                                            </div>
                                                         </div>
 
                                                         <!-- Progress Indicator -->
@@ -1112,44 +1080,42 @@
                                                                 class="flex justify-between text-sm text-gray-600 mb-2">
                                                                 <span>Progress Upload</span>
                                                                 <span
-                                                                    x-text="`${propertyData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length}/${editMaxImages} foto`"></span>
+                                                                    x-text="`${getAllImages().length}/${editMaxImages} foto`"></span>
                                                             </div>
-                                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                                                <div class="h-2.5 rounded-full transition-all duration-300"
-                                                                    :style="`width: ${editUploadProgress.percentage}%`"
-                                                                    :class="{
-                                                                        'bg-red-500': editUploadProgress
-                                                                            .status === 'danger',
-                                                                        'bg-yellow-500': editUploadProgress
-                                                                            .status === 'warning',
-                                                                        'bg-green-500': editUploadProgress
-                                                                            .status === 'success'
-                                                                    }">
+                                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                                    :style="`width: ${(getAllImages().length / editMaxImages) * 100}%`">
                                                                 </div>
                                                             </div>
-                                                            <p class="text-sm mt-1"
-                                                                :class="editImageUploadStatus.class"
-                                                                x-text="editImageUploadStatus.message">
-                                                            </p>
                                                         </div>
 
                                                         <!-- Validation Messages -->
-                                                        <div x-show="(propertyData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) < editMinImages"
-                                                            class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                            <p class="text-red-600 text-sm">
-                                                                <span class="font-medium">Perhatian:</span>
-                                                                Anda harus mengupload minimal <span
-                                                                    x-text="editMinImages"></span>
-                                                                foto.
-                                                            </p>
-                                                        </div>
+                                                        <div class="mt-3 space-y-2">
+                                                            <div x-show="getAllImages().length < editMinImages"
+                                                                class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                                <p class="text-sm text-red-600">
+                                                                    <span class="font-medium">Perhatian:</span>
+                                                                    Anda harus mengupload minimal <span
+                                                                        x-text="editMinImages"></span> foto.
+                                                                </p>
+                                                            </div>
 
-                                                        <div x-show="(propertyData.existingImages.filter(img => !img.markedForDeletion).length + editImages.length) >= editMinImages"
-                                                            class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                                            <p class="text-green-600 text-sm">
-                                                                <span class="font-medium">Sempurna!</span>
-                                                                Foto sudah memenuhi syarat minimal.
-                                                            </p>
+                                                            <div x-show="thumbnailIndex === null && getAllImages().length > 0"
+                                                                class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                                <p class="text-sm text-yellow-600">
+                                                                    <span class="font-medium">Perhatian:</span>
+                                                                    Anda harus memilih thumbnail untuk melanjutkan.
+                                                                </p>
+                                                            </div>
+
+                                                            <div x-show="getAllImages().length >= editMinImages && thumbnailIndex !== null"
+                                                                class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                                <p class="text-sm text-green-600">
+                                                                    <span class="font-medium">Sempurna!</span>
+                                                                    Foto sudah memenuhi syarat dan thumbnail telah
+                                                                    dipilih.
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1199,6 +1165,12 @@
                     </div>
                 </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                    No Properties found
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>

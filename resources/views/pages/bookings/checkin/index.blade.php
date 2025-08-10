@@ -31,7 +31,7 @@
 
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
-                            <div class="relative z-50">
+                            <div class="relative z-10">
                                 <input type="text" id="date_picker" placeholder="Select date range (Max 30 days)"
                                     data-input
                                     class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
@@ -62,14 +62,14 @@
         <!-- Table Container -->
         <div class="overflow-x-auto" id="bookingsTable">
             @include('pages.bookings.checkin.partials.checkin_table', [
-                'bookings' => $bookings,
+                'checkOuts' => $checkOuts,
                 'per_page' => request('per_page', 8),
             ])
         </div>
 
         <!-- Pagination -->
         <div id="paginationContainer" class="bg-gray-50 rounded p-4">
-            {{ $bookings->appends(request()->input())->links() }}
+            {{ $checkOuts->appends(request()->input())->links() }}
         </div>
     </div>
 

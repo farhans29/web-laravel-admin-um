@@ -33,11 +33,14 @@ return new class extends Migration
             $table->decimal('price_discounted_daily', 18, 4)->nullable();
             $table->decimal('price_original_monthly', 18, 4)->nullable();
             $table->decimal('price_discounted_monthly', 18, 4)->nullable();
-            $table->longText('features')->nullable();
-            $table->longText('attributes')->nullable();            
+            // $table->longText('features')->nullable();
+            // $table->longText('attributes')->nullable();            
+            
+
+            $table->longText('general')->nullable();
+            $table->longText('security')->nullable();
             $table->longText('amenities')->nullable();
-            $table->longText('room_facilities')->nullable();
-            $table->longText('rules')->nullable();          
+                        
             $table->integer('status')->default(1);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();

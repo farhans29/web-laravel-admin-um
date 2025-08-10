@@ -66,9 +66,10 @@
             <!-- Logo Container -->
             <div class="flex justify-center mb-8">
                 <a class="block" href="{{ route('dashboard') }}">
-                    <div class="bg-white p-3 rounded-full shadow-lg">
-                        <img src="/images/apple-touch-icon.png" alt="Logo" class="w-12 h-12">
+                    <div class="bg-white p-4 rounded-full shadow-lg">
+                        <img src="/images/apple-touch-icon.png" alt="Logo" class="w-20 h-20">
                     </div>
+
                 </a>
             </div>
 

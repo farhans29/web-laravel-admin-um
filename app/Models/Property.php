@@ -31,19 +31,21 @@ class Property extends Model
         'village',
         'postal_code',
         'address',
-        'location',        
+        'location',
         'latitude',
-        'longitude',        
+        'longitude',
         'price',
         'price_original_daily',
         'price_discounted_daily',
         'price_original_monthly',
         'price_discounted_monthly',
-        'features',
-        'attributes',
+
+        'general',
+        'security',
         'amenities',
+               
         'room_facilities',
-        'rules',        
+        'rules',
         'status',
         'created_at',
         'updated_at',
@@ -77,9 +79,30 @@ class Property extends Model
     {
         return $this->hasMany(PropertyImage::class, 'property_id', 'idrec');
     }
-    
+
     public function rooms()
     {
         return $this->hasMany(Room::class, 'property_id', 'idrec');
+    }
+
+    public function thumbnail()
+    {
+        return $this->hasOne(PropertyImage::class, 'property_id', 'idrec')
+            ->where('thumbnail', 1);
+    }
+
+    public function setGeneralAttribute($value)
+    {
+        $this->attributes['general'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    public function setSecurityAttribute($value)
+    {
+        $this->attributes['security'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    public function setAmenitiesAttribute($value)
+    {
+        $this->attributes['amenities'] = is_array($value) ? json_encode($value) : $value;
     }
 }

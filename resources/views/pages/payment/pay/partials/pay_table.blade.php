@@ -20,10 +20,12 @@
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200" id="transactionTableBody">
-        @foreach ($payments as $payment)
+        @forelse ($payments as $payment)
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div class="text-sm font-medium text-indigo-600">{{ $payment->order_id }}</div>
+                    <div class="text-sm text-gray-500">{{ $payment->transaction->check_in->format('Y-m-d') ?? '-' }}
+                    </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div class="flex items-center">
@@ -71,14 +73,14 @@
                     @php
                         $status = $payment->transaction->transaction_status;
                         $statusStyles = [
-                            'pending' => 'bg-yellow-100 text-yellow-800', 
-                            'waiting' => 'bg-orange-100 text-orange-800', 
-                            'paid' => 'bg-blue-100 text-blue-800', 
-                            'completed' => 'bg-green-100 text-green-800', 
-                            'rejected' => 'bg-red-200 text-red-900', 
-                            'canceled' => 'bg-pink-100 text-pink-800', 
-                            'failed' => 'bg-rose-100 text-rose-800', 
-                            'expired' => 'bg-gray-300 text-gray-800', 
+                            'pending' => 'bg-yellow-100 text-yellow-800',
+                            'waiting' => 'bg-orange-100 text-orange-800',
+                            'paid' => 'bg-blue-100 text-blue-800',
+                            'completed' => 'bg-green-100 text-green-800',
+                            'rejected' => 'bg-red-200 text-red-900',
+                            'canceled' => 'bg-pink-100 text-pink-800',
+                            'failed' => 'bg-rose-100 text-rose-800',
+                            'expired' => 'bg-gray-300 text-gray-800',
                         ];
 
                         $badgeStyle = $statusStyles[$status] ?? 'bg-gray-100 text-gray-800';
@@ -297,6 +299,12 @@
                     @endif
                 </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                    There are no recent payments yet
+                </td>
+            </tr>
+        @endforelse
     </tbody>
 </table>

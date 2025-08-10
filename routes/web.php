@@ -98,9 +98,15 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/m-properties/update/{idrec}', [ManajementPropertiesController::class, 'update'])->name('properties.update');
         Route::get('/m-properties/table', [ManajementPropertiesController::class, 'tablePartial'])->name('properties.table');
 
+        Route::get('/m-properties/facility', [ManajementPropertiesController::class, 'indexFacility'])->name('facilityProperty.index');
+        Route::post('/m-properties/facility/store', [ManajementPropertiesController::class, 'storeFacility'])->name('facilityProperty.store');
+        Route::put('/m-properties/facility/update/{id}', [ManajementPropertiesController::class, 'updateFacility'])->name('facilityProperty.update');
+
+
+
 
         // ------------------------- ROOMS MANAGEMENT -------------------------
-        Route::get('/rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
+        Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
         Route::post('/rooms/check-room-number', [ManajementRoomsController::class, 'checkRoomNumber'])->name('rooms.check-room-number');
         Route::put('/rooms/update/{idrec}', [ManajementRoomsController::class, 'update'])->name('rooms.update');
@@ -112,6 +118,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rooms/{room}/price', [ManajementRoomsController::class, 'getPriceForDate'])->name('rooms.prices.date');
         Route::post('/rooms/{room}/update-price', [ManajementRoomsController::class, 'updatePriceRange'])->name('rooms.prices.update');
         Route::get('/rooms/{room}/prices', [ManajementRoomsController::class, 'getRoomPrices'])->name('rooms.prices.index');
+
+        Route::get('/m-rooms/facilityRooms', [ManajementRoomsController::class, 'indexFacility'])->name('facilityRooms.index');
+        Route::post('/rooms/facilityRooms/store', [ManajementRoomsController::class, 'storeFacility'])->name('facilityRooms.store');
+        Route::put('/rooms/facilityRooms/update/{id}', [ManajementRoomsController::class, 'updateFacility'])->name('facilityRooms.update');
     });
 
     Route::prefix('payment')->group(function () {

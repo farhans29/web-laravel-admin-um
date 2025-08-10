@@ -3,7 +3,9 @@
 
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Manajemen Kamar</h1>
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                Manajemen Kamar
+            </h1>
             <!-- New Input Room -->
             <div x-data="modalRoom()">
                 <!-- Trigger Button -->
@@ -324,34 +326,34 @@
                                 <div x-show="step === 3" x-transition:enter="transition ease-out duration-300"
                                     x-transition:enter-start="opacity-0 translate-x-4"
                                     x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
-                                    <div class="space-y-6">
+                                    <div class="space-y-8">
+                                        <!-- General Facilities -->
                                         <div>
                                             <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                 </svg>
-                                                Fasilitas Kamar
+                                                Fasilitas Umum
                                             </h3>
                                             <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                <template x-for="(facility, index) in facilities"
-                                                    :key="index">
+                                                @foreach ($facilities as $facility)
                                                     <div class="relative">
-                                                        <input :id="'facility-' + index" name="facilities[]"
-                                                            type="checkbox" :value="facility.value"
-                                                            class="sr-only peer">
-                                                        <label :for="'facility-' + index"
+                                                        <input id="general-{{ $facility->idrec }}"
+                                                            name="general_facilities[]" type="checkbox"
+                                                            value="{{ $facility->idrec }}" class="sr-only peer">
+                                                        <label for="general-{{ $facility->idrec }}"
                                                             class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
-                                                            <span x-text="facility.label"></span>
+                                                            <span>{{ $facility->facility }}</span>
                                                         </label>
                                                     </div>
-                                                </template>
+                                                @endforeach
                                             </div>
-                                        </div>
+                                        </div>                                      
                                     </div>
                                 </div>
+
 
                                 <!-- Step 4 - Photos -->
                                 <div x-show="step === 4" x-transition:enter="transition ease-out duration-300"
@@ -366,24 +368,50 @@
                                                 </span>
                                             </label>
 
-                                            <!-- Info about thumbnail -->
-                                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r-lg">
-                                                <div class="flex items-start">
-                                                    <div class="flex-shrink-0">
-                                                        <svg class="h-5 w-5 text-blue-500" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                            </path>
-                                                        </svg>
+                                            <!-- Thumbnail Selection Area -->
+                                            <div class="mb-6">
+                                                <h4 class="text-sm font-semibold text-gray-700 mb-2">
+                                                    Pilih Thumbnail <span class="text-red-500">*</span>
+                                                    <span class="text-xs font-normal text-gray-500">(Foto utama yang
+                                                        akan ditampilkan)</span>
+                                                </h4>
+
+                                                <div class="flex items-center space-x-4">
+                                                    <!-- Thumbnail Preview -->
+                                                    <div class="w-32 h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden relative"
+                                                        x-show="images.length > 0">
+                                                        <template x-if="thumbnailIndex !== null">
+                                                            <img :src="images[thumbnailIndex].url"
+                                                                alt="Selected Thumbnail"
+                                                                class="w-full h-full object-cover">
+                                                        </template>
+                                                        <div class="absolute inset-0 flex items-center justify-center text-gray-400"
+                                                            x-show="thumbnailIndex === null">
+                                                            <svg class="w-10 h-10" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                                </path>
+                                                            </svg>
+                                                        </div>
                                                     </div>
-                                                    <div class="ml-3">
-                                                        <p class="text-sm text-blue-700">
-                                                            <span class="font-semibold">Perhatian:</span> Foto pertama
-                                                            yang Anda upload akan menjadi <span
-                                                                class="font-bold">thumbnail utama</span> kamar ini.
-                                                            Pastikan foto pertama adalah yang terbaik!
+
+                                                    <!-- Thumbnail Selection Instructions -->
+                                                    <div class="flex-1">
+                                                        <p class="text-sm text-gray-600 mb-2">
+                                                            <span x-show="thumbnailIndex === null"
+                                                                class="font-medium text-red-500">Belum ada thumbnail
+                                                                dipilih!</span>
+                                                            <span x-show="thumbnailIndex !== null"
+                                                                class="font-medium text-green-600">Thumbnail sudah
+                                                                dipilih.</span>
+                                                            Klik salah satu foto di bawah untuk memilih sebagai
+                                                            thumbnail.
+                                                        </p>
+                                                        <p class="text-xs text-gray-500">
+                                                            Pastikan memilih foto terbaik sebagai thumbnail karena ini
+                                                            akan menjadi gambar utama kamar Anda.
                                                         </p>
                                                     </div>
                                                 </div>
@@ -434,49 +462,50 @@
                                             </div>
 
                                             <!-- Image Preview Grid -->
-                                            <div x-show="images.length > 0" class="mt-2 grid grid-cols-5 gap-1"
-                                                x-transition:enter="transition ease-out duration-300"
-                                                x-transition:enter-start="opacity-0 scale-95"
-                                                x-transition:enter-end="opacity-100 scale-100">
-                                                <template x-for="(image, index) in images" :key="index">
-                                                    <div class="relative group">
-                                                        <!-- Image Container -->
-                                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors duration-200"
-                                                            :class="{ 'border-2 border-blue-600': index === 0 }">
-                                                            <img :src="image.url" :alt="`Preview ${index + 1}`"
-                                                                class="w-full h-full object-cover">
-                                                        </div>
+                                            <div x-show="images.length > 0" class="mt-4">
+                                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Foto Terupload
+                                                </h4>
+                                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
+                                                    x-transition:enter="transition ease-out duration-300"
+                                                    x-transition:enter-start="opacity-0 scale-95"
+                                                    x-transition:enter-end="opacity-100 scale-100">
+                                                    <template x-for="(image, index) in images" :key="index">
+                                                        <div class="relative group" @click="setThumbnail(index)">
+                                                            <!-- Image Container -->
+                                                            <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                :class="thumbnailIndex === index ?
+                                                                    'border-blue-600 ring-2 ring-blue-400' :
+                                                                    'border-gray-200 hover:border-blue-400'">
+                                                                <img :src="image.url"
+                                                                    :alt="`Preview ${index + 1}`"
+                                                                    class="w-full h-full object-cover">
 
-                                                        <!-- Remove Button -->
-                                                        <button @click="removeImage(index)"
-                                                            class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
-                                                            <svg class="w-2 h-2" fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                            </svg>
-                                                        </button>
+                                                                <!-- Thumbnail badge -->
+                                                                <div x-show="thumbnailIndex === index"
+                                                                    class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                    Thumbnail
+                                                                </div>
+                                                            </div>
 
-                                                        <!-- Image Number Badge -->
-                                                        <div
-                                                            class="absolute bottom-1 left-1 bg-blue-600 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">
-                                                            <span x-text="index + 1"></span>
-                                                        </div>
+                                                            <!-- Remove Button -->
+                                                            <button @click.stop="removeImage(index, $event)"
+                                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                                                                <svg class="w-3 h-3" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M6 18L18 6M6 6l12 12"></path>
+                                                                </svg>
+                                                            </button>
 
-                                                        <!-- Thumbnail indicator for first image -->
-                                                        <div x-show="index === 0" class="absolute top-1 right-1">
-                                                            <span
-                                                                class="bg-yellow-500 text-white text-[8px] px-1 py-0.5 rounded-full font-medium">Thumbnail</span>
+                                                            <!-- Image Number Badge -->
+                                                            <div
+                                                                class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                                                <span x-text="index + 1"></span>
+                                                            </div>
                                                         </div>
-
-                                                        <!-- File Name -->
-                                                        <div
-                                                            class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                            <p class="text-[8px] text-gray-600 truncate"
-                                                                x-text="image.name"></p>
-                                                        </div>
-                                                    </div>
-                                                </template>
+                                                    </template>
+                                                </div>
                                             </div>
 
                                             <!-- Progress Indicator -->
@@ -487,26 +516,28 @@
                                                 </div>
                                                 <div class="w-full bg-gray-200 rounded-full h-2">
                                                     <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                                        :style="`width: ${(images.length / maxImages) * 100}%`"></div>
+                                                        :style="`width: ${(images.length / maxImages) * 100}%`">
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <!-- Validation Message -->
-                                            <div x-show="images.length < 3" class="mt-3">
-                                                <p class="text-sm text-red-600">
+                                            <!-- Validation Messages -->
+                                            <div class="mt-3 space-y-2">
+                                                <p class="text-sm text-red-600" x-show="images.length < 3">
                                                     <span class="font-medium">Perhatian:</span>
                                                     Anda harus mengupload tepat 3 foto untuk melanjutkan.
                                                 </p>
-                                            </div>
 
-                                            <div x-show="images.length === 3" class="mt-3">
-                                                <p class="text-sm text-green-600">
-                                                    <span class="font-medium">Sempurna!</span>
-                                                    Semua foto telah diupload.
+                                                <p class="text-sm text-red-600"
+                                                    x-show="images.length >= 3 && thumbnailIndex === null">
+                                                    <span class="font-medium">Perhatian:</span>
+                                                    Anda harus memilih thumbnail untuk melanjutkan.
                                                 </p>
-                                                <p class="text-xs text-gray-600 mt-1">
-                                                    Foto pertama (ditandai dengan label "Thumbnail") akan menjadi gambar
-                                                    utama kamar Anda.
+
+                                                <p class="text-sm text-green-600"
+                                                    x-show="images.length === 3 && thumbnailIndex !== null">
+                                                    <span class="font-medium">Sempurna!</span>
+                                                    Semua foto telah diupload dan thumbnail telah dipilih.
                                                 </p>
                                             </div>
                                         </div>
@@ -614,43 +645,9 @@
                 monthlyPriceError: '',
                 isCheckingRoomNo: false,
                 roomNoError: '',
-                facilities: [{
-                        label: 'AC',
-                        value: 'ac'
-                    },
-                    {
-                        label: 'TV',
-                        value: 'tv'
-                    },
-                    {
-                        label: 'Kamar Mandi',
-                        value: 'bathroom'
-                    },
-                    {
-                        label: 'WiFi',
-                        value: 'wifi'
-                    },
-                    {
-                        label: 'Lemari',
-                        value: 'wardrobe'
-                    },
-                    {
-                        label: 'Meja Kerja',
-                        value: 'desk'
-                    },
-                    {
-                        label: 'Kulkas Mini',
-                        value: 'refrigerator'
-                    },
-                    {
-                        label: 'Air Panas',
-                        value: 'hot_water'
-                    },
-                    {
-                        label: 'Sarapan',
-                        value: 'breakfast'
-                    }
-                ],
+                thumbnailIndex: null,
+                facilities:[],
+                
 
                 init() {
                     // Initialize price input formatting
@@ -802,8 +799,20 @@
                     }
                 },
 
+                setThumbnail(index) {
+                    this.thumbnailIndex = index;
+                },
+
                 removeImage(index, event) {
                     if (event) event.preventDefault();
+
+                    // Adjust thumbnail index if we're removing the current thumbnail
+                    if (this.thumbnailIndex === index) {
+                        this.thumbnailIndex = null;
+                    } else if (this.thumbnailIndex > index) {
+                        this.thumbnailIndex--;
+                    }
+
                     this.images.splice(index, 1);
                 },
 
@@ -962,16 +971,34 @@
                     } else if (step === 3) {
                         // No validation needed for step 3 (facilities) as they're optional
                     } else if (step === 4) {
-                        if (this.images.length < this.minImages) {
-                            alert(
-                                `Minimal ${this.minImages} foto kamar harus diupload. Saat ini: ${this.images.length} foto.`
-                            );
-                            isValid = false;
-                        } else if (this.images.length > this.maxImages) {
-                            alert(
-                                `Maksimal ${this.maxImages} foto kamar dapat diupload. Saat ini: ${this.images.length} foto.`
-                            );
-                            isValid = false;
+                        if (step === 4) {
+                            if (this.images.length < this.minImages) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: `Minimal ${this.minImages} foto kamar harus diupload!`,
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                });
+                                return false;
+                            }
+
+                            if (this.thumbnailIndex === null) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'Anda harus memilih thumbnail untuk kamar ini!',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                });
+                                return false;
+                            }
+
+                            return true;
                         }
                     }
 
@@ -1005,6 +1032,7 @@
 
                     // Clear any existing file inputs
                     formData.delete('room_images[]');
+                    formData.append('thumbnail_index', this.thumbnailIndex);
 
                     // Add each selected image
                     this.images.forEach((image, index) => {
@@ -1487,6 +1515,9 @@
                 priceTypes: [],
                 dailyPrice: 0,
                 monthlyPrice: 0,
+                thumbnailIndex: null,
+                thumbnailType: null,
+                isDragging: false,
                 facilities: [{
                         label: 'AC',
                         value: 'ac'
@@ -1539,12 +1570,15 @@
                     monthly_price: room.price_original_monthly ? room.price_original_monthly
                         .toString() : '',
                     facilities: room.facility || [],
-                    existingImages: room.roomImages || []
+                    existingImages: room.roomImages || [],
+                    thumbnailIndex: null,
+                    thumbnailType: null
                 },
 
                 init() {
                     this.originalRoomData = JSON.parse(JSON.stringify(this.roomData));
 
+                    // Format harga
                     this.roomData.daily_price = this.roomData.daily_price !== null ?
                         formatRupiah(this.roomData.daily_price) : '';
                     this.roomData.monthly_price = this.roomData.monthly_price !== null ?
@@ -1552,6 +1586,7 @@
 
                     this.priceTypes = [];
 
+                    // Inisialisasi harga
                     const rawDailyPrice = this.roomData.daily_price !== null ?
                         parseFloat(this.originalRoomData.daily_price) : 0;
                     if (rawDailyPrice > 0) {
@@ -1566,11 +1601,156 @@
                         this.monthlyPrice = rawMonthlyPrice;
                     }
 
+                    // Pastikan facilities adalah array
                     if (!Array.isArray(this.roomData.facilities)) {
                         this.roomData.facilities = this.roomData.facilities ? [this.roomData
                             .facilities
                         ] : [];
                     }
+
+                    // Inisialisasi thumbnail - cari yang is_thumbnail === true (1 dalam database)
+                    const thumbnailIndex = this.roomData.existingImages.findIndex(
+                        img => img.is_thumbnail
+                    );
+                    this.thumbnailIndex = thumbnailIndex !== -1 ? thumbnailIndex :
+                        (this.roomData.existingImages.length > 0 ? 0 : null);
+                },
+
+                setEditThumbnail(index, type) {
+                    this.roomData.thumbnailIndex = index;
+                    this.roomData.thumbnailType = type;
+                },
+
+                getThumbnailUrl() {
+                    if (this.roomData.thumbnailType === 'existing') {
+                        return this.roomData.existingImages[this.roomData.thumbnailIndex].url;
+                    } else if (this.roomData.thumbnailType === 'new') {
+                        return this.editImages[this.roomData.thumbnailIndex].url;
+                    }
+                    return '';
+                },
+
+                getImageNumber(index, type) {
+                    if (type === 'existing') {
+                        return index + 1;
+                    } else {
+                        return this.roomData.existingImages.filter(img => !img.markedForDeletion)
+                            .length + index + 1;
+                    }
+                },
+
+                handleEditDragOver(event) {
+                    event.preventDefault();
+                    this.isDragging = true;
+                    event.currentTarget.classList.add('border-blue-500', 'bg-blue-50');
+                },
+
+                handleEditDragLeave(event) {
+                    event.preventDefault();
+                    this.isDragging = false;
+                    event.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+                },
+
+                handleEditDrop(event) {
+                    event.preventDefault();
+                    this.isDragging = false;
+                    event.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+
+                    if (!this.editCanUploadMore) {
+                        Swal.fire({
+                            toast: true,
+                            icon: 'error',
+                            title: `Maksimal hanya ${this.editMaxImages} foto yang dapat diupload.`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                        return;
+                    }
+
+                    const files = Array.from(event.dataTransfer.files);
+                    this.processEditFiles(files);
+                },
+
+                handleEditFileSelect(event) {
+                    const files = Array.from(event.target.files);
+                    const wasEmpty = this.editImages.length === 0 &&
+                        this.roomData.existingImages.filter(img => !img.markedForDeletion).length === 0;
+                    this.processEditFiles(files);
+
+                    if (wasEmpty && (this.editImages.length > 0 ||
+                            this.roomData.existingImages.filter(img => !img.markedForDeletion).length >
+                            0)) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: 'Foto pertama akan menjadi thumbnail kamar',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    }
+                },
+
+                processEditFiles(files) {
+                    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+                    const existingImagesCount = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length;
+                    const availableSlots = this.editMaxImages - (existingImagesCount + this.editImages
+                        .length);
+
+                    if (availableSlots <= 0) {
+                        Swal.fire({
+                            toast: true,
+                            icon: 'error',
+                            title: `Maksimal hanya ${this.editMaxImages} foto yang dapat diupload.`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                        return;
+                    }
+
+                    const filesToProcess = imageFiles.slice(0, availableSlots);
+
+                    if (imageFiles.length > availableSlots) {
+                        Swal.fire({
+                            toast: true,
+                            icon: 'warning',
+                            title: `Hanya ${availableSlots} foto yang dapat ditambahkan.`,
+                            text: `Sisa slot: ${availableSlots}`,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    }
+
+                    filesToProcess.forEach(file => {
+                        if (file.size <= 5 * 1024 * 1024) { // 5MB limit
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                this.editImages.push({
+                                    file: file,
+                                    url: e.target.result,
+                                    name: file.name,
+                                    isNew: true
+                                });
+
+                                // Jika ini gambar pertama yang diupload, set sebagai thumbnail
+                                if (this.editImages.length === 1 && this.thumbnailIndex ===
+                                    null) {
+                                    this.setThumbnail(this.roomData.existingImages.length);
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
+                        }
+                    });
                 },
 
                 get editRemainingSlots() {
@@ -1633,7 +1813,9 @@
                         ...this.roomData,
                         ...data,
                         facilities: Array.isArray(data.facilities) ? data.facilities : (data
-                            .facilities ? [data.facilities] : [])
+                            .facilities ? [data.facilities] : []),
+                        thumbnailIndex: 0,
+                        thumbnailType: 'existing'
                     };
 
                     this.editModalOpen = true;
@@ -1655,6 +1837,19 @@
                         this.priceTypes.push('monthly');
                         this.monthlyPrice = rawMonthlyPrice;
                     }
+
+                    const existingThumbnail = data.existingImages.find(img => img.is_thumbnail);
+                    if (existingThumbnail) {
+                        const index = data.existingImages.indexOf(existingThumbnail);
+                        this.thumbnailIndex = index;
+                    } else if (data.existingImages.length > 0) {
+                        this.thumbnailIndex = 0;
+                        data.existingImages[0].is_thumbnail = true;
+                    }
+
+                    this.editModalOpen = true;
+                    this.editStep = 1;
+                    this.editImages = [];
                 },
 
                 handleEditFileSelect(event) {
@@ -1726,12 +1921,95 @@
                     }
                 },
 
-                removeEditImage(index) {
-                    this.editImages.splice(index, 1);
+                getAllImages() {
+                    const existing = this.roomData.existingImages.filter(img => !img.markedForDeletion);
+                    return [...existing, ...this.editImages];
+                },
+
+                getCurrentThumbnail() {
+                    if (this.thumbnailIndex === null) {
+                        // Try to find the existing thumbnail if none is selected
+                        const thumbnailIndex = this.roomData.existingImages.findIndex(
+                            img => img.is_thumbnail && !img.markedForDeletion
+                        );
+                        if (thumbnailIndex !== -1) {
+                            this.thumbnailIndex = thumbnailIndex;
+                            return this.roomData.existingImages[thumbnailIndex];
+                        }
+                        return null;
+                    }
+                    const allImages = this.getAllImages();
+                    return allImages[this.thumbnailIndex] || null;
+                },
+
+                setThumbnail(index) {
+                    // Reset all existing thumbnails first
+                    this.roomData.existingImages.forEach(img => {
+                        img.is_thumbnail = false;
+                    });
+
+                    // Set new thumbnail
+                    const allImages = this.getAllImages();
+                    if (index < allImages.length) {
+                        this.thumbnailIndex = index;
+
+                        // If the selected image is an existing one
+                        if (index < this.roomData.existingImages.length) {
+                            this.roomData.existingImages[index].is_thumbnail = true;
+                        }
+                    }
+                },
+
+                get currentThumbnail() {
+                    if (this.thumbnailType === 'existing' && this.thumbnailIndex !== null) {
+                        return this.roomData.existingImages[this.thumbnailIndex];
+                    } else if (this.thumbnailType === 'new' && this.thumbnailIndex !== null) {
+                        return this.editImages[this.thumbnailIndex];
+                    }
+                    return null;
+                },
+
+                setThumbnail(index, type) {
+                    this.thumbnailIndex = index;
+                    this.thumbnailType = type;
+
+                    // If setting an existing image as thumbnail, mark it as thumbnail
+                    if (type === 'existing') {
+                        this.roomData.existingImages.forEach((img, i) => {
+                            img.is_thumbnail = (i === index);
+                        });
+                    }
                 },
 
                 removeEditExistingImage(index) {
+                    // If deleting the current thumbnail, reset to first available image
+                    if (this.thumbnailIndex === index) {
+                        const firstAvailable = this.roomData.existingImages.findIndex(
+                            (img, i) => !img.markedForDeletion && i !== index
+                        );
+                        this.thumbnailIndex = firstAvailable >= 0 ? firstAvailable :
+                            this.editImages.length > 0 ?
+                            this.roomData.existingImages.filter(img => !img.markedForDeletion).length :
+                            null;
+                    }
+
+                    // Mark image for deletion
                     this.roomData.existingImages[index].markedForDeletion = true;
+                },
+
+                removeEditImage(index) {
+                    const existingCount = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length;
+                    const totalIndex = existingCount + index;
+
+                    // If deleting the current thumbnail, reset to first available image
+                    if (this.thumbnailIndex === totalIndex) {
+                        const firstAvailable = this.getAllImages().findIndex((img, i) => i !==
+                            totalIndex);
+                        this.thumbnailIndex = firstAvailable >= 0 ? firstAvailable : null;
+                    }
+
+                    this.editImages.splice(index, 1);
                 },
 
                 validateEditStep(step) {
@@ -1761,7 +2039,7 @@
                             return false;
                         }
                         if (!this.roomData.description || !this.roomData.description.toString()
-                        .trim()) {
+                            .trim()) {
                             alert('Deskripsi kamar harus diisi');
                             return false;
                         }
@@ -1847,6 +2125,8 @@
                             .forEach(img => {
                                 formData.append('delete_images[]', img.id);
                             });
+
+                        formData.append('thumbnail_index', this.thumbnailIndex);
 
                         // Add price values
                         formData.append('daily_price', this.priceTypes.includes('daily') ? this

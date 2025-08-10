@@ -20,10 +20,7 @@
         <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
             @csrf
             
-            <div>
-                <x-label for="email" class="mb-2">
-                    {{ __('Email Address') }} <span class="text-red-500">*</span>
-                </x-label>
+            <div>                
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,7 +33,7 @@
             </div>
 
             <div>
-                <x-button class="w-full justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                <x-button class="w-full py-3 px-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
                     {{ __('Send Reset Link') }}
                 </x-button>
             </div>
@@ -47,7 +44,7 @@
         <!-- Back to login -->
         <div class="text-center text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
             {{ __('Remember your password?') }}
-            <a href="{{ route('login') }}" class="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
+            <a href="{{ route('login') }}" class="text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium">
                 {{ __('Sign in here') }}
             </a>
         </div>

@@ -36,14 +36,6 @@ class CompletedController extends Controller
             });
         }
 
-        // Filter berdasarkan rentang tanggal (jika start_date dan end_date ada)
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereHas('transaction', function ($q) use ($request) {
-                $q->whereBetween('check_in', [$request->start_date, $request->end_date])
-                    ->orWhereBetween('check_out', [$request->start_date, $request->end_date]);
-            });
-        }
-
         $bookings = $query->paginate($request->input('per_page', 8));
 
         return view('pages.bookings.completed.index', compact('bookings'));
@@ -53,7 +45,15 @@ class CompletedController extends Controller
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
             ->whereHas('transaction', function ($q) {
-                $q->whereIn('transaction_status', ['pending', 'waiting']);
+                $q->whereIn('transaction_status', ['paid', 'expired', 'canceled'])
+                    ->where(function ($subQuery) {
+                        $subQuery->where('transaction_status', '!=', 'paid')
+                            ->orWhere(function ($paidQuery) {
+                                $paidQuery->where('transaction_status', 'paid')
+                                    ->whereNotNull('check_in_at')
+                                    ->whereNotNull('check_out_at');
+                            });
+                    });
             })
             ->orderByDesc('check_in_at');
 
@@ -70,7 +70,7 @@ class CompletedController extends Controller
             });
         }
 
-        // Date range filter
+        // Date range filter (only in filter method)
         if ($request->filled('start_date') && $request->filled('end_date')) {
             // Jika start_date dan end_date sama, cari tanggal yang tepat
             if ($request->start_date === $request->end_date) {

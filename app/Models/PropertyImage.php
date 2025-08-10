@@ -18,10 +18,20 @@ class PropertyImage extends Model
     protected $fillable = [
         'property_id',
         'image',
+        'thumbnail',
         'caption',
         'created_at',
         'updated_at',
         'created_by',
         'updated_by',
     ];
+
+    protected $casts = [
+        'thumbnail' => 'boolean',
+    ];
+
+    public function property()
+    {
+        return $this->belongsTo(Property::class, 'property_id', 'idrec');
+    }
 }

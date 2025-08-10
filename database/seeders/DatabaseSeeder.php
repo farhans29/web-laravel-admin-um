@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             PropertySystemSeeder::class,            
             MPromoBannerSeeder::class,
+            PropertyFacilitySeeder::class,
+            RoomFacilitySeeder::class,
         ]);
     }
 }

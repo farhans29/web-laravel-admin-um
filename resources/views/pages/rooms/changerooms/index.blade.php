@@ -29,8 +29,11 @@
                             <input type="hidden" name="check_out" id="formCheckOut">
                             <!-- Transfer Controls -->
                             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h2 class="text-xl font-semibold text-gray-800">Pindah kamar</h2>
+                                <div class="flex justify-between items-center mb-4">                                    
+                                    <h1
+                                        class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                                        Pindah kamar
+                                    </h1>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -277,7 +280,7 @@
                                             <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Ke Kamar</th>
-                                                <th scope="col"
+                                            <th scope="col"
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Tanggal/Waktu</th>
                                             <th scope="col"
@@ -335,7 +338,7 @@
                                                     class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                                     <div class="text-sm font-medium text-gray-900">
                                                         {{ $history['reason'] }}</div>
-                                                </td>                                                
+                                                </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <span
                                                         class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">

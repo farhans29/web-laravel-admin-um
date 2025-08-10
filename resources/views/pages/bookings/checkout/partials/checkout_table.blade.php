@@ -2,24 +2,46 @@
     <thead class="bg-gray-50">
         <tr>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order ID</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Guest</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Property/Room</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Check-in</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Check-out</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status</th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions</th>
+                Order ID</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Property/Room</th>            
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status</th>           
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
         @forelse ($bookings as $booking)
             <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    @if ($booking->check_in_at)
+                        <div class="text-sm text-gray-900">
+                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}
+                        </div>
+                    @else
+                        <div class="text-sm text-gray-500 italic">Not Checked-In Yet</div>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    @if ($booking->check_out_at)
+                        <div class="text-sm text-gray-900">
+                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}
+                        </div>
+                    @else
+                        <div class="text-sm text-gray-500 italic">Not Checked-Out Yet</div>
+                    @endif
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-indigo-600">{{ $booking->order_id }}</div>
                 </td>
@@ -46,37 +68,11 @@
                     <div class="text-sm font-medium text-gray-900">
                         {{ $booking->property->name ?? 'N/A' }}</div>
                     <div class="text-sm text-gray-500">{{ $booking->room->name ?? 'N/A' }}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    @if ($booking->check_in_at)
-                        <div class="text-sm text-gray-900">
-                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}
-                        </div>
-                    @else
-                        <div class="text-sm text-gray-500 italic">Not Checked-In Yet</div>
-                    @endif
-                </td>
-
-                <td class="px-6 py-4 whitespace-nowrap">
-                    @if ($booking->check_out_at)
-                        <div class="text-sm text-gray-900">
-                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}
-                        </div>
-                    @else
-                        <div class="text-sm text-gray-500 italic">Not Checked-Out Yet</div>
-                    @endif
-                </td>
-
-                <td class="px-6 py-4 whitespace-nowrap">
+                </td>            
+                <td class="px-6 py-4 whitespace-nowrap text-center">
                     @if ($booking->check_out_at)
                         <span
-                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
                             Checked-Out
                         </span>
                     @else

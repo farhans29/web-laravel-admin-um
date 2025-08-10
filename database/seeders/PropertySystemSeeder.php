@@ -47,7 +47,7 @@ class PropertySystemSeeder extends Seeder
         ];
 
         $amenities = json_encode(['High-speed WiFi', 'Parking', 'Swimming Pool', 'Gym', 'Restaurant']);
-        $features = json_encode(['24/7 Security', 'Concierge', 'Laundry Service', 'Room Service']);
+        
         $rules = json_encode(['No Smoking', 'No Pets', 'Check-in after 2PM', 'Check-out before 12PM', 'ID Card Required', 'Deposit Required']);
 
         $i = 1;
@@ -73,8 +73,7 @@ class PropertySystemSeeder extends Seeder
                 'price_original_daily' => rand(500000, 2000000),
                 'price_discounted_daily' => rand(400000, 1800000),
                 'price_original_monthly' => rand(10000000, 30000000),
-                'price_discounted_monthly' => rand(9000000, 28000000),
-                'features' => $features,
+                'price_discounted_monthly' => rand(9000000, 28000000),                
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -167,10 +166,12 @@ class PropertySystemSeeder extends Seeder
             $transactionDate = now();
 
             // Set check-in to random date from today up to 3 months ahead
-            $checkIn = now()->addDays(rand(0, 90))->setTime(14, 0);
+            $today = now();
+            $endOfMonth = now()->endOfMonth();
+            $checkIn = now()->addDays(rand(0, $today->diffInDays($endOfMonth)))->setTime(14, 0);
             $checkOut = (clone $checkIn)->addDays(rand(1, 14))->setTime(12, 0);
             $bookingDays = $checkIn->diffInDays($checkOut);
-
+            
             $price = json_decode($room['price'], true);
             $dailyPrice = $price['discounted_daily'] ?? $price['original_daily'] ?? 0;
             $roomPrice = $dailyPrice * $bookingDays;

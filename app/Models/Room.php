@@ -68,4 +68,10 @@ class Room extends Model
     {
         return $this->hasMany(Booking::class, 'room_id');
     }
+
+    public function thumbnail()
+    {
+        return $this->hasOne(MRoomImage::class, 'room_id', 'idrec')
+            ->where('thumbnail', true);
+    }
 }
