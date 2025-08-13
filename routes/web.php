@@ -73,7 +73,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/completed/filter', [CompletedController::class, 'filter'])->name('completed.filter');
 
         Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
-        Route::get('/checkin/filter', [CheckInController::class, 'filter'])->name('checkin.filter');
+        Route::get('/checkin/filter', [CheckInController::class, 'filter'])->name('checkin.filter'); 
         // ---------------------------------------------------------------------------------------------------------------------
         Route::post('/checkin/{order_id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
         Route::get('/check-in/{order_id}/details', [CheckInController::class, 'getBookingDetails'])->name('bookings.checkin.details');
