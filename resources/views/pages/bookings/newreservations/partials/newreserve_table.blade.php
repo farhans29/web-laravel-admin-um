@@ -426,23 +426,32 @@
                                                         class="max-h-64 overflow-y-auto text-sm text-gray-700 p-4 bg-white border border-gray-200 rounded">
                                                         <p class="font-bold mb-2">SYARAT DAN KETENTUAN:</p>
                                                         <ol class="list-decimal pl-5 space-y-2">
-                                                            <li>Tamu setuju menggunakan properti hanya untuk keperluan
-                                                                residensial.</li>
-                                                            <li>Merokok dilarang di dalam properti.</li>
+                                                            <li>Properti hanya digunakan untuk tujuan hunian oleh tamu
+                                                                yang terdaftar</li>
+                                                            <li>Dilarang merokok di dalam properti. Biaya pembersihan
+                                                                sebesar Rp 1.000.000 akan dikenakan jika melanggar</li>
                                                             <li>Hewan peliharaan tidak diperbolehkan tanpa persetujuan
-                                                                tertulis sebelumnya.</li>
-                                                            <li>Tamu bertanggung jawab atas kerusakan apa pun pada
-                                                                properti.</li>
-                                                            <li>Jam tenang berlaku dari pukul 22:00 hingga 07:00.</li>
-                                                            <li>Jumlah tamu maksimal tidak boleh melebihi jumlah yang
-                                                                ditentukan dalam pemesanan.</li>
-                                                            <li>Tamu harus mematuhi semua peraturan gedung.</li>
-                                                            <li>Properti harus ditinggalkan dalam kondisi yang sama
-                                                                seperti saat kedatangan.</li>
-                                                            <li>Kehilangan kunci akan dikenakan biaya penggantian
-                                                                sebesar Rp 500.000.</li>
-                                                            <li>Waktu check-out secara ketat pukul 12:00, kecuali
-                                                                disepakati lain.</li>
+                                                                tertulis dari manajemen</li>
+                                                            <li>Tamu bertanggung jawab penuh atas kerusakan properti
+                                                                atau isinya selama menginap</li>
+                                                            <li>Jam tenang berlaku pukul 22:00 hingga 07:00. Kebisingan
+                                                                berlebihan dapat mengakibatkan penghentian masa inap
+                                                                tanpa pengembalian dana</li>
+                                                            <li>Kapasitas maksimal tidak boleh melebihi jumlah tamu yang
+                                                                tercantum pada konfirmasi pemesanan</li>
+                                                            <li>Semua peraturan gedung harus dipatuhi selama menginap
+                                                            </li>
+                                                            <li>Properti harus dijaga kebersihannya dan ditinggalkan
+                                                                dalam kondisi yang sama seperti saat kedatangan</li>
+                                                            <li>Kunci atau kartu akses yang hilang akan dikenakan biaya
+                                                                penggantian sebesar Rp 500.000</li>
+                                                            <li>Waktu check-out adalah pukul 12:00 WIB. Keterlambatan
+                                                                check-out dapat dikenakan biaya tambahan kecuali telah
+                                                                disetujui sebelumnya</li>
+                                                            <li>Pesta atau acara tanpa izin dilarang keras</li>
+                                                            <li>Manajemen berhak memasuki properti untuk keperluan
+                                                                perawatan atau darurat dengan pemberitahuan yang wajar
+                                                            </li>
                                                         </ol>
                                                         <p class="mt-4 font-bold">Dengan menyelesaikan check-in, Anda
                                                             menyetujui semua syarat dan ketentuan di atas.</p>

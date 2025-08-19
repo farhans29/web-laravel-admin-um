@@ -43,7 +43,7 @@ class Property extends Model
         'general',
         'security',
         'amenities',
-               
+
         'room_facilities',
         'rules',
         'status',
@@ -53,16 +53,10 @@ class Property extends Model
         'updated_by',
     ];
 
-    /**
-     * Type casting to native types.
-     */
     protected $casts = [
-        'price' => 'array',
-        'features' => 'array',
-        'attributes' => 'array',
+        'general' => 'array',
+        'security' => 'array',
         'amenities' => 'array',
-        'room_facilities' => 'array',
-        'rules' => 'array',
     ];
 
     public function creator()
@@ -91,18 +85,18 @@ class Property extends Model
             ->where('thumbnail', 1);
     }
 
-    public function setGeneralAttribute($value)
+    public function getGeneralFacilities()
     {
-        $this->attributes['general'] = is_array($value) ? json_encode($value) : $value;
+        return PropertyFacility::whereIn('idrec', $this->general ?? [])->get();
     }
 
-    public function setSecurityAttribute($value)
+    public function getSecurityFacilities()
     {
-        $this->attributes['security'] = is_array($value) ? json_encode($value) : $value;
+        return PropertyFacility::whereIn('idrec', $this->security ?? [])->get();
     }
 
-    public function setAmenitiesAttribute($value)
+    public function getAmenityFacilities()
     {
-        $this->attributes['amenities'] = is_array($value) ? json_encode($value) : $value;
+        return PropertyFacility::whereIn('idrec', $this->amenities ?? [])->get();
     }
 }

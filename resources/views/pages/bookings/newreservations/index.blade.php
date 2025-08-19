@@ -400,7 +400,7 @@
                                     
                                     .signature-section {
                                         display: flex;
-                                        justify-content: space-between;
+                                        justify-content: flex-end;
                                         margin-top: 4rem;
                                     }
                                     
@@ -546,7 +546,7 @@
                                     </div>
                                     
                                     <div class="signature-section">
-                                    <div class="signature-box">
+                                        <div class="signature-box">
                                             <div class="signature-placeholder"></div>
                                             <div class="signature-label">Tanda Tangan Tamu</div>
                                             <div class="signature-name">${this.bookingDetails.guest_name}</div>

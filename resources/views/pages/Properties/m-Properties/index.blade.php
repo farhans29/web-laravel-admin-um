@@ -704,15 +704,26 @@
                     security: [],
                     amenities: []
                 },
+                facilities: {
+                    general: [],
+                    security: [],
+                    amenities: []
+                },
                 modalOpenDetail: false,
                 isLoading: false,
-                touchStartX: 0,
-                touchEndX: 0,
 
                 openModal(property) {
                     this.isLoading = true;
                     this.modalOpenDetail = true;
                     this.disableBodyScroll();
+
+                    if (property.facilities) {
+                        this.facilities = {
+                            general: property.facilities.general || [],
+                            security: property.facilities.security || [],
+                            amenities: property.facilities.amenities || []
+                        };
+                    }
 
                     // Use nextTick to ensure DOM is ready before setting properties
                     this.$nextTick(() => {
@@ -721,11 +732,15 @@
                             currentImageIndex: 0,
                             images: Array.isArray(property.images) ? property.images.filter(
                                 img => img) : [],
-                            general: property.general ? JSON.parse(property.general) : [],
-                            security: property.security ? JSON.parse(property.security) :
-                            [],
-                            amenities: property.amenities ? JSON.parse(property.amenities) :
-                                []
+                            general: Array.isArray(property.general) ?
+                                property.general : (property.general ? JSON.parse(property
+                                    .general) : []),
+                            security: Array.isArray(property.security) ?
+                                property.security : (property.security ? JSON.parse(property
+                                    .security) : []),
+                            amenities: Array.isArray(property.amenities) ?
+                                property.amenities : (property.amenities ? JSON.parse(
+                                    property.amenities) : [])
                         };
                         this.isLoading = false;
                     });
@@ -750,6 +765,13 @@
                             (this.selectedProperty.currentImageIndex + 1) % this.selectedProperty.images
                             .length;
                     }
+                },
+
+                getFacilityName(id, category) {
+                    if (!this.facilities[category]) return 'Unknown Facility';
+
+                    const facility = this.facilities[category].find(f => f.idrec == id);
+                    return facility ? facility.facility : 'Unknown Facility';
                 },
 
                 prevImage() {
@@ -1483,7 +1505,9 @@
                     subdistrict: property.subdistrict || '',
                     village: property.village || '',
                     postal_code: property.postal_code || '',
-                    features: property.features || [],
+                    general: property.general || [],
+                    security: property.security || [],
+                    amenities: property.amenities || [],
                     existingImages: property.existingImages || []
                 },
 
@@ -1562,7 +1586,10 @@
                 openModal(data) {
                     this.propertyData = {
                         ...this.propertyData,
-                        ...data
+                        ...data,
+                        general: data.general || [],
+                        security: data.security || [],
+                        amenities: data.amenities || []
                     };
                     this.editModalOpen = true;
                     this.editStep = 1;

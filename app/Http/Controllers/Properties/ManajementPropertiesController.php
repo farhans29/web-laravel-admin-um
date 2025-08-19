@@ -22,6 +22,10 @@ class ManajementPropertiesController extends Controller
         $securityFacilities = PropertyFacility::where('status', 1)->byCategory('security')->get();
         $amenitiesFacilities = PropertyFacility::where('status', 1)->byCategory('amenities')->get();
 
+        $facilities = PropertyFacility::where('status', 1)
+            ->get()
+            ->groupBy('category');
+
         $properties = $perPage === 'all'
             ? $query->get()
             : $query->paginate((int) $perPage)->withQueryString();
@@ -30,6 +34,7 @@ class ManajementPropertiesController extends Controller
             'generalFacilities' => $generalFacilities,
             'securityFacilities' => $securityFacilities,
             'amenitiesFacilities' => $amenitiesFacilities,
+            'facilities' => $facilities,
             'properties' => $properties,
             'per_page' => $perPage,
         ]);

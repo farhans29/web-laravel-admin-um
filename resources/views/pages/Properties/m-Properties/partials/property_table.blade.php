@@ -87,7 +87,11 @@
                                     }
                                 }
 
-                                $features = json_encode($property->features, JSON_HEX_APOS | JSON_HEX_QUOT);
+                                $features = [
+                                    'general' => $facilities->get('general', []),
+                                    'security' => $facilities->get('security', []),
+                                    'amenities' => $facilities->get('amenities', []),
+                                ];
                             @endphp
                             <button class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
                                 type="button"
@@ -103,7 +107,10 @@
                                                 images: {!! json_encode($images) !!},
                                                 location: @json($property->location),
                                                 distance: @json($property->distance),
-                                                features: {!! $features !!},                                                                                                                                                                                              
+                                                general: @json($property->general),
+                                                security: @json($property->security),
+                                                amenities: @json($property->amenities),
+                                                facilities: {!! json_encode($features) !!}                                                                                                                                                                                            
                                             })'
                                 aria-controls="property-detail-modal" title="View Details">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -240,152 +247,148 @@
                                                     x-text="selectedProperty.description"></p>
                                             </div>
 
-                                            <!-- Property Info Grid -->
-                                            <div
-                                                class="grid grid-cols-4 grid-rows-1 gap-4 bg-gray-50 p-6 rounded-xl items-center justify-items-center">
-                                                <div class="flex flex-col items-center justify-center text-center">
-                                                    <div class="flex items-center space-x-3">
-                                                        <svg class="w-5 h-5 text-indigo-500" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                        </svg>
-                                                        <div>
-                                                            <p
-                                                                class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                                                Added By</p>
+                                            <!-- Main Content Area - Side by Side -->
+                                            <div class="flex flex-col lg:flex-row gap-8">
+                                                <!-- Left Column - Property Info Grid -->
+                                                <div class="lg:w-1/3">
+                                                    <div class="bg-gray-50 p-6 rounded-xl space-y-6 text-center">
+
+                                                        <div class="flex flex-col items-center space-y-1">
+                                                            <div class="flex items-center justify-center space-x-2">
+                                                                <svg class="w-5 h-5 text-indigo-500" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                                </svg>
+                                                                <p
+                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                    Added By</p>
+                                                            </div>
                                                             <p class="text-gray-800 font-medium"
                                                                 x-text="selectedProperty.creator"></p>
                                                         </div>
-                                                    </div>
-                                                </div>
 
-                                                <div class="flex flex-col items-center justify-center text-center">
-                                                    <div class="flex items-center space-x-3">
-                                                        <svg class="w-5 h-5 text-red-500" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                        </svg>
-                                                        <div>
-                                                            <p
-                                                                class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                                                Location</p>
+                                                        <div class="flex flex-col items-center space-y-1">
+                                                            <div class="flex items-center justify-center space-x-2">
+                                                                <svg class="w-5 h-5 text-red-500" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                                </svg>
+                                                                <p
+                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                    Location</p>
+                                                            </div>
                                                             <a class="text-gray-800 font-medium underline hover:text-blue-600"
                                                                 :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedProperty.location ? selectedProperty.location : selectedProperty.city + ', ' + selectedProperty.province)}`"
                                                                 target="_blank">
                                                                 Click here for Maps
                                                             </a>
                                                         </div>
-                                                    </div>
-                                                </div>
 
-                                                <div class="flex flex-col items-center justify-center text-center">
-                                                    <div class="flex items-center space-x-3">
-                                                        <svg class="w-5 h-5 text-blue-500" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                        <div>
-                                                            <p
-                                                                class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                                                Added</p>
+                                                        <div class="flex flex-col items-center space-y-1">
+                                                            <div class="flex items-center justify-center space-x-2">
+                                                                <svg class="w-5 h-5 text-blue-500" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <p
+                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                    Added</p>
+                                                            </div>
                                                             <p class="text-gray-800 font-medium"
-                                                                x-text="selectedProperty.created_at">
-                                                            </p>
+                                                                x-text="selectedProperty.created_at"></p>
                                                         </div>
-                                                    </div>
-                                                </div>
 
-                                                <div class="flex flex-col items-center justify-center text-center">
-                                                    <div class="flex items-center space-x-3">
-                                                        <svg class="w-5 h-5 text-green-500" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                        </svg>
-                                                        <div>
-                                                            <p
-                                                                class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                                                Last Updated</p>
+                                                        <div class="flex flex-col items-center space-y-1">
+                                                            <div class="flex items-center justify-center space-x-2">
+                                                                <svg class="w-5 h-5 text-green-500" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                                </svg>
+                                                                <p
+                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                    Last Updated</p>
+                                                            </div>
                                                             <p class="text-gray-800 font-medium"
-                                                                x-text="selectedProperty.updated_at">
-                                                            </p>
+                                                                x-text="selectedProperty.updated_at"></p>
                                                         </div>
+
                                                     </div>
                                                 </div>
+
+                                                <!-- Right Column - Features Section -->
+                                                <div class="lg:w-2/3">
+                                                    <div x-show="selectedProperty.general.length > 0 || selectedProperty.security.length > 0 || selectedProperty.amenities.length > 0"
+                                                        class="space-y-8 text-right">
+
+                                                        <!-- General Facilities -->
+                                                        <div x-show="selectedProperty.general.length > 0"
+                                                            class="space-y-4">
+                                                            <div class="flex items-center justify-end space-x-2">
+                                                                <h4 class="text-lg font-bold text-gray-900">General
+                                                                    Facilities</h4>
+                                                            </div>
+                                                            <div class="flex flex-wrap gap-2 justify-end">
+                                                                <template
+                                                                    x-for="facilityId in selectedProperty.general"
+                                                                    :key="facilityId">
+                                                                    <span
+                                                                        x-text="getFacilityName(facilityId, 'general')"
+                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                                                    </span>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Security Facilities -->
+                                                        <div x-show="selectedProperty.security.length > 0"
+                                                            class="space-y-4">
+                                                            <div class="flex items-center justify-end space-x-2">
+                                                                <h4 class="text-lg font-bold text-gray-900">Security
+                                                                    Facilities</h4>
+                                                            </div>
+                                                            <div class="flex flex-wrap gap-2 justify-end">
+                                                                <template
+                                                                    x-for="facilityId in selectedProperty.security"
+                                                                    :key="facilityId">
+                                                                    <span
+                                                                        x-text="getFacilityName(facilityId, 'security')"
+                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-green-100 text-green-800 border border-green-200">
+                                                                    </span>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Amenities Facilities -->
+                                                        <div x-show="selectedProperty.amenities.length > 0"
+                                                            class="space-y-4">
+                                                            <div class="flex items-center justify-end space-x-2">
+                                                                <h4 class="text-lg font-bold text-gray-900">Amenities
+                                                                </h4>
+                                                            </div>
+                                                            <div class="flex flex-wrap gap-2 justify-end">
+                                                                <template
+                                                                    x-for="facilityId in selectedProperty.amenities"
+                                                                    :key="facilityId">
+                                                                    <span
+                                                                        x-text="getFacilityName(facilityId, 'amenities')"
+                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                                                    </span>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                            <!-- Features Section -->
-                                            <div x-show="selectedProperty.general || selectedProperty.security || selectedProperty.amenities"
-                                                class="space-y-8">
-                                                <!-- General Facilities -->
-                                                <div x-show="selectedProperty.general && selectedProperty.general.length > 0"
-                                                    class="space-y-4">
-                                                    <div class="flex items-center space-x-2">
-                                                        <h4 class="text-lg font-bold text-gray-900">General Facilities
-                                                        </h4>
-                                                    </div>
-                                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                        <template x-for="facilityId in selectedProperty.general">
-                                                            <div
-                                                                class="flex items-center space-x-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                                                                <template x-for="facility in facilities.general">
-                                                                    <span x-show="facility.idrec == facilityId"
-                                                                        x-text="facility.facility"
-                                                                        class="text-gray-800 font-medium text-sm"></span>
-                                                                </template>
-                                                            </div>
-                                                        </template>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Security Facilities -->
-                                                <div x-show="selectedProperty.security && selectedProperty.security.length > 0"
-                                                    class="space-y-4">
-                                                    <div class="flex items-center space-x-2">
-                                                        <h4 class="text-lg font-bold text-gray-900">Security Facilities
-                                                        </h4>
-                                                    </div>
-                                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                        <template x-for="facilityId in selectedProperty.security">
-                                                            <div
-                                                                class="flex items-center space-x-3 bg-green-50 p-3 rounded-lg border border-green-100">
-                                                                <template x-for="facility in facilities.security">
-                                                                    <span x-show="facility.idrec == facilityId"
-                                                                        x-text="facility.facility"
-                                                                        class="text-gray-800 font-medium text-sm"></span>
-                                                                </template>
-                                                            </div>
-                                                        </template>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Amenities Facilities -->
-                                                <div x-show="selectedProperty.amenities && selectedProperty.amenities.length > 0"
-                                                    class="space-y-4">
-                                                    <div class="flex items-center space-x-2">
-                                                        <h4 class="text-lg font-bold text-gray-900">Amenities</h4>
-                                                    </div>
-                                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                        <template x-for="facilityId in selectedProperty.amenities">
-                                                            <div
-                                                                class="flex items-center space-x-3 bg-purple-50 p-3 rounded-lg border border-purple-100">
-                                                                <template x-for="facility in facilities.amenities">
-                                                                    <span x-show="facility.idrec == facilityId"
-                                                                        x-text="facility.facility"
-                                                                        class="text-gray-800 font-medium text-sm"></span>
-                                                                </template>
-                                                            </div>
-                                                        </template>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                         </div>
                                     </div>
 
@@ -408,7 +411,11 @@
                         <!-- Edit -->
                         <div x-data="modalPropertyEdit({{ $property }})" class="relative group">
                             @php
-                                $features = json_encode($property->features, JSON_HEX_APOS | JSON_HEX_QUOT);
+                                $features = [
+                                    'general' => $property->general ?? [],
+                                    'security' => $property->security ?? [],
+                                    'amenities' => $property->amenities ?? [],
+                                ];
                                 $images = $property->images
                                     ->map(function ($image) {
                                         return [
@@ -432,8 +439,10 @@
                                                     updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
                                                     creator: "{{ $property->creator->username ?? 'Unknown' }}",
                                                     status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                                    location: @json($property->location),                                                                                                                                     
-                                                    features: {!! $features !!},
+                                                    location: @json($property->location),                                                                                                                      
+                                                    general: @json($property->general ?? []),
+                                                    security: @json($property->security ?? []),
+                                                    amenities: @json($property->amenities ?? []),
                                                     existingImages: {!! $images !!},
                                                     latitude: {{ $property->latitude ?? 'null' }},
                                                     longitude: {{ $property->longitude ?? 'null' }},
@@ -802,39 +811,102 @@
                                                 x-transition:enter="transition ease-out duration-300"
                                                 x-transition:enter-start="opacity-0 translate-x-4"
                                                 x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
-                                                <div class="space-y-6">
-                                                    <!-- Combined Facilities (Amenities + Features) -->
-                                                    <div x-data="{ facilities: ['High-speed WiFi', 'Parking', 'Swimming Pool', 'Gym', 'Restaurant', '24/7 Security', 'Concierge', 'Laundry Service', 'Room Service'] }">
+                                                <div class="space-y-8">
+                                                    <!-- General Facilities -->
+                                                    <div>
                                                         <h3
                                                             class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                             <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
                                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                             </svg>
-                                                            Fasilitas Properti
+                                                            Fasilitas Umum
                                                         </h3>
                                                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                            <template x-for="(item, index) in facilities"
-                                                                :key="index">
+                                                            @foreach ($generalFacilities as $facility)
                                                                 <div class="relative">
                                                                     <input
-                                                                        :id="'facility-edit-{{ $property->idrec }}-' +
-                                                                        index"
-                                                                        name="facilities[]" type="checkbox"
-                                                                        :value="item" class="sr-only peer"
-                                                                        x-model="propertyData.features"
-                                                                        :checked="propertyData.features
-                                                                            .includes(item)">
+                                                                        id="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
+                                                                        name="general[]" type="checkbox"
+                                                                        value="{{ $facility->idrec }}"
+                                                                        class="sr-only peer"
+                                                                        x-model="propertyData.general"
+                                                                        :checked="propertyData.general.includes(
+                                                                            '{{ $facility->idrec }}')">
                                                                     <label
-                                                                        :for="'facility-edit-{{ $property->idrec }}-' +
-                                                                        index"
+                                                                        for="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
                                                                         class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
-                                                                        <span x-text="item"></span>
+                                                                        <span>{{ $facility->facility }}</span>
                                                                     </label>
                                                                 </div>
-                                                            </template>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Security Facilities -->
+                                                    <div>
+                                                        <h3
+                                                            class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                                            <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                            </svg>
+                                                            Fasilitas Keamanan
+                                                        </h3>
+                                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                            @foreach ($securityFacilities as $facility)
+                                                                <div class="relative">
+                                                                    <input
+                                                                        id="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
+                                                                        name="security[]" type="checkbox"
+                                                                        value="{{ $facility->idrec }}"
+                                                                        class="sr-only peer"
+                                                                        x-model="propertyData.security"
+                                                                        :checked="propertyData.security.includes(
+                                                                            '{{ $facility->idrec }}')">
+                                                                    <label
+                                                                        for="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
+                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-600 transition-all duration-200">
+                                                                        <span>{{ $facility->facility }}</span>
+                                                                    </label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Amenities -->
+                                                    <div>
+                                                        <h3
+                                                            class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
+                                                            <svg class="w-5 h-5 mr-2 text-purple-600" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                                            </svg>
+                                                            Layanan Tambahan
+                                                        </h3>
+                                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                            @foreach ($amenitiesFacilities as $facility)
+                                                                <div class="relative">
+                                                                    <input
+                                                                        id="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
+                                                                        name="amenities[]" type="checkbox"
+                                                                        value="{{ $facility->idrec }}"
+                                                                        class="sr-only peer"
+                                                                        x-model="propertyData.amenities"
+                                                                        :checked="propertyData.amenities.includes(
+                                                                            '{{ $facility->idrec }}')">
+                                                                    <label
+                                                                        for="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
+                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-purple-600 peer-checked:bg-purple-50 peer-checked:text-purple-600 transition-all duration-200">
+                                                                        <span>{{ $facility->facility }}</span>
+                                                                    </label>
+                                                                </div>
+                                                            @endforeach
                                                         </div>
                                                     </div>
                                                 </div>
