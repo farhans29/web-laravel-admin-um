@@ -408,78 +408,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <!-- Bagian 3: Perjanjian -->
-                                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
-                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                    </svg>
-                                                    Perjanjian
-                                                </h3>
-
-                                                <div class="space-y-4">
-                                                    <div
-                                                        class="max-h-64 overflow-y-auto text-sm text-gray-700 p-4 bg-white border border-gray-200 rounded">
-                                                        <p class="font-bold mb-2">SYARAT DAN KETENTUAN:</p>
-                                                        <ol class="list-decimal pl-5 space-y-2">
-                                                            <li>Properti hanya digunakan untuk tujuan hunian oleh tamu
-                                                                yang terdaftar</li>
-                                                            <li>Dilarang merokok di dalam properti. Biaya pembersihan
-                                                                sebesar Rp 1.000.000 akan dikenakan jika melanggar</li>
-                                                            <li>Hewan peliharaan tidak diperbolehkan tanpa persetujuan
-                                                                tertulis dari manajemen</li>
-                                                            <li>Tamu bertanggung jawab penuh atas kerusakan properti
-                                                                atau isinya selama menginap</li>
-                                                            <li>Jam tenang berlaku pukul 22:00 hingga 07:00. Kebisingan
-                                                                berlebihan dapat mengakibatkan penghentian masa inap
-                                                                tanpa pengembalian dana</li>
-                                                            <li>Kapasitas maksimal tidak boleh melebihi jumlah tamu yang
-                                                                tercantum pada konfirmasi pemesanan</li>
-                                                            <li>Semua peraturan gedung harus dipatuhi selama menginap
-                                                            </li>
-                                                            <li>Properti harus dijaga kebersihannya dan ditinggalkan
-                                                                dalam kondisi yang sama seperti saat kedatangan</li>
-                                                            <li>Kunci atau kartu akses yang hilang akan dikenakan biaya
-                                                                penggantian sebesar Rp 500.000</li>
-                                                            <li>Waktu check-out adalah pukul 12:00 WIB. Keterlambatan
-                                                                check-out dapat dikenakan biaya tambahan kecuali telah
-                                                                disetujui sebelumnya</li>
-                                                            <li>Pesta atau acara tanpa izin dilarang keras</li>
-                                                            <li>Manajemen berhak memasuki properti untuk keperluan
-                                                                perawatan atau darurat dengan pemberitahuan yang wajar
-                                                            </li>
-                                                        </ol>
-                                                        <p class="mt-4 font-bold">Dengan menyelesaikan check-in, Anda
-                                                            menyetujui semua syarat dan ketentuan di atas.</p>
-                                                    </div>
-
-                                                    <div class="flex items-center">
-                                                        <input type="checkbox" id="agreeTerms"
-                                                            x-model="agreementAccepted"
-                                                            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                                        <label for="agreeTerms"
-                                                            class="ml-2 block text-sm text-gray-700">
-                                                            Saya telah membaca dan menyetujui syarat dan ketentuan
-                                                        </label>
-                                                    </div>
-
-                                                    <button @click="printAgreement" :disabled="!agreementAccepted"
-                                                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                                                        <svg class="-ml-0.5 mr-2 h-4 w-4"
-                                                            xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                                        </svg>
-                                                        Cetak Perjanjian
-                                                    </button>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
 
@@ -489,8 +417,7 @@
                                             class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                             Batal
                                         </button>
-                                        <button type="button" @click="submitCheckIn"
-                                            :disabled="(!profilePhotoUrl && !docPreview) || !agreementAccepted"
+                                        <button type="button" @click="submitCheckIn" :disabled="!docPreview"
                                             class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                             Selesaikan Check-In
                                         </button>

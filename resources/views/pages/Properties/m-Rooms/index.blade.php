@@ -350,7 +350,7 @@
                                                     </div>
                                                 @endforeach
                                             </div>
-                                        </div>                                      
+                                        </div>
                                     </div>
                                 </div>
 
@@ -646,8 +646,8 @@
                 isCheckingRoomNo: false,
                 roomNoError: '',
                 thumbnailIndex: null,
-                facilities:[],
-                
+                facilities: [],
+
 
                 init() {
                     // Initialize price input formatting

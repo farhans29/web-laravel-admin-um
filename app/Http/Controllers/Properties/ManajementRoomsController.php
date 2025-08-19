@@ -92,28 +92,15 @@ class ManajementRoomsController extends Controller
             'facilities' => 'nullable|array',
             'room_images' => 'required|array|min:3|max:10',
             'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+            'general_facilities' => 'nullable|array',
+            'general_facilities.*' => 'string',
             'thumbnail_index' => 'required|integer',
         ]);
 
         // Get property data
         $property = Property::findOrFail($validated['property_id']);
 
-        // Process facilities
-        $allFacilities = [
-            'wifi',
-            'ac',
-            'tv',
-            'bathroom',
-            'hot_water',
-            'wardrobe',
-            'desk',
-            'refrigerator',
-            'breakfast'
-        ];
-
-        $facilityData = [
-            'features' => array_intersect($request->input('facilities', []), $allFacilities),
-        ];
+        $facilityData = $request->input('general_facilities', []);
 
         // Generate ID and unique slug
         $idrec = Room::max('idrec') + 1;
@@ -156,7 +143,7 @@ class ManajementRoomsController extends Controller
         $room->periode = json_encode($periode);
         $room->type = $property->type;
         $room->level = 1;
-        $room->facility = $facilityData['features'];
+        $room->facility = $facilityData;
         $room->price = $validated['daily_price'] ?? $validated['monthly_price'] ?? 0;
         $room->discount_percent = 0;
         $room->price_original_daily = $validated['daily_price'] ?? 0;
@@ -592,7 +579,7 @@ class ManajementRoomsController extends Controller
 
     public function updateFacility(Request $request, $id)
     {
-        
+
         // Validasi input
         $validatedData = $request->validate([
             'facility' => 'required|string|max:255',

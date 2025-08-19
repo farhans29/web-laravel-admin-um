@@ -100,6 +100,7 @@ class NewReservController extends Controller
             'pagination' => $checkIns->appends($request->input())->links()->toHtml(),
         ]);
     }
+
     public function checkIn(Request $request, $order_id)
     {
         $validated = $request->validate([
@@ -109,20 +110,6 @@ class NewReservController extends Controller
         ]);
 
         try {
-            // Check if current time is before 3:00 PM
-            $currentTime = now();
-            $checkInTime = $currentTime->copy()->setTime(15, 0, 0); // 3:00 PM
-
-            if ($currentTime->lt($checkInTime)) {
-                return response()->json(
-                    [
-                        'success' => false,
-                        'message' => 'Check-in is only allowed after 3:00 PM',
-                    ],
-                    400,
-                );
-            }
-
             // Find the booking
             $booking = Booking::where('order_id', $order_id)->firstOrFail();
 
