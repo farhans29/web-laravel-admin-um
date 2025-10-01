@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/menus/getUserAccess', [UserController::class, 'getUserAccess'])->name('menus.getUserAccess');
 
     Route::get('/settings/users-management', [UserController::class, 'index'])->name('users-management');
+    Route::get('/settings/users-management/show', [UserController::class, 'show'])->name('users.show');
 
     Route::get('/settings/users-management/new', [UserController::class, 'indexNew'])->name('users-newManagement');
     Route::post('/check-email', [UserController::class, 'checkEmail'])->name('check.email');

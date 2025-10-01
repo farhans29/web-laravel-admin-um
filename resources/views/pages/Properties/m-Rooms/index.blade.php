@@ -1119,6 +1119,17 @@
                 touchStartX: 0,
                 touchEndX: 0,
 
+                facilityMap: @json($facilities->pluck('facility', 'idrec')->toArray()),
+
+                getFacilityName(id, type) {
+                    // For room facilities
+                    if (type === 'room') {
+                        return this.facilityMap[id] || `Facility #${id}`;
+                    }
+                    // You can add other types if needed
+                    return `Facility #${id}`;
+                },
+
                 openModal(room) {
                     this.isLoading = true;
                     this.modalOpenDetail = true;
@@ -1592,6 +1603,12 @@
                     if (rawDailyPrice > 0) {
                         this.priceTypes.push('daily');
                         this.dailyPrice = rawDailyPrice;
+                    }
+
+                    if (!Array.isArray(this.roomData.facilities)) {
+                        this.roomData.facilities = this.roomData.facilities ?
+                            this.roomData.facilities.split(',').map(id => id.trim().replace(/["'\[\]]/g,
+                                '')) : [];
                     }
 
                     const rawMonthlyPrice = this.roomData.monthly_price !== null ?

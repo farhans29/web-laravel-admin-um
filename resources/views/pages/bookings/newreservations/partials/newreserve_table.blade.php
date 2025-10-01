@@ -27,25 +27,30 @@
     <tbody class="bg-white divide-y divide-gray-200">
         @forelse ($checkIns as $booking)
             <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($booking->check_in_at)
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ $booking->check_in_at->format('Y-m-d') }}
-                        </div>
-                        <div class="text-xs text-gray-400">
-                            {{ $booking->check_in_at->format('H:i') }}
+                <td class="px-6 py-4 whitespace-nowrap">
+                    @if ($booking->transaction && $booking->transaction->check_in)
+                        <div class="flex flex-col">
+                            <span class="text-sm font-semibold text-gray-800">
+                                {{ \Carbon\Carbon::parse($booking->transaction->check_in)->format('Y M d') }}
+                            </span>
+                            <span class="text-xs text-gray-500 mt-0.5">
+                                {{ \Carbon\Carbon::parse($booking->transaction->check_in)->format('H:i') }}
+                            </span>
                         </div>
                     @else
-                        <div class="text-sm text-gray-500 italic">Not checked in</div>
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Not checked in
+                        </span>
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($booking->check_out_at)
+                    @if ($booking->transaction->check_out)
                         <div class="text-sm font-medium text-gray-900">
-                            {{ $booking->check_out_at->format('Y M d') }}
+                            {{ $booking->transaction->check_out->format('Y M d') }}
                         </div>
                         <div class="text-xs text-gray-400">
-                            {{ $booking->check_out_at->format('H:i') }}
+                            {{ $booking->transaction->check_out->format('H:i') }}
                         </div>
                     @else
                         <div class="text-sm text-gray-500 italic">Not checked out</div>
@@ -85,24 +90,31 @@
                             'Unknown' => 'bg-gray-100 text-gray-800',
                         ];
                     @endphp
-                    <span
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses[$booking->status] ?? 'bg-gray-100 text-gray-800' }}">
-                        {{ $booking->status }}
-                    </span>
+                    <div class="flex flex-col items-center">
+                        <span
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses[$booking->status] ?? 'bg-gray-100 text-gray-800' }}">
+                            {{ $booking->status }}
+                        </span>
+                        @if ($booking->check_in_at)
+                            <div
+                                class="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {{ $booking->check_in_at->format('Y-m-d H:i') }}
+                            </div>
+                        @endif
+                    </div>
                 </td>
+
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     @if (is_null($booking->check_in_at))
                         <div x-data="checkInModal('{{ $booking->order_id }}')">
                             <!-- Tombol Trigger -->
                             <button type="button"
                                 @click="openModal('{{ $booking->idrec }}', '{{ $booking->order_id }}')"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none">
-                                <!-- Heroicon: door-open -->
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2">
-                                    </path>
+                                        d="M3 21V3a1 1 0 011-1h5.5a1 1 0 011 1v2m0 0v14m0-14l7 2v14l-7-2"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1"></path>
                                 </svg>
                                 Check-In
@@ -265,32 +277,41 @@
                                                             </template>
                                                         </div>
 
-                                                        <!-- Informasi Kontak -->
+                                                        <!-- Informasi Kontak - DIUBAH MENJADI FORM INPUT -->
                                                         <div>
                                                             <h4 class="text-sm font-medium text-gray-700 mb-2">
                                                                 Informasi Kontak</h4>
-                                                            <div class="bg-gray-50 p-3 rounded">
-                                                                <div class="flex items-center mb-2">
-                                                                    <svg class="w-4 h-4 mr-2 text-gray-500"
-                                                                        fill="none" stroke="currentColor"
-                                                                        viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round" stroke-width="2"
-                                                                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                                    </svg>
-                                                                    <span class="text-sm"
-                                                                        x-text="bookingDetails.guest_email || 'Email tidak tersedia'"></span>
+                                                            <div class="space-y-3">
+                                                                <!-- Input Nama -->
+                                                                <div>
+                                                                    <label for="guestName"
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">Nama
+                                                                        Lengkap</label>
+                                                                    <input type="text" id="guestName"
+                                                                        x-model="guestContact.name"
+                                                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                                        placeholder="Masukkan nama lengkap" required>
                                                                 </div>
-                                                                <div class="flex items-center">
-                                                                    <svg class="w-4 h-4 mr-2 text-gray-500"
-                                                                        fill="none" stroke="currentColor"
-                                                                        viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round" stroke-width="2"
-                                                                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                                                    </svg>
-                                                                    <span class="text-sm"
-                                                                        x-text="bookingDetails.guest_phone || 'Nomor telepon tidak tersedia'"></span>
+
+                                                                <!-- Input Email -->
+                                                                <div>
+                                                                    <label for="guestEmail"
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                                                    <input type="email" id="guestEmail"
+                                                                        x-model="guestContact.email"
+                                                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                                        placeholder="Masukkan alamat email" required>
+                                                                </div>
+
+                                                                <!-- Input Telepon -->
+                                                                <div>
+                                                                    <label for="guestPhone"
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">Nomor
+                                                                        Telepon</label>
+                                                                    <input type="tel" id="guestPhone"
+                                                                        x-model="guestContact.phone"
+                                                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                                        placeholder="Masukkan nomor telepon" required>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -417,7 +438,9 @@
                                             class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                             Batal
                                         </button>
-                                        <button type="button" @click="submitCheckIn" :disabled="!docPreview"
+                                        <button type="button" @click="submitCheckIn"
+                                            :disabled="!docPreview || !guestContact.name || !guestContact.email || !guestContact
+                                                .phone"
                                             class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                             Selesaikan Check-In
                                         </button>

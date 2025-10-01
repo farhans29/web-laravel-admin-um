@@ -21,7 +21,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'admin',
                 'email' => 'admin_tsno@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 1, // Owner
+                'role_id' => 1, 
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -32,7 +32,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'user',
                 'email' => 'user_tsno@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 2, // Manager
+                'role_id' => 2, 
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -43,7 +43,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'purchasing',
                 'email' => 'purchasing_tsno@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 3, // Front Desk
+                'role_id' => 3, 
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -54,7 +54,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'farhan',
                 'email' => 'm.farhanshihab11@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 4, // Finance
+                'role_id' => 4, 
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -65,7 +65,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'farhans299',
                 'email' => 'farhans29@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 5, // CS
+                'role_id' => 5, 
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -76,7 +76,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'hadrian',
                 'email' => 'hadriannaufal10@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 6, // Sales
+                'role_id' => 6, 
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -87,7 +87,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'vin123',
                 'email' => 'vin123@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 7, // Property Owner
+                'role_id' => 7, 
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -98,7 +98,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'vincent',
                 'email' => 'vincent.code7@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 2, // Manager
+                'role_id' => 2, 
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),

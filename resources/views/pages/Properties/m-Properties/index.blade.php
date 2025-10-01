@@ -173,7 +173,7 @@
                                                 </label>
                                                 <div class="grid grid-cols-2 gap-4" x-data="{
                                                     types: [
-                                                        { label: 'Kos', value: 'House' },
+                                                        { label: 'Kos', value: 'Kos' },
                                                         { label: 'Apartment', value: 'Apartment' },
                                                         { label: 'Villa', value: 'Villa' },
                                                         { label: 'Hotel', value: 'Hotel' }
@@ -1495,7 +1495,7 @@
                 isDragging: false,
                 propertyData: {
                     name: property.name || '',
-                    tags: property.tags || 'House',
+                    tags: property.tags || 'Kos',
                     description: property.description || '',
                     address: property.address || '',
                     latitude: property.latitude || null,

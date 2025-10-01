@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bookings\Booking;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AllBookingController extends Controller
 {
@@ -13,8 +14,8 @@ class AllBookingController extends Controller
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
             ->orderByDesc('check_in_at');
 
-        // Set default date range (today to 1 month ahead)
-        $defaultStartDate = now()->format('Y-m-d');
+        // Set default date range (1 month back to 1 month ahead)
+        $defaultStartDate = now()->subMonth()->format('Y-m-d');
         $defaultEndDate = now()->addMonth()->format('Y-m-d');
 
         // Apply date filter (use request if available, otherwise use default)
@@ -22,7 +23,16 @@ class AllBookingController extends Controller
         $endDate = $request->filled('end_date') ? $request->end_date : $defaultEndDate;
 
         $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-            $q->whereBetween('check_in', [$startDate, $endDate]);
+            if ($startDate === $endDate) {
+                // Jika tanggal sama → cocokkan persis tanggal check_in
+                $q->whereDate('check_in', $startDate);
+            } else {
+                // Jika berbeda → rentang tanggal dengan format waktu yang benar
+                $q->whereBetween('check_in', [
+                    $startDate . ' 00:00:00',
+                    $endDate . ' 23:59:59'
+                ]);
+            }
         });
 
         // Pencarian berdasarkan order_id atau nama user
@@ -31,7 +41,9 @@ class AllBookingController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('username', 'like', "%{$search}%");
+                        $q->where('username', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
                     });
             });
         }
@@ -87,12 +99,21 @@ class AllBookingController extends Controller
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
             ->orderByDesc('check_in_at');
 
-        // Set default date range if not provided
-        $startDate = $request->filled('start_date') ? $request->start_date : now()->format('Y-m-d');
+        // Set default date range if not provided - menggunakan jarak 1 bulan
+        $startDate = $request->filled('start_date') ? $request->start_date : now()->subMonth()->format('Y-m-d');
         $endDate = $request->filled('end_date') ? $request->end_date : now()->addMonth()->format('Y-m-d');
 
         $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-            $q->whereBetween('check_in', [$startDate, $endDate]);
+            if ($startDate === $endDate) {
+                // Jika tanggal sama → cocokkan persis tanggal check_in
+                $q->whereDate('check_in', $startDate);
+            } else {
+                // Jika berbeda → rentang tanggal dengan format waktu yang benar
+                $q->whereBetween('check_in', [
+                    $startDate . ' 00:00:00',
+                    $endDate . ' 23:59:59'
+                ]);
+            }
         });
 
         // Search by order_id or user name
@@ -108,7 +129,7 @@ class AllBookingController extends Controller
             });
         }
 
-        // Status filter - improved to match your Booking model's status logic
+        // Status filter
         if ($request->filled('status')) {
             switch ($request->status) {
                 case 'pending':

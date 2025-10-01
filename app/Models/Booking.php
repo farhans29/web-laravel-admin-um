@@ -20,6 +20,9 @@ class Booking extends Model
     protected $fillable = [
         'order_id',
         'room_id',
+        'user_name',
+        'user_email',
+        'user_phone_number',
         'property_id',
         'check_in_at',
         'doc_type',
@@ -100,5 +103,10 @@ class Booking extends Model
             'order_id',      // Local key di Booking
             'user_id'        // Local key di Transaction
         );
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'order_id', 'order_id');
     }
 }

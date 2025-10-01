@@ -23,12 +23,17 @@ class CheckInController extends Controller
                 $q->where('transaction_status', 'paid');
             })
             ->whereNotNull('check_in_at')
+            ->whereBetween('check_in_at', [
+                now()->startOfDay(),
+                now()->addMonth()->endOfDay()
+            ])
             ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
             ->orderBy('check_out_at', 'desc') // Then sort by check_out_at
             ->paginate($perPage);
 
         return view('pages.bookings.checkin.index', compact('checkOuts'));
     }
+
 
     public function filter(Request $request)
     {
@@ -76,7 +81,7 @@ class CheckInController extends Controller
 
         return response()->json([
             'table' => view('pages.bookings.checkin.partials.checkin_table', [
-                'bookings' => $checkOuts,
+                'checkOuts' => $checkOuts,
                 'per_page' => $request->input('per_page', 8),
             ])->render(),
             'pagination' => $checkOuts->appends($request->input())->links()->toHtml()

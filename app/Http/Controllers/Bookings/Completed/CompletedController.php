@@ -22,8 +22,13 @@ class CompletedController extends Controller
                                     ->whereNotNull('check_out_at');
                             });
                     });
-            })
-            ->orderByDesc('check_in_at');
+            });
+
+        // ✅ Default: tampilkan data hari ini
+        if (!$request->filled('start_date') && !$request->filled('end_date')) {
+            $today = now()->toDateString();
+            $query->whereDate('check_in_at', $today);
+        }
 
         // Pencarian berdasarkan order_id atau nama user
         if ($request->filled('search')) {
@@ -31,12 +36,15 @@ class CompletedController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('username', 'like', "%{$search}%");
+                        $q->where('username', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
                     });
             });
         }
 
-        $bookings = $query->paginate($request->input('per_page', 8));
+        $bookings = $query->orderByDesc('check_in_at')
+            ->paginate($request->input('per_page', 8));
 
         return view('pages.bookings.completed.index', compact('bookings'));
     }
@@ -54,10 +62,9 @@ class CompletedController extends Controller
                                     ->whereNotNull('check_out_at');
                             });
                     });
-            })
-            ->orderByDesc('check_in_at');
+            });
 
-        // Search by order_id or user name
+        // ✅ Filter pencarian
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -70,21 +77,21 @@ class CompletedController extends Controller
             });
         }
 
-        // Date range filter (only in filter method)
+        // ✅ Filter tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            // Jika start_date dan end_date sama, cari tanggal yang tepat
             if ($request->start_date === $request->end_date) {
-                $query->whereHas('transaction', function ($q) use ($request) {
-                    $q->whereDate('check_in', $request->start_date);
-                });
+                $query->whereDate('check_in_at', $request->start_date);
             } else {
-                $query->whereHas('transaction', function ($q) use ($request) {
-                    $q->whereBetween('check_in', [$request->start_date, $request->end_date]);
-                });
+                $query->whereBetween('check_in_at', [$request->start_date, $request->end_date]);
             }
+        } else {
+            // Jika filter kosong → default ke hari ini
+            $today = now()->toDateString();
+            $query->whereDate('check_in_at', $today);
         }
 
-        $bookings = $query->paginate($request->input('per_page', 8));
+        $bookings = $query->orderByDesc('check_in_at')
+            ->paginate($request->input('per_page', 8));
 
         return response()->json([
             'table' => view('pages.bookings.allbookings.partials.allbookings_table', [

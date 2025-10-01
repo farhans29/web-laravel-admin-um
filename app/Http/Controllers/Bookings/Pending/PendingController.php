@@ -22,18 +22,29 @@ class PendingController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($q) use ($search) {
-                    $q->where('username', 'like', "%{$search}%")
-                        ->orWhere('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
+                        $q->where('username', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
                     });
             });
         }
 
-        // Filter berdasarkan rentang tanggal (jika start_date dan end_date ada)
+        // Filter rentang tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereHas('transaction', function ($q) use ($request) {
-                $q->whereBetween('check_in', [$request->start_date, $request->end_date])
-                    ->orWhereBetween('check_out', [$request->start_date, $request->end_date]);
+            $startDate = $request->start_date;
+            $endDate   = $request->end_date;
+
+            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                if ($startDate === $endDate) {
+                    // Jika tanggal sama → cocokkan persis tanggal check_in
+                    $q->whereDate('check_in', $startDate);
+                } else {
+                    // Jika berbeda → rentang tanggal
+                    $q->whereBetween('check_in', [
+                        $startDate . ' 00:00:00',
+                        $endDate   . ' 23:59:59',
+                    ]);
+                }
             });
         }
 
@@ -65,16 +76,19 @@ class PendingController extends Controller
 
         // Date range filter
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            // Jika start_date dan end_date sama, cari tanggal yang tepat
-            if ($request->start_date === $request->end_date) {
-                $query->whereHas('transaction', function ($q) use ($request) {
-                    $q->whereDate('check_in', $request->start_date);
-                });
-            } else {
-                $query->whereHas('transaction', function ($q) use ($request) {
-                    $q->whereBetween('check_in', [$request->start_date, $request->end_date]);
-                });
-            }
+            $startDate = $request->start_date;
+            $endDate   = $request->end_date;
+
+            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                if ($startDate === $endDate) {
+                    $q->whereDate('check_in', $startDate);
+                } else {
+                    $q->whereBetween('check_in', [
+                        $startDate . ' 00:00:00',
+                        $endDate   . ' 23:59:59',
+                    ]);
+                }
+            });
         }
 
         $bookings = $query->paginate($request->input('per_page', 8));

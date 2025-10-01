@@ -21,27 +21,32 @@
         @forelse ($checkOuts as $booking)
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    @if ($booking->check_in_at)
-                        <div class="text-sm text-gray-900">
-                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('d M Y') }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {{ \Carbon\Carbon::parse($booking->check_in_at)->format('H:i') }}
+                    @if ($booking->transaction && $booking->transaction->check_in)
+                        <div class="flex flex-col">
+                            <span class="text-sm font-semibold text-gray-800">
+                                {{ \Carbon\Carbon::parse($booking->transaction->check_in)->format('Y M d') }}
+                            </span>
+                            <span class="text-xs text-gray-500 mt-0.5">
+                                {{ \Carbon\Carbon::parse($booking->transaction->check_in)->format('H:i') }}
+                            </span>
                         </div>
                     @else
-                        <div class="text-sm text-gray-500 italic">Not Checked-In Yet</div>
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Not checked in
+                        </span>
                     @endif
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    @if ($booking->check_out_at)
-                        <div class="text-sm text-gray-900">
-                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('d M Y') }}
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                    @if ($booking->transaction->check_out)
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ $booking->transaction->check_out->format('Y M d') }}
                         </div>
-                        <div class="text-sm text-gray-500">
-                            {{ \Carbon\Carbon::parse($booking->check_out_at)->format('H:i') }}
+                        <div class="text-xs text-gray-400">
+                            {{ $booking->transaction->check_out->format('H:i') }}
                         </div>
                     @else
-                        <div class="text-sm text-gray-500 italic">Not Checked-Out Yet</div>
+                        <div class="text-sm text-gray-500 italic">Not checked out</div>
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -90,7 +95,7 @@
                             <!-- Trigger Button -->
                             <button type="button"
                                 @click="openModal('{{ $booking->idrec }}', '{{ $booking->order_id }}')"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700 focus:outline-none">
+                                class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700 focus:outline-none">
                                 <!-- Heroicon: door-closed -->
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2"
                                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

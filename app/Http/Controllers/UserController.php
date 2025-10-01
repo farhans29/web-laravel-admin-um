@@ -19,7 +19,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $perPage = $request->input('per_page', 10); // Default to 10 if not specified
+        $perPage = $request->input('per_page', 8); // Default to 10 if not specified
 
         $users = User::with('role')
             ->when($search, function ($query, $search) {
@@ -46,15 +46,25 @@ class UserController extends Controller
         ]);
     }
 
+    public function show(User $user)
+    {
+        $user = Auth::user();
+        $roles = Role::where('name', '!=', 'Admin')->get();
+        return view('pages.settings.user-account-settings', compact('user', 'roles'));
+    }
+
     public function indexNew(Request $request)
     {
         $search = $request->input('search');
-        $perPage = $request->input('per_page', 10); // Default to 10 if not specified
+        $perPage = $request->input('per_page', 8);
 
         $users = User::with('role')
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%')
+                    $q->where('first_name', 'like', '%' . $search . '%')
+                        ->orWhere('last_name', 'like', '%' . $search . '%')
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                        ->orWhere('username', 'like', '%' . $search . '%')
                         ->orWhere('email', 'like', '%' . $search . '%')
                         ->orWhereHas('role', function ($roleQuery) use ($search) {
                             $roleQuery->where('name', 'like', '%' . $search . '%');
@@ -68,10 +78,10 @@ class UserController extends Controller
             ]);
 
         $roles = Role::where('name', '!=', 'Admin')->get();
-        $departments = DB::table('m_department')->where('pid', 0)->get();
 
-        return view('pages.settings.users-management-new', compact('users', 'roles', 'perPage', 'departments'));
+        return view('pages.settings.users-management-new', compact('users', 'roles', 'perPage'));
     }
+
 
     public function checkEmail(Request $request)
     {
@@ -83,48 +93,44 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => [
-                    'required',
-                    'string',
-                    'min:8',
-                    'confirmed',
-                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
-                ],
-                'department' => 'required|exists:m_department,id',
-                'role' => 'required|exists:roles,id',
-                'employee_id' => 'required|string|max:50|unique:users',
-            ], [
-                'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan karakter khusus.',
-            ]);
+        // Validasi input
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'username'   => 'required|string|max:255|unique:users,username',
+            'email'      => 'required|string|email|max:255|unique:users,email',
+            'password'   => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                // Updated regex to allow any symbol, not just specific ones
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/'
+            ],
+            'role'       => 'required|exists:roles,id',
+        ], [
+            'password.confirmed' => 'Password and Confirm Password must match.',
+            'password.regex'     => 'Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 symbol.',
+        ]);
 
-            // Debug data yang divalidasi
-            logger()->info('Validated Data:', $validatedData);
+        // Simpan data user baru
+        User::create([
+            'first_name' => $validatedData['first_name'],
+            'last_name'  => $validatedData['last_name'],
+            'username'   => $validatedData['username'],
+            'email'      => $validatedData['email'],
+            'password'   => Hash::make($validatedData['password']),
+            'role_id'    => $validatedData['role'],
+            'status'     => 1, // default active
+            'created_by' => Auth::id(),
+            'created_at' => Carbon::now(),
+        ]);
 
-            $user = User::create([
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'password' => Hash::make($validatedData['password']),
-                'role_id' => $validatedData['role'],
-                'dep' => $validatedData['department'],
-                'status' => 'Active',
-                'created_by' => Auth::id(),
-                'updated_by' => Auth::id(),
-                'employee_id' => $validatedData['employee_id'],
-            ]);
-
-            // Debug setelah create
-            logger()->info('User Created:', $user->toArray());
-
-            return redirect()->route('users-newManagement')->with('success', 'User successfully created.');
-        } catch (\Exception $e) {
-            logger()->error('Error creating user: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Failed to create user: ' . $e->getMessage());
-        }
+        return redirect()->route('users-newManagement')
+            ->with('success', 'User successfully created.');
     }
+
+
 
     public function indexEdit(Request $request)
     {
@@ -156,77 +162,66 @@ class UserController extends Controller
 
     public function updateUsers(Request $request, $id)
     {
-        try {
-            // Validasi input
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $id,
-                'password' => 'nullable|min:8',
-                'role_id' => 'required|exists:roles,id',
-                'department_id' => 'required|exists:m_department,id',
-                'status' => 'sometimes|in:Active,Inactive',
-                'employee_id' => 'required|string|unique:users,employee_id,' . $id,
-            ]);
+        
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'role' => 'required|exists:roles,id',
+            'status' => 'required|in:0,1',
+        ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'toast' => [
-                        'type' => 'error',
-                        'message' => 'Validation Error',
-                        'details' => $validator->errors()->first()
-                    ],
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            // Temukan user
-            $user = User::find($id);
-
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'toast' => [
-                        'type' => 'error',
-                        'message' => 'User Not Found',
-                        'details' => 'The requested user does not exist'
-                    ]
-                ], 404);
-            }
-
-            // Prepare update data
-            $updateData = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'role_id' => $request->role_id,
-                'dep' => $request->department_id,
-                'status' => $request->status ?? 'Active',
-                'employee_id' => $request->employee_id,
-                'updated_by' => Auth::id(),
-                'updated_at' => now()
-            ];
-
-            // Update password if provided
-            if (!empty($request->password)) {
-                $updateData['password'] = Hash::make($request->password);
-            }
-
-            // Update user
-            $user->update($updateData);
-
-            return redirect()->back()->with('success', 'User Update Successfully!');
-        } catch (\Exception $e) {
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'toast' => [
                     'type' => 'error',
-                    'message' => 'Server Error',
-                    'details' => 'An unexpected error occurred'
+                    'message' => 'Validation Error',
+                    'details' => $validator->errors()->first()
                 ],
-                'error' => $e->getMessage()
-            ], 500);
+                'errors' => $validator->errors()
+            ], 422);
         }
+
+        // Temukan user
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'toast' => [
+                    'type' => 'error',
+                    'message' => 'User Not Found',
+                    'details' => 'The requested user does not exist'
+                ]
+            ], 404);
+        }
+
+        // Prepare update data
+        $updateData = [
+            'first_name' => $request->first_name,
+            'last_name'  => $request->last_name,
+            'name' => $request->name, // kalau mau gabungan first + last bisa di-handle di sini
+            'email' => $request->email,
+            'role_id' => $request->role,
+            'status' => $request->status,
+            'updated_by' => Auth::id(),
+            'updated_at' => now()
+        ];
+
+        // Update password jika ada
+        if (!empty($request->password)) {
+            $updateData['password'] = Hash::make($request->password);
+        }
+
+        // Update user
+        $user->update($updateData);
+
+        return redirect()->back()->with('success', 'User Update Successfully!');
     }
+
 
 
     public function indexDelete(Request $request)
@@ -295,11 +290,16 @@ class UserController extends Controller
     {
         $users = User::all();
         $permissions = Permission::all();
-        $sidebarItems = DB::table('sidebar_items')->get(); // Fetch sidebar items
+        $sidebarItems = DB::table('sidebar_items')
+            ->select('id', 'name', 'parent_id', 'route')
+            ->get();
 
-        return view('pages/settings/user-access-management', compact('users', 'permissions', 'sidebarItems'));
+        return view(
+            'pages/settings/user-access-management',
+            compact('users', 'permissions', 'sidebarItems')
+        );
     }
-    
+
     public function getUserPermissions($userId)
     {
         $userPermissions = DB::table('role_permission')

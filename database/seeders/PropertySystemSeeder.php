@@ -96,38 +96,37 @@ class PropertySystemSeeder extends Seeder
                 $dailyPrice = rand(500000, 2000000);
                 $monthlyPrice = rand(10000000, 30000000);
 
+                // Pilih fasilitas random dari ["1","3","4","5"]
+                $facilityOptions = ["1", "3", "4", "5"];
+                $randomFacilityCount = rand(1, count($facilityOptions));
+                $randomFacilities = array_rand($facilityOptions, $randomFacilityCount);
+                $randomFacilities = is_array($randomFacilities)
+                    ? array_map(fn($i) => $facilityOptions[$i], $randomFacilities)
+                    : [$facilityOptions[$randomFacilities]];
+
                 $rooms[] = [
-                    'idrec' => $roomCounter, // ID record unik
-                    'property_id' => $propertyId, // ID properti
-                    'property_name' => $property['name'], // Nama properti
-                    'slug' => Str::slug($property['name'] . ' ' . $roomTypes[$j - 1] . ' Room'), // URL-friendly slug
-                    'name' => $roomTypes[$j - 1] . ' Room', // Nama kamar
-                    'descriptions' => 'Comfortable ' . $roomTypes[$j - 1] . ' room with all amenities', // Deskripsi
-                    'periode' => json_encode([
-                        'daily' => $dailyPrice,
-                        'monthly' => $monthlyPrice
-                    ]), // Harga per periode (disimpan dalam JSON)
-                    'bed_type' => $roomTypes[$j - 1], // Tipe tempat tidur
-                    'capacity' => rand(1, 4), // Kapasitas kamar
-                    'size' => rand(20, 50), // Ukuran kamar dalam m2
-                    'type' => $roomTypes[$j - 1], // Tipe kamar
-                    'no' => 'R' . str_pad($roomCounter, 3, '0', STR_PAD_LEFT), // Nomor kamar
-                    'slug' => Str::slug($property['name'] . ' ' . $roomTypes[$j - 1] . ' Room'), // Slug untuk URL
-                    'level' => rand(1, $property['level_count']), // Random lantai
-                    'facility' => json_encode([
-                        'AC',
-                        'TV',
-                        'Minibar',
-                        'Safe',
-                        'Private Bathroom'
-                    ]), // Fasilitas dalam bentuk JSON
+                    'idrec' => $roomCounter,
+                    'property_id' => $propertyId,
+                    'property_name' => $property['name'],
+                    'slug' => Str::slug($property['name'] . ' ' . $roomTypes[$j - 1] . ' Room'),
+                    'name' => $roomTypes[$j - 1] . ' Room',
+                    'descriptions' => 'Comfortable ' . $roomTypes[$j - 1] . ' room with all amenities',
+                    'periode_daily' => 1,
+                    'periode_monthly' => 1,
+                    'bed_type' => $roomTypes[$j - 1],
+                    'capacity' => rand(1, 4),
+                    'size' => rand(20, 50),
+                    'type' => $roomTypes[$j - 1],
+                    'no' => 'R' . str_pad($roomCounter, 3, '0', STR_PAD_LEFT),
+                    'level' => rand(1, $property['level_count']),
+                    'facility' => json_encode($randomFacilities),
                     'price' => json_encode([
                         'original_daily' => $dailyPrice,
                         'discounted_daily' => $dailyPrice * 0.9,
                         'original_monthly' => $monthlyPrice,
                         'discounted_monthly' => $monthlyPrice * 0.85
-                    ]), // Harga diskon
-                    'status' => 1, // Aktif
+                    ]),
+                    'status' => 1,
                     'created_at' => now(),
                     'updated_at' => now(),
                     'created_by' => 1,
@@ -137,6 +136,7 @@ class PropertySystemSeeder extends Seeder
                 $roomCounter++;
             }
         }
+
 
         DB::table('m_rooms')->insert($rooms);
 

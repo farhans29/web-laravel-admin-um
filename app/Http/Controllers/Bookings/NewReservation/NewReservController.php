@@ -19,16 +19,11 @@ class NewReservController extends Controller
 
         $perPage = request('per_page', 8);
 
-        $checkIns = Booking::with(['transaction', 'property', 'room', 'user'])
-            ->whereHas('transaction', function ($q) {
-                $q->where('transaction_status', 'paid');
-            })
-            ->whereNotNull('check_in_at')
-            ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END')
-            ->orderBy('check_out_at', 'desc');
+        // Use the filterBookings method to get the base query
+        $query = $this->filterBookings($defaultStartDate, $defaultEndDate);
 
-        // Apply date filtering if filterBookings is a scope
-        $checkIns = $this->filterBookings($defaultStartDate, $defaultEndDate)->paginate($perPage);
+        // Get paginated results
+        $checkIns = $query->paginate($perPage);
 
         return view('pages.bookings.newreservations.index', compact('checkIns'));
     }
@@ -44,38 +39,45 @@ class NewReservController extends Controller
             ->orderByRaw('ISNULL(check_in_at) DESC')
             ->orderBy('t_transactions.check_in', 'asc');
 
-        // Apply date filter if provided
+        // Apply date filter if provided in request
         if (request()->filled('start_date') && request()->filled('end_date')) {
             $startDate = request('start_date');
-            $endDate = request('end_date');
+            $endDate   = request('end_date');
 
-            // Jika start_date dan end_date sama, cari hanya untuk tanggal itu
-            if ($startDate === $endDate) {
-                $query->whereHas('transaction', function ($q) use ($startDate) {
-                    $q->whereDate('check_in', '<=', $startDate)->whereDate('check_out', '>=', $startDate);
-                });
-            } else {
-                // Jika range tanggal, gunakan between seperti sebelumnya
-                $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('check_in', [$startDate, $endDate]);
-                });
-            }
-        } else {
-            // Gunakan default date range jika tidak ada input
             $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('check_in', [$startDate, $endDate]);
+                if ($startDate === $endDate) {
+                    // Jika tanggal sama → cek persis tanggal itu
+                    $q->whereDate('check_in', $startDate);
+                } else {
+                    // Jika rentang tanggal → pastikan endDate full hari
+                    $q->whereBetween('check_in', [
+                        $startDate . ' 00:00:00',
+                        $endDate . ' 23:59:59'
+                    ]);
+                }
+            });
+        } else {
+            // DEFAULT YANG DIPERBAIKI: Filter dari tanggal hari ini ke depan
+            $startDate = now()->format('Y-m-d'); // Mulai dari hari ini
+            $endDate   = now()->addMonth()->format('Y-m-d'); // Sampai 1 bulan ke depan
+
+            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                $q->whereDate('check_in', '>=', $startDate) // Check-in dari hari ini ke depan
+                    ->whereDate('check_in', '<=', $endDate); // Sampai batas akhir
             });
         }
 
-        // Search by order_id or user name
+        // Search by order_id or user_name
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
-                $q->where('t_booking.order_id', 'like', "%{$search}%")->orWhereHas('user', function ($q) use ($search) {
-                    $q->where('username', 'like', "%{$search}%")
-                        ->orWhere('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
-                });
+                $q->where('t_booking.order_id', 'like', "%{$search}%")
+                    ->orWhere('t_booking.user_name', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('username', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -94,7 +96,7 @@ class NewReservController extends Controller
 
         return response()->json([
             'table' => view('pages.bookings.newreservations.partials.newreserve_table', [
-                'bookings' => $checkIns,
+                'checkIns' => $checkIns,
                 'per_page' => $request->input('per_page', 8),
             ])->render(),
             'pagination' => $checkIns->appends($request->input())->links()->toHtml(),
@@ -107,6 +109,9 @@ class NewReservController extends Controller
             'doc_type' => 'required|string|in:ktp,passport,sim,other',
             'doc_image' => 'required|string', // Ubah menjadi required karena sekarang wajib ada
             'has_profile_photo' => 'sometimes|boolean',
+            'guest_name' => 'required|string|max:255',
+            'guest_email' => 'required|email|max:255',
+            'guest_phone' => 'required|string|max:50',
         ]);
 
         try {
@@ -148,6 +153,10 @@ class NewReservController extends Controller
                 'doc_path' => $path,
                 'updated_by' => Auth::id(),
                 'verified_with_profile' => !empty($validated['has_profile_photo']),
+                // Simpan data kontak tamu yang diinput manual
+                'user_name' => $validated['guest_name'],
+                'user_email' => $validated['guest_email'],
+                'user_phone_number' => $validated['guest_phone'],
             ]);
 
             if ($updated) {

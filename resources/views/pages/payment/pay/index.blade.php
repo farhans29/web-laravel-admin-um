@@ -1,30 +1,30 @@
 <x-app-layout>
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
 
-        <!-- Header Section -->
+        <!-- Bagian Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Payment Proof
+                    Bukti Pembayaran
                 </h1>
             </div>
         </div>
-        <!-- Search and Filter Section -->
+        <!-- Bagian Pencarian dan Filter -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
             <form method="GET" action="{{ route('admin.payments.filter') }}"
                 onsubmit="event.preventDefault(); fetchFilteredBookings();"
                 class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
 
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                    <!-- Search Booking -->
+                    <!-- Pencarian Booking -->
                     <div class="md:col-span-1 relative">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" id="search" name="search" placeholder="Order ID or Guest Name"
+                        <input type="text" id="search" name="search" placeholder="ID Pesanan atau Nama Tamu"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value="{{ request('search') }}">
                     </div>
@@ -49,7 +49,7 @@
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-10">
-                                <input type="text" id="date_picker" placeholder="Select date range (Max 30 days)"
+                                <input type="text" id="date_picker" placeholder="Pilih rentang tanggal (Maks 30 hari)"
                                     data-input
                                     class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
@@ -59,10 +59,10 @@
                         </div>
                     </div>
 
-                    <!-- Show Per Page (aligned to the right) -->
+                    <!-- Tampilkan Per Halaman (rata kanan) -->
                     <div class="md:col-span-1 flex justify-end items-end">
                         <div class="flex items-center gap-2">
-                            <label for="per_page" class="text-sm text-gray-600">Show:</label>
+                            <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
                             <select name="per_page" id="per_page"
                                 class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
@@ -75,7 +75,7 @@
             </form>
         </div>
 
-        <!-- Payment Verification Table -->
+        <!-- Tabel Verifikasi Pembayaran -->
         <div class="overflow-x-auto" id="transactionTable">
             @include('pages.payment.pay.partials.pay_table', [
                 'payments' => $payments,
@@ -83,7 +83,7 @@
             ])
         </div>
 
-        <!-- Pagination -->        
+        <!-- Paginasi -->        
         <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
             {{ $payments->appends(request()->except('page'))->links() }}
         </div>
@@ -103,11 +103,11 @@
                     this.isLoading = true;
                     this.orderId = orderId;
 
-                    // Process the attachment data
+                    // Proses data lampiran
                     this.$nextTick(() => {
                         this.attachmentData = base64Data;
 
-                        // Try to determine file type (this is a simple check)
+                        // Cek tipe file (cek sederhana)
                         if (base64Data.startsWith('/9j/') ||
                             base64Data.startsWith('iVBORw0KGgo') ||
                             base64Data.startsWith('R0lGODdh') ||
@@ -163,7 +163,7 @@
         function validateRejectForm() {
             const note = document.getElementById('rejectNote').value.trim();
             if (!note) {
-                alert('Please enter a rejection reason.');
+                alert('Silakan masukkan alasan penolakan.');
                 return false;
             }
             return true;
@@ -173,7 +173,7 @@
             const defaultStartDate = '{{ $startDate ?? now()->format('Y-m-d') }}';
             const defaultEndDate = '{{ $endDate ?? now()->addMonth()->format('Y-m-d') }}';
 
-            // Initialize Flatpickr with default range
+            // Inisialisasi Flatpickr dengan rentang default
             const datePicker = flatpickr("#date_picker", {
                 mode: "range",
                 dateFormat: "Y-m-d",
@@ -202,7 +202,7 @@
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'warning',
-                                title: 'Maximum date range is 30 days',
+                                title: 'Rentang tanggal maksimal adalah 30 hari',
                                 showConfirmButton: false,
                                 timer: 3000,
                                 timerProgressBar: true,
@@ -233,7 +233,7 @@
                 }
             });
 
-            // Set initial hidden input values
+            // Set nilai awal input tersembunyi
             document.getElementById('start_date').value = defaultStartDate;
             document.getElementById('end_date').value = defaultEndDate;
 
@@ -245,7 +245,7 @@
                 return `${year}-${month}-${day}`;
             }
 
-            // Set initial values if they exist
+            // Set nilai awal jika ada
             @if (request('start_date') && request('end_date'))
                 const startDate = new Date('{{ request('start_date') }}');
                 const endDate = new Date('{{ request('end_date') }}');
@@ -258,12 +258,12 @@
                 }
             @endif
 
-            // Get all filter elements
+            // Ambil semua elemen filter
             const searchInput = document.getElementById('search');
             const statusSelect = document.getElementById('status');
             const perPageSelect = document.getElementById('per_page');
 
-            // Debounce function for search
+            // Fungsi debounce untuk pencarian
             const debounce = (func, delay) => {
                 let timeout;
                 return function() {
@@ -274,35 +274,35 @@
                 };
             };
 
-            // Event listeners
+            // Event listener
             searchInput.addEventListener('input', debounce(fetchFilteredBookings, 300));
             statusSelect.addEventListener('change', fetchFilteredBookings);
             perPageSelect.addEventListener('change', fetchFilteredBookings);
 
-            // Function to fetch filtered bookings
+            // Fungsi untuk mengambil data booking terfilter
             function fetchFilteredBookings() {
-                // Collect all filter values
+                // Ambil semua nilai filter
                 const params = new URLSearchParams();
 
-                // Get search value
+                // Ambil nilai pencarian
                 const search = document.getElementById('search').value;
                 if (search) params.append('search', search);
 
-                // Get status value
+                // Ambil nilai status
                 const status = document.getElementById('status').value;
                 if (status && status !== 'all') params.append('status', status);
 
-                // Get date range values
+                // Ambil nilai rentang tanggal
                 const startDate = document.getElementById('start_date').value;
                 const endDate = document.getElementById('end_date').value;
                 if (startDate) params.append('start_date', startDate);
                 if (endDate) params.append('end_date', endDate);
 
-                // Get per page value
+                // Ambil nilai per halaman
                 const perPage = document.getElementById('per_page').value;
                 params.append('per_page', perPage);
 
-                // Show loading state
+                // Tampilkan loading
                 const tableContainer = document.getElementById('transactionTable');
                 tableContainer.innerHTML = `
         <div class="flex justify-center items-center h-64">
@@ -310,7 +310,7 @@
         </div>
     `;
 
-                // Make AJAX request to the filter endpoint
+                // Request AJAX ke endpoint filter
                 fetch(`{{ route('admin.payments.filter') }}?${params.toString()}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
@@ -323,7 +323,7 @@
                     })
                     .then(data => {
                         document.getElementById('transactionTable').innerHTML = data.html;
-                        // Update pagination if exists
+                        // Update paginasi jika ada
                         const paginationContainer = document.querySelector('.bg-gray-50');
                         if (paginationContainer && data.pagination) {
                             paginationContainer.innerHTML = data.pagination;
@@ -333,7 +333,7 @@
                         console.error('Error:', error);
                         tableContainer.innerHTML = `
                 <div class="text-center py-8 text-red-500">
-                    Error loading data. Please try again.
+                    Gagal memuat data. Silakan coba lagi.
                 </div>
             `;
                     });

@@ -14,13 +14,15 @@ class RolesTableSeeder extends Seeder
     public function run(): void
     {
         Role::insert([
-            ['name' => 'Owner', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Manager', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Front Desk', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Finance', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'CS', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Sales', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Property Owner', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            // HO (Pusat)
+            ['name' => 'Super Admin', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Finance HO', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Manager HO', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            // Site (Cabang Hotel)
+            ['name' => 'Site Admin', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Receptionist', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Housekeeping', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+            ['name' => 'Manager Hotel', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
         ]);
     }
 }

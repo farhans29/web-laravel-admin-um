@@ -18,7 +18,7 @@ class ChangeRoomController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $historySearch = $request->input('history_search'); // New parameter for history search
+        $historySearch = $request->input('history_search');
         $currentDate = now()->format('Y-m-d');
         $propertyId = $request->input('property_id');
 
@@ -27,7 +27,7 @@ class ChangeRoomController extends Controller
             ->where('status', 2)
             ->groupBy('order_id');
 
-        $bookings = Booking::with(['user', 'room', 'property', 'transaction'])
+        $bookings = Booking::with(['user', 'room', 'property', 'transaction', 'payment'])
             ->where(function ($query) use ($priorityOrderIds) {
                 $query->whereIn('order_id', $priorityOrderIds)
                     ->where('status', 2)
@@ -37,9 +37,17 @@ class ChangeRoomController extends Controller
                     });
             })
             ->when($search, function ($query, $search) {
-                return $query->whereHas('user', function ($q) use ($search) {
-                    $q->where('username', 'like', '%' . $search . '%');
+                return $query->where(function ($q) use ($search) {
+                    // cari berdasarkan order_id
+                    $q->where('order_id', 'like', '%' . $search . '%')
+                        // cari berdasarkan username user
+                        ->orWhereHas('user', function ($uq) use ($search) {
+                            $uq->where('username', 'like', '%' . $search . '%');
+                        });
                 });
+            })
+            ->whereHas('payment', function ($q) {
+                $q->where('payment_status', 'paid'); // hanya yang paid
             })
             ->paginate(3);
 
@@ -58,7 +66,12 @@ class ChangeRoomController extends Controller
         $transferHistory = Booking::with(['user', 'room', 'property'])
             ->where('status', 2)
             ->when($historySearch, function ($query, $historySearch) {
-                return $query->where('order_id', 'like', '%' . $historySearch . '%');
+                return $query->where(function ($q) use ($historySearch) {
+                    $q->where('order_id', 'like', '%' . $historySearch . '%')
+                        ->orWhereHas('user', function ($uq) use ($historySearch) {
+                            $uq->where('username', 'like', '%' . $historySearch . '%');
+                        });
+                });
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10)
@@ -81,9 +94,10 @@ class ChangeRoomController extends Controller
             'search',
             'availableRooms',
             'transferHistory',
-            'historySearch' // Pass the search term to view
+            'historySearch'
         ));
     }
+
 
     public function getAvailableRooms(Request $request)
     {

@@ -473,157 +473,15 @@
                                                     <div x-show="selectedRoom.facilities && selectedRoom.facilities.length > 0"
                                                         class="space-y-4">
                                                         <div class="flex items-center space-x-2 mb-4">
-                                                            <svg class="w-6 h-6 text-blue-500" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                            </svg>
-                                                            <h4 class="text-lg font-bold text-gray-900">
-                                                                Room Facilities</h4>
+                                                            <h4 class="text-lg font-bold text-gray-900">Room Facilities
+                                                            </h4>
                                                         </div>
-                                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                            <template x-for="facility in selectedRoom.facilities">
-                                                                <div
-                                                                    class="flex items-center space-x-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                                                                    <!-- Facility Icons -->
-                                                                    <template x-if="facility === 'wifi'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <template x-if="facility === 'ac'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M3 7h18a1 1 0 011 1v4H2V8a1 1 0 011-1zm0 6h18v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm6 5v1m4-1v1m4-1v1" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <template x-if="facility === 'tv'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <template x-if="facility === 'bathroom'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M9 17a1 1 0 100 2 1 1 0 000-2zm3 0a1 1 0 100 2 1 1 0 000-2zm3 0a1 1 0 100 2 1 1 0 000-2zM17 9V5a4 4 0 00-8 0v4a4 4 0 008 0z" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <template x-if="facility === 'hot_water'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M12 3a1 1 0 00-1 1v10.28a2 2 0 101 0V4a1 1 0 00-1-1zm0 0a1 1 0 011 1v10.28a2 2 0 11-2 0V4a1 1 0 011-1zm0 15a4 4 0 100-8 4 4 0 000 8z" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <template x-if="facility === 'wardrobe'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M4 4h16v16H4V4zm8 0v16m-4-8h.01M16 12h.01" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <template x-if="facility === 'desk'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <rect x="3" y="8" width="18"
-                                                                                height="4" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                            <line x1="5" y1="12"
-                                                                                x2="5" y2="18"
-                                                                                stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                            <line x1="19" y1="12"
-                                                                                x2="19" y2="18"
-                                                                                stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                            <rect x="8" y="16" width="8"
-                                                                                height="3" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                            <line x1="8" y1="16"
-                                                                                x2="8" y2="19"
-                                                                                stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                            <line x1="16" y1="16"
-                                                                                x2="16" y2="19"
-                                                                                stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <template x-if="facility === 'refrigerator'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <rect x="7" y="3" width="10"
-                                                                                height="18" rx="2"
-                                                                                ry="2" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                            <line x1="7" y1="10"
-                                                                                x2="17" y2="10"
-                                                                                stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                            <line x1="10" y1="14"
-                                                                                x2="14" y2="14"
-                                                                                stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <template x-if="facility === 'breakfast'">
-                                                                        <svg class="h-5 w-5 text-blue-600"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="2"
-                                                                                d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" />
-                                                                        </svg>
-                                                                    </template>
-                                                                    <span
-                                                                        x-text="facility === 'wifi' ? 'WiFi' : 
-                                                                                facility === 'ac' ? 'AC' : 
-                                                                                facility === 'tv' ? 'TV' : 
-                                                                                facility === 'bathroom' ? 'Bathroom' : 
-                                                                                facility === 'hot_water' ? 'Hot Water' : 
-                                                                                facility === 'wardrobe' ? 'Wardrobe' : 
-                                                                                facility === 'desk' ? 'Work Desk' : 
-                                                                                facility === 'refrigerator' ? 'Refrigerator' : 
-                                                                                facility === 'breakfast' ? 'Breakfast Included' : facility"
-                                                                        class="text-gray-800 font-medium text-sm"></span>
-                                                                </div>
+                                                        <div class="flex flex-wrap gap-2">
+                                                            <template x-for="facilityId in selectedRoom.facilities"
+                                                                :key="facilityId">
+                                                                <span x-text="getFacilityName(facilityId, 'room')"
+                                                                    class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                                                </span>
                                                             </template>
                                                         </div>
                                                     </div>
@@ -1125,32 +983,28 @@
                                                                         viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round"
                                                                             stroke-linejoin="round" stroke-width="2"
-                                                                            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                                            d="M5 13l4 4L19 7"></path>
                                                                     </svg>
                                                                     Fasilitas Kamar
                                                                 </h3>
                                                                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                                    <template x-for="(facility, index) in facilities"
-                                                                        :key="index">
+                                                                    @foreach ($facilities as $facility)
                                                                         <div class="relative">
                                                                             <input
-                                                                                :id="'edit_facility-{{ $room->idrec }}-' +
-                                                                                index"
+                                                                                id="edit_facility-{{ $room->idrec }}-{{ $facility->idrec }}"
                                                                                 name="facilities[]" type="checkbox"
-                                                                                :value="facility.value"
+                                                                                value="{{ $facility->idrec }}"
                                                                                 class="sr-only peer"
                                                                                 x-model="roomData.facilities"
                                                                                 :checked="roomData.facilities.includes(
-                                                                                    facility
-                                                                                    .value)">
+                                                                                    '{{ $facility->idrec }}')">
                                                                             <label
-                                                                                :for="'edit_facility-{{ $room->idrec }}-' +
-                                                                                index"
+                                                                                for="edit_facility-{{ $room->idrec }}-{{ $facility->idrec }}"
                                                                                 class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
-                                                                                <span x-text="facility.label"></span>
+                                                                                <span>{{ $facility->facility }}</span>
                                                                             </label>
                                                                         </div>
-                                                                    </template>
+                                                                    @endforeach
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1684,8 +1538,7 @@
                                     class="p-2 flex items-center justify-center text-red-600 hover:text-red-900 transition-colors duration-200 rounded-full hover:bg-red-50"
                                     onclick="deleteRoom({{ $room->idrec }})">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                        stroke-width="1.5">
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6 18L18 6M6 6l12 12" />
                                     </svg>

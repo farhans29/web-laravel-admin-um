@@ -12,7 +12,7 @@
 
         <!-- Search and Filter Section -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
-            <form method="GET" action="{{ route('checkin.filter') }}"
+            <form method="GET" action="{{ route('newReserv.filter') }}"
                 onsubmit="event.preventDefault(); fetchFilteredBookings();"
                 class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
 
@@ -83,6 +83,11 @@
                 profilePhotoUrlWeb: null,
                 selectedDocType: 'ktp',
                 bookingId: initialOrderId,
+                guestContact: {
+                    name: '',
+                    email: '',
+                    phone: ''
+                },
                 currentDateTime: new Date().toLocaleString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
@@ -133,6 +138,11 @@
                     });
 
                     await this.fetchBookingDetails();
+
+                    // Set nilai default untuk form kontak
+                    this.guestContact.name = this.bookingDetails.guest_name || '';
+                    this.guestContact.email = this.bookingDetails.guest_email || '';
+                    this.guestContact.phone = this.bookingDetails.guest_phone || '';
                 },
 
                 async fetchBookingDetails() {
@@ -374,7 +384,7 @@
                                                             
                                                             .detail-value {
                                                                 font-weight: 500;
-                                                                color: #1e293b;
+                                                                color: 1e293b;
                                                                 padding: 0.5rem 0;
                                                                 border-bottom: 1px dashed #e2e8f0;
                                                             }
@@ -491,7 +501,15 @@
                                                                     
                                                                     <div class="detail-item">
                                                                         <span class="detail-label">Nama Tamu</span>
-                                                                        <span class="detail-value">${this.bookingDetails.guest_name}</span>
+                                                                        <span class="detail-value">${this.guestContact.name}</span>
+                                                                    </div>
+                                                                    <div class="detail-item">
+                                                                        <span class="detail-label">Email</span>
+                                                                        <span class="detail-value">${this.guestContact.email}</span>
+                                                                    </div>
+                                                                    <div class="detail-item">
+                                                                        <span class="detail-label">Telepon</span>
+                                                                        <span class="detail-value">${this.guestContact.phone}</span>
                                                                     </div>
                                                                     <div class="detail-item">
                                                                         <span class="detail-label">Check-In</span>
@@ -545,7 +563,7 @@
                                                                 <div class="signature-box">
                                                                     <div class="signature-placeholder"></div>
                                                                     <div class="signature-label">Tanda Tangan Tamu</div>
-                                                                    <div class="signature-name">${this.bookingDetails.guest_name}</div>
+                                                                    <div class="signature-name">${this.guestContact.name}</div>
                                                                     <div class="signature-label">
                                                                         Tanggal: ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                                                                     </div>
@@ -559,7 +577,6 @@
                                                         </div>
                                                     </body>
                                                 </html>
-
                                             `);
                     printWindow.document.close();
                     setTimeout(() => {
@@ -615,6 +632,18 @@
                 },
 
                 async submitCheckIn() {
+                    // Validasi form
+                    if (!this.guestContact.name || !this.guestContact.email || !this.guestContact
+                        .phone) {
+                        this.showErrorToast('Harap lengkapi semua informasi kontak');
+                        return;
+                    }
+
+                    if (!this.docPreview) {
+                        this.showErrorToast('Harap unggah dokumen identifikasi');
+                        return;
+                    }
+
                     try {
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
@@ -623,7 +652,10 @@
                         const requestData = {
                             doc_type: this.selectedDocType,
                             has_profile_photo: !!this.profilePhotoUrl,
-                            agreement_accepted: true
+                            agreement_accepted: true,
+                            guest_name: this.guestContact.name,
+                            guest_email: this.guestContact.email,
+                            guest_phone: this.guestContact.phone
                         };
 
                         // Include doc_image only if there's no profile photo
@@ -709,6 +741,11 @@
                     this.docPreview = null;
                     this.docPreviewType = null;
                     this.selectedDocType = 'ktp';
+                    this.guestContact = {
+                        name: '',
+                        email: '',
+                        phone: ''
+                    };
                     if (this.$refs.docInput) {
                         this.$refs.docInput.value = '';
                     }
@@ -829,7 +866,7 @@
                                             `;
 
                 // Make AJAX request to the filter endpoint
-                fetch(`{{ route('checkin.filter') }}?${params.toString()}`, {
+                fetch(`{{ route('newReserv.filter') }}?${params.toString()}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'

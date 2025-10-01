@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('t_booking', function (Blueprint $table) {
             $table->id('idrec');
             $table->integer('property_id')->nullable();
-            $table->string('order_id', 100); 
+            $table->string('order_id', 100);
+            $table->string('user_name', 255)->nullable();
+            $table->string('user_email', 255)->nullable();
+            $table->string('user_phone_number', 50)->nullable();
             $table->string('room_id', 255);
             $table->dateTime('check_in_at')->nullable();
             $table->string('doc_type', 50)->nullable();

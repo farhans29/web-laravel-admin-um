@@ -75,7 +75,7 @@
                             <label for="per_page" class="mr-2">Show:</label>
                             <select name="per_page" id="per_page" onchange="this.form.submit()"
                                 class="border border-gray-300 rounded px-4 py-2 w-32">
-                                <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                                <option value="5" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
                                 <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
                                 <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15</option>
                                 <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>

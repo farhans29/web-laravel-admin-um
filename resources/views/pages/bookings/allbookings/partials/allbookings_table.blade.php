@@ -24,25 +24,30 @@
     <tbody class="bg-white divide-y divide-gray-200">
         @forelse ($bookings as $booking)
             <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($booking->check_in_at)
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ $booking->check_in_at->format('Y-m-d') }}
-                        </div>
-                        <div class="text-xs text-gray-400">
-                            {{ $booking->check_in_at->format('H:i') }}
+                <td class="px-6 py-4 whitespace-nowrap">
+                    @if ($booking->transaction && $booking->transaction->check_in)
+                        <div class="flex flex-col">
+                            <span class="text-sm font-semibold text-gray-800">
+                                {{ \Carbon\Carbon::parse($booking->transaction->check_in)->format('Y M d') }}
+                            </span>
+                            <span class="text-xs text-gray-500 mt-0.5">
+                                {{ \Carbon\Carbon::parse($booking->transaction->check_in)->format('H:i') }}
+                            </span>
                         </div>
                     @else
-                        <div class="text-sm text-gray-500 italic">Not checked in</div>
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Not checked in
+                        </span>
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($booking->check_out_at)
+                    @if ($booking->transaction->check_out)
                         <div class="text-sm font-medium text-gray-900">
-                            {{ $booking->check_out_at->format('Y M d') }}
+                            {{ $booking->transaction->check_out->format('Y M d') }}
                         </div>
                         <div class="text-xs text-gray-400">
-                            {{ $booking->check_out_at->format('H:i') }}
+                            {{ $booking->transaction->check_out->format('H:i') }}
                         </div>
                     @else
                         <div class="text-sm text-gray-500 italic">Not checked out</div>
@@ -87,7 +92,6 @@
                             'Unknown' => 'bg-slate-100 text-slate-800',
                         ];
 
-                        // Define status labels if you want to display shorter text
                         $statusLabels = [
                             'Waiting For Payment' => 'Pending Payment',
                             'Waiting For Confirmation Payment' => 'Confirming',
@@ -99,11 +103,28 @@
                             'Unknown' => 'Unknown',
                         ];
                     @endphp
-                    <span
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses[$booking->status] ?? 'bg-gray-100 text-gray-800' }}">
-                        {{ $statusLabels[$booking->status] ?? $booking->status }}
-                    </span>
+
+                    <div class="flex flex-col items-center">
+                        <span
+                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses[$booking->status] ?? 'bg-gray-100 text-gray-800' }}">
+                            {{ $statusLabels[$booking->status] ?? $booking->status }}
+                        </span>
+
+                        @if ($booking->status === 'Checked-In' && $booking->check_in_at)
+                            <div
+                                class="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClasses['Checked-In'] }}">
+                                Check-in at: {{ $booking->check_in_at->format('Y-m-d H:i') }}
+                            </div>
+                        @elseif ($booking->status === 'Checked-Out' && $booking->check_out_at)
+                            <div
+                                class="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClasses['Checked-Out'] }}">
+                                Check-out at: {{ $booking->check_out_at->format('Y-m-d H:i') }}
+                            </div>
+                        @endif
+
+                    </div>
                 </td>
+
             </tr>
         @empty
             <tr>

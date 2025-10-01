@@ -94,10 +94,25 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const defaultStartDate = '{{ $startDate ?? now()->format('Y-m-d') }}';
-            const defaultEndDate = '{{ $endDate ?? now()->addMonth()->format('Y-m-d') }}';
+            // Get today's date
+            const today = new Date();
 
-            // Initialize Flatpickr with default range
+            // Calculate one month from today
+            const oneMonthLater = new Date();
+            oneMonthLater.setMonth(today.getMonth() + 1);
+
+            // Format dates as YYYY-MM-DD
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            const defaultStartDate = formatDate(today);
+            const defaultEndDate = formatDate(oneMonthLater);
+
+            // Initialize Flatpickr with today to one month ahead range
             const datePicker = flatpickr("#date_picker", {
                 mode: "range",
                 dateFormat: "Y-m-d",
@@ -108,7 +123,7 @@
                 monthSelectorType: 'static',
                 defaultDate: [defaultStartDate, defaultEndDate],
                 minDate: "today",
-                maxDate: new Date().fp_incr(365),
+                maxDate: new Date().fp_incr(365), // 365 days from now
                 onOpen: function(selectedDates, dateStr, instance) {
                     instance.set('minDate', null);
                 },
@@ -117,10 +132,10 @@
                         const startDate = selectedDates[0];
                         const endDate = selectedDates[1] || selectedDates[0];
 
-                        // Hitung selisih hari (inklusif)
+                        // Calculate day difference (inclusive)
                         const diffInDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
-                        // Batasi maksimal 30 hari
+                        // Limit to maximum 30 days
                         if (diffInDays > 31) {
                             Swal.fire({
                                 toast: true,
@@ -142,7 +157,7 @@
                             return;
                         }
 
-                        // Format tanggal ke YYYY-MM-DD
+                        // Format dates to YYYY-MM-DD
                         document.getElementById('start_date').value = formatDate(startDate);
                         document.getElementById('end_date').value = formatDate(endDate);
                         fetchFilteredBookings();
@@ -157,30 +172,9 @@
                 }
             });
 
-            // Set initial hidden input values
+            // Set initial hidden input values to today and one month ahead
             document.getElementById('start_date').value = defaultStartDate;
             document.getElementById('end_date').value = defaultEndDate;
-
-            // Fungsi format tanggal
-            function formatDate(date) {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-
-            // Set initial values if they exist
-            @if (request('start_date') && request('end_date'))
-                const startDate = new Date('{{ request('start_date') }}');
-                const endDate = new Date('{{ request('end_date') }}');
-
-                // Jika start_date dan end_date sama, set hanya 1 tanggal
-                if (formatDate(startDate) === formatDate(endDate)) {
-                    datePicker.setDate(startDate);
-                } else {
-                    datePicker.setDate([startDate, endDate]);
-                }
-            @endif
 
             // Get all filter elements
             const searchInput = document.getElementById('search');
@@ -229,10 +223,10 @@
                 // Show loading state
                 const tableContainer = document.querySelector('.overflow-x-auto');
                 tableContainer.innerHTML = `
-                                                <div class="flex justify-center items-center h-64">
-                                                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                                                </div>
-                                            `;
+                <div class="flex justify-center items-center h-64">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+            `;
 
                 // Make AJAX request to the filter endpoint
                 fetch(`{{ route('bookings.filter') }}?${params.toString()}`, {
@@ -252,10 +246,10 @@
                     .catch(error => {
                         console.error('Error:', error);
                         tableContainer.innerHTML = `
-                                                        <div class="text-center py-8 text-red-500">
-                                                            Error loading data. Please try again.
-                                                        </div>
-                                                    `;
+                        <div class="text-center py-8 text-red-500">
+                            Error loading data. Please try again.
+                        </div>
+                    `;
                     });
             }
         });

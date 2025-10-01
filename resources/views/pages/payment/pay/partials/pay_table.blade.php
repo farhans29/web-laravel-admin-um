@@ -2,21 +2,23 @@
     <thead class="bg-gray-50">
         <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order ID</th>
+                ID Pesanan</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Customer</th>
+                Pelanggan</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Property</th>
+                Properti</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Amount</th>
+                Jumlah</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Payment Method</th>
+                Metode Pembayaran</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Payment Date</th>
+                Tanggal Pembayaran</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Tanggal Check-in</th>
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status</th>
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions</th>
+                Aksi</th>
         </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200" id="transactionTableBody">
@@ -69,6 +71,14 @@
                         -
                     @endif
                 </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                    @if ($payment->transaction->check_in)
+                        <div>{{ $payment->transaction->check_in->format('d M Y') }}</div>
+                        <div class="text-xs text-gray-400">
+                            {{ $payment->transaction->check_in->format('H:i') }}</div>
+                    @else
+                        -
+                    @endif
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     @php
                         $status = $payment->transaction->transaction_status;
@@ -86,7 +96,6 @@
                         $badgeStyle = $statusStyles[$status] ?? 'bg-gray-100 text-gray-800';
                         $hasTooltip = $status === 'rejected' && isset($payment->notes);
                     @endphp
-
 
                     <div class="relative inline-block group">
                         <span
@@ -108,14 +117,14 @@
                             <button type="button"
                                 class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
                                 @click="openModal('{{ $payment->transaction->attachment }}', '{{ $payment->order_id }}')"
-                                title="Confirm Payment">
+                                title="Konfirmasi Pembayaran">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 6L9 17l-5-5" />
                                     <circle cx="12" cy="12" r="10" />
                                 </svg>
-                                <span class="text-sm font-semibold">Confirm</span>
+                                <span class="text-sm font-semibold">Konfirmasi</span>
                             </button>
                             <!-- Modal backdrop -->
                             <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity"
@@ -143,7 +152,7 @@
                                     <div
                                         class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
                                         <h3 class="text-lg font-semibold text-gray-800">
-                                            Payment Proof for Order #<span x-text="orderId"></span>
+                                            Bukti Pembayaran untuk Pesanan #<span x-text="orderId"></span>
                                         </h3>
                                         <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -171,7 +180,7 @@
                                         </template>
 
                                         <template x-if="!isLoading && attachmentType === 'image'">
-                                            <img :src="'data:image/jpeg;base64,' + attachmentData" alt="Payment Proof"
+                                            <img :src="'data:image/jpeg;base64,' + attachmentData" alt="Bukti Pembayaran"
                                                 class="mx-auto max-h-[70vh] max-w-full object-contain">
                                         </template>
 
@@ -193,9 +202,8 @@
                                                         d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                                 <h3 class="mt-4 text-lg font-medium text-gray-900">
-                                                    Unsupported File Type</h3>
-                                                <p class="mt-2 text-sm text-gray-500">This file type
-                                                    cannot be previewed. Please re-upload.</p>
+                                                    Jenis File Tidak Didukung</h3>
+                                                <p class="mt-2 text-sm text-gray-500">Jenis file ini tidak dapat ditampilkan. Silakan unggah ulang.</p>
                                             </div>
                                         </template>
                                     </div>
@@ -204,7 +212,7 @@
                                     <div
                                         class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
                                         <div class="text-sm text-gray-500">
-                                            <span>Press ESC or click outside to close</span>
+                                            <span>Tekan ESC atau klik di luar untuk menutup</span>
                                         </div>
                                         <div class="flex space-x-3">
                                             <!-- Tombol Approve -->
@@ -215,11 +223,11 @@
                                                 <button type="button"
                                                     class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
                                                     onclick="confirmApprove({{ $payment->idrec }})">
-                                                    Approve
+                                                    Setujui
                                                 </button>
                                             </form>
 
-                                            <!-- Reject Button with Note -->
+                                            <!-- Tombol Tolak dengan Catatan -->
                                             <button type="button"
                                                 class="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm font-medium"
                                                 onclick="showRejectModal({{ $payment->idrec }})">
@@ -229,11 +237,11 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
-                                                <span>Reject</span>
+                                                <span>Tolak</span>
                                             </button>
                                         </div>
 
-                                        <!-- Reject Modal -->
+                                        <!-- Modal Tolak -->
                                         <div id="rejectModal"
                                             class="hidden fixed inset-0 backdrop-blur-sm bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
                                             <div class="relative mx-auto p-5 w-full max-w-md">
@@ -241,7 +249,7 @@
                                                     <!-- Modal header -->
                                                     <div class="px-6 py-4 border-b rounded-t">
                                                         <h3 class="text-xl font-semibold text-gray-900">
-                                                            Reject Payment
+                                                            Tolak Pembayaran
                                                         </h3>
                                                     </div>
 
@@ -252,13 +260,12 @@
                                                         @csrf
                                                         <div class="p-6 space-y-4">
                                                             <p class="text-gray-600">
-                                                                Are you sure you want to reject this
-                                                                payment?
+                                                                Apakah Anda yakin ingin menolak pembayaran ini?
                                                             </p>
                                                             <div>
                                                                 <textarea id="rejectNote" name="rejectNote" rows="4"
                                                                     class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                                    placeholder="Enter rejection reason..." required></textarea>
+                                                                    placeholder="Masukkan alasan penolakan..." required></textarea>
                                                             </div>
                                                         </div>
 
@@ -267,11 +274,11 @@
                                                             class="flex items-center justify-end p-6 space-x-3 border-t rounded-b">
                                                             <button type="button" onclick="hideRejectModal()"
                                                                 class="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                                                Cancel
+                                                                Batal
                                                             </button>
                                                             <button type="submit"
                                                                 class="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                                                                Confirm Reject
+                                                                Konfirmasi Penolakan
                                                             </button>
                                                         </div>
                                                     </form>
@@ -285,15 +292,15 @@
                         </div>
                     @elseif ($payment->transaction->transaction_status === 'pending')
                         <span class="text-yellow-500 font-xs">
-                            Waiting upload proof
+                            Menunggu unggah bukti
                         </span>
                     @else
                         <span class="text-green-500 text-xs">
-                            Verified by:<br>
+                            Diverifikasi oleh:<br>
                             @if ($payment->payment && $payment->payment->verified_by)
                                 {{ $payment->payment->verifiedBy->name ?? 'Admin' }}
                             @else
-                                System
+                                Sistem
                             @endif
                         </span>
                     @endif
@@ -302,7 +309,7 @@
         @empty
             <tr>
                 <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
-                    There are no recent payments yet
+                    Belum ada pembayaran terbaru
                 </td>
             </tr>
         @endforelse

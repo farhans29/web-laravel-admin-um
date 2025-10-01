@@ -12,24 +12,54 @@ class PermissionsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::insert([
-            // Dashboard & Booking
-            ['name' => 'view_dashboard'],
-            ['name' => 'view_booking'],
-            ['name' => 'process_checkin'],
-            ['name' => 'process_checkout'],
-            ['name' => 'view_bookings'],
-            ['name' => 'view_all_bookings'],
-            ['name' => 'view_checkins'],
-            ['name' => 'view_checkouts'],
-            ['name' => 'view_properties'],
-            ['name' => 'view_rooms'],            
-            ['name' => 'view_customers'],
-            ['name' => 'view_payments'],
-            ['name' => 'view_invoices'],
-            ['name' => 'view_reports'], 
-            ['name' => 'manage_users'],
-            ['name' => 'manage_settings'],           
-        ]);
+        $permissions = [
+            // Management Section
+            'Management',
+            // Dashboard
+            'view_dashboard',
+
+            // Bookings
+            'view_bookings',
+            'view_all_bookings',
+            'view_pending_bookings',
+            'view_confirmed_bookings',
+            'view_checkins',
+            'view_checkouts',
+            'view_completed_bookings',
+            'view_change_room',
+
+            // Properties
+            'properties',
+            'view_properties',
+            'view_property_facilities',
+
+            // Rooms
+            'rooms',
+            'view_rooms',
+            'view_room_facilities',
+
+            // Customers
+            'view_customers',
+
+            // Financial
+            'financial',
+
+            // Payments
+            'view_payments',
+            'view_invoices',
+            'view_reports',
+
+            // Settings
+            'Settings',
+
+            // User Management
+            'view_users',
+            'manage_roles',
+            'manage_settings',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
     }
 }

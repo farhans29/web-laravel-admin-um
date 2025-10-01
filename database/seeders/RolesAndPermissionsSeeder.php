@@ -15,83 +15,82 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        // Role-Permission mappings
+        
         $rolePermissions = [
-            // Owner - has all permissions
-            [1, 1],  // view_dashboard
-            [1, 2],  // view_booking
-            [1, 3],  // process_checkin
-            [1, 4],  // process_checkout
-            [1, 5],  // view_bookings
-            [1, 6],  // view_all_bookings
-            [1, 7],  // view_checkins
-            [1, 8],  // view_checkouts
-            [1, 9],  // view_properties
-            [1, 10], // view_rooms
-            [1, 11], // view_customers
-            [1, 12], // view_payments
-            [1, 13], // view_invoices
-            [1, 14], // view_reports
-            [1, 15], // manage_users
-            [1, 16], // manage_settings
+            
+            [1, 1],  
+            [1, 2],  
+            [1, 3],  
+            [1, 4],  
+            [1, 5],  
+            [1, 6],  
+            [1, 7],  
+            [1, 8],  
+            [1, 9],  
+            [1, 10], 
+            [1, 11], 
+            [1, 12], 
+            [1, 13], 
+            [1, 14], 
+            [1, 15],
 
-            // Manager - most permissions except user management
-            [2, 1],  // view_dashboard
-            [2, 2],  // view_booking
-            [2, 3],  // process_checkin
-            [2, 4],  // process_checkout
-            [2, 5],  // view_bookings
-            [2, 6],  // view_all_bookings
-            [2, 7],  // view_checkins
-            [2, 8],  // view_checkouts
-            [2, 9],  // view_properties
-            [2, 10], // view_rooms
-            [2, 11], // view_customers
-            [2, 12], // view_payments
-            [2, 13], // view_invoices
-            [2, 14], // view_reports
+            
+            [2, 1],  
+            [2, 2],  
+            [2, 3],  
+            [2, 4],  
+            [2, 5],  
+            [2, 6],  
+            [2, 7],  
+            [2, 8],  
+            [2, 9],  
+            [2, 10], 
+            [2, 11], 
+            [2, 12], 
+            [2, 13], 
+            [2, 14], 
 
-            // Front Desk - booking and customer related permissions
-            [3, 1],  // view_dashboard
-            [3, 2],  // view_booking
-            [3, 3],  // process_checkin
-            [3, 4],  // process_checkout
-            [3, 5],  // view_bookings
-            [3, 7],  // view_checkins
-            [3, 8],  // view_checkouts
-            [3, 10], // view_rooms
-            [3, 11], // view_customers
+            
+            [3, 1],  
+            [3, 2],  
+            [3, 3],  
+            [3, 4],  
+            [3, 5],  
+            [3, 7],  
+            [3, 8],  
+            [3, 10], 
+            [3, 11], 
 
-            // Finance - payment and invoice related permissions
-            [4, 1],  // view_dashboard
-            [4, 5],  // view_bookings
-            [4, 11], // view_customers
-            [4, 12], // view_payments
-            [4, 13], // view_invoices
-            [4, 14], // view_reports
+            
+            [4, 1],  
+            [4, 5],  
+            [4, 11], 
+            [4, 12], 
+            [4, 13], 
+            [4, 14], 
 
-            // CS (Customer Service) - customer and booking related permissions
-            [5, 1],  // view_dashboard
-            [5, 2],  // view_booking
-            [5, 5],  // view_bookings
-            [5, 11], // view_customers
-            [5, 13], // view_invoices
+            
+            [5, 1],  
+            [5, 2],  
+            [5, 5],  
+            [5, 11], 
+            [5, 13], 
 
-            // Sales - booking and customer related permissions
-            [6, 1],  // view_dashboard
-            [6, 2],  // view_booking
-            [6, 5],  // view_bookings
-            [6, 9],  // view_properties
-            [6, 10], // view_rooms
-            [6, 11], // view_customers
-            [6, 14], // view_reports
+            
+            [6, 1],  
+            [6, 2],  
+            [6, 5],  
+            [6, 9],  
+            [6, 10], 
+            [6, 11], 
+            [6, 14], 
 
-            // Property Owner - property and booking related permissions
-            [7, 1],  // view_dashboard
-            [7, 5],  // view_bookings
-            [7, 9],  // view_properties
-            [7, 10], // view_rooms
-            [7, 14], // view_reports
+            
+            [7, 1],  
+            [7, 5],  
+            [7, 9],  
+            [7, 10], 
+            [7, 14], 
         ];
 
         $data = array_map(function ($rolePermission) use ($now) {
@@ -100,7 +99,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'permission_id' => $rolePermission[1],
                 'created_at' => $now,
                 'updated_at' => $now,
-                'created_by' => 1, // Assuming Admin (user_id 1) is creating these
+                'created_by' => 1, 
                 'updated_by' => 1,
             ];
         }, $rolePermissions);
