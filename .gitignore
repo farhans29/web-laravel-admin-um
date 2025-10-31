@@ -17,4 +17,9 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Ignore public images
+/public/images
+
+# Ignore zip files
 *.zip
