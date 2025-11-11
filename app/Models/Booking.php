@@ -30,6 +30,7 @@ class Booking extends Model
         'check_out_at',
         'created_by',
         'updated_by',
+        'status',
         'reason',
         'description',
     ];

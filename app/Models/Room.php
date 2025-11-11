@@ -23,6 +23,7 @@ class Room extends Model
         'size',
         'bed_type',
         'capacity',
+        'periode',
         'periode_daily',
         'periode_monthly',
         'type',
@@ -74,5 +75,27 @@ class Room extends Model
     {
         return $this->hasOne(MRoomImage::class, 'room_id', 'idrec')
             ->where('thumbnail', true);
+    }
+
+    public function getFacilityNamesAttribute()
+    {
+        if (empty($this->facility)) {
+            return [];
+        }
+
+        $facilityIds = $this->facility;
+        $facilities = RoomFacility::whereIn('idrec', $facilityIds)
+            ->where('status', 1)
+            ->pluck('facility', 'idrec')
+            ->toArray();
+
+        $facilityNames = [];
+        foreach ($facilityIds as $id) {
+            if (isset($facilities[$id])) {
+                $facilityNames[] = $facilities[$id];
+            }
+        }
+
+        return $facilityNames;
     }
 }

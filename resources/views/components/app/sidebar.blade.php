@@ -1,4 +1,4 @@
-<div x-data="{ sidebarOpen: false, sidebarExpanded: true }" class="flex">
+<div x-data="{ sidebarOpen: false, sidebarExpanded: false, sidebarPersistent: false }" class="flex">
     <div class="min-w-fit">
         <!-- Sidebar backdrop (mobile only) -->
         <div class="fixed inset-0 bg-gray-900/30 z-40 lg:hidden lg:z-auto transition-opacity duration-200"
@@ -8,7 +8,9 @@
         <div id="sidebar"
             class="flex lg:flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 h-screen overflow-y-scroll lg:overflow-y-auto no-scrollbar shrink-0 bg-gray-800 dark:bg-gray-900 p-4 transition-all duration-200 ease-in-out border-r border-gray-200 dark:border-gray-700/60"
             :class="sidebarExpanded ? 'w-64' : 'w-20'" x-init="$el.classList.toggle('sidebar-expanded', sidebarExpanded)"
-            x-effect="$el.classList.toggle('sidebar-expanded', sidebarExpanded)">
+            x-effect="$el.classList.toggle('sidebar-expanded', sidebarExpanded)"
+            @mouseenter="if (!sidebarPersistent) sidebarExpanded = true"
+            @mouseleave="if (!sidebarPersistent) sidebarExpanded = false">
 
             <!-- Sidebar header -->
             <div class="flex justify-between mb-8 pr-3 sm:px-2">
@@ -35,10 +37,11 @@
             <div class="space-y-1">
                 <!-- Dashboard -->
                 <div class="mb-4">
-                    <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2 transition-opacity duration-200"
-                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'">
-                        <span x-show="!sidebarExpanded" class="text-center w-6" aria-hidden="true">•••</span>
-                        <span x-show="sidebarExpanded || window.innerWidth < 1024">Management</span>
+                    <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2">
+                        <span x-show="!sidebarExpanded && window.innerWidth >= 1024" class="text-center w-6"
+                            aria-hidden="true">•••</span>
+                        <span x-show="sidebarExpanded || window.innerWidth < 1024"
+                            class="transition-opacity duration-200">Management</span>
                     </h3>
                     <ul class="space-y-1">
                         <!-- Dashboard -->
@@ -400,10 +403,11 @@
                 <!-- Financial -->
                 @can('financial')
                     <div class="mb-4">
-                        <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2 transition-opacity duration-200"
-                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'">
-                            <span x-show="!sidebarExpanded" class="text-center w-6" aria-hidden="true">•••</span>
-                            <span x-show="sidebarExpanded || window.innerWidth < 1024">Financial</span>
+                        <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2">
+                            <span x-show="!sidebarExpanded && window.innerWidth >= 1024" class="text-center w-6"
+                                aria-hidden="true">•••</span>
+                            <span x-show="sidebarExpanded || window.innerWidth < 1024"
+                                class="transition-opacity duration-200">Financial</span>
                         </h3>
                         <ul class="space-y-1">
                             <!-- Payments -->
@@ -426,6 +430,28 @@
                                         </div>
                                     </a>
                                 </li>
+                            @endcan
+
+                            <!-- Refunds -->
+                            <li>
+                                <a href="{{ route('admin.refunds.index') }}"
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('admin.refunds.index')) bg-indigo-900 @endif">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                    </svg>
+                                    <span class="transition-opacity duration-200 whitespace-nowrap"
+                                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
+                                        x-show="sidebarExpanded || window.innerWidth < 1024">Refunds</span>
+                                    <!-- Tooltip for collapsed state -->
+                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
+                                        class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                        Refunds
+                                    </div>
+                                </a>
+                            </li>
+                            @can('view_refunds')
                             @endcan
 
                             <!-- Invoices -->
@@ -478,10 +504,11 @@
                 <!-- Settings -->
                 @can('Settings')
                     <div>
-                        <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2 transition-opacity duration-200"
-                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'">
-                            <span x-show="!sidebarExpanded" class="text-center w-6" aria-hidden="true">•••</span>
-                            <span x-show="sidebarExpanded || window.innerWidth < 1024">Settings</span>
+                        <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2">
+                            <span x-show="!sidebarExpanded && window.innerWidth >= 1024" class="text-center w-6"
+                                aria-hidden="true">•••</span>
+                            <span x-show="sidebarExpanded || window.innerWidth < 1024"
+                                class="transition-opacity duration-200">Settings</span>
                         </h3>
                         <ul class="space-y-1">
                             <!-- Users -->
@@ -564,18 +591,24 @@
             <!-- Expand / collapse button -->
             <div class="pt-3 hidden lg:inline-flex justify-end mt-auto">
                 <div class="px-3 py-2">
-                    <button class="text-indigo-300 hover:text-white transition-colors flex items-center gap-2"
-                        @click="sidebarExpanded = !sidebarExpanded">
-                        <span class="text-sm transition-opacity duration-200"
-                            :class="sidebarExpanded ? 'opacity-100' : 'opacity-0'"
-                            x-show="sidebarExpanded">Collapse</span>
-                        <svg class="shrink-0 fill-current text-indigo-300 transition-transform duration-200"
-                            :class="sidebarExpanded ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg"
-                            width="16" height="16" viewBox="0 0 16 16">
-                            <path
-                                d="M15 16a1 1 0 0 1-1-1V1a1 1 0 1 1 2 0v14a1 1 0 0 1-1 1ZM8.586 7H1a1 1 0 1 0 0 2h7.586l-2.793 2.793a1 1 0 1 0 1.414 1.414l4.5-4.5A.997.997 0 0 0 12 8.01M11.924 7.617a.997.997 0 0 0-.217-.324l-4.5-4.5a1 1 0 0 0-1.414 1.414L8.586 7M12 7.99a.996.996 0 0 0-.076-.373Z" />
-                        </svg>
-                    </button>
+                    <div class="flex flex-col gap-2">
+                        <!-- Persistent Mode Toggle -->
+                        <button
+                            class="flex items-center justify-center gap-2 px-3 py-2 text-indigo-300 hover:text-white transition-colors rounded-lg border border-indigo-300/30 hover:border-indigo-200/50"
+                            @click="sidebarPersistent = !sidebarPersistent"
+                            :class="sidebarPersistent ? 'bg-indigo-900/30 text-white border-indigo-400' : ''"
+                            title="Toggle persistent sidebar" aria-pressed="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+                                    x-show="!sidebarPersistent" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 12h14M12 5v14" x-show="sidebarPersistent" />
+                            </svg>
+                        </button>
+
+                    </div>
                 </div>
             </div>
         </div>

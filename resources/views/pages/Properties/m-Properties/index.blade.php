@@ -2,14 +2,14 @@
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400">
                 Manajemen Properti
             </h1>
             <div class="mt-4 md:mt-0">
                 {{-- New Input Property --}}
                 <div x-data="modalProperty()">
                     <!-- Trigger Button -->
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
                         type="button" @click.prevent="modalOpenDetail = true;" aria-controls="feedback-modal1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
                             fill="currentColor">
@@ -38,15 +38,15 @@
                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                         x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak>
 
-                        <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
                             @click.outside="modalOpenDetail = false" @keydown.escape.window="modalOpenDetail = false">
 
                             <!-- Modal header with step indicator -->
-                            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
                                 <div class="flex justify-between items-center mb-4">
-                                    <div class="font-bold text-xl text-gray-800">Tambahkan Properti</div>
+                                    <div class="font-bold text-xl text-gray-800 dark:text-white">Tambahkan Properti</div>
                                     <button type="button"
-                                        class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
                                         @click="modalOpenDetail = false">
                                         <div class="sr-only">Close</div>
                                         <svg class="w-6 h-6 fill-current">
@@ -62,7 +62,7 @@
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
                                             :class="step >= 1 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 text-gray-500'">
+                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                             <span class="text-sm font-semibold" x-show="step < 1">1</span>
                                             <svg x-show="step >= 1" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -72,20 +72,20 @@
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 1 ? 'text-blue-600' : 'text-gray-500'">Informasi Dasar
+                                                :class="step >= 1 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'">Informasi Dasar
                                             </p>
                                         </div>
                                     </div>
 
                                     <!-- Connector -->
                                     <div class="w-16 h-0.5 transition-colors duration-300"
-                                        :class="step >= 2 ? 'bg-blue-600' : 'bg-gray-300'"></div>
+                                        :class="step >= 2 ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'"></div>
 
                                     <!-- Step 2 -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
                                             :class="step >= 2 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 text-gray-500'">
+                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                             <span class="text-sm font-semibold" x-show="step < 2">2</span>
                                             <svg x-show="step >= 2" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -95,19 +95,19 @@
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 2 ? 'text-blue-600' : 'text-gray-500'">Detail Lokasi</p>
+                                                :class="step >= 2 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'">Detail Lokasi</p>
                                         </div>
                                     </div>
 
                                     <!-- Connector -->
                                     <div class="w-16 h-0.5 transition-colors duration-300"
-                                        :class="step >= 3 ? 'bg-blue-600' : 'bg-gray-300'"></div>
+                                        :class="step >= 3 ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'"></div>
 
                                     <!-- Step 3 (Fasilitas) -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
                                             :class="step >= 3 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 text-gray-500'">
+                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                             <span class="text-sm font-semibold" x-show="step < 3">3</span>
                                             <svg x-show="step >= 3" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -117,19 +117,19 @@
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 3 ? 'text-blue-600' : 'text-gray-500'">Fasilitas</p>
+                                                :class="step >= 3 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'">Fasilitas</p>
                                         </div>
                                     </div>
 
                                     <!-- Connector -->
                                     <div class="w-16 h-0.5 transition-colors duration-300"
-                                        :class="step >= 4 ? 'bg-blue-600' : 'bg-gray-300'"></div>
+                                        :class="step >= 4 ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'"></div>
 
                                     <!-- Step 4 (Foto) -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
                                             :class="step >= 4 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 text-gray-500'">
+                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                             <span class="text-sm font-semibold" x-show="step < 4">4</span>
                                             <svg x-show="step >= 4" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -139,7 +139,7 @@
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 4 ? 'text-blue-600' : 'text-gray-500'">Foto</p>
+                                                :class="step >= 4 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'">Foto</p>
                                         </div>
                                     </div>
                                 </div>
@@ -158,17 +158,17 @@
                                         <div class="space-y-6">
                                             <div>
                                                 <label for="property_name"
-                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                     Nama Properti <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="text" id="property_name" name="property_name"
                                                     required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                     placeholder="Masukkan nama properti">
                                             </div>
 
                                             <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                     Jenis Properti <span class="text-red-500">*</span>
                                                 </label>
                                                 <div class="grid grid-cols-2 gap-4" x-data="{
@@ -185,7 +185,7 @@
                                                                 type="radio" :value="type.value"
                                                                 class="sr-only peer" required>
                                                             <label :for="'type-' + type.value"
-                                                                class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
+                                                                class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
                                                                 <span x-text="type.label"></span>
                                                             </label>
                                                         </div>
@@ -195,11 +195,11 @@
 
                                             <div>
                                                 <label for="description"
-                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                     Deskripsi <span class="text-red-500">*</span>
                                                 </label>
                                                 <textarea id="description" name="description" rows="4" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                     placeholder="Deskripsikan properti Anda..."></textarea>
                                             </div>
                                         </div>
@@ -212,24 +212,24 @@
                                         <div class="space-y-6">
                                             <div>
                                                 <label for="full_address"
-                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                     Alamat Lengkap <span class="text-red-500">*</span>
                                                 </label>
                                                 <textarea id="full_address" name="full_address" rows="3" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                     placeholder="Masukkan alamat lengkap properti"></textarea>
                                             </div>
 
                                             <div>
                                                 <label
-                                                    class="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                                                    class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                     Pinpoint Lokasi <span class="text-red-500 ml-1">*</span>
-                                                    <span class="text-gray-500 text-sm font-normal ml-2">(Klik untuk
+                                                    <span class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(Klik untuk
                                                         menandai langsung pada peta)</span>
                                                 </label>
                                                 <div id="map"
-                                                    class="h-64 bg-gray-100 rounded-lg border-2 border-gray-200 flex items-center justify-center">
-                                                    <div class="text-gray-500 text-center">
+                                                    class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center">
+                                                    <div class="text-gray-500 dark:text-gray-400 text-center">
                                                         <svg class="w-12 h-12 mx-auto mb-2" fill="none"
                                                             stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -243,7 +243,7 @@
                                                         <p>Klik untuk menentukan lokasi</p>
                                                     </div>
                                                 </div>
-                                                <div id="coordinates" class="mt-2 text-sm text-gray-500"></div>
+                                                <div id="coordinates" class="mt-2 text-sm text-gray-500 dark:text-gray-400"></div>
                                                 <input type="hidden" id="latitude" name="latitude">
                                                 <input type="hidden" id="longitude" name="longitude">
                                             </div>
@@ -251,43 +251,43 @@
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <label for="province"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Provinsi <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="province" name="province" required
                                                         placeholder="Masukkan Provinsi"
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                                        class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                                                 </div>
 
                                                 <div>
                                                     <label for="city"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Kota/Kabupaten <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="city" name="city" required
                                                         placeholder="Masukkan Kota atau Kabupaten"
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                                        class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                                                 </div>
                                             </div>
 
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <label for="district"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Kecamatan <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="district" name="district" required
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                        class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                         placeholder="Masukkan kecamatan">
                                                 </div>
 
                                                 <div>
                                                     <label for="village"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Kelurahan <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="village" name="village" required
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                        class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                         placeholder="Masukkan kelurahan">
                                                 </div>
                                             </div>
@@ -295,11 +295,11 @@
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <label for="postal_code"
-                                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Kode Pos
                                                     </label>
                                                     <input type="text" id="postal_code" name="postal_code"
-                                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                        class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                         placeholder="Masukkan kode pos">
                                                 </div>
                                             </div>
@@ -313,8 +313,8 @@
                                         <div class="space-y-8">
                                             <!-- General Facilities -->
                                             <div>
-                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
+                                                <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -328,7 +328,7 @@
                                                                 name="general_facilities[]" type="checkbox"
                                                                 value="{{ $facility->idrec }}" class="sr-only peer">
                                                             <label for="general-{{ $facility->idrec }}"
-                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
+                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
                                                                 <span>{{ $facility->facility }}</span>
                                                             </label>
                                                         </div>
@@ -338,8 +338,8 @@
 
                                             <!-- Security Facilities -->
                                             <div>
-                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
+                                                <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-green-600 dark:text-green-400" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
@@ -354,7 +354,7 @@
                                                                 name="security_facilities[]" type="checkbox"
                                                                 value="{{ $facility->idrec }}" class="sr-only peer">
                                                             <label for="security-{{ $facility->idrec }}"
-                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-600 transition-all duration-200">
+                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200">
                                                                 <span>{{ $facility->facility }}</span>
                                                             </label>
                                                         </div>
@@ -364,8 +364,8 @@
 
                                             <!-- Amenities -->
                                             <div>
-                                                <h3 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-purple-600" fill="none"
+                                                <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
@@ -380,7 +380,7 @@
                                                                 name="amenities_facilities[]" type="checkbox"
                                                                 value="{{ $facility->idrec }}" class="sr-only peer">
                                                             <label for="amenities-{{ $facility->idrec }}"
-                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-purple-600 peer-checked:bg-purple-50 peer-checked:text-purple-600 transition-all duration-200">
+                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200">
                                                                 <span>{{ $facility->facility }}</span>
                                                             </label>
                                                         </div>
@@ -396,9 +396,9 @@
                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                         <div class="space-y-6">
                                             <div>
-                                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                     Foto Properti <span class="text-red-500">*</span>
-                                                    <span class="text-sm font-normal text-gray-500">
+                                                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
                                                         (Wajib 3 foto - <span x-text="remainingSlots"></span> foto
                                                         lagi)
                                                     </span>
@@ -406,22 +406,22 @@
 
                                                 <!-- Thumbnail Selection Area -->
                                                 <div class="mb-6">
-                                                    <h4 class="text-sm font-semibold text-gray-700 mb-2">
+                                                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Pilih Thumbnail <span class="text-red-500">*</span>
-                                                        <span class="text-xs font-normal text-gray-500">(Foto utama
+                                                        <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(Foto utama
                                                             yang akan ditampilkan)</span>
                                                     </h4>
 
                                                     <div class="flex items-center space-x-4">
                                                         <!-- Thumbnail Preview -->
-                                                        <div class="w-32 h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden relative"
+                                                        <div class="w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 overflow-hidden relative"
                                                             x-show="images.length > 0">
                                                             <template x-if="thumbnailIndex !== null">
                                                                 <img :src="images[thumbnailIndex].url"
                                                                     alt="Selected Thumbnail"
                                                                     class="w-full h-full object-cover">
                                                             </template>
-                                                            <div class="absolute inset-0 flex items-center justify-center text-gray-400"
+                                                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500"
                                                                 x-show="thumbnailIndex === null">
                                                                 <svg class="w-10 h-10" fill="none"
                                                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -435,7 +435,7 @@
 
                                                         <!-- Thumbnail Selection Instructions -->
                                                         <div class="flex-1">
-                                                            <p class="text-sm text-gray-600 mb-2">
+                                                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                                 <span x-show="thumbnailIndex === null"
                                                                     class="font-medium text-red-500">Belum ada
                                                                     thumbnail dipilih!</span>
@@ -445,7 +445,7 @@
                                                                 Klik salah satu foto di bawah untuk memilih sebagai
                                                                 thumbnail.
                                                             </p>
-                                                            <p class="text-xs text-gray-500">
+                                                            <p class="text-xs text-gray-500 dark:text-gray-400">
                                                                 Pastikan memilih foto terbaik sebagai thumbnail karena
                                                                 ini akan menjadi gambar utama properti Anda.
                                                             </p>
@@ -456,19 +456,19 @@
                                                 <!-- Upload Area -->
                                                 <div x-show="canUploadMore" @drop="handleDrop($event)"
                                                     @dragover.prevent @dragenter.prevent
-                                                    class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer"
-                                                    :class="{ 'border-blue-400 bg-blue-50': canUploadMore }">
+                                                    class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200 cursor-pointer"
+                                                    :class="{ 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20': canUploadMore }">
                                                     <div class="space-y-2">
-                                                        <svg class="w-12 h-12 mx-auto text-gray-400" fill="none"
+                                                        <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500" fill="none"
                                                             stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2"
                                                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                                             </path>
                                                         </svg>
-                                                        <div class="flex text-sm text-gray-600 justify-center">
+                                                        <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
                                                             <label for="property_images"
-                                                                class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                                class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                                                 <span>Upload foto</span>
                                                                 <input id="property_images" name="property_images[]"
                                                                     type="file" multiple accept="image/*"
@@ -477,31 +477,31 @@
                                                             </label>
                                                             <p class="pl-1">atau drag and drop</p>
                                                         </div>
-                                                        <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 5MB</p>
-                                                        <p class="text-xs text-blue-600"
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG up to 5MB</p>
+                                                        <p class="text-xs text-blue-600 dark:text-blue-400"
                                                             x-text="`Dapat upload ${remainingSlots} foto lagi`"></p>
                                                     </div>
                                                 </div>
 
                                                 <!-- Full Upload Message -->
                                                 <div x-show="!canUploadMore"
-                                                    class="border-2 border-green-300 rounded-lg p-8 text-center bg-green-50">
+                                                    class="border-2 border-green-300 dark:border-green-600 rounded-lg p-8 text-center bg-green-50 dark:bg-green-900/20">
                                                     <div class="space-y-2">
                                                         <svg class="w-12 h-12 mx-auto text-green-500" fill="none"
                                                             stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                         </svg>
-                                                        <p class="text-sm text-green-600 font-medium">3 foto telah
+                                                        <p class="text-sm text-green-600 dark:text-green-400 font-medium">3 foto telah
                                                             diupload!</p>
-                                                        <p class="text-xs text-green-500">Semua slot foto telah terisi
+                                                        <p class="text-xs text-green-500 dark:text-green-400">Semua slot foto telah terisi
                                                         </p>
                                                     </div>
                                                 </div>
 
                                                 <!-- Image Preview Grid -->
                                                 <div x-show="images.length > 0" class="mt-4">
-                                                    <h4 class="text-sm font-semibold text-gray-700 mb-2">Foto Terupload
+                                                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Foto Terupload
                                                     </h4>
                                                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
                                                         x-transition:enter="transition ease-out duration-300"
@@ -511,10 +511,10 @@
                                                             :key="index">
                                                             <div class="relative group" @click="setThumbnail(index)">
                                                                 <!-- Image Container -->
-                                                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                <div class="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border-2 transition-all duration-200"
                                                                     :class="thumbnailIndex === index ?
                                                                         'border-blue-600 ring-2 ring-blue-400' :
-                                                                        'border-gray-200 hover:border-blue-400'">
+                                                                        'border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'">
                                                                     <img :src="image.url"
                                                                         :alt="`Preview ${index + 1}`"
                                                                         class="w-full h-full object-cover">
@@ -549,11 +549,11 @@
 
                                                 <!-- Progress Indicator -->
                                                 <div class="mt-4">
-                                                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                         <span>Progress Upload</span>
                                                         <span x-text="`${images.length}/${maxImages} foto`"></span>
                                                     </div>
-                                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                                         <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
                                                             :style="`width: ${(images.length / maxImages) * 100}%`">
                                                         </div>
@@ -587,7 +587,7 @@
                                     <div class="mt-6 flex justify-end">
                                         <div>
                                             <button type="button" x-show="step > 1" @click="step--"
-                                                class="px-6 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                                class="px-6 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                                                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -625,9 +625,9 @@
         </div>
 
         <!-- Property Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <!-- Search and Filter Section -->
-            <div class="p-4 border-b border-gray-200">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
                 <form id="searchForm">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <!-- Search Input -->
@@ -642,16 +642,16 @@
                                 </div>
                                 <input type="text" name="search" id="searchInput"
                                     value="{{ request('search') }}"
-                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 dark:text-white"
                                     placeholder="Cari properti...">
                             </div>
                         </div>
 
                         <!-- Status Filter -->
                         <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-600">Status:</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Status:</span>
                             <select name="status" id="statusFilter"
-                                class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                class="border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                 <option value="">Semua</option>
                                 <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active
                                 </option>
@@ -662,9 +662,9 @@
 
                         <!-- Items per Page -->
                         <div class="flex items-center">
-                            <span class="text-sm text-gray-600 mr-2">Per halaman:</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400 mr-2">Per halaman:</span>
                             <select name="per_page" id="perPageSelect"
-                                class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                class="border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                 <option value="5" {{ request('per_page', 5) == 5 ? 'selected' : '' }}>5</option>
                                 <option value="10" {{ request('per_page', 5) == 10 ? 'selected' : '' }}>10
                                 </option>
@@ -688,7 +688,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="bg-gray-50 rounded p-4" id="paginationContainer">
+            <div class="bg-gray-50 dark:bg-gray-700 rounded p-4" id="paginationContainer">
                 {{ $properties->appends(request()->input())->links() }}
             </div>
         </div>

@@ -346,75 +346,219 @@
                                                             </select>
                                                         </div>
 
-                                                        <!-- Area Unggah -->
+                                                        <!-- Tab untuk memilih metode unggah -->
                                                         <div>
-                                                            <div x-show="!docPreview"
-                                                                class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200 cursor-pointer"
-                                                                @click="$refs.docInput.click()"
-                                                                @drop.prevent="handleDocDrop($event)" @dragover.prevent
-                                                                @dragenter.prevent
-                                                                :class="{ 'border-green-400 bg-green-50': isDragging }"
-                                                                role="button" tabindex="0">
-                                                                <input type="file" id="document" name="document"
-                                                                    accept="image/*,.pdf" class="hidden"
-                                                                    x-ref="docInput"
-                                                                    @change="handleDocUpload($event)">
+                                                            <!-- Ganti bagian tombol upload method dengan ini: -->
+                                                            <div class="flex border-b border-gray-200">
+                                                                <button type="button"
+                                                                    @click="handleUploadMethodChange('file')"
+                                                                    :class="uploadMethod === 'file' ?
+                                                                        'border-green-500 text-green-600' :
+                                                                        'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                                                    class="flex-1 py-2 px-4 text-center border-b-2 font-medium text-sm">
+                                                                    Upload File
+                                                                </button>
+                                                                <button type="button"
+                                                                    @click="handleUploadMethodChange('camera')"
+                                                                    :class="uploadMethod === 'camera' ?
+                                                                        'border-green-500 text-green-600' :
+                                                                        'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                                                    class="flex-1 py-2 px-4 text-center border-b-2 font-medium text-sm">
+                                                                    Webcam
+                                                                </button>
+                                                            </div>
 
-                                                                <div class="space-y-2">
-                                                                    <svg class="w-12 h-12 mx-auto text-gray-400"
-                                                                        fill="none" stroke="currentColor"
-                                                                        viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round" stroke-width="2"
-                                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                                        </path>
-                                                                    </svg>
-                                                                    <p class="text-sm text-gray-600">
-                                                                        <span class="font-medium text-green-600">Klik
-                                                                            untuk mengunggah</span> atau seret dan lepas
-                                                                    </p>
-                                                                    <p class="text-xs text-gray-500">JPG, PNG, PDF
-                                                                        hingga 5MB</p>
+                                                            <!-- Area Unggah File -->
+                                                            <div x-show="uploadMethod === 'file'" class="mt-4">
+                                                                <div x-show="!docPreview"
+                                                                    class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200 cursor-pointer"
+                                                                    @click="$refs.docInput.click()"
+                                                                    @drop.prevent="handleDocDrop($event)"
+                                                                    @dragover.prevent @dragenter.prevent
+                                                                    :class="{ 'border-green-400 bg-green-50': isDragging }"
+                                                                    role="button" tabindex="0">
+                                                                    <input type="file" id="document"
+                                                                        name="document" accept="image/*,.pdf"
+                                                                        class="hidden" x-ref="docInput"
+                                                                        @change="handleDocUpload($event)">
+
+                                                                    <div class="space-y-2">
+                                                                        <svg class="w-12 h-12 mx-auto text-gray-400"
+                                                                            fill="none" stroke="currentColor"
+                                                                            viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                                            </path>
+                                                                        </svg>
+                                                                        <p class="text-sm text-gray-600">
+                                                                            <span
+                                                                                class="font-medium text-green-600">Klik
+                                                                                untuk mengunggah</span> atau seret dan
+                                                                            lepas
+                                                                        </p>
+                                                                        <p class="text-xs text-gray-500">JPG, PNG, PDF
+                                                                            hingga 5MB</p>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
-                                                            <!-- Pratinjau Dokumen -->
-                                                            <div class="mt-4" x-show="docPreview" x-transition>
-                                                                <h4 class="text-sm font-medium text-gray-700 mb-2">
-                                                                    Pratinjau Dokumen (<span
-                                                                        x-text="selectedDocType.toUpperCase()"></span>):
-                                                                </h4>
+                                                            <!-- Area Webcam -->
+                                                            <div x-show="uploadMethod === 'camera'" class="mt-4">
                                                                 <div
-                                                                    class="border border-gray-200 rounded-lg p-2 bg-white">
-                                                                    <template x-if="docPreviewType === 'image'">
-                                                                        <img :src="docPreview"
-                                                                            alt="Pratinjau Dokumen"
-                                                                            class="w-full h-auto max-h-48 object-contain">
-                                                                    </template>
-                                                                    <template x-if="docPreviewType === 'pdf'">
-                                                                        <div class="bg-gray-100 p-4 text-center">
-                                                                            <svg class="w-12 h-12 mx-auto text-red-500"
+                                                                    class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                                                                    <!-- Preview Webcam -->
+                                                                    <div x-show="!isCapturing && !webcamPhoto"
+                                                                        class="text-center p-8 bg-gray-50 rounded-lg">
+                                                                        <svg class="w-12 h-12 mx-auto text-gray-400"
+                                                                            fill="none" stroke="currentColor"
+                                                                            viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                                        </svg>
+                                                                        <p class="text-sm text-gray-600 mt-2">
+                                                                            Klik tombol di bawah untuk mengambil foto
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <!-- Video Webcam -->
+                                                                    <div x-show="isCapturing" class="relative">
+                                                                        <video x-ref="webcamVideo"
+                                                                            class="w-full h-auto rounded-lg" autoplay
+                                                                            playsinline>
+                                                                        </video>
+                                                                        <div
+                                                                            class="absolute bottom-4 left-0 right-0 flex justify-center">
+                                                                            <button type="button"
+                                                                                @click="capturePhoto"
+                                                                                class="bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition-colors">
+                                                                                <svg class="w-6 h-6 text-gray-700"
+                                                                                    fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Hasil Foto -->
+                                                                    <div x-show="webcamPhoto && !isCapturing"
+                                                                        class="relative">
+                                                                        <img :src="webcamPhoto"
+                                                                            alt="Foto dari webcam"
+                                                                            class="w-full h-auto rounded-lg">
+                                                                        <div
+                                                                            class="absolute top-2 right-2 flex space-x-2">
+                                                                            <button type="button"
+                                                                                @click="retakePhoto"
+                                                                                class="bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors">
+                                                                                <svg class="w-4 h-4 text-gray-700"
+                                                                                    fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                                                </svg>
+                                                                            </button>
+                                                                            <button type="button"
+                                                                                @click="useWebcamPhoto"
+                                                                                class="bg-green-500 rounded-full p-2 shadow-lg hover:bg-green-600 transition-colors">
+                                                                                <svg class="w-4 h-4 text-white"
+                                                                                    fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M5 13l4 4L19 7" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Tombol Mulai Webcam -->
+                                                                    <div x-show="!isCapturing && !webcamPhoto"
+                                                                        class="mt-4">
+                                                                        <button type="button" @click="startWebcam"
+                                                                            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                                                            <svg class="w-5 h-5 inline mr-2"
                                                                                 fill="none" stroke="currentColor"
                                                                                 viewBox="0 0 24 24">
                                                                                 <path stroke-linecap="round"
                                                                                     stroke-linejoin="round"
                                                                                     stroke-width="2"
-                                                                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                                                                </path>
+                                                                                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                                             </svg>
-                                                                            <p class="text-sm text-gray-600 mt-2">
-                                                                                Dokumen PDF</p>
-                                                                        </div>
-                                                                    </template>
-                                                                    <div
-                                                                        class="mt-2 flex justify-between items-center">
-                                                                        <span class="text-xs text-gray-500">Dokumen
-                                                                            terunggah</span>
-                                                                        <button type="button" @click="removeDoc"
-                                                                            class="text-red-500 hover:text-red-700 text-xs font-medium">
-                                                                            Hapus
+                                                                            Buka Kamera
                                                                         </button>
                                                                     </div>
+
+                                                                    <!-- Tombol Tutup Webcam -->
+                                                                    <div x-show="isCapturing" class="mt-4">
+                                                                        <button type="button" @click="stopWebcam"
+                                                                            class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+                                                                            <svg class="w-5 h-5 inline mr-2"
+                                                                                fill="none" stroke="currentColor"
+                                                                                viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M6 18L18 6M6 6l12 12" />
+                                                                            </svg>
+                                                                            Tutup Kamera
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Pratinjau Dokumen -->
+                                                        <div class="mt-4" x-show="docPreview" x-transition>
+                                                            <h4 class="text-sm font-medium text-gray-700 mb-2">
+                                                                Pratinjau Dokumen (<span
+                                                                    x-text="selectedDocType.toUpperCase()"></span>):
+                                                            </h4>
+                                                            <div
+                                                                class="border border-gray-200 rounded-lg p-2 bg-white">
+                                                                <template x-if="docPreviewType === 'image'">
+                                                                    <img :src="docPreview" alt="Pratinjau Dokumen"
+                                                                        class="w-full h-auto max-h-48 object-contain">
+                                                                </template>
+                                                                <template x-if="docPreviewType === 'pdf'">
+                                                                    <div class="bg-gray-100 p-4 text-center">
+                                                                        <svg class="w-12 h-12 mx-auto text-red-500"
+                                                                            fill="none" stroke="currentColor"
+                                                                            viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                                                            </path>
+                                                                        </svg>
+                                                                        <p class="text-sm text-gray-600 mt-2">
+                                                                            Dokumen PDF</p>
+                                                                    </div>
+                                                                </template>
+                                                                <div class="mt-2 flex justify-between items-center">
+                                                                    <span class="text-xs text-gray-500">Dokumen
+                                                                        terunggah</span>
+                                                                    <button type="button" @click="removeDoc"
+                                                                        class="text-red-500 hover:text-red-700 text-xs font-medium">
+                                                                        Hapus
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         </div>

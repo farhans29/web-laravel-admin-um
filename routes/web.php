@@ -16,6 +16,7 @@ use App\Http\Controllers\Rooms\ChangeRoomController;
 use App\Http\Controllers\Properties\ManajementPropertiesController;
 use App\Http\Controllers\Properties\ManajementRoomsController;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Payment\RefundController;
 use Symfony\Component\Console\Command\CompleteCommand;
 
 // Route::redirect('/', 'login');
@@ -74,7 +75,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/completed/filter', [CompletedController::class, 'filter'])->name('completed.filter');
 
         Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
-        Route::get('/checkin/filter', [CheckInController::class, 'filter'])->name('checkin.filter'); 
+        Route::get('/checkin/filter', [CheckInController::class, 'filter'])->name('checkin.filter');
         // ---------------------------------------------------------------------------------------------------------------------
         Route::post('/checkin/{order_id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
         Route::get('/check-in/{order_id}/details', [CheckInController::class, 'getBookingDetails'])->name('bookings.checkin.details');
@@ -103,9 +104,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/m-properties/facility/store', [ManajementPropertiesController::class, 'storeFacility'])->name('facilityProperty.store');
         Route::put('/m-properties/facility/update/{id}', [ManajementPropertiesController::class, 'updateFacility'])->name('facilityProperty.update');
 
-
-
-
         // ------------------------- ROOMS MANAGEMENT -------------------------
         Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
         Route::post('/rooms/store', [ManajementRoomsController::class, 'store'])->name('rooms.store');
@@ -115,7 +113,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rooms/{id}', [ManajementRoomsController::class, 'show'])->where('id', '[0-9]+')->name('rooms.show');
         Route::get('/rooms/table', [ManajementRoomsController::class, 'tablePartial'])->name('properties.table');
         Route::delete('/rooms/{idrec}/destroy', [ManajementRoomsController::class, 'destroy'])->name('rooms.destoy');
-        Route::get('/rooms/{room}/edit-prices', [ManajementRoomsController::class, 'changePriceIndex'])->name('rooms.prices.change-price-index');        
+        Route::get('/rooms/{room}/edit-prices', [ManajementRoomsController::class, 'changePriceIndex'])->name('rooms.prices.change-price-index');
         Route::get('/rooms/{room}/price', [ManajementRoomsController::class, 'getPriceForDate'])->name('rooms.prices.date');
         Route::post('/rooms/{room}/update-price', [ManajementRoomsController::class, 'updatePriceRange'])->name('rooms.prices.update');
         Route::get('/rooms/{room}/prices', [ManajementRoomsController::class, 'getRoomPrices'])->name('rooms.prices.index');
@@ -130,7 +128,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/payments/filter', [PaymentController::class, 'filter'])->name('admin.payments.filter');
         Route::post('/approve/{id}', [PaymentController::class, 'approve'])->name('admin.payments.approve');
         Route::post('/reject/{id}', [PaymentController::class, 'reject'])->name('admin.payments.reject');
-    });
+        Route::put('/cancel/{id}', [PaymentController::class, 'cancel'])->name('admin.bookings.cancel');
 
-    Route::prefix('master')->group(function () {});
+        Route::get('/refund', [RefundController::class, 'index'])->name('admin.refunds.index');
+        Route::post('/refund/store', [RefundController::class, 'store'])->name('admin.refunds.store');
+        Route::post('/refund/cancel/{id_booking}', [RefundController::class, 'cancel'])->name('admin.refunds.cancel');
+    });
 });

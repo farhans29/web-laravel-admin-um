@@ -16,7 +16,6 @@ use Carbon\Carbon;
 
 class ManajementRoomsController extends Controller
 {
-
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 8);
@@ -52,7 +51,17 @@ class ManajementRoomsController extends Controller
             : $query->paginate((int) $perPage)->withQueryString();
 
         $properties = Property::orderBy('name', 'asc')->get();
+
+        // Pastikan ini mengembalikan Collection, bukan string
         $facilities = RoomFacility::where('status', 1)->get();
+
+        $facilityData = $facilities->map(function ($facility) {
+            return [
+                'id' => $facility->idrec,
+                'name' => $facility->facility,
+                'description' => $facility->description,
+            ];
+        });
 
         // Jika request AJAX, kembalikan partial view
         if ($request->ajax()) {
@@ -61,6 +70,7 @@ class ManajementRoomsController extends Controller
                     'properties' => $properties,
                     'rooms' => $rooms,
                     'per_page' => $perPage,
+                    'facilities' => $facilities, // Pastikan juga dikirim ke partial view
                 ])->render(),
                 'pagination' => $rooms instanceof \Illuminate\Pagination\LengthAwarePaginator
                     ? $rooms->appends($request->input())->links()->toHtml()
@@ -70,12 +80,12 @@ class ManajementRoomsController extends Controller
 
         return view('pages.Properties.m-Rooms.index', [
             'facilities' => $facilities,
+            'facilityData' => $facilityData,
             'rooms' => $rooms,
             'properties' => $properties,
             'per_page' => $perPage,
         ]);
     }
-
 
     public function store(Request $request)
     {
@@ -128,6 +138,10 @@ class ManajementRoomsController extends Controller
             'daily' => !empty($validated['daily_price']),
             'monthly' => !empty($validated['monthly_price'])
         ];
+
+        $periode_daily = $periode['daily'] ? 1 : 0;
+        $periode_monthly = $periode['monthly'] ? 1 : 0;
+
         // Save to rooms table
         $room = new Room();
         $room->idrec = $idrec;
@@ -141,6 +155,8 @@ class ManajementRoomsController extends Controller
         $room->bed_type = $validated['room_bed'];
         $room->capacity = $validated['room_capacity'];
         $room->periode = json_encode($periode);
+        $room->periode_daily = $periode_daily;   
+        $room->periode_monthly = $periode_monthly; 
         $room->type = $property->type;
         $room->level = 1;
         $room->facility = $facilityData;
@@ -221,7 +237,7 @@ class ManajementRoomsController extends Controller
     }
 
     public function update(Request $request, $idrec)
-    {
+    { 
         // Validate input
         $validated = $request->validate([
             'property_id' => 'required|numeric|exists:m_properties,idrec',
@@ -233,7 +249,7 @@ class ManajementRoomsController extends Controller
             'description' => 'required|string',
             'daily_price' => 'nullable|numeric|min:0',
             'monthly_price' => 'nullable|numeric|min:0',
-            'facilities' => 'nullable|array',
+            'facilities' => 'nullable|string',
             'room_images' => 'nullable|array|min:0|max:10',
             'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
             'thumbnail_index' => 'required|integer|min:0',
@@ -250,20 +266,17 @@ class ManajementRoomsController extends Controller
             $property = Property::findOrFail($validated['property_id']);
 
             // Prepare facility data
-            $allFacilities = [
-                'wifi',
-                'ac',
-                'tv',
-                'bathroom',
-                'hot_water',
-                'wardrobe',
-                'desk',
-                'refrigerator',
-                'breakfast'
-            ];
-            $facilityData = [
-                'features' => array_intersect($request->input('facilities', []), $allFacilities),
-            ];
+            $facilitiesArray = [];
+            if (!empty($validated['facilities'])) {
+                try {
+                    $facilitiesArray = json_decode($validated['facilities'], true);
+                    if (!is_array($facilitiesArray)) {
+                        $facilitiesArray = [];
+                    }
+                } catch (\Exception $e) {
+                    $facilitiesArray = [];
+                }
+            }
 
             // Generate new slug
             $tagShort = strtolower(substr($property->tags, 0, 3));
@@ -289,7 +302,7 @@ class ManajementRoomsController extends Controller
                 ]),
                 'type' => $property->type,
                 'level' => 1,
-                'facility' => $facilityData['features'],
+                'facility' => $facilitiesArray,
                 'price' => $validated['daily_price'] ?? $validated['monthly_price'] ?? 0,
                 'price_original_daily' => $validated['daily_price'] ?? 0,
                 'price_original_monthly' => $validated['monthly_price'] ?? 0,

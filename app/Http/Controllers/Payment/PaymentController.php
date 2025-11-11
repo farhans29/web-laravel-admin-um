@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\Booking;
+use App\Models\Refund;
 use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -162,6 +164,66 @@ class PaymentController extends Controller
 
         return redirect()->back()->with('success', 'Payment rejected successfully');
     }
+
+    public function cancel(Request $request, $id)
+    {
+        $payment = Payment::findOrFail($id);
+
+        // Validasi status transaksi
+        if (!in_array($payment->transaction->transaction_status, ['paid', 'completed'])) {
+            return redirect()->back()->with('error', 'Hanya booking dengan status terverifikasi yang dapat dibatalkan.');
+        }
+
+        // Tentukan alasan pembatalan
+        $cancelReason = $request->cancelReason === 'other'
+            ? $request->customCancelReason
+            : $request->cancelReason;
+
+        // Bersihkan nilai refundAmount dari format rupiah (misal: "1.000.000" → 1000000)
+        $refundAmount = (int) str_replace(['Rp', '.', ' '], '', $request->refundAmount);
+
+        // Simpan data refund ke tabel t_refund
+        Refund::create([
+            'id_booking'    => $payment->order_id,
+            'status'        => 'pending',
+            'reason'        => $cancelReason,
+            'amount'        => $refundAmount,
+            'img'           => null,
+            'image_caption' => null,
+            'image_path'    => null,
+            'refund_date'   => Carbon::now(),
+        ]);
+
+        // Update status transaksi & pembayaran
+        $payment->transaction->update([
+            'transaction_status' => 'cancelled',
+        ]);
+
+        // Update related booking status to 0 (cancelled)
+        if ($payment->booking) {
+            $payment->booking->update([
+            'status' => '0',
+            'reason' => $cancelReason,
+            ]);
+        } else {
+            Booking::where('order_id', $payment->order_id)->update([
+            'status' => '0',
+            'reason' => $cancelReason,
+            ]);
+        }
+
+        $payment->update([
+            'payment_status' => 'refunded',
+        ]);
+
+        // Kirim notifikasi (opsional)
+        if ($request->has('sendNotification')) {
+            // logika kirim notifikasi ke pelanggan (jika diperlukan)
+        }
+
+        return redirect()->back()->with('success', 'Booking berhasil dibatalkan dan data refund telah disimpan.');
+    }
+
 
     public function viewProof($id)
     {

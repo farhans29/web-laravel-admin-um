@@ -9,11 +9,12 @@
                 </h1>
             </div>
         </div>
+        
         <!-- Search and Filter Section -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
             <form method="GET" action="{{ route('bookings.filter') }}"
                 onsubmit="event.preventDefault(); fetchFilteredBookings();"
-                class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 rounded-lg overflow-hidden">
 
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <!-- Search Booking -->
@@ -64,7 +65,7 @@
                     <!-- Show Per Page (aligned to the right) -->
                     <div class="md:col-span-1 flex justify-end items-end">
                         <div class="flex items-center gap-2">
-                            <label for="per_page" class="text-sm text-gray-600">Show:</label>
+                            <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
                             <select name="per_page" id="per_page"
                                 class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
@@ -79,7 +80,7 @@
 
 
         <!-- Bookings Table -->
-        <div class="overflow-x-auto" id="bookingsTableContainer">
+        <div class="overflow-x-auto rounded-lg" id="bookingsTableContainer">
             @include('pages.bookings.allbookings.partials.allbookings_table', [
                 'bookings' => $bookings,
                 'per_page' => request('per_page', 8),

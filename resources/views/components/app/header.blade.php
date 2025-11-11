@@ -35,7 +35,7 @@
                 <x-dropdown-help align="right" />
 
                 <!-- Dark mode toggle -->
-                {{-- <x-theme-toggle />                 --}}
+                {{-- <x-theme-toggle /> --}}
 
                 <!-- Divider -->
                 <hr class="w-px h-6 bg-gray-200 dark:bg-gray-700/60 border-none" />

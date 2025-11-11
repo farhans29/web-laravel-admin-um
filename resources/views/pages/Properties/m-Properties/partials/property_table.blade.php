@@ -1,25 +1,25 @@
-<table class="min-w-full divide-y divide-gray-200">
-    <thead class="bg-gray-50">
+<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+    <thead class="bg-gray-50 dark:bg-gray-800">
         <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Nama</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Provinsi</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Tanggal Penambahan</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Tanggal Perubahan</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Ditambahkan Oleh</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Status</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Aksi</th>
         </tr>
     </thead>
-    <tbody class="bg-white divide-y divide-gray-200" id="propertyTableBody">
+    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="propertyTableBody">
         @forelse ($properties as $property)
-            <tr>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 h-10 w-10">
@@ -32,32 +32,32 @@
                             @endif
                         </div>
                         <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">{{ $property->name }}</div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $property->name }}</div>
                         </div>
                     </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    <div class="text-sm font-medium text-gray-900">{{ $property->province }}</div>
-                    <div class="text-sm text-gray-500">{{ $property->city }}</div>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $property->province }}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $property->city }}</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    <div class="text-sm font-medium text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                         {{ \Carbon\Carbon::parse($property->created_at)->format('Y M d') }}</div>
-                    <div class="text-xs text-gray-400">
+                    <div class="text-xs text-gray-400 dark:text-gray-500">
                         {{ \Carbon\Carbon::parse($property->created_at)->format('H:i') }}</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
                     @if ($property->updated_at)
-                        <div class="text-sm font-medium text-gray-900">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">
                             {{ \Carbon\Carbon::parse($property->updated_at)->format('Y M d') }}</div>
-                        <div class="text-xs text-gray-400">
+                        <div class="text-xs text-gray-400 dark:text-gray-500">
                             {{ \Carbon\Carbon::parse($property->updated_at)->format('H:i') }}</div>
                     @else
-                        <div>-</div>
+                        <div class="text-gray-500 dark:text-gray-400">-</div>
                     @endif
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    <div class="text-sm font-medium text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                         {{ $property->creator->username ?? 'Unknown' }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -65,9 +65,9 @@
                         <input type="checkbox" value="" class="sr-only peer" data-id="{{ $property->idrec }}"
                             {{ $property->status ? 'checked' : '' }} onchange="toggleStatus(this)">
                         <div
-                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                            class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
                         </div>
-                        <span class="ml-3 text-sm font-medium text-gray-900">
+                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white">
                             {{ $property->status ? 'Active' : 'Inactive' }}
                         </span>
                     </label>
@@ -93,7 +93,7 @@
                                     'amenities' => $facilities->get('amenities', []),
                                 ];
                             @endphp
-                            <button class="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+                            <button class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
                                 type="button"
                                 @click.prevent='openModal({
                                                 name: @json($property->name),
@@ -141,18 +141,18 @@
                                 x-transition:leave-start="opacity-100 scale-100"
                                 x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
-                                <div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl max-h-[95vh] flex flex-col"
+                                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl max-h-[95vh] flex flex-col"
                                     @click.outside="modalOpenDetail = false"
                                     @keydown.escape.window="modalOpenDetail = false">
 
                                     <!-- Modal header -->
                                     <div
-                                        class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
+                                        class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
                                         <div class="text-left">
-                                            <h3 class="text-2xl font-bold text-gray-900 mb-1"
+                                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1"
                                                 x-text="selectedProperty.name"></h3>
-                                            <p class="text-gray-600 flex items-center">
-                                                <svg class="w-4 h-4 mr-1 text-gray-400" fill="none"
+                                            <p class="text-gray-600 dark:text-gray-300 flex items-center">
+                                                <svg class="w-4 h-4 mr-1 text-gray-400 dark:text-gray-500" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
@@ -165,7 +165,7 @@
                                             </p>
                                         </div>
                                         <button type="button"
-                                            class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-2 hover:bg-white rounded-full"
+                                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 p-2 hover:bg-white dark:hover:bg-gray-700 rounded-full"
                                             @click="modalOpenDetail = false">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -178,7 +178,7 @@
                                     <!-- Modal content -->
                                     <div class="overflow-y-auto flex-1">
                                         <!-- Property image slider -->
-                                        <div class="relative h-72 overflow-hidden bg-gray-200">
+                                        <div class="relative h-72 overflow-hidden bg-gray-200 dark:bg-gray-700">
                                             <!-- Images -->
                                             <div class="flex h-full transition-transform duration-300 ease-in-out"
                                                 :style="'transform: translateX(-' + (selectedProperty
@@ -193,8 +193,8 @@
                                             <!-- Navigation arrows -->
                                             <button x-show="selectedProperty.images.length > 1"
                                                 @click="selectedProperty.currentImageIndex = (selectedProperty.currentImageIndex - 1 + selectedProperty.images.length) % selectedProperty.images.length"
-                                                class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md">
-                                                <svg class="w-6 h-6 text-gray-800" fill="none"
+                                                class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 rounded-full p-2 shadow-md">
+                                                <svg class="w-6 h-6 text-gray-800 dark:text-white" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -202,8 +202,8 @@
                                             </button>
                                             <button x-show="selectedProperty.images.length > 1"
                                                 @click="selectedProperty.currentImageIndex = (selectedProperty.currentImageIndex + 1) % selectedProperty.images.length"
-                                                class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md">
-                                                <svg class="w-6 h-6 text-gray-800" fill="none"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 rounded-full p-2 shadow-md">
+                                                <svg class="w-6 h-6 text-gray-800 dark:text-white" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2" d="M9 5l7 7-7 7" />
@@ -212,12 +212,12 @@
 
                                             <!-- Status badge -->
                                             <div
-                                                class="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                                                class="absolute top-4 right-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
                                                 <span
                                                     :class="selectedProperty && selectedProperty
                                                         .status === 'Active' ?
-                                                        'text-green-600 font-semibold' :
-                                                        'text-red-600 font-semibold'"
+                                                        'text-green-600 dark:text-green-400 font-semibold' :
+                                                        'text-red-600 dark:text-red-400 font-semibold'"
                                                     class="text-sm flex items-center">
                                                     <span class="w-2.5 h-2.5 rounded-full mr-2 block"
                                                         :class="selectedProperty && selectedProperty
@@ -236,14 +236,14 @@
                                                     <button @click="selectedProperty.currentImageIndex = index"
                                                         class="w-3 h-3 rounded-full transition-all"
                                                         :class="selectedProperty.currentImageIndex === index ?
-                                                            'bg-white w-6' : 'bg-white/50'"></button>
+                                                            'bg-white dark:bg-gray-300 w-6' : 'bg-white/50 dark:bg-gray-500/50'"></button>
                                                 </template>
                                             </div>
                                         </div>
                                         <div class="p-6 space-y-8">
                                             <!-- Description -->
                                             <div class="text-center">
-                                                <p class="text-gray-700 text-lg leading-relaxed whitespace-pre-line"
+                                                <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed whitespace-pre-line"
                                                     x-text="selectedProperty.description"></p>
                                             </div>
 
@@ -251,7 +251,7 @@
                                             <div class="flex flex-col lg:flex-row gap-8">
                                                 <!-- Left Column - Property Info Grid -->
                                                 <div class="lg:w-1/3">
-                                                    <div class="bg-gray-50 p-6 rounded-xl space-y-6 text-center">
+                                                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl space-y-6 text-center">
 
                                                         <div class="flex flex-col items-center space-y-1">
                                                             <div class="flex items-center justify-center space-x-2">
@@ -262,10 +262,10 @@
                                                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                                 </svg>
                                                                 <p
-                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                    class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                                     Added By</p>
                                                             </div>
-                                                            <p class="text-gray-800 font-medium"
+                                                            <p class="text-gray-800 dark:text-white font-medium"
                                                                 x-text="selectedProperty.creator"></p>
                                                         </div>
 
@@ -278,10 +278,10 @@
                                                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                                 </svg>
                                                                 <p
-                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                    class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                                     Location</p>
                                                             </div>
-                                                            <a class="text-gray-800 font-medium underline hover:text-blue-600"
+                                                            <a class="text-gray-800 dark:text-white font-medium underline hover:text-blue-600 dark:hover:text-blue-400"
                                                                 :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedProperty.location ? selectedProperty.location : selectedProperty.city + ', ' + selectedProperty.province)}`"
                                                                 target="_blank">
                                                                 Click here for Maps
@@ -297,10 +297,10 @@
                                                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                                 </svg>
                                                                 <p
-                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                    class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                                     Added</p>
                                                             </div>
-                                                            <p class="text-gray-800 font-medium"
+                                                            <p class="text-gray-800 dark:text-white font-medium"
                                                                 x-text="selectedProperty.created_at"></p>
                                                         </div>
 
@@ -313,10 +313,10 @@
                                                                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                                                 </svg>
                                                                 <p
-                                                                    class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                                    class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                                                     Last Updated</p>
                                                             </div>
-                                                            <p class="text-gray-800 font-medium"
+                                                            <p class="text-gray-800 dark:text-white font-medium"
                                                                 x-text="selectedProperty.updated_at"></p>
                                                         </div>
 
@@ -332,7 +332,7 @@
                                                         <div x-show="selectedProperty.general.length > 0"
                                                             class="space-y-4">
                                                             <div class="flex items-center justify-end space-x-2">
-                                                                <h4 class="text-lg font-bold text-gray-900">General
+                                                                <h4 class="text-lg font-bold text-gray-900 dark:text-white">General
                                                                     Facilities</h4>
                                                             </div>
                                                             <div class="flex flex-wrap gap-2 justify-end">
@@ -341,7 +341,7 @@
                                                                     :key="facilityId">
                                                                     <span
                                                                         x-text="getFacilityName(facilityId, 'general')"
-                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                                                                     </span>
                                                                 </template>
                                                             </div>
@@ -351,7 +351,7 @@
                                                         <div x-show="selectedProperty.security.length > 0"
                                                             class="space-y-4">
                                                             <div class="flex items-center justify-end space-x-2">
-                                                                <h4 class="text-lg font-bold text-gray-900">Security
+                                                                <h4 class="text-lg font-bold text-gray-900 dark:text-white">Security
                                                                     Facilities</h4>
                                                             </div>
                                                             <div class="flex flex-wrap gap-2 justify-end">
@@ -360,7 +360,7 @@
                                                                     :key="facilityId">
                                                                     <span
                                                                         x-text="getFacilityName(facilityId, 'security')"
-                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-green-100 text-green-800 border border-green-200">
+                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
                                                                     </span>
                                                                 </template>
                                                             </div>
@@ -370,7 +370,7 @@
                                                         <div x-show="selectedProperty.amenities.length > 0"
                                                             class="space-y-4">
                                                             <div class="flex items-center justify-end space-x-2">
-                                                                <h4 class="text-lg font-bold text-gray-900">Amenities
+                                                                <h4 class="text-lg font-bold text-gray-900 dark:text-white">Amenities
                                                                 </h4>
                                                             </div>
                                                             <div class="flex flex-wrap gap-2 justify-end">
@@ -379,7 +379,7 @@
                                                                     :key="facilityId">
                                                                     <span
                                                                         x-text="getFacilityName(facilityId, 'amenities')"
-                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                                                                     </span>
                                                                 </template>
                                                             </div>
@@ -394,13 +394,13 @@
 
                                     <!-- Modal footer -->
                                     <div
-                                        class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
-                                        <div class="text-sm text-gray-500">
+                                        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
                                             <span>Press ESC or click outside to close</span>
                                         </div>
                                         <div class="flex space-x-3">
                                             <button @click="modalOpenDetail = false"
-                                                class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 font-medium hover:shadow-md">
+                                                class="px-6 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white rounded-lg transition-all duration-200 font-medium hover:shadow-md">
                                                 Close
                                             </button>
                                         </div>
@@ -429,7 +429,7 @@
                                     ->toJson();
                             @endphp
 
-                            <button class="text-amber-600 hover:text-amber-900" type="button"
+                            <button class="text-amber-600 hover:text-amber-900 dark:text-amber-500 dark:hover:text-amber-400" type="button"
                                 @click.prevent='openModal({
                                                     name: @json($property->name),
                                                     city: @json($property->city),
@@ -479,18 +479,18 @@
                                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                                 x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak>
 
-                                <div class="bg-white rounded shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
+                                <div class="bg-white dark:bg-gray-800 rounded shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
                                     @click.outside="editModalOpen = false"
                                     @keydown.escape.window="editModalOpen = false">
 
                                     <!-- Modal header with step indicator -->
                                     <div
-                                        class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                                        class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
                                         <div class="flex justify-between items-center mb-4">
-                                            <div class="font-bold text-xl text-gray-800">Edit Properti
+                                            <div class="font-bold text-xl text-gray-800 dark:text-white">Edit Properti
                                             </div>
                                             <button type="button"
-                                                class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
                                                 @click="editModalOpen = false">
                                                 <div class="sr-only">Close</div>
                                                 <svg class="w-6 h-6 fill-current">
@@ -507,7 +507,7 @@
                                                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
                                                     :class="editStep >= 1 ?
                                                         'bg-blue-600 border-blue-600 text-white' :
-                                                        'border-gray-300 text-gray-500'">
+                                                        'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                                     <span class="text-sm font-semibold" x-show="editStep < 1">1</span>
                                                     <svg x-show="editStep >= 1" class="w-5 h-5" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
@@ -517,8 +517,8 @@
                                                 </div>
                                                 <div class="ml-3 text-sm">
                                                     <p class="font-medium transition-colors duration-300"
-                                                        :class="editStep >= 1 ? 'text-blue-600' :
-                                                            'text-gray-500'">
+                                                        :class="editStep >= 1 ? 'text-blue-600 dark:text-blue-400' :
+                                                            'text-gray-500 dark:text-gray-400'">
                                                         Informasi Dasar
                                                     </p>
                                                 </div>
@@ -526,7 +526,7 @@
 
                                             <!-- Connector -->
                                             <div class="w-16 h-0.5 transition-colors duration-300"
-                                                :class="editStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                :class="editStep >= 2 ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'">
                                             </div>
 
                                             <!-- Step 2 -->
@@ -534,7 +534,7 @@
                                                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
                                                     :class="editStep >= 2 ?
                                                         'bg-blue-600 border-blue-600 text-white' :
-                                                        'border-gray-300 text-gray-500'">
+                                                        'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                                     <span class="text-sm font-semibold" x-show="editStep < 2">2</span>
                                                     <svg x-show="editStep >= 2" class="w-5 h-5" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
@@ -544,15 +544,15 @@
                                                 </div>
                                                 <div class="ml-3 text-sm">
                                                     <p class="font-medium transition-colors duration-300"
-                                                        :class="editStep >= 2 ? 'text-blue-600' :
-                                                            'text-gray-500'">
+                                                        :class="editStep >= 2 ? 'text-blue-600 dark:text-blue-400' :
+                                                            'text-gray-500 dark:text-gray-400'">
                                                         Detail Lokasi</p>
                                                 </div>
                                             </div>
 
                                             <!-- Connector -->
                                             <div class="w-16 h-0.5 transition-colors duration-300"
-                                                :class="editStep >= 3 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                :class="editStep >= 3 ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'">
                                             </div>
 
                                             <!-- Step 3 (Fasilitas) -->
@@ -560,7 +560,7 @@
                                                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
                                                     :class="editStep >= 3 ?
                                                         'bg-blue-600 border-blue-600 text-white' :
-                                                        'border-gray-300 text-gray-500'">
+                                                        'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                                     <span class="text-sm font-semibold" x-show="editStep < 3">3</span>
                                                     <svg x-show="editStep >= 3" class="w-5 h-5" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
@@ -570,15 +570,15 @@
                                                 </div>
                                                 <div class="ml-3 text-sm">
                                                     <p class="font-medium transition-colors duration-300"
-                                                        :class="editStep >= 3 ? 'text-blue-600' :
-                                                            'text-gray-500'">
+                                                        :class="editStep >= 3 ? 'text-blue-600 dark:text-blue-400' :
+                                                            'text-gray-500 dark:text-gray-400'">
                                                         Fasilitas</p>
                                                 </div>
                                             </div>
 
                                             <!-- Connector -->
                                             <div class="w-16 h-0.5 transition-colors duration-300"
-                                                :class="editStep >= 4 ? 'bg-blue-600' : 'bg-gray-300'">
+                                                :class="editStep >= 4 ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'">
                                             </div>
 
                                             <!-- Step 4 (Foto) -->
@@ -586,7 +586,7 @@
                                                 <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
                                                     :class="editStep >= 4 ?
                                                         'bg-blue-600 border-blue-600 text-white' :
-                                                        'border-gray-300 text-gray-500'">
+                                                        'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                                     <span class="text-sm font-semibold" x-show="editStep < 4">4</span>
                                                     <svg x-show="editStep >= 4" class="w-5 h-5" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
@@ -596,8 +596,8 @@
                                                 </div>
                                                 <div class="ml-3 text-sm">
                                                     <p class="font-medium transition-colors duration-300"
-                                                        :class="editStep >= 4 ? 'text-blue-600' :
-                                                            'text-gray-500'">
+                                                        :class="editStep >= 4 ? 'text-blue-600 dark:text-blue-400' :
+                                                            'text-gray-500 dark:text-gray-400'">
                                                         Foto</p>
                                                 </div>
                                             </div>
@@ -620,18 +620,18 @@
                                                 <div class="space-y-6">
                                                     <div>
                                                         <label for="property_name_edit_{{ $property->idrec }}"
-                                                            class="block text-sm font-semibold text-gray-700 mb-2">
+                                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                             Nama Properti <span class="text-red-500">*</span>
                                                         </label>
                                                         <input type="text"
                                                             id="property_name_edit_{{ $property->idrec }}"
                                                             name="property_name" required x-model="propertyData.name"
-                                                            class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                            class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                             placeholder="Masukkan nama properti">
                                                     </div>
 
                                                     <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                             Jenis Properti <span class="text-red-500">*</span>
                                                         </label>
                                                         <div class="grid grid-cols-2 gap-4" x-data="{
@@ -655,7 +655,7 @@
                                                                     <label
                                                                         :for="'type-edit-{{ $property->idrec }}-' +
                                                                         type.value"
-                                                                        class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
+                                                                        class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
                                                                         <span x-text="type.label"></span>
                                                                     </label>
                                                                 </div>
@@ -665,12 +665,12 @@
 
                                                     <div>
                                                         <label for="description_edit_{{ $property->idrec }}"
-                                                            class="block text-sm font-semibold text-gray-700 mb-2">
+                                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                             Deskripsi <span class="text-red-500">*</span>
                                                         </label>
                                                         <textarea id="description_edit_{{ $property->idrec }}" name="description" rows="4" required
                                                             x-model="propertyData.description"
-                                                            class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                            class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                             placeholder="Deskripsikan properti Anda..."></textarea>
                                                     </div>
                                                 </div>
@@ -684,26 +684,26 @@
                                                 <div class="space-y-6">
                                                     <div>
                                                         <label for="full_address_edit_{{ $property->idrec }}"
-                                                            class="block text-sm font-semibold text-gray-700 mb-2">
+                                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                             Alamat Lengkap <span class="text-red-500">*</span>
                                                         </label>
                                                         <textarea id="full_address_edit_{{ $property->idrec }}" name="full_address" rows="3" required
                                                             x-model="propertyData.address"
-                                                            class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                            class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                             placeholder="Masukkan alamat lengkap properti"></textarea>
                                                     </div>
 
                                                     <div>
                                                         <label
-                                                            class="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                                                            class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                             Pinpoint Lokasi <span class="text-red-500 ml-1">*</span>
-                                                            <span class="text-gray-500 text-sm font-normal ml-2">(Klik
+                                                            <span class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(Klik
                                                                 untuk menandai langsung pada
                                                                 peta)</span>
                                                         </label>
                                                         <div id="map_edit_{{ $property->idrec }}"
-                                                            class="h-64 bg-gray-100 rounded-lg border-2 border-gray-200 flex items-center justify-center">
-                                                            <div class="text-gray-500 text-center"
+                                                            class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center">
+                                                            <div class="text-gray-500 dark:text-gray-400 text-center"
                                                                 x-show="!propertyData.latitude || !propertyData.longitude">
                                                                 <svg class="w-12 h-12 mx-auto mb-2" fill="none"
                                                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -720,7 +720,7 @@
                                                             </div>
                                                         </div>
                                                         <div id="coordinates_edit_{{ $property->idrec }}"
-                                                            class="mt-2 text-sm text-gray-500">
+                                                            class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                                                             <span
                                                                 x-show="propertyData.latitude && propertyData.longitude">
                                                                 Koordinat: <span
@@ -739,7 +739,7 @@
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         <div>
                                                             <label for="province_edit_{{ $property->idrec }}"
-                                                                class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                                 Provinsi <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
@@ -747,45 +747,45 @@
                                                                 name="province" required
                                                                 x-model="propertyData.province"
                                                                 placeholder="Masukkan Provinsi"
-                                                                class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                                                class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                                                         </div>
 
                                                         <div>
                                                             <label for="city_edit_{{ $property->idrec }}"
-                                                                class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                                 Kota/Kabupaten <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
                                                                 id="city_edit_{{ $property->idrec }}" name="city"
                                                                 required x-model="propertyData.city"
                                                                 placeholder="Masukkan Kota atau Kabupaten"
-                                                                class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                                                class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                                                         </div>
                                                     </div>
 
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         <div>
                                                             <label for="district_edit_{{ $property->idrec }}"
-                                                                class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                                 Kecamatan <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
                                                                 id="district_edit_{{ $property->idrec }}"
                                                                 name="district" required
                                                                 x-model="propertyData.subdistrict"
-                                                                class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                                 placeholder="Masukkan kecamatan">
                                                         </div>
 
                                                         <div>
                                                             <label for="village_edit_{{ $property->idrec }}"
-                                                                class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                                 Kelurahan <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
                                                                 id="village_edit_{{ $property->idrec }}"
                                                                 name="village" required x-model="propertyData.village"
-                                                                class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                                 placeholder="Masukkan kelurahan">
                                                         </div>
                                                     </div>
@@ -793,13 +793,13 @@
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         <div>
                                                             <label for="postal_code_edit_{{ $property->idrec }}"
-                                                                class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                                 Kode Pos
                                                             </label>
                                                             <input type="text"
                                                                 id="postal_code_edit_{{ $property->idrec }}"
                                                                 name="postal_code" x-model="propertyData.postal_code"
-                                                                class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                                class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                                 placeholder="Masukkan kode pos">
                                                         </div>
                                                     </div>
@@ -815,8 +815,8 @@
                                                     <!-- General Facilities -->
                                                     <div>
                                                         <h3
-                                                            class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none"
+                                                            class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                            <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none"
                                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -836,7 +836,7 @@
                                                                             '{{ $facility->idrec }}')">
                                                                     <label
                                                                         for="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 transition-all duration-200">
+                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
                                                                         <span>{{ $facility->facility }}</span>
                                                                     </label>
                                                                 </div>
@@ -847,8 +847,8 @@
                                                     <!-- Security Facilities -->
                                                     <div>
                                                         <h3
-                                                            class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                            <svg class="w-5 h-5 mr-2 text-green-600" fill="none"
+                                                            class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                            <svg class="w-5 h-5 mr-2 text-green-600 dark:text-green-400" fill="none"
                                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2"
@@ -869,7 +869,7 @@
                                                                             '{{ $facility->idrec }}')">
                                                                     <label
                                                                         for="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-600 transition-all duration-200">
+                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200">
                                                                         <span>{{ $facility->facility }}</span>
                                                                     </label>
                                                                 </div>
@@ -880,8 +880,8 @@
                                                     <!-- Amenities -->
                                                     <div>
                                                         <h3
-                                                            class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
-                                                            <svg class="w-5 h-5 mr-2 text-purple-600" fill="none"
+                                                            class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                            <svg class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" fill="none"
                                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2"
@@ -902,7 +902,7 @@
                                                                             '{{ $facility->idrec }}')">
                                                                     <label
                                                                         for="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-purple-600 peer-checked:bg-purple-50 peer-checked:text-purple-600 transition-all duration-200">
+                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200">
                                                                         <span>{{ $facility->facility }}</span>
                                                                     </label>
                                                                 </div>
@@ -923,9 +923,9 @@
                                                         <input type="hidden" name="thumbnail_index"
                                                             x-model="thumbnailIndex">
 
-                                                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                             Foto Properti <span class="text-red-500">*</span>
-                                                            <span class="text-sm font-normal text-gray-500">
+                                                            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
                                                                 (Minimal <span x-text="editMinImages"></span> foto,
                                                                 maksimal <span x-text="editMaxImages"></span> foto)
                                                             </span>
@@ -933,22 +933,22 @@
 
                                                         <!-- Thumbnail Preview Section -->
                                                         <div class="mb-6">
-                                                            <h4 class="text-sm font-semibold text-gray-700 mb-2">
+                                                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                                 Thumbnail Saat Ini <span class="text-red-500">*</span>
-                                                                <span class="text-xs font-normal text-gray-500">(Foto
+                                                                <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(Foto
                                                                     utama properti)</span>
                                                             </h4>
 
                                                             <div class="flex items-center space-x-4">
                                                                 <!-- Thumbnail Preview -->
                                                                 <div
-                                                                    class="w-32 h-32 bg-gray-100 rounded-lg border-2 border-gray-300 overflow-hidden relative flex items-center justify-center">
+                                                                    class="w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-gray-300 dark:border-gray-600 overflow-hidden relative flex items-center justify-center">
                                                                     <template x-if="getCurrentThumbnail()">
                                                                         <img :src="getCurrentThumbnail().url"
                                                                             class="w-full h-full object-cover"
                                                                             alt="Current Thumbnail">
                                                                     </template>
-                                                                    <div class="absolute inset-0 flex items-center justify-center text-gray-400"
+                                                                    <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500"
                                                                         x-show="!getCurrentThumbnail()">
                                                                         <svg class="w-10 h-10" fill="none"
                                                                             stroke="currentColor" viewBox="0 0 24 24">
@@ -962,19 +962,19 @@
 
                                                                 <!-- Thumbnail Selection Instructions -->
                                                                 <div class="flex-1">
-                                                                    <p class="text-sm text-gray-600 mb-2">
+                                                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                                         <span x-show="thumbnailIndex === null"
                                                                             class="font-medium text-red-500">
                                                                             Belum ada thumbnail dipilih!
                                                                         </span>
                                                                         <span x-show="thumbnailIndex !== null"
-                                                                            class="font-medium text-green-600">
+                                                                            class="font-medium text-green-600 dark:text-green-400">
                                                                             Thumbnail sudah dipilih.
                                                                         </span>
                                                                         Klik salah satu foto di bawah untuk memilih
                                                                         sebagai thumbnail.
                                                                     </p>
-                                                                    <p class="text-xs text-gray-500">
+                                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
                                                                         Pastikan memilih foto terbaik sebagai thumbnail
                                                                         karena ini akan menjadi gambar utama properti
                                                                         Anda.
@@ -986,20 +986,20 @@
                                                         <!-- Upload Area -->
                                                         <div x-show="editCanUploadMore" @drop="handleEditDrop($event)"
                                                             @dragover.prevent @dragenter.prevent
-                                                            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors duration-200 cursor-pointer"
-                                                            :class="{ 'border-blue-400 bg-blue-50': editCanUploadMore }">
+                                                            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200 cursor-pointer"
+                                                            :class="{ 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20': editCanUploadMore }">
                                                             <div class="space-y-2">
-                                                                <svg class="w-12 h-12 mx-auto text-gray-400"
+                                                                <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500"
                                                                     fill="none" stroke="currentColor"
                                                                     viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round"
                                                                         stroke-linejoin="round" stroke-width="2"
                                                                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                                 </svg>
-                                                                <div class="flex text-sm text-gray-600 justify-center">
+                                                                <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
                                                                     <label
                                                                         for="edit_property_images_{{ $property->idrec }}"
-                                                                        class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                                        class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                                                         <span>Upload foto</span>
                                                                         <input
                                                                             id="edit_property_images_{{ $property->idrec }}"
@@ -1010,9 +1010,9 @@
                                                                     </label>
                                                                     <p class="pl-1">atau drag and drop</p>
                                                                 </div>
-                                                                <p class="text-xs text-gray-500">PNG, JPG, JPEG (maks.
+                                                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (maks.
                                                                     5MB per file)</p>
-                                                                <p class="text-xs text-blue-600"
+                                                                <p class="text-xs text-blue-600 dark:text-blue-400"
                                                                     x-text="`Dapat upload ${editRemainingSlots} foto lagi`">
                                                                 </p>
                                                             </div>
@@ -1020,7 +1020,7 @@
 
                                                         <!-- Full Upload Message -->
                                                         <div x-show="!editCanUploadMore"
-                                                            class="border-2 border-green-300 rounded-lg p-8 text-center bg-green-50">
+                                                            class="border-2 border-green-300 dark:border-green-600 rounded-lg p-8 text-center bg-green-50 dark:bg-green-900/20">
                                                             <div class="space-y-2">
                                                                 <svg class="w-12 h-12 mx-auto text-green-500"
                                                                     fill="none" stroke="currentColor"
@@ -1029,18 +1029,18 @@
                                                                         stroke-linejoin="round" stroke-width="2"
                                                                         d="M5 13l4 4L19 7" />
                                                                 </svg>
-                                                                <p class="text-sm text-green-600 font-medium">
+                                                                <p class="text-sm text-green-600 dark:text-green-400 font-medium">
                                                                     <span x-text="editMaxImages"></span> foto telah
                                                                     diupload!
                                                                 </p>
-                                                                <p class="text-xs text-green-500">Maksimal upload foto
+                                                                <p class="text-xs text-green-500 dark:text-green-400">Maksimal upload foto
                                                                     tercapai</p>
                                                             </div>
                                                         </div>
 
                                                         <!-- Image Preview Grid -->
                                                         <div x-show="getAllImages().length > 0" class="mt-4">
-                                                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Foto
+                                                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Foto
                                                                 Terupload</h4>
 
                                                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
@@ -1056,11 +1056,11 @@
                                                                         x-show="!image.markedForDeletion"
                                                                         @click="setThumbnail(index)">
                                                                         <!-- Image Container -->
-                                                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                        <div class="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border-2 transition-all duration-200"
                                                                             :class="thumbnailIndex === index || image
                                                                                 .is_thumbnail ?
                                                                                 'border-blue-600 ring-2 ring-blue-400' :
-                                                                                'border-gray-200 hover:border-blue-400'">
+                                                                                'border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'">
                                                                             <img :src="image.url"
                                                                                 :alt="'Existing Image ' + (index + 1)"
                                                                                 class="w-full h-full object-cover">
@@ -1104,13 +1104,13 @@
                                                                     <div class="relative group"
                                                                         @click="setThumbnail(propertyData.existingImages.filter(img => !img.markedForDeletion).length + index)">
                                                                         <!-- Image Container -->
-                                                                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                                                                        <div class="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border-2 transition-all duration-200"
                                                                             :class="thumbnailIndex === (propertyData
                                                                                     .existingImages.filter(img => !img
                                                                                         .markedForDeletion).length +
                                                                                     index) ?
                                                                                 'border-blue-600 ring-2 ring-blue-400' :
-                                                                                'border-gray-200 hover:border-blue-400'">
+                                                                                'border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'">
                                                                             <img :src="image.url"
                                                                                 :alt="'New Image ' + (index + 1)"
                                                                                 class="w-full h-full object-cover">
@@ -1149,12 +1149,12 @@
                                                         <!-- Progress Indicator -->
                                                         <div class="mt-4">
                                                             <div
-                                                                class="flex justify-between text-sm text-gray-600 mb-2">
+                                                                class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                                 <span>Progress Upload</span>
                                                                 <span
                                                                     x-text="`${getAllImages().length}/${editMaxImages} foto`"></span>
                                                             </div>
-                                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                                                 <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
                                                                     :style="`width: ${(getAllImages().length / editMaxImages) * 100}%`">
                                                                 </div>
@@ -1164,8 +1164,8 @@
                                                         <!-- Validation Messages -->
                                                         <div class="mt-3 space-y-2">
                                                             <div x-show="getAllImages().length < editMinImages"
-                                                                class="p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                                <p class="text-sm text-red-600">
+                                                                class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                                                <p class="text-sm text-red-600 dark:text-red-400">
                                                                     <span class="font-medium">Perhatian:</span>
                                                                     Anda harus mengupload minimal <span
                                                                         x-text="editMinImages"></span> foto.
@@ -1173,16 +1173,16 @@
                                                             </div>
 
                                                             <div x-show="thumbnailIndex === null && getAllImages().length > 0"
-                                                                class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                                                <p class="text-sm text-yellow-600">
+                                                                class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                                                                <p class="text-sm text-yellow-600 dark:text-yellow-400">
                                                                     <span class="font-medium">Perhatian:</span>
                                                                     Anda harus memilih thumbnail untuk melanjutkan.
                                                                 </p>
                                                             </div>
 
                                                             <div x-show="getAllImages().length >= editMinImages && thumbnailIndex !== null"
-                                                                class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                                                                <p class="text-sm text-green-600">
+                                                                class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                                                <p class="text-sm text-green-600 dark:text-green-400">
                                                                     <span class="font-medium">Sempurna!</span>
                                                                     Foto sudah memenuhi syarat dan thumbnail telah
                                                                     dipilih.
@@ -1197,7 +1197,7 @@
                                             <div class="mt-6 flex justify-end">
                                                 <div>
                                                     <button type="button" x-show="editStep > 1" @click="editStep--"
-                                                        class="px-6 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                                        class="px-6 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                                                         <svg class="w-4 h-4 inline mr-2" fill="none"
                                                             stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -1239,7 +1239,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                     No Properties found
                 </td>
             </tr>

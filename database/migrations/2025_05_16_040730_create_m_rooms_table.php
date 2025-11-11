@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('size')->nullable(); 
             $table->string('bed_type', 25); 
             $table->integer('capacity'); 
+            $table->longText('periode')->nullable();
             $table->integer('periode_daily')->nullable();
             $table->integer('periode_monthly')->nullable();
             $table->string('type', 100)->nullable();

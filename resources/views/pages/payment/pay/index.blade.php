@@ -49,8 +49,8 @@
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-10">
-                                <input type="text" id="date_picker" placeholder="Pilih rentang tanggal (Maks 30 hari)"
-                                    data-input
+                                <input type="text" id="date_picker"
+                                    placeholder="Pilih rentang tanggal (Maks 30 hari)" data-input
                                     class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
                                     value="{{ request('start_date') }}">
@@ -83,13 +83,14 @@
             ])
         </div>
 
-        <!-- Paginasi -->        
+        <!-- Paginasi -->
         <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
             {{ $payments->appends(request()->except('page'))->links() }}
         </div>
     </div>
 
     <script>
+        // Alpine.js Component untuk Attachment Modal
         document.addEventListener('alpine:init', () => {
             Alpine.data('attachmentModal', () => ({
                 isOpen: false,
@@ -103,23 +104,25 @@
                     this.isLoading = true;
                     this.orderId = orderId;
 
-                    // Proses data lampiran
+                    // Disable body scroll ketika modal terbuka
+                    document.body.style.overflow = 'hidden';
+
                     this.$nextTick(() => {
                         this.attachmentData = base64Data;
 
-                        // Cek tipe file (cek sederhana)
-                        if (base64Data.startsWith('/9j/') ||
-                            base64Data.startsWith('iVBORw0KGgo') ||
-                            base64Data.startsWith('R0lGODdh') ||
-                            base64Data.startsWith('R0lGODlh')) {
+                        // Deteksi tipe file berdasarkan signature base64
+                        if (this.isImage(base64Data)) {
                             this.attachmentType = 'image';
-                        } else if (base64Data.startsWith('JVBERi0')) {
+                        } else if (this.isPDF(base64Data)) {
                             this.attachmentType = 'pdf';
                         } else {
                             this.attachmentType = 'unknown';
                         }
 
-                        this.isLoading = false;
+                        // Simulasi loading untuk UX yang lebih baik
+                        setTimeout(() => {
+                            this.isLoading = false;
+                        }, 500);
                     });
                 },
 
@@ -128,45 +131,193 @@
                     this.attachmentData = '';
                     this.attachmentType = 'unknown';
                     this.orderId = '';
+                    // Enable body scroll kembali
+                    document.body.style.overflow = '';
+                },
+
+                isImage(base64Data) {
+                    const imageSignatures = {
+                        '/9j/': 'JPEG',
+                        'iVBORw0KGgo': 'PNG',
+                        'R0lGODdh': 'GIF',
+                        'R0lGODlh': 'GIF',
+                        'UklGR': 'WEBP',
+                        'Qk02': 'BMP'
+                    };
+
+                    return Object.keys(imageSignatures).some(signature =>
+                        base64Data.startsWith(signature)
+                    );
+                },
+
+                isPDF(base64Data) {
+                    return base64Data.startsWith('JVBERi0');
                 }
             }));
         });
 
-        function confirmApprove(id) {
+        // Fungsi untuk Approve Payment
+        function confirmApprove(paymentId) {
             Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Pembayaran akan disetujui!",
-                icon: 'warning',
+                title: 'Konfirmasi Persetujuan',
+                text: "Apakah Anda yakin ingin menyetujui pembayaran ini?",
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#16a34a', // green-600
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, setujui!',
-                cancelButtonText: 'Batal'
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Setujui!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'mr-2',
+                    cancelButton: 'ml-2'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('approve-form-' + id).submit();
+                    // Tampilkan loading state
+                    const approveBtn = document.querySelector(`#approve-form-${paymentId} button`);
+                    const originalText = approveBtn.innerHTML;
+                    approveBtn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Memproses...
+            `;
+                    approveBtn.disabled = true;
+
+                    // Submit form
+                    document.getElementById(`approve-form-${paymentId}`).submit();
                 }
-            })
+            });
         }
 
-        let currentTransactionId = null;
+        // Fungsi untuk menampilkan Reject Modal
+        function showRejectModal(paymentId) {
+            const modal = document.getElementById(`rejectModal-${paymentId}`);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
 
-        function showRejectModal(id) {
-            currentTransactionId = id;
-            document.getElementById('rejectModal').classList.remove('hidden');
+                // Focus ke textarea ketika modal terbuka
+                setTimeout(() => {
+                    const textarea = document.getElementById(`rejectNote-${paymentId}`);
+                    if (textarea) {
+                        textarea.focus();
+                    }
+                }, 100);
+
+                // Disable body scroll
+                document.body.style.overflow = 'hidden';
+            }
         }
 
-        function hideRejectModal() {
-            document.getElementById('rejectModal').classList.add('hidden');
+        // Fungsi untuk menyembunyikan Reject Modal
+        function hideRejectModal(paymentId) {
+            const modal = document.getElementById(`rejectModal-${paymentId}`);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+
+                // Reset form
+                const textarea = document.getElementById(`rejectNote-${paymentId}`);
+                if (textarea) {
+                    textarea.value = '';
+                }
+
+                // Enable body scroll kembali
+                document.body.style.overflow = '';
+            }
         }
 
-        function validateRejectForm() {
-            const note = document.getElementById('rejectNote').value.trim();
+        // Fungsi validasi form reject
+        function validateRejectForm(event, paymentId) {
+            event.preventDefault(); // ✅ cegah submit langsung
+
+            const note = document.getElementById(`rejectNote-${paymentId}`).value.trim();
+
             if (!note) {
-                alert('Silakan masukkan alasan penolakan.');
+                Swal.fire({
+                    title: 'Peringatan!',
+                    text: 'Silakan masukkan alasan penolakan.',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6',
+                    confirmButtonText: 'Mengerti'
+                });
                 return false;
             }
-            return true;
+
+            if (note.length < 10) {
+                Swal.fire({
+                    title: 'Peringatan!',
+                    text: 'Alasan penolakan minimal 10 karakter.',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6',
+                    confirmButtonText: 'Mengerti'
+                });
+                return false;
+            }
+
+            Swal.fire({
+                title: 'Konfirmasi Penolakan',
+                text: 'Apakah Anda yakin ingin menolak pembayaran ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Tolak!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`reject-form-${paymentId}`).submit();
+                }
+            });
+
+            return false;
+        }
+
+        // Event listener untuk klik di luar modal reject
+        document.addEventListener('click', function(event) {
+            // Cek semua modal reject yang sedang terbuka
+            const openModals = document.querySelectorAll('[id^="rejectModal-"]:not(.hidden)');
+
+            openModals.forEach(modal => {
+                if (event.target === modal) {
+                    const paymentId = modal.id.replace('rejectModal-', '');
+                    hideRejectModal(paymentId);
+                }
+            });
+        });
+
+        // Event listener untuk ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                // Tutup semua modal reject yang terbuka
+                const openModals = document.querySelectorAll('[id^="rejectModal-"]:not(.hidden)');
+                openModals.forEach(modal => {
+                    const paymentId = modal.id.replace('rejectModal-', '');
+                    hideRejectModal(paymentId);
+                });
+
+                // Tutup juga modal attachment jika terbuka
+                const attachmentModals = document.querySelectorAll('[x-data="attachmentModal()"]');
+                attachmentModals.forEach(modal => {
+                    const alpineComponent = Alpine.$data(modal);
+                    if (alpineComponent && alpineComponent.isOpen) {
+                        alpineComponent.closeModal();
+                    }
+                });
+            }
+        });
+
+        // Fungsi utilitas untuk mendapatkan payment ID dari element
+        function getPaymentIdFromElement(element) {
+            let currentElement = element;
+            while (currentElement && !currentElement.id?.startsWith('rejectModal-')) {
+                currentElement = currentElement.parentElement;
+            }
+            return currentElement ? currentElement.id.replace('rejectModal-', '') : null;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -305,10 +456,10 @@
                 // Tampilkan loading
                 const tableContainer = document.getElementById('transactionTable');
                 tableContainer.innerHTML = `
-        <div class="flex justify-center items-center h-64">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-    `;
+                                <div class="flex justify-center items-center h-64">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                                </div>
+                            `;
 
                 // Request AJAX ke endpoint filter
                 fetch(`{{ route('admin.payments.filter') }}?${params.toString()}`, {
@@ -337,6 +488,165 @@
                 </div>
             `;
                     });
+            }
+        });
+
+
+
+        // Fungsi menampilkan modal pembatalan (smooth)
+        function showCancelModal(paymentId) {
+            const modal = document.getElementById(`cancelModal-${paymentId}`);
+            const modalContent = modal.querySelector('.transform');
+
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                // Animasi smooth fade-in
+                requestAnimationFrame(() => {
+                    modal.classList.add('opacity-100');
+                    modal.classList.remove('opacity-0');
+                    modalContent.classList.add('opacity-100', 'scale-100');
+                    modalContent.classList.remove('opacity-0', 'scale-95');
+                });
+
+                // Fokus ke select
+                setTimeout(() => {
+                    const select = document.getElementById(`cancelReason-${paymentId}`);
+                    if (select) select.focus();
+                }, 200);
+            }
+        }
+
+        // Fungsi menyembunyikan modal pembatalan (smooth)
+        function hideCancelModal(paymentId) {
+            const modal = document.getElementById(`cancelModal-${paymentId}`);
+            const modalContent = modal.querySelector('.transform');
+
+            if (modal) {
+                // Animasi fade-out
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0');
+                modalContent.classList.remove('opacity-100', 'scale-100');
+                modalContent.classList.add('opacity-0', 'scale-95');
+
+                // Tunggu animasi selesai sebelum disembunyikan
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+        }
+
+        // Fungsi untuk toggle input alasan custom
+        function toggleCustomReason(paymentId) {
+            const reasonSelect = document.getElementById(`cancelReason-${paymentId}`);
+            const customContainer = document.getElementById(`customReasonContainer-${paymentId}`);
+            const customReason = document.getElementById(`customCancelReason-${paymentId}`);
+
+            if (reasonSelect.value === 'other') {
+                customContainer.classList.remove('hidden');
+                customReason.required = true;
+
+                // Focus ke textarea
+                setTimeout(() => {
+                    customReason.focus();
+                }, 100);
+            } else {
+                customContainer.classList.add('hidden');
+                customReason.required = false;
+                customReason.value = '';
+            }
+        }
+
+        // Validasi form pembatalan
+        function validateCancelForm(event, paymentId) {
+            event.preventDefault();
+
+            const reasonSelect = document.getElementById(`cancelReason-${paymentId}`);
+            const customReason = document.getElementById(`customCancelReason-${paymentId}`);
+            const refundAmount = document.getElementById(`refundAmount-${paymentId}`);
+
+            if (!reasonSelect.value) {
+                Swal.fire({
+                    title: 'Peringatan!',
+                    text: 'Silakan pilih alasan pembatalan.',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6',
+                    confirmButtonText: 'Mengerti'
+                });
+                reasonSelect.focus();
+                return false;
+            }
+
+            if (reasonSelect.value === 'other' && !customReason.value.trim()) {
+                Swal.fire({
+                    title: 'Peringatan!',
+                    text: 'Silakan jelaskan alasan pembatalan.',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6',
+                    confirmButtonText: 'Mengerti'
+                });
+                customReason.focus();
+                return false;
+            }
+
+            // Validasi jumlah refund
+            const refundValue = refundAmount.value.replace(/[^\d]/g, '');
+            if (!refundValue || parseInt(refundValue) <= 0) {
+                Swal.fire({
+                    title: 'Peringatan!',
+                    text: 'Silakan masukkan jumlah pengembalian dana yang valid.',
+                    icon: 'warning',
+                    confirmButtonColor: '#3b82f6',
+                    confirmButtonText: 'Mengerti'
+                });
+                refundAmount.focus();
+                return false;
+            }
+
+            // Konfirmasi akhir
+            Swal.fire({
+                title: 'Konfirmasi Pembatalan',
+                text: 'Apakah Anda yakin ingin membatalkan booking ini? Tindakan ini tidak dapat dibatalkan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`cancel-form-${paymentId}`).submit();
+                }
+            });
+
+            return false;
+        }
+
+        // Event listener untuk klik di luar modal cancel
+        document.addEventListener('click', function(event) {
+            // Cek semua modal cancel yang sedang terbuka
+            const openModals = document.querySelectorAll('[id^="cancelModal-"]:not(.hidden)');
+
+            openModals.forEach(modal => {
+                if (event.target === modal) {
+                    const paymentId = modal.id.replace('cancelModal-', '');
+                    hideCancelModal(paymentId);
+                }
+            });
+        });
+
+        // Event listener untuk ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                // Tutup semua modal cancel yang terbuka
+                const openModals = document.querySelectorAll('[id^="cancelModal-"]:not(.hidden)');
+                openModals.forEach(modal => {
+                    const paymentId = modal.id.replace('cancelModal-', '');
+                    hideCancelModal(paymentId);
+                });
             }
         });
     </script>
