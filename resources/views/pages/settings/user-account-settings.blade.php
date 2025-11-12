@@ -30,20 +30,22 @@
                         Account
                     </button>
 
-                    <!-- Security -->
-                    <button @click="activeTab = 'security'"
-                        :class="activeTab === 'security'
-                            ?
-                            'bg-blue-500 text-white px-3 py-2 rounded-lg' :
-                            'text-gray-600 hover:text-blue-500'"
-                        class="flex items-center gap-2 text-sm font-medium transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 15v2m-6-6h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7a2 2 0 012-2zm10-4V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        Security
-                    </button>
+                    @if (auth()->user()->is_admin == 1)
+                        <!-- Security -->
+                        <button @click="activeTab = 'security'"
+                            :class="activeTab === 'security'
+                                ?
+                                'bg-blue-500 text-white px-3 py-2 rounded-lg' :
+                                'text-gray-600 hover:text-blue-500'"
+                            class="flex items-center gap-2 text-sm font-medium transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 15v2m-6-6h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7a2 2 0 012-2zm10-4V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            Security
+                        </button>
+                    @endif
 
                     <!-- History -->
                     <button @click="activeTab = 'history'"
@@ -434,7 +436,7 @@
                                 </div>
                             </div>
 
-                            <div class="group">
+                            <div class="group" x-data="{ showAlert: false }">
                                 <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                                     <svg class="w-4 h-4 mr-1 text-gray-500" fill="currentColor" viewBox="0 0 20 20"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -444,9 +446,16 @@
                                     </svg>
                                     Security
                                 </label>
+
                                 <div
                                     class="text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
-                                    <button @click="activeTab = 'security'"
+                                    <button
+                                        @click="
+                                                    @if (auth()->user()->is_admin == 1) activeTab = 'security'
+                                                    @else
+                                                        showAlert = true
+                                                        setTimeout(() => showAlert = false, 2500) @endif
+                                                "
                                         :class="activeTab === 'security'
                                             ?
                                             'bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2' :
@@ -460,225 +469,321 @@
                                         Change Password
                                     </button>
                                 </div>
+
+                                <!-- Notifikasi Modern -->
+                                <div x-show="showAlert" x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 translate-y-2"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-300"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 translate-y-2"
+                                    class="fixed bottom-5 right-5 bg-white border border-gray-200 shadow-lg rounded-xl px-4 py-3 flex items-center space-x-3 text-gray-800">
+                                    <svg class="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" fill="none"
+                                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <span class="text-sm font-medium">Hanya admin yang dapat merubah password!</span>
+                                </div>
                             </div>
+
 
                         </div>
                     </div>
-
-                    <!-- Security -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
-                        x-show="activeTab === 'security'">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Change Password
-                        </h2>
-
-                        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <h3 class="text-sm font-medium text-blue-800">Password Requirements</h3>
-                                    <div class="mt-2 text-sm text-blue-700">
-                                        <ul class="list-disc pl-5 space-y-1">
-                                            <li>Minimum 8 characters long</li>
-                                            <li>At least one uppercase letter</li>
-                                            <li>At least one symbol (e.g. !@#$%^&*)</li>
-                                            <li>At least one number</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <form class="space-y-5">
-                            <div class="group">
-                                <label for="new-password"
-                                    class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-gray-500" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    New Password
-                                </label>
-                                <div class="relative">
-                                    <input type="password" id="new-password" name="new-password"
-                                        class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300"
-                                        placeholder="Enter your new password">
-                                    <button type="button"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
-                                        <svg class="h-5 w-5 eye-open" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                        <svg class="h-5 w-5 eye-closed hidden" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="mt-2 bg-gray-100 rounded-lg h-1.5">
-                                    <div class="h-full bg-red-500 rounded-lg password-strength" style="width: 0%">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="group">
-                                <label for="confirm-password"
-                                    class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-gray-500" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                    Confirm New Password
-                                </label>
-                                <div class="relative">
-                                    <input type="password" id="confirm-password" name="confirm-password"
-                                        class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300"
-                                        placeholder="Confirm your new password">
-                                    <button type="button"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
-                                        <svg class="h-5 w-5 eye-open" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                        <svg class="h-5 w-5 eye-closed hidden" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <button type="submit"
-                                class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:-translate-y-0.5">
-                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
+                    @if (auth()->user()->is_admin == 1)
+                        <!-- Security -->
+                        <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+                            x-show="activeTab === 'security'">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd"
                                         d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                         clip-rule="evenodd"></path>
                                 </svg>
                                 Change Password
-                            </button>
-                        </form>
-                    </div>
+                            </h2>
 
-                    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
-                        x-show="activeTab === 'history'">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Hotel Booking Activity
-                        </h2>
-
-                        <div class="space-y-6 relative border-l border-gray-300 ml-3">
-                            <!-- Item 1 -->
-                            <div class="ml-6 relative flex justify-between items-start group">
-                                <div class="flex-1">
-                                    <span
-                                        class="absolute -left-3.5 top-1.5 w-4 h-4 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 ring-2 ring-white shadow-md"></span>
-                                    <h3
-                                        class="text-base font-semibold text-gray-900 group-hover:text-indigo-700 transition-colors">
-                                        5 New Reservations Confirmed</h3>
-                                    <p class="text-sm text-gray-600 mt-1">Guests have booked deluxe and suite rooms</p>
-                                    <a href="#"
-                                        class="mt-3 inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-lg hover:bg-indigo-100 transition-colors group/file">
-                                        <svg class="w-4 h-4 mr-1.5" xmlns="http://www.w3.org/2000/svg"
-                                            fill="currentColor" viewBox="0 0 24 24">
-                                            <path
-                                                d="M14,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V8ZM18,20H6V4h7V9h5Z" />
-                                        </svg>
-                                        booking_report.pdf
-                                        <svg class="w-3 h-3 ml-2 opacity-0 group-hover/file:opacity-100 transition-opacity"
-                                            fill="currentColor" viewBox="0 0 20 20">
+                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd"
-                                                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
                                                 clip-rule="evenodd"></path>
                                         </svg>
-                                    </a>
-                                </div>
-                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-4 mt-1">10 min
-                                    ago</span>
-                            </div>
-
-                            <!-- Item 2 -->
-                            <div class="ml-6 relative flex justify-between items-start group">
-                                <div class="flex-1">
-                                    <span
-                                        class="absolute -left-3.5 top-1.5 w-4 h-4 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 ring-2 ring-white shadow-md"></span>
-                                    <h3
-                                        class="text-base font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">
-                                        Guest Check-In</h3>
-                                    <p class="text-sm text-gray-600 mt-1">Mr. John Smith checked into Room 205</p>
-                                    <div
-                                        class="flex items-center mt-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                        <img src="https://i.pravatar.cc/40?img=5"
-                                            class="w-9 h-9 rounded-full shadow-sm" alt="avatar">
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900">John Smith</p>
-                                            <p class="text-xs text-gray-500">Checked-in (Deluxe Room)</p>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-blue-800">Password Requirements</h3>
+                                        <div class="mt-2 text-sm text-blue-700">
+                                            <ul class="list-disc pl-5 space-y-1">
+                                                <li>Minimum 8 characters long</li>
+                                                <li>At least one uppercase letter</li>
+                                                <li>At least one symbol (e.g. !@#$%^&*)</li>
+                                                <li>At least one number</li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
-                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-4 mt-1">30 min
-                                    ago</span>
                             </div>
 
-                            <!-- Item 3 -->
-                            <div class="ml-6 relative flex justify-between items-start group">
-                                <div class="flex-1">
-                                    <span
-                                        class="absolute -left-3.5 top-1.5 w-4 h-4 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 ring-2 ring-white shadow-md"></span>
-                                    <h3
-                                        class="text-base font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
-                                        Monthly Report Generated</h3>
-                                    <p class="text-sm text-gray-600 mt-1">Revenue report for August has been generated
-                                    </p>
-                                    <div class="flex items-center mt-3">
-                                        <div class="flex -space-x-2">
-                                            <img src="https://i.pravatar.cc/40?img=7"
-                                                class="w-9 h-9 rounded-full border-2 border-white shadow-sm">
-                                            <img src="https://i.pravatar.cc/40?img=8"
-                                                class="w-9 h-9 rounded-full border-2 border-white shadow-sm">
-                                            <img src="https://i.pravatar.cc/40?img=9"
-                                                class="w-9 h-9 rounded-full border-2 border-white shadow-sm">
+                            <form class="space-y-5">
+                                <div class="group">
+                                    <label for="new-password"
+                                        class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                        <svg class="w-4 h-4 mr-1 text-gray-500" fill="currentColor"
+                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd"
+                                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                        New Password
+                                    </label>
+                                    <div class="relative">
+                                        <input type="password" id="new-password" name="new-password"
+                                            class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300"
+                                            placeholder="Enter your new password">
+                                        <button type="button"
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
+                                            <svg class="h-5 w-5 eye-open" xmlns="http://www.w3.org/2000/svg"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            <svg class="h-5 w-5 eye-closed hidden" xmlns="http://www.w3.org/2000/svg"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="mt-2 bg-gray-100 rounded-lg h-1.5">
+                                        <div class="h-full bg-red-500 rounded-lg password-strength" style="width: 0%">
                                         </div>
-                                        <span class="ml-3 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">+2
-                                            Staff</span>
                                     </div>
                                 </div>
-                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-4 mt-1">1 day
-                                    ago</span>
+
+                                <div class="group">
+                                    <label for="confirm-password"
+                                        class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                        <svg class="w-4 h-4 mr-1 text-gray-500" fill="currentColor"
+                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd"
+                                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                        Confirm New Password
+                                    </label>
+                                    <div class="relative">
+                                        <input type="password" id="confirm-password" name="confirm-password"
+                                            class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300"
+                                            placeholder="Confirm your new password">
+                                        <button type="button"
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
+                                            <svg class="h-5 w-5 eye-open" xmlns="http://www.w3.org/2000/svg"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            <svg class="h-5 w-5 eye-closed hidden" xmlns="http://www.w3.org/2000/svg"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button type="submit"
+                                    class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:-translate-y-0.5">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd"
+                                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                    Change Password
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+
+                   <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+     x-show="activeTab === 'history'">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            Hotel Booking Activity
+        </h2>
+        <div class="flex space-x-2">
+            <button class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+                Filter
+            </button>
+            <button class="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
+                Export
+            </button>
+        </div>
+    </div>
+
+    <div class="space-y-6 relative border-l border-gray-200 ml-3">
+        <!-- Item 1 - Reservations -->
+        <div class="ml-6 relative group">
+            <div class="absolute -left-3.5 top-1.5 w-4 h-4 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 ring-2 ring-white shadow-md flex items-center justify-center">
+                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+            </div>
+            
+            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-100 hover:border-purple-200 transition-all duration-300">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-base font-semibold text-gray-900 group-hover:text-indigo-700 transition-colors">
+                            5 New Reservations Confirmed
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Guests have booked deluxe and suite rooms</p>
+                        
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Deluxe Room
+                            </span>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                Suite Room
+                            </span>
+                        </div>
+                        
+                        <div class="mt-4 flex items-center justify-between">
+                            <a href="#"
+                               class="inline-flex items-center px-3 py-1.5 bg-white text-indigo-700 text-xs font-medium rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors group/file">
+                                <svg class="w-4 h-4 mr-1.5" xmlns="http://www.w3.org/2000/svg"
+                                     fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M14,2H6A2,2,0,0,0,4,4V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V8ZM18,20H6V4h7V9h5Z" />
+                                </svg>
+                                booking_report.pdf
+                                <svg class="w-3 h-3 ml-2 opacity-0 group-hover/file:opacity-100 transition-opacity"
+                                     fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                          d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                          clip-rule="evenodd"></path>
+                                </svg>
+                            </a>
+                            <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200">10 min ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item 2 - Check-In -->
+        <div class="ml-6 relative group">
+            <div class="absolute -left-3.5 top-1.5 w-4 h-4 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 ring-2 ring-white shadow-md flex items-center justify-center">
+                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100 hover:border-green-200 transition-all duration-300">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-base font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">
+                            Guest Check-In
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Mr. John Smith checked into Room 205</p>
+                        
+                        <div class="mt-3 flex items-center p-3 bg-white rounded-lg border border-emerald-100 hover:bg-emerald-50 transition-colors">
+                            <div class="relative">
+                                <img src="https://i.pravatar.cc/40?img=5"
+                                     class="w-10 h-10 rounded-full shadow-sm" alt="avatar">
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white"></div>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-medium text-gray-900">John Smith</p>
+                                    <span class="text-xs text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Checked-in</span>
+                                </div>
+                                <p class="text-xs text-gray-500">Room 205 • Deluxe Room</p>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                    <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200">30 min ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item 3 - Report -->
+        <div class="ml-6 relative group">
+            <div class="absolute -left-3.5 top-1.5 w-4 h-4 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 ring-2 ring-white shadow-md flex items-center justify-center">
+                <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+            </div>
+            
+            <div class="bg-gradient-to-r from-sky-50 to-blue-50 p-4 rounded-xl border border-sky-100 hover:border-sky-200 transition-all duration-300">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-base font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+                            Monthly Report Generated
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Revenue report for August has been generated with detailed analytics</p>
+                        
+                        <div class="mt-3 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex -space-x-2">
+                                    <img src="https://i.pravatar.cc/40?img=7"
+                                         class="w-9 h-9 rounded-full border-2 border-white shadow-sm">
+                                    <img src="https://i.pravatar.cc/40?img=8"
+                                         class="w-9 h-9 rounded-full border-2 border-white shadow-sm">
+                                    <img src="https://i.pravatar.cc/40?img=9"
+                                         class="w-9 h-9 rounded-full border-2 border-white shadow-sm">
+                                </div>
+                                <span class="ml-3 text-xs text-gray-600 bg-white px-2 py-1 rounded-full border border-gray-200">+2 Staff</span>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button class="p-1.5 rounded-lg bg-white text-blue-600 hover:bg-blue-50 transition-colors border border-blue-200">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-1.5 rounded-lg bg-white text-blue-600 hover:bg-blue-50 transition-colors border border-blue-200">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                    <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200">1 day ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View All Button -->
+    <div class="mt-6 flex justify-center">
+        <button class="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors flex items-center">
+            View All Activity
+            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </div>
+</div>
 
                 </div>
             </div>

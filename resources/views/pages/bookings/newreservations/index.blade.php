@@ -280,38 +280,60 @@
                             `/bookings/newReserv-in/${this.bookingId}/details`);
                         const data = await response.json();
 
+                        // Helper function to format date and time
+                        const formatDateTime = (dateString, timeString) => {
+                            if (!dateString) return {
+                                date: 'N/A',
+                                time: 'N/A'
+                            };
+
+                            const date = new Date(dateString);
+                            const formattedDate = date.toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            });
+
+                            // Use provided time string or extract time from date
+                            let formattedTime = timeString;
+                            if (!timeString && dateString) {
+                                formattedTime = date.toLocaleString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                });
+                            }
+
+                            return {
+                                date: formattedDate,
+                                time: formattedTime || 'N/A'
+                            };
+                        };
+
+                        const checkIn = formatDateTime(data.transaction?.check_in, data.transaction
+                            ?.check_in_time);
+                        const checkOut = formatDateTime(data.transaction?.check_out, data
+                            .transaction?.check_out_time);
+
                         this.bookingDetails = {
                             order_id: data.order_id,
-                            check_in: data.transaction?.check_in ?
-                                new Date(data.transaction.check_in).toLocaleString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
-                                }) : 'N/A',
-
-                            check_out: data.transaction?.check_out ?
-                                new Date(data.transaction.check_out).toLocaleString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
-                                }) : 'N/A',
+                            check_in_date: checkIn.date,
+                            check_in_time: checkIn.time,
+                            check_out_date: checkOut.date,
+                            check_out_time: checkOut.time,
                             guest_name: data.user?.first_name || 'N/A',
                             guest_email: data.user?.email || 'N/A',
                             guest_phone: data.transaction?.user_phone_number || 'N/A',
                             property_name: data.property?.name || 'N/A',
                             property_address: data.property?.address || 'N/A',
                             room_name: data.room?.name || 'N/A',
+                            room_number: data.room?.no || 'N/A',
+                            update_by: data.transaction?.update_by || 'N/A',
                             duration: this.calculateDuration(data.transaction?.check_in, data
                                 .transaction?.check_out),
                             total_payment: data.transaction?.grandtotal_price ?
                                 this.formatRupiah(data.transaction.grandtotal_price) : 'N/A',
-
+                            transaction_type: data.transaction?.transaction_type || 'N/A',
                         };
 
                         this.profilePhotoUrlDemo = data.user_profile_photo_demo || null;
@@ -328,390 +350,408 @@
                 printAgreement() {
                     const printWindow = window.open('', '_blank');
                     const logoPath = window.location.origin + '/images/frist_icon.png';
-                    console.log(logoPath);
+
+                    // Format tanggal sekarang untuk ditampilkan
+                    const currentDate = new Date().toLocaleString('id-ID', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
                     printWindow.document.write(`
-                                            <html>
-                                                <head>
-                                                    <title>Booking Agreement - ${this.bookingDetails.order_id}</title>
-                                                    <style>
-                                                        /* CSS tetap sama seperti sebelumnya */
-                                                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-                                                        
-                                                        body {
-                                                            font-family: 'Inter', sans-serif;
-                                                            line-height: 1.6;
-                                                            padding: 0;
-                                                            margin: 0;
-                                                            color: #1a1a1a;
-                                                            background-color: #f8fafc;
-                                                        }
-                                                        
-                                                        .page-header {
-                                                            background: linear-gradient(135deg, #7b3f00, #a0522d, #d2691e);
-                                                            color: white;
-                                                            padding: 1.5rem 2.5rem;
-                                                            display: flex;
-                                                            justify-content: space-between;
-                                                            align-items: center;
-                                                            border-bottom-left-radius: 12px;
-                                                            border-bottom-right-radius: 12px;
-                                                            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-                                                        }
+                            <html>
+                            <head>
+                                <title>Registration Form - ${this.bookingDetails.order_id}</title>
+                                <style>
+                                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+                                    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+                                    body {
+                                        font-family: 'Inter', sans-serif;
+                                        margin: 0;
+                                        padding: 12px;
+                                        background: #fff;
+                                        color: #000;
+                                        font-size: 12px;
+                                        line-height: 1.3;
+                                    }
+                                    .header {
+                                        text-align: center;
+                                        border-bottom: 1px solid #000;
+                                        padding-bottom: 10px;
+                                        margin-bottom: 12px;
+                                    }
+                                    .header img {
+                                        height: 45px;
+                                        margin-bottom: 6px;
+                                        filter: grayscale(100%) contrast(120%);
+                                    }
+                                    .header h2 {
+                                        font-size: 17px;
+                                        font-weight: 700;
+                                        margin: 3px 0 2px 0;
+                                    }
+                                    .header p {
+                                        margin: 0;
+                                        font-size: 13px;
+                                        font-weight: 500;
+                                    }
+                                    table {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                        font-size: 11px;
+                                        margin-bottom: 10px;
+                                    }
+                                    td {
+                                        border: 1px solid #000;
+                                        padding: 4px 5px;
+                                        vertical-align: top;
+                                    }
+                                    .section-title {
+                                        font-weight: 700;
+                                        font-size: 12px;
+                                        margin: 10px 0 6px 0;
+                                        text-decoration: underline;
+                                    }
+                                    .notes, .disclaimer {
+                                        font-size: 10px;
+                                        margin-top: 8px;
+                                        line-height: 1.3;
+                                    }
+                                    .bottom-section {
+                                        margin-top: 5px;
+                                        border-top: 1px solid #000;
+                                        padding-top: 8px;
+                                        font-size: 10px;
+                                    }
+                                    .bottom-table {
+                                        margin-bottom: 8px;
+                                    }
+                                    .bottom-table td {
+                                        border: 1px solid #000;
+                                        text-align: left;
+                                        vertical-align: top;
+                                        padding: 5px;
+                                        font-size: 10px;
+                                        height: 30px;
+                                    }
+                                    
+                                    .info-table {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                        margin-top: 10px;
+                                        font-size: 10px;
+                                        height: 170px;
+                                    }
+                                    .info-table td {
+                                        border: 1px solid #000;
+                                        padding: 6px;
+                                        vertical-align: top;
+                                    }
+                                    .info-table .left-col {
+                                        width: 65%;
+                                    }
+                                    .info-table .right-col {
+                                        width: 35%;
+                                        text-align: center;
+                                        position: relative;
+                                    }
+                                    .right-signature-container {
+                                        position: absolute;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%);
+                                        width: 90%;
+                                        text-align: center;
+                                    }
+                                    .signature-title {
+                                        margin-bottom: 15px;
+                                    }
+                                    .signature-spacing {
+                                        height: 200px;
+                                        width: 100%;
+                                    }
+                                    .right-signature-box {
+                                        height: 50px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        margin-top: 6px;
+                                    }
+                                    .right-icons {
+                                        font-size: 15px;
+                                    }
+                                    .right-icons i {
+                                        margin: 0 5px;
+                                    }
 
-                                                        .header-left {
-                                                            display: flex;
-                                                            align-items: center;
-                                                        }
-                                                        
-                                                        .header-content {
-                                                            margin-left: 1.5rem;
-                                                        }
-                                                        
-                                                        .header-title {
-                                                            font-size: 1.75rem;
-                                                            font-weight: 700;
-                                                            margin: 0;
-                                                            letter-spacing: -0.5px;
-                                                        }
-                                                        
-                                                        .header-subtitle {
-                                                            font-size: 0.875rem;
-                                                            opacity: 0.9;
-                                                            margin: 0.25rem 0 0 0;
-                                                            font-weight: 400;
-                                                        }
-                                                        
-                                                        .logo {
-                                                            height: 3.5rem;
-                                                            width: 3.5rem;
-                                                            object-fit: contain;
-                                                            border-radius: 8px;
-                                                            background: white;
-                                                            padding: 5px;
-                                                            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-                                                        }
+                                    .icon-ban {
+                                        position: relative;
+                                        display: inline-block;
+                                        width: 24px;
+                                        height: 24px;
+                                        margin-right: 5px;
+                                    }
 
-                                                        .header-text {
-                                                            margin-left: 1rem;
-                                                            line-height: 1.4;
-                                                        }
+                                    .icon-ban i:first-child {
+                                        font-size: 19px;
+                                        color: #4b5563;
+                                    }
 
-                                                        .header-text h1 {
-                                                            font-size: 1.6rem;
-                                                            font-weight: 700;
-                                                            margin: 0;
-                                                            letter-spacing: -0.5px;
-                                                        }
+                                    .icon-ban .fa-ban {
+                                        position: absolute;
+                                        top: 0;
+                                        left: 0;
+                                        color: red;
+                                        font-size: 24px;
+                                        opacity: 0.8;
+                                    }
+                                    
+                                    .compact-text {
+                                        font-size: 10px;
+                                        line-height: 1.3;
+                                        margin: 3px 0;
+                                    }
+                                    
+                                    .penalty-table {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                        margin-top: 8px;
+                                        font-size: 10px;
+                                    }
+                                    .penalty-table td {
+                                        border: 1px solid #000;
+                                        padding: 5px;
+                                        vertical-align: top;
+                                        width: 33.33%;
+                                    }
+                                    .penalty-title {
+                                        font-weight: 700;
+                                    }
+                                    
+                                    .left-content-cell {
+                                        height: 100%;
+                                        display: flex;
+                                        flex-direction: column;
+                                        justify-content: space-between;
+                                    }
+                                    
+                                    .bottom-table tr td:first-child {
+                                        padding-left: 8px;
+                                    }
+                                    
+                                    /* Style untuk text bahasa Indonesia normal */
+                                    .id-text {
+                                        font-style: normal;
+                                        font-weight: normal;
+                                    }
+                                    
+                                    /* Style untuk text bahasa Inggris miring */
+                                    .en-text {
+                                        font-style: italic;
+                                        font-weight: normal;
+                                    }
+                                    
+                                    @media print {
+                                        body {
+                                            margin: 0;
+                                            padding: 10px;
+                                            font-size: 11px;
+                                            line-height: 1.25;
+                                        }
+                                        .header {
+                                            margin-bottom: 8px;
+                                            padding-bottom: 8px;
+                                        }
+                                        .header img {
+                                            height: 40px;
+                                        }
+                                        table {
+                                            font-size: 10px;
+                                            margin-bottom: 8px;
+                                        }
+                                        td {
+                                            padding: 3px 4px;
+                                        }
+                                        .info-table {
+                                            height: 150px;
+                                        }
+                                        .bottom-section {
+                                            margin-top: 4px;
+                                        }
+                                        .compact-text {
+                                            font-size: 9px;
+                                            line-height: 1.25;
+                                        }
+                                    }
+                                    
+                                    @page {
+                                        size: A4;
+                                        margin: 10mm;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="header">
+                                    <img src="${logoPath}" alt="Logo Ulin Mahoni" onerror="this.style.display='none'">
+                                    <h2>ULIN MAHONI</h2>
+                                    <p><span class="en-text">REGISTRATION FORM</span> / FORMULIR PENDAFTARAN</p>
+                                </div>
 
-                                                        .property-name {
-                                                            font-size: 1rem;
-                                                            font-weight: 500;
-                                                            opacity: 0.95;
-                                                            margin: 2px 0;
-                                                        }
+                                <table>
+                                    <tr>
+                                        <td><span class="en-text"><strong>Folio Number</span> / Nomor Folio</strong><br>${this.bookingDetails.order_id}</td>
+                                        <td><span class="en-text"><strong>Arrival Date</span> / Tanggal Kedatangan</strong><br>${this.bookingDetails.check_in_date}</td>
+                                        <td><span class="en-text"><strong>ETA</span></strong><br>${this.bookingDetails.check_in_time}</td>
+                                        <td><span class="en-text"><strong>Departure Date</span> / Tanggal Keberangkatan</strong><br>${this.bookingDetails.check_out_date}</td>
+                                        <td><span class="en-text"><strong>ETD</span></strong><br>${this.bookingDetails.check_out_time}</td>
+                                        <td><span class="en-text"><strong>Guarantee</span> / Garansi</strong><br>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="en-text"><strong>Rate Per Night</span> / Harga Per Malam</strong><br>${this.bookingDetails.total_payment || '-'}</td>
+                                        <td><span class="en-text"><strong>Number of Guest</span> / Jumlah Tamu</strong><br>${this.bookingDetails.guest_count || '-'}</td>
+                                        <td><span class="en-text"><strong>Advance Payment</span> / Uang Muka</strong><br>${this.bookingDetails.advance_payment || '-'}</td>
+                                        <td><span class="en-text"><strong>Room Type</span> / Jenis Kamar</strong><br>${this.bookingDetails.room_name}</td>
+                                        <td><span class="en-text"><strong>Number of Room</span> / Jumlah Kamar</strong><br>1</td>
+                                        <td><span class="en-text"><strong>Room Number</span> / Nomor Kamar</strong><br>${this.bookingDetails.room_number || '-'}</td>
+                                    </tr>
+                                </table>
 
-                                                        .property-address {
-                                                            font-size: 0.875rem;
-                                                            opacity: 0.85;
-                                                        }
+                                <div class="section-title"><span class="en-text"><strong>Guest Information</span> / Informasi Tamu</div>
+                                <table>
+                                    <tr>
+                                        <td><span class="en-text"><strong>Name (Mr/Mrs/Miss)</span> / Nama (Tn/Ny/Nona)</strong><br>${this.guestContact.name}</td>
+                                        <td><span class="en-text"><strong>Nationality</span> / Kewarganegaraan</strong><br>Indonesia</td>
+                                        <td><span class="en-text"><strong>Date of Birth</span> / Tanggal Lahir</strong><br>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="en-text"><strong>ID Card / SIM / Passport No.</span></strong><br>-</td>
+                                        <td><span class="en-text"><strong>Company</span> / Perusahaan</strong><br>${this.bookingDetails.company_name || '-'}</td>
+                                        <td><span class="en-text"><strong>Telephone</span> / Telepon</strong><br>${this.guestContact.phone}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"><span class="en-text"><strong>Home Address</span> / Alamat Rumah</strong><br>${this.guestContact.address || '-'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="en-text"><strong>Terms of Payment</span> / Cara Pembayaran</strong><br>${this.bookingDetails.transaction_type || '-'}</td>
+                                        <td><span class="en-text"><strong>Credit Card</span> / Kartu Kredit</strong><br>-</td>
+                                        <td><span class="en-text"><strong>Visa Type</span> / Jenis Visa</strong><br><span class="en-text">Tourist</span> / Wisatawan</td>
+                                    </tr>
+                                </table>
 
-                                                        .header-right .order-id {
-                                                            display: inline-block;
-                                                            background: white;
-                                                            color: #7b3f00;
-                                                            padding: 0.4rem 1rem;
-                                                            border-radius: 20px;
-                                                            font-size: 1rem;
-                                                            font-weight: 600;
-                                                            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                                                        }
+                                <table class="info-table">
+                                    <tr>
+                                    <td class="left-col">
+                                            <div class="compact-text">
+                                                <span class="en-text"><strong>NOTES FOR NON-SMOKING ROOM</span> / CATATAN UNTUK KAMAR BEBAS ROKOK</strong><br>
+                                                <em class="en-text">
+                                                    Please note that the hotel strictly prohibits bringing durian and pets into the hotel premises.<br>
+                                                    You have been assigned to a NON-SMOKING room.<br>
+                                                    By signing beside, you agree to comply with the NON-SMOKING policy—both for yourself and any visiting guests.<br>
+                                                    If smoking occurs in your room, you will be liable to pay a cleaning and fabric replacement charge of Rp. 2.000.000,- per incident, which is non-negotiable.
+                                                </em><br>
+                                                <span class="id-text">
+                                                    Harap diketahui bahwa hotel tidak mengizinkan Anda membawa durian dan hewan peliharaan ke dalam area hotel.<br>
+                                                    Anda telah ditempatkan di kamar bebas rokok (NON-SMOKING).<br>
+                                                    Dengan menandatangani kolom di samping ini, Anda setuju untuk mematuhi kebijakan bebas rokok, baik oleh Anda sendiri maupun tamu yang berkunjung.<br>
+                                                    Apabila Anda atau tamu Anda diketahui merokok di dalam kamar dan menyebabkan kamar tersebut tidak dapat dijual kembali, maka Anda berkewajiban membayar biaya pembersihan dan penggantian perlengkapan yang tercemar sebesar Rp. 2.000.000,- untuk setiap kejadian, dan biaya tersebut tidak dapat dinegosiasikan.
+                                                </span>
+                                            </div>
+                                        </td>
 
-                                                        @media (max-width: 600px) {
-                                                            .page-header {
-                                                                flex-direction: column;
-                                                                align-items: flex-start;
-                                                                text-align: left;
-                                                            }
-                                                            .header-right {
-                                                                margin-top: 0.8rem;
-                                                            }
-                                                        }
-                                                        
-                                                        .container {
-                                                            max-width: 850px;
-                                                            margin: 0 auto;
-                                                            padding: 0 3rem 3rem;
-                                                            background-color: white;
-                                                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                                                            border-radius: 0.5rem;
-                                                        }
-                                                        
-                                                        .document-title {
-                                                            text-align: center;
-                                                            font-size: 1.75rem;
-                                                            font-weight: 700;
-                                                            color: #1e293b;
-                                                            margin-bottom: 2.5rem;
-                                                            padding-bottom: 1rem;
-                                                            border-bottom: 1px solid #e2e8f0;
-                                                            position: relative;
-                                                        }
-                                                        
-                                                        .document-title:after {
-                                                            content: "";
-                                                            position: absolute;
-                                                            bottom: -1px;
-                                                            left: 50%;
-                                                            transform: translateX(-50%);
-                                                            width: 80px;
-                                                            height: 3px;
-                                                            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
-                                                            border-radius: 3px;
-                                                        }
-                                                        
-                                                        .section {
-                                                            margin-bottom: 2rem;
-                                                        }
-                                                        
-                                                        .section-title {
-                                                            font-size: 1.25rem;
-                                                            font-weight: 600;
-                                                            color: #1e293b;
-                                                            margin-bottom: 1.25rem;
-                                                            padding-bottom: 0.5rem;
-                                                            border-bottom: 1px solid #f1f5f9;
-                                                            position: relative;
-                                                        }
-                                                        
-                                                        .section-title:after {
-                                                            content: "";
-                                                            position: absolute;
-                                                            bottom: -1px;
-                                                            left: 0;
-                                                            width: 50px;
-                                                            height: 2px;
-                                                            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
-                                                        }
-                                                        
-                                                        .detail-grid {
-                                                            display: grid;
-                                                            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                                                            gap: 1rem;
-                                                            margin-bottom: 1rem;
-                                                        }
-                                                        
-                                                        .detail-item {
-                                                            display: flex;
-                                                            flex-direction: column;
-                                                        }
-                                                        
-                                                        .detail-label {
-                                                            font-weight: 500;
-                                                            color: #64748b;
-                                                            font-size: 0.875rem;
-                                                            margin-bottom: 0.25rem;
-                                                        }
-                                                        
-                                                        .detail-value {
-                                                            font-weight: 500;
-                                                            color: 1e293b;
-                                                            padding: 0.5rem 0;
-                                                            border-bottom: 1px dashed #e2e8f0;
-                                                        }
-                                                        
-                                                        .terms-list {
-                                                            padding-left: 1.25rem;
-                                                            margin: 1.5rem 0;
-                                                            list-style-type: decimal;
-                                                            list-style-position: inside;
-                                                        }
-
-                                                        .terms-list li {
-                                                            margin-bottom: 0.75rem;
-                                                            padding-left: 0.5rem;
-                                                            position: relative;
-                                                        }
-
-                                                        .terms-list li:before {
-                                                            content: none; /* Hilangkan bullet custom */
-                                                        }
-
-                                                        
-                                                        .signature-section {
-                                                            display: flex;
-                                                            justify-content: flex-end;
-                                                            margin-top: 4rem;
-                                                        }
-                                                        
-                                                        .signature-box {
-                                                            width: 45%;
-                                                            text-align: center;
-                                                        }
-                                                        
-                                                        .signature-placeholder {
-                                                            height: 3rem;
-                                                            margin-bottom: 0.5rem;
-                                                            border-bottom: 1px solid #94a3b8;
-                                                        }
-                                                        
-                                                        .signature-label {
-                                                            font-size: 0.875rem;
-                                                            color: #64748b;
-                                                            margin-top: 0.5rem;
-                                                        }
-                                                        
-                                                        .signature-name {
-                                                            font-weight: 500;
-                                                            margin-top: 0.25rem;
-                                                        }
-                                                        
-                                                        .footer {
-                                                            margin-top: 3rem;
-                                                            text-align: center;
-                                                            font-size: 0.75rem;
-                                                            color: #94a3b8;
-                                                            padding-top: 1rem;
-                                                            border-top: 1px solid #f1f5f9;
-                                                        }
-                                                        
-                                                        .badge {
-                                                            display: inline-block;
-                                                            padding: 0.25rem 0.75rem;
-                                                            background-color: #e0e7ff;
-                                                            color: #4f46e5;
-                                                            border-radius: 9999px;
-                                                            font-size: 0.75rem;
-                                                            font-weight: 600;
-                                                            margin-left: 0.5rem;
-                                                            vertical-align: middle;
-                                                        }
-                                                        
-                                                        @media print {
-                                                            body { 
-                                                                padding: 0 !important;
-                                                                background-color: white !important;
-                                                                -webkit-print-color-adjust: exact !important;
-                                                                print-color-adjust: exact !important;
-                                                            }
-                                                            .page-header {
-                                                                -webkit-print-color-adjust: exact !important;
-                                                                print-color-adjust: exact !important;
-                                                            }
-                                                            .container {
-                                                                box-shadow: none !important;
-                                                            }
-                                                        }
-                                                    </style>
-                                                </head>
-                                                <body>
-                                                    <div class="page-header">
-                                                        <div class="header-left">
-                                                            <img src="${logoPath}" alt="Logo Ulin Mahoni" class="logo" 
-                                                                onerror="this.style.display='none'">
-                                                            <div class="header-text">
-                                                                <h1>Ulin Mahoni</h1>
-                                                                <p class="property-name">${this.bookingDetails.property_name}</p>
-                                                                <p class="property-address">${this.bookingDetails.property_address}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div class="header-right">
-                                                            <span class="order-id">${this.bookingDetails.order_id}</span>
-                                                        </div>
+                                        <td class="right-col" rowspan="2">
+                                            <div class="right-signature-container">
+                                                <div class="compact-text signature-title">
+                                                    <span class="en-text"><strong>Guest Signature</span> / Tanda Tangan Tamu</strong>
+                                                </div>
+                                                
+                                                <!-- Jarak dengan class CSS -->
+                                                <div class="signature-spacing"></div>
+                                                
+                                                <div class="right-signature-box">
+                                                    <div class="right-icons">
+                                                        <span class="icon-ban" title="No Durian">
+                                                            <i class="fa-solid fa-lemon"></i>
+                                                            <i class="fa-solid fa-ban"></i>
+                                                        </span>
+                                                        <span class="icon-ban" title="No Pets">
+                                                            <i class="fa-solid fa-dog"></i>
+                                                            <i class="fa-solid fa-ban"></i>
+                                                        </span>
+                                                        <span class="icon-ban" title="No Smoking">
+                                                            <i class="fa-solid fa-smoking"></i>
+                                                            <i class="fa-solid fa-ban"></i>
+                                                        </span>
                                                     </div>
-                                                    <div class="container">
-                                                        <h2 class="document-title">BOOKING AGREEMENT</h2>
-                                                        
-                                                        <div class="section">
-                                                            <h3 class="section-title">Informasi Pemesanan</h3>
-                                                            <div class="detail-grid">
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Tanggal Pemesanan</span>
-                                                                    <span class="detail-value">${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                                                                </div>
-                                                                
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Nama Tamu</span>
-                                                                    <span class="detail-value">${this.guestContact.name}</span>
-                                                                </div>
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Email</span>
-                                                                    <span class="detail-value">${this.guestContact.email}</span>
-                                                                </div>
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Telepon</span>
-                                                                    <span class="detail-value">${this.guestContact.phone}</span>
-                                                                </div>
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Check-In</span>
-                                                                    <span class="detail-value">${this.bookingDetails.check_in}</span>
-                                                                </div>                                                                    
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Tipe Kamar</span>
-                                                                    <span class="detail-value">${this.bookingDetails.room_name}</span>
-                                                                </div>                                                                 
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Check-Out</span>
-                                                                    <span class="detail-value">${this.bookingDetails.check_out}</span>
-                                                                </div>
-                                                                
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Durasi</span>
-                                                                    <span class="detail-value">${this.bookingDetails.duration}</span>
-                                                                </div>
-                                                                
-                                                                <div class="detail-item">
-                                                                    <span class="detail-label">Total Pembayaran</span>
-                                                                    <span class="detail-value">${this.bookingDetails.total_payment}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <div class="section">
-                                                            <h3 class="section-title">Syarat & Ketentuan</h3>
-                                                            <ol class="terms-list">
-                                                                <li>Properti hanya digunakan untuk tujuan hunian oleh tamu yang terdaftar</li>
-                                                                <li>Dilarang merokok di dalam properti. Biaya pembersihan sebesar Rp 1.000.000 akan dikenakan jika melanggar</li>
-                                                                <li>Hewan peliharaan tidak diperbolehkan tanpa persetujuan tertulis dari manajemen</li>
-                                                                <li>Tamu bertanggung jawab penuh atas kerusakan properti atau isinya selama menginap</li>
-                                                                <li>Jam tenang berlaku pukul 22:00 hingga 07:00. Kebisingan berlebihan dapat mengakibatkan penghentian masa inap tanpa pengembalian dana</li>
-                                                                <li>Kapasitas maksimal tidak boleh melebihi jumlah tamu yang tercantum pada konfirmasi pemesanan</li>
-                                                                <li>Semua peraturan gedung harus dipatuhi selama menginap</li>
-                                                                <li>Properti harus dijaga kebersihannya dan ditinggalkan dalam kondisi yang sama seperti saat kedatangan</li>
-                                                                <li>Kunci atau kartu akses yang hilang akan dikenakan biaya penggantian sebesar Rp 500.000</li>
-                                                                <li>Waktu check-out adalah pukul 12:00 WIB. Keterlambatan check-out dapat dikenakan biaya tambahan kecuali telah disetujui sebelumnya</li>
-                                                                <li>Pesta atau acara tanpa izin dilarang keras</li>
-                                                                <li>Manajemen berhak memasuki properti untuk keperluan perawatan atau darurat dengan pemberitahuan yang wajar</li>
-                                                            </ol>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="left-col">
+                                            <div class="compact-text">
+                                                <strong>DISCLAIMER / PENAFIAN</strong><br>
+                                                <em class="en-text">
+                                                    Guests are advised not to leave valuable belongings unattended in the room.<br>
+                                                    For your safety, please use the in-room safe deposit box to store valuable items.<br>
+                                                    By signing this form, I acknowledge that I am fully responsible for any expenses incurred by the above-named person, company, or association during the stay at Ulin Mahoni.
+                                                </em><br>
+                                                <span class="id-text">
+                                                    Tamu dihimbau untuk tidak meninggalkan barang-barang berharga tanpa pengawasan di dalam kamar.<br>
+                                                    Untuk keamanan, silakan gunakan kotak penyimpanan (safe deposit box) yang tersedia untuk menyimpan barang-barang berharga.<br>
+                                                    Dengan menandatangani formulir ini, saya menyatakan bahwa saya sepenuhnya bertanggung jawab atas biaya yang timbul oleh nama, perusahaan, atau asosiasi yang disebutkan di atas selama masa menginap di Ulin Mahoni.
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
 
-                                                            
-                                                            <p style="margin-top: 2rem; font-weight: 500; color: #475569; font-size: 0.9375rem;">
-                                                                Dengan menandatangani perjanjian ini, tamu menyatakan telah menerima syarat dan ketentuan ini dan setuju untuk mematuhinya selama masa menginap.
-                                                            </p>
-                                                        </div>
-                                                        
-                                                        <div class="signature-section">
-                                                            <div class="signature-box">
-                                                                <div class="signature-placeholder"></div>
-                                                                <div class="signature-label">Tanda Tangan Tamu</div>
-                                                                <div class="signature-name">${this.guestContact.name}</div>
-                                                                <div class="signature-label">
-                                                                    Tanggal: ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <div class="footer">
-                                                            <p>Dokumen ini dibuat secara elektronik dan sah tanpa tanda tangan.</p>
-                                                            <p>${window.location.hostname} • © ${new Date().getFullYear()} Ulin Mahoni. Hak cipta dilindungi undang-undang.</p>
-                                                        </div>
-                                                    </div>
-                                                </body>
-                                            </html>
-                                        `);
+                                <table class="penalty-table">
+                                    <tr>
+                                        <td class="penalty-title">
+                                            <span class="en-text"><strong>PENALTY INFORMATION</span> / INFORMASI DENDA</strong><br>
+                                            <span style="font-weight: normal;">
+                                                <span class="en-text">Prohibited strong smell fruit, pets & arms with penalty Rp. 500.000</span><br>
+                                                <span class="id-text">Dilarang membawa buah yang berbau menyengat, hewan peliharaan & senjata, akan dikenakan denda Rp. 500.000</span>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="en-text">Penalty for lost key card Rp. 50.000</span><br>
+                                            <span class="id-text">Denda untuk kartu kunci yang hilang Rp. 50.000</span>
+                                        </td>
+                                        <td>
+                                            <span class="en-text"><strong>Date</span> / Tanggal</strong><br>
+                                            <span class="id-text">${currentDate}</span>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <div class="bottom-section">
+                                    <table class="bottom-table">
+                                        <tr>
+                                            <td><span class="en-text">Check-In By</span><br><span class="id-text">Melapor Masuk Oleh</span></td>
+                                            <td><span class="en-text">Check-Out By</span><br><span class="id-text">Melapor Keluar Oleh</span></td>
+                                            <td><span class="en-text">Front Desk</span><br><span class="id-text">Penyelia / Supervisor</span></td>
+                                        </tr>
+                                    </table>
+
+                                    <div style="text-align:center; margin-top:8px;" class="compact-text">
+                                        <span class="en-text"><strong>Rates are inclusive of service charge and government tax</strong></span><br>
+                                        <span class="id-text">Harga sudah termasuk jasa pelayanan dan pajak pemerintah</span>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 12px; font-size: 9px; text-align: center; color: #555; line-height: 1.2;">
+                                    <p>Dokumen ini dibuat secara elektronik oleh Ulin Mahoni dan sah tanpa tanda tangan basah.</p>
+                                    <p>© ${new Date().getFullYear()} Ulin Mahoni — Semua Hak Dilindungi Undang-Undang.</p>
+                                </div>
+                            </body>
+                            </html>
+                            `);
+
                     printWindow.document.close();
                     setTimeout(() => {
                         printWindow.print();
-                    }, 500);
+                    }, 600);
                 },
 
                 calculateDuration(checkIn, checkOut) {
