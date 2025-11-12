@@ -59,7 +59,7 @@
                     {{ $payment->transaction->transaction_type ?? '-' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($payment?->transaction?->paid_at)
+                    {{-- @if ($payment?->transaction?->paid_at)
                         <div>{{ $payment->transaction->paid_at->format('d M Y') }}</div>
                         <div class="text-xs text-gray-400">
                             {{ $payment->transaction->paid_at->format('H:i') }}
@@ -71,7 +71,7 @@
                         </div>
                     @else
                         -
-                    @endif
+                    @endif --}}
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
