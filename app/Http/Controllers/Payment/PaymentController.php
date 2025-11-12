@@ -25,7 +25,9 @@ class PaymentController extends Controller
                 $query->with(['property', 'room', 'user'])
                     ->where(function ($q) {
                         $q->where('status', 1)
-                            ->orWhereNull('status');
+                            ->orWhereNull('status')
+                            ->orWhereNull('check_in')
+                            ->orWhereNull('paid_at');
                     });
             }
         ])->orderBy('idrec', 'desc');
