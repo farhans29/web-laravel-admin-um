@@ -26,7 +26,7 @@
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div class="text-sm font-medium text-indigo-600">{{ $payment->order_id }}</div>
-                    <div class="text-sm text-gray-500">{{ $payment->transaction->check_in->format('Y-m-d') ?? '-' }}
+                    {{-- <div class="text-sm text-gray-500">{{ $payment->transaction->check_in->format('Y-m-d') ?? '-' }} --}}
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -112,7 +112,7 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-                    @if (in_array($payment->transaction->transaction_status, ['waiting']))
+                    @if (in_array($payment->transaction->transaction_status, ['pending']))
                         <div x-data="attachmentModal()" class="relative group">
                             <button type="button"
                                 class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
@@ -319,7 +319,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif ($payment->transaction->transaction_status === '')
+                    @elseif ($payment->transaction->transaction_status === 'waiting')
                         <span
                             class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
