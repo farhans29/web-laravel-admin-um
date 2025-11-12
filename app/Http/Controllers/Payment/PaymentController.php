@@ -18,8 +18,14 @@ class PaymentController extends Controller
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = Payment::with(['booking', 'transaction', 'user'])
-            ->orderBy('idrec', 'desc');
+        $query = Payment::with([
+            'booking',
+            'user',
+            'transaction' => function ($query) {
+                $query->with(['property', 'room', 'user'])
+                    ->where('status', 1); 
+            }
+        ])->orderBy('idrec', 'desc');
 
         $payments = $perPage === 'all'
             ? $query->get()
