@@ -117,16 +117,17 @@ class DashboardController extends Controller
             ];
         }
 
+        $showActions = true;
+
         return view('pages/dashboard/dashboard', compact(
             'dataFeed',
             'checkIns',
             'checkOuts',
             'roomAvailability',
-            'stats'
+            'stats',
+            'showActions'
         ));
     }
-
-
 
     public function analytics()
     {

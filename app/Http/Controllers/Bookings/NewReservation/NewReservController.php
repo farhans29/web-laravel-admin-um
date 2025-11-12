@@ -24,8 +24,9 @@ class NewReservController extends Controller
 
         // Get paginated results
         $checkIns = $query->paginate($perPage);
+        $showActions = true;
 
-        return view('pages.bookings.newreservations.index', compact('checkIns'));
+        return view('pages.bookings.newreservations.index', compact('checkIns', 'showActions'));
     }
 
     protected function filterBookings($startDate = null, $endDate = null)
