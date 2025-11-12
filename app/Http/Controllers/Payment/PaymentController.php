@@ -23,7 +23,10 @@ class PaymentController extends Controller
             'user',
             'transaction' => function ($query) {
                 $query->with(['property', 'room', 'user'])
-                    ->where('status', 1); 
+                    ->where(function ($q) {
+                        $q->where('status', 1)
+                            ->orWhereNull('status');
+                    });
             }
         ])->orderBy('idrec', 'desc');
 
@@ -36,6 +39,7 @@ class PaymentController extends Controller
             'per_page' => $perPage,
         ]);
     }
+
 
     public function filter(Request $request)
     {
