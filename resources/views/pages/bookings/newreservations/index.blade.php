@@ -279,9 +279,19 @@
                     try {
                         const response = await fetch(
                             `/bookings/newReserv-in/${this.bookingId}/details`);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Server returned non-JSON response');
+                        }
+
                         const data = await response.json();
 
-                        // Helper function to format date and time
+                        // Rest of your existing code for processing booking details...
                         const formatDateTime = (dateString, timeString) => {
                             if (!dateString) return {
                                 date: 'N/A',
@@ -295,7 +305,6 @@
                                 day: 'numeric'
                             });
 
-                            // Use provided time string or extract time from date
                             let formattedTime = timeString;
                             if (!timeString && dateString) {
                                 formattedTime = date.toLocaleString('en-US', {
@@ -327,7 +336,6 @@
                                     minute: '2-digit',
                                     hour12: false
                                 }) : 'N/A',
-
                             check_out: data.transaction?.check_out ?
                                 new Date(data.transaction.check_out).toLocaleString('en-US', {
                                     year: 'numeric',
@@ -364,7 +372,7 @@
 
                     } catch (error) {
                         console.error('Error fetching booking details:', error);
-                        this.showErrorToast('Failed to load booking details');
+                        this.showErrorToast('Failed to load booking details: ' + error.message);
                     }
                 },
 
@@ -927,16 +935,32 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json' // Explicitly request JSON
                             },
                             body: JSON.stringify(requestData)
                         });
 
+                        // Check if response is JSON
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            const textResponse = await response.text();
+                            console.error('Non-JSON response:', textResponse.substring(0, 500));
+                            throw new Error(
+                                'Server returned non-JSON response. Please check the server logs.'
+                            );
+                        }
+
                         const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.message ||
+                                `HTTP error! status: ${response.status}`);
+                        }
 
                         if (data.success) {
                             this.showSuccessToast('Check-in submitted successfully!');
-                            this.printAgreement(); // Langsung buka print agreement
+                            this.printAgreement();
                             setTimeout(() => {
                                 window.location.reload();
                             }, 1500);
@@ -945,7 +969,14 @@
                         }
                     } catch (error) {
                         console.error('Error during check-in:', error);
-                        this.showErrorToast('An error occurred during check-in');
+
+                        if (error.message.includes('non-JSON response')) {
+                            this.showErrorToast(
+                                'Server error: Invalid response format. Please try again.');
+                        } else {
+                            this.showErrorToast(error.message ||
+                                'An error occurred during check-in');
+                        }
                     }
                 },
 
