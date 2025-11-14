@@ -23,14 +23,10 @@ class PaymentController extends Controller
             'user',
             'transaction' => function ($query) {
                 $query->with(['property', 'room', 'user'])
-                    ->where(function ($q) {
-                        $q->where('status', 1)
-                            ->orWhereNull('status')
-                            ->orWhereNull('check_in')
-                            ->orWhereNull('paid_at');
-                    });
+                    ->where('status', 1); 
             }
-        ])->orderBy('idrec', 'desc');
+        ])->whereHas('transaction') // Hanya ambil payment yang punya transaction
+            ->orderBy('idrec', 'desc');
 
         $payments = $perPage === 'all'
             ? $query->get()
@@ -41,7 +37,6 @@ class PaymentController extends Controller
             'per_page' => $perPage,
         ]);
     }
-
 
     public function filter(Request $request)
     {
