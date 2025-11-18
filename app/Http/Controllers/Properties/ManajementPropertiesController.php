@@ -8,6 +8,7 @@ use App\Models\Property;
 use App\Models\PropertyImage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PropertyFacility;
+use Illuminate\Support\Facades\Storage;
 
 class ManajementPropertiesController extends Controller
 {
@@ -15,7 +16,7 @@ class ManajementPropertiesController extends Controller
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = Property::with(['creator', 'images'])
+        $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
 
         $generalFacilities = PropertyFacility::where('status', 1)->byCategory('general')->get();
@@ -136,7 +137,7 @@ class ManajementPropertiesController extends Controller
             'description' => 'nullable|string',
             'latitude' => 'required',
             'longitude' => 'required',
-            'property_images' => 'required|array|min:1|max:10',
+            'property_images' => 'required|array|min:3|max:10', // Minimal 3 foto
             'property_images.*' => 'required|image|mimes:jpeg,jpg,png|max:5120',
             'facilities' => 'nullable|array',
             'thumbnail_index' => 'required|integer',
@@ -147,10 +148,11 @@ class ManajementPropertiesController extends Controller
 
         // Ambil hanya fasilitas yang valid
         $facilitiesData = [
-            'general' => json_encode($request->input('general_facilities', [])),
-            'security' => json_encode($request->input('security_facilities', [])),
-            'amenities' => json_encode($request->input('amenities_facilities', [])),
+            'general' => array_reverse($request->input('general_facilities', [])),
+            'security' => array_reverse($request->input('security_facilities', [])),
+            'amenities' => array_reverse($request->input('amenities_facilities', [])),
         ];
+
 
         // Buat ID dan slug unik
         $idrec = Property::max('idrec') + 1;
@@ -161,19 +163,22 @@ class ManajementPropertiesController extends Controller
         // Generate initial dari property_name
         $initials = $this->generateInitials($request->property_name);
 
-        // Encode file gambar ke base64
-        $imageBase64Array = [];
-        $imageCaptionArray = [];
+        $imagePaths = [];
         $thumbnailIndex = $request->thumbnail_index;
 
-        foreach ($request->file('property_images') as $file) {
+        foreach ($request->file('property_images') as $index => $file) {
             if (!$file->isValid()) {
                 return back()->withErrors(['property_images' => 'Invalid file uploaded.']);
             }
 
-            $fileContents = file_get_contents($file->getRealPath());
-            $imageBase64Array[] = base64_encode($fileContents);
-            $imageCaptionArray[] = $file->getClientOriginalName();
+            // Generate nama file unik
+            $fileName = 'property_' . $idrec . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+
+            // Simpan file ke storage/app/public/property_image
+            $path = $file->storeAs('property_image', $fileName, 'public');
+
+            // Simpan path untuk digunakan di database
+            $imagePaths[] = $path;
         }
 
         // Simpan ke tabel `properties`
@@ -201,11 +206,11 @@ class ManajementPropertiesController extends Controller
         $property->save();
 
         // Simpan ke tabel m_property_images
-        foreach ($imageBase64Array as $index => $base64) {
+        foreach ($imagePaths as $index => $imagePath) {
             $image = new PropertyImage();
             $image->property_id = $idrec;
-            $image->image = $base64; // base64 string
-            $image->caption = $imageCaptionArray[$index] ?? 'No caption';
+            $image->image = $imagePath; // path ke file gambar di storage
+            $image->caption = $request->file('property_images')[$index]->getClientOriginalName() ?? 'No caption';
             $image->thumbnail = ($index == $thumbnailIndex) ? 1 : 0;
             $image->created_by = Auth::user()->id;
             $image->created_at = now();
@@ -222,7 +227,7 @@ class ManajementPropertiesController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'type' => 'required|string',
+                'tags' => 'required|string',
                 'description' => 'nullable|string',
                 'address' => 'required|string',
                 'latitude' => 'required|numeric',
@@ -232,7 +237,12 @@ class ManajementPropertiesController extends Controller
                 'subdistrict' => 'required|string',
                 'village' => 'required|string',
                 'postal_code' => 'nullable|string',
-                'features' => 'nullable|array',
+                'general' => 'nullable|array',
+                'general.*' => 'integer',
+                'security' => 'nullable|array',
+                'security.*' => 'integer',
+                'amenities' => 'nullable|array',
+                'amenities.*' => 'integer',
                 'property_images' => 'nullable|array',
                 'property_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
                 'delete_images' => 'nullable|array',
@@ -244,23 +254,22 @@ class ManajementPropertiesController extends Controller
 
             $property = Property::findOrFail($id);
 
-            // Validasi dan filter fitur
-            $validFeatures = [
-                "High-speed WiFi",
-                "Parking",
-                "Swimming Pool",
-                "Gym",
-                "Restaurant",
-                "24/7 Security",
-                "Concierge",
-                "Laundry Service",
-                "Room Service"
-            ];
-            $filteredFeatures = array_intersect($request->input('features', []), $validFeatures);
-
             // Hapus gambar berdasarkan delete_images
             $imagesToDelete = $request->input('delete_images', []);
             if (!empty($imagesToDelete)) {
+                // Hapus file dari storage
+                $imagesToDeleteRecords = PropertyImage::whereIn('idrec', $imagesToDelete)
+                    ->where('property_id', $property->idrec)
+                    ->get();
+
+                foreach ($imagesToDeleteRecords as $image) {
+                    // Hapus file fisik dari storage
+                    if (Storage::disk('public')->exists($image->image)) {
+                        Storage::disk('public')->delete($image->image);
+                    }
+                }
+
+                // Hapus dari database
                 PropertyImage::whereIn('idrec', $imagesToDelete)
                     ->where('property_id', $property->idrec)
                     ->delete();
@@ -275,16 +284,13 @@ class ManajementPropertiesController extends Controller
                 ->orderBy('idrec')
                 ->get();
 
-            // Handle thumbnail selection
+            // Handle thumbnail selection for existing images
             $thumbnailIndex = $request->input('thumbnail_index');
-            $allImagesCount = $existingImages->count() + count($request->file('property_images', []));
+            $existingImagesCount = $existingImages->count();
 
-            if ($thumbnailIndex >= 0 && $thumbnailIndex < $allImagesCount) {
-                // If thumbnail is from existing images
-                if ($thumbnailIndex < $existingImages->count()) {
-                    $existingImages[$thumbnailIndex]->update(['thumbnail' => true]);
-                }
-                // Else, it will be handled after new images are uploaded
+            // Set thumbnail untuk existing images
+            if ($thumbnailIndex < $existingImagesCount) {
+                $existingImages[$thumbnailIndex]->update(['thumbnail' => true]);
             }
 
             // Simpan gambar baru jika ada
@@ -293,16 +299,21 @@ class ManajementPropertiesController extends Controller
                 foreach ($request->file('property_images') as $index => $file) {
                     if (!$file->isValid()) continue;
 
-                    $fileContents = file_get_contents($file->getRealPath());
-                    $base64 = base64_encode($fileContents);
+                    // Generate unique filename
+                    $filename = 'property_' . $property->idrec . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+
+                    // Store file to storage
+                    $filePath = $file->storeAs('property_images', $filename, 'public');
+
                     $caption = $file->getClientOriginalName();
 
-                    $isThumbnail = ($thumbnailIndex >= $existingImages->count()) &&
-                        ($index == ($thumbnailIndex - $existingImages->count()));
+                    // Check if this new image should be thumbnail
+                    $isThumbnail = ($thumbnailIndex >= $existingImagesCount) &&
+                        ($index == ($thumbnailIndex - $existingImagesCount));
 
                     $newImage = PropertyImage::create([
                         'property_id' => $property->idrec,
-                        'image' => $base64,
+                        'image' => $filePath, // Simpan path file, bukan base64
                         'thumbnail' => $isThumbnail,
                         'caption' => $caption,
                         'created_by' => Auth::id(),
@@ -327,7 +338,9 @@ class ManajementPropertiesController extends Controller
                 'subdistrict' => $request->input('subdistrict'),
                 'village' => $request->input('village'),
                 'postal_code' => $request->input('postal_code'),
-                'features' => $filteredFeatures,
+                'general' => $request->input('general', []),
+                'security' => $request->input('security', []),
+                'amenities' => $request->input('amenities', []),
                 'updated_by' => Auth::id(),
                 'updated_at' => now(),
             ]);

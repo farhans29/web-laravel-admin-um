@@ -2,14 +2,16 @@
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400">
+            <h1
+                class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400">
                 Manajemen Properti
             </h1>
             <div class="mt-4 md:mt-0">
                 {{-- New Input Property --}}
                 <div x-data="modalProperty()">
                     <!-- Trigger Button -->
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
+                    <button
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
                         type="button" @click.prevent="modalOpenDetail = true;" aria-controls="feedback-modal1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
                             fill="currentColor">
@@ -42,9 +44,11 @@
                             @click.outside="modalOpenDetail = false" @keydown.escape.window="modalOpenDetail = false">
 
                             <!-- Modal header with step indicator -->
-                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
+                            <div
+                                class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
                                 <div class="flex justify-between items-center mb-4">
-                                    <div class="font-bold text-xl text-gray-800 dark:text-white">Tambahkan Properti</div>
+                                    <div class="font-bold text-xl text-gray-800 dark:text-white">Tambahkan Properti
+                                    </div>
                                     <button type="button"
                                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
                                         @click="modalOpenDetail = false">
@@ -72,7 +76,9 @@
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 1 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'">Informasi Dasar
+                                                :class="step >= 1 ? 'text-blue-600 dark:text-blue-400' :
+                                                    'text-gray-500 dark:text-gray-400'">
+                                                Informasi Dasar
                                             </p>
                                         </div>
                                     </div>
@@ -95,7 +101,9 @@
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 2 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'">Detail Lokasi</p>
+                                                :class="step >= 2 ? 'text-blue-600 dark:text-blue-400' :
+                                                    'text-gray-500 dark:text-gray-400'">
+                                                Detail Lokasi</p>
                                         </div>
                                     </div>
 
@@ -117,7 +125,9 @@
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 3 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'">Fasilitas</p>
+                                                :class="step >= 3 ? 'text-blue-600 dark:text-blue-400' :
+                                                    'text-gray-500 dark:text-gray-400'">
+                                                Fasilitas</p>
                                         </div>
                                     </div>
 
@@ -139,7 +149,9 @@
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
-                                                :class="step >= 4 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'">Foto</p>
+                                                :class="step >= 4 ? 'text-blue-600 dark:text-blue-400' :
+                                                    'text-gray-500 dark:text-gray-400'">
+                                                Foto</p>
                                         </div>
                                     </div>
                                 </div>
@@ -168,7 +180,8 @@
                                             </div>
 
                                             <div>
-                                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                                <label
+                                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                     Jenis Properti <span class="text-red-500">*</span>
                                                 </label>
                                                 <div class="grid grid-cols-2 gap-4" x-data="{
@@ -224,7 +237,9 @@
                                                 <label
                                                     class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                     Pinpoint Lokasi <span class="text-red-500 ml-1">*</span>
-                                                    <span class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(Klik untuk
+                                                    <span
+                                                        class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(Klik
+                                                        untuk
                                                         menandai langsung pada peta)</span>
                                                 </label>
                                                 <div id="map"
@@ -243,7 +258,8 @@
                                                         <p>Klik untuk menentukan lokasi</p>
                                                     </div>
                                                 </div>
-                                                <div id="coordinates" class="mt-2 text-sm text-gray-500 dark:text-gray-400"></div>
+                                                <div id="coordinates"
+                                                    class="mt-2 text-sm text-gray-500 dark:text-gray-400"></div>
                                                 <input type="hidden" id="latitude" name="latitude">
                                                 <input type="hidden" id="longitude" name="longitude">
                                             </div>
@@ -313,9 +329,10 @@
                                         <div class="space-y-8">
                                             <!-- General Facilities -->
                                             <div>
-                                                <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                <h3
+                                                    class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>
@@ -338,9 +355,10 @@
 
                                             <!-- Security Facilities -->
                                             <div>
-                                                <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-green-600 dark:text-green-400" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                <h3
+                                                    class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-green-600 dark:text-green-400"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
                                                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -364,9 +382,10 @@
 
                                             <!-- Amenities -->
                                             <div>
-                                                <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                    <svg class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                <h3
+                                                    class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
                                                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -396,7 +415,8 @@
                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                         <div class="space-y-6">
                                             <div>
-                                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                                <label
+                                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                     Foto Properti <span class="text-red-500">*</span>
                                                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
                                                         (Wajib 3 foto - <span x-text="remainingSlots"></span> foto
@@ -406,9 +426,12 @@
 
                                                 <!-- Thumbnail Selection Area -->
                                                 <div class="mb-6">
-                                                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                    <h4
+                                                        class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Pilih Thumbnail <span class="text-red-500">*</span>
-                                                        <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(Foto utama
+                                                        <span
+                                                            class="text-xs font-normal text-gray-500 dark:text-gray-400">(Foto
+                                                            utama
                                                             yang akan ditampilkan)</span>
                                                     </h4>
 
@@ -459,14 +482,15 @@
                                                     class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200 cursor-pointer"
                                                     :class="{ 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20': canUploadMore }">
                                                     <div class="space-y-2">
-                                                        <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500"
+                                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2"
                                                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                                             </path>
                                                         </svg>
-                                                        <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
+                                                        <div
+                                                            class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
                                                             <label for="property_images"
                                                                 class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                                                 <span>Upload foto</span>
@@ -477,7 +501,8 @@
                                                             </label>
                                                             <p class="pl-1">atau drag and drop</p>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG up to 5MB</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG,
+                                                            JPEG up to 5MB</p>
                                                         <p class="text-xs text-blue-600 dark:text-blue-400"
                                                             x-text="`Dapat upload ${remainingSlots} foto lagi`"></p>
                                                     </div>
@@ -492,16 +517,21 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                         </svg>
-                                                        <p class="text-sm text-green-600 dark:text-green-400 font-medium">3 foto telah
+                                                        <p
+                                                            class="text-sm text-green-600 dark:text-green-400 font-medium">
+                                                            3 foto telah
                                                             diupload!</p>
-                                                        <p class="text-xs text-green-500 dark:text-green-400">Semua slot foto telah terisi
+                                                        <p class="text-xs text-green-500 dark:text-green-400">Semua
+                                                            slot foto telah terisi
                                                         </p>
                                                     </div>
                                                 </div>
 
                                                 <!-- Image Preview Grid -->
                                                 <div x-show="images.length > 0" class="mt-4">
-                                                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Foto Terupload
+                                                    <h4
+                                                        class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                        Foto Terupload
                                                     </h4>
                                                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
                                                         x-transition:enter="transition ease-out duration-300"
@@ -549,7 +579,8 @@
 
                                                 <!-- Progress Indicator -->
                                                 <div class="mt-4">
-                                                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                                    <div
+                                                        class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                         <span>Progress Upload</span>
                                                         <span x-text="`${images.length}/${maxImages} foto`"></span>
                                                     </div>
@@ -1495,7 +1526,7 @@
                 isDragging: false,
                 propertyData: {
                     name: property.name || '',
-                    tags: property.tags || 'Kos',
+                    tags: property.tags || 'House',
                     description: property.description || '',
                     address: property.address || '',
                     latitude: property.latitude || null,
@@ -1505,9 +1536,9 @@
                     subdistrict: property.subdistrict || '',
                     village: property.village || '',
                     postal_code: property.postal_code || '',
-                    general: property.general || [],
-                    security: property.security || [],
-                    amenities: property.amenities || [],
+                    general: Array.isArray(property.general) ? property.general : [],
+                    security: Array.isArray(property.security) ? property.security : [],
+                    amenities: Array.isArray(property.amenities) ? property.amenities : [],
                     existingImages: property.existingImages || []
                 },
 
@@ -1587,9 +1618,9 @@
                     this.propertyData = {
                         ...this.propertyData,
                         ...data,
-                        general: data.general || [],
-                        security: data.security || [],
-                        amenities: data.amenities || []
+                        general: Array.isArray(data.general) ? data.general : [],
+                        security: Array.isArray(data.security) ? data.security : [],
+                        amenities: Array.isArray(data.amenities) ? data.amenities : []
                     };
                     this.editModalOpen = true;
                     this.editStep = 1;
@@ -2157,33 +2188,74 @@
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = `
-                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Memproses...
-                                    `;
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Memproses...
+                                `;
                     }
 
                     try {
                         // Create FormData for the submission
                         const formData = new FormData();
 
-                        // Add all property data
-                        for (const [key, value] of Object.entries(this.propertyData)) {
-                            if (key === 'existingImages') continue; // Handled separately
+                        // Add basic property data
+                        formData.append('name', this.propertyData.name);
+                        formData.append('description', this.propertyData.description);
+                        formData.append('address', this.propertyData.address);
+                        formData.append('latitude', this.propertyData.latitude);
+                        formData.append('longitude', this.propertyData.longitude);
+                        formData.append('province', this.propertyData.province);
+                        formData.append('city', this.propertyData.city);
+                        formData.append('subdistrict', this.propertyData.subdistrict);
+                        formData.append('village', this.propertyData.village);
+                        formData.append('postal_code', this.propertyData.postal_code);
+                        formData.append('tags', this.propertyData.tags);
 
-                            if (Array.isArray(value)) {
-                                value.forEach(item => formData.append(`${key}[]`, item));
-                            } else {
-                                formData.append(key, value);
-                            }
+                        // Handle array fields properly - ensure they are always arrays
+                        const generalArray = Array.isArray(this.propertyData.general) ? this
+                            .propertyData.general : [];
+                        const securityArray = Array.isArray(this.propertyData.security) ? this
+                            .propertyData.security : [];
+                        const amenitiesArray = Array.isArray(this.propertyData.amenities) ? this
+                            .propertyData.amenities : [];
+
+                        // Append array fields - add each item individually
+                        generalArray.forEach(item => {
+                            formData.append('general[]', item);
+                        });
+
+                        securityArray.forEach(item => {
+                            formData.append('security[]', item);
+                        });
+
+                        amenitiesArray.forEach(item => {
+                            formData.append('amenities[]', item);
+                        });
+
+                        // If arrays are empty, add empty array indicators
+                        if (generalArray.length === 0) {
+                            formData.append('general[]', '');
+                        }
+                        if (securityArray.length === 0) {
+                            formData.append('security[]', '');
+                        }
+                        if (amenitiesArray.length === 0) {
+                            formData.append('amenities[]', '');
                         }
 
                         // Append new images
                         this.editImages.forEach((image, index) => {
                             formData.append(`property_images[${index}]`, image.file);
                         });
+
+                        // Append existing images that are not marked for deletion
+                        this.propertyData.existingImages
+                            .filter(img => !img.markedForDeletion)
+                            .forEach(img => {
+                                formData.append('existing_images[]', img.id);
+                            });
 
                         // Append images to delete
                         this.propertyData.existingImages
@@ -2194,19 +2266,28 @@
 
                         formData.append('thumbnail_index', this.thumbnailIndex);
 
-                        // Add CSRF token
+                        // Add CSRF token and method spoofing
                         formData.append('_token', document.querySelector('meta[name="csrf-token"]')
                             .content);
                         formData.append('_method', 'PUT');
 
-                        const response = await fetch(document.getElementById(
-                            `propertyFormEdit-${property.idrec}`).action, {
-                            method: 'POST', // Laravel handles PUT via POST with _method
-                            body: formData,
-                            headers: {
-                                'Accept': 'application/json'
+                        // Debug: Log FormData contents
+                        console.log('FormData contents:');
+                        for (let [key, value] of formData.entries()) {
+                            console.log(key, value);
+                        }
+
+                        const response = await fetch(
+                            document.getElementById(`propertyFormEdit-${property.idrec}`)
+                            .action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
                             }
-                        });
+                        );
 
                         let data;
                         const contentType = response.headers.get('content-type');
@@ -2219,6 +2300,11 @@
                         }
 
                         if (!response.ok) {
+                            // Handle validation errors
+                            if (data.errors) {
+                                const errorMessages = Object.values(data.errors).flat().join(', ');
+                                throw new Error(errorMessages);
+                            }
                             throw new Error(data.message || 'Gagal memperbarui properti');
                         }
 
@@ -2243,7 +2329,7 @@
                             icon: 'error',
                             title: `Error: ${error.message}`,
                             showConfirmButton: false,
-                            timer: 3000,
+                            timer: 5000, // Longer timer for error messages
                             timerProgressBar: true,
                         });
                     } finally {
@@ -2257,88 +2343,253 @@
             }));
         });
 
+        // Fungsi debounce untuk optimasi performa
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
         // Fungsi untuk mengambil data dengan AJAX
         function fetchData() {
             const formData = new FormData(document.getElementById('searchForm'));
             const params = new URLSearchParams(formData).toString();
 
+            // Tampilkan loading state
+            const tableContainer = document.getElementById('propertyTableContainer');
+            const paginationContainer = document.getElementById('paginationContainer');
+
+            tableContainer.innerHTML = `
+        <div class="flex justify-center items-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <span class="ml-2 text-gray-600 dark:text-gray-400">Memuat data...</span>
+        </div>
+    `;
+
+            if (paginationContainer) {
+                paginationContainer.innerHTML = '';
+            }
+
             fetch(`/properties/m-properties/filter?${params}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'Accept': 'application/json'
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     document.getElementById('propertyTableContainer').innerHTML = data.html;
-                    document.getElementById('paginationContainer').innerHTML = data.pagination;
+
+                    // Update pagination container
+                    if (data.pagination) {
+                        document.getElementById('paginationContainer').innerHTML = data.pagination;
+                    } else {
+                        document.getElementById('paginationContainer').innerHTML = '';
+                    }
+
+                    // Re-attach event listeners to pagination links
+                    attachPaginationListeners();
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('propertyTableContainer').innerHTML = `
+                <div class="flex justify-center items-center py-8 text-red-500">
+                    Terjadi kesalahan saat memuat data. Silakan coba lagi.
+                </div>
+            `;
+                });
         }
 
-        // Event listeners untuk filter dan pencarian
-        document.getElementById('searchInput').addEventListener('input', debounce(fetchData, 500));
-        document.getElementById('statusFilter').addEventListener('change', fetchData);
-        document.getElementById('perPageSelect').addEventListener('change', fetchData);
+        // Fungsi untuk menambahkan event listener ke link pagination
+        function attachPaginationListeners() {
+            const paginationLinks = document.querySelectorAll('#paginationContainer a[href]');
+            paginationLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = new URL(this.href);
 
-        // Fungsi debounce untuk menunda eksekusi
-        function debounce(func, wait) {
-            let timeout;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    func.apply(context, args);
-                }, wait);
-            };
+                    // Update form values based on pagination URL
+                    const searchParams = new URLSearchParams(url.search);
+                    const page = searchParams.get('page');
+                    const search = searchParams.get('search');
+                    const status = searchParams.get('status');
+                    const per_page = searchParams.get('per_page');
+
+                    // Update form inputs
+                    if (search) document.getElementById('searchInput').value = search;
+                    if (status) document.getElementById('statusFilter').value = status;
+                    if (per_page) document.getElementById('perPageSelect').value = per_page;
+
+                    // Fetch data dengan parameter yang sesuai
+                    fetchDataWithParams(url.search);
+                });
+            });
         }
 
-        // Fungsi toggle status
+        // Fungsi fetch data dengan parameter tertentu
+        function fetchDataWithParams(queryString) {
+            // Tampilkan loading state
+            const tableContainer = document.getElementById('propertyTableContainer');
+            const paginationContainer = document.getElementById('paginationContainer');
+
+            tableContainer.innerHTML = `
+        <div class="flex justify-center items-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <span class="ml-2 text-gray-600 dark:text-gray-400">Memuat data...</span>
+        </div>
+    `;
+
+            fetch(`/properties/m-properties/filter${queryString}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('propertyTableContainer').innerHTML = data.html;
+
+                    if (data.pagination) {
+                        document.getElementById('paginationContainer').innerHTML = data.pagination;
+                        attachPaginationListeners();
+                    } else {
+                        document.getElementById('paginationContainer').innerHTML = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('propertyTableContainer').innerHTML = `
+                <div class="flex justify-center items-center py-8 text-red-500">
+                    Terjadi kesalahan saat memuat data. Silakan coba lagi.
+                </div>
+            `;
+                });
+        }
+
+        // Fungsi toggle status yang diperbaiki
         function toggleStatus(checkbox) {
             const propertyId = checkbox.getAttribute('data-id');
             const newStatus = checkbox.checked ? 1 : 0;
+
+            // Update teks status secara langsung untuk feedback instan
+            const statusText = document.getElementById(`status-text-${propertyId}`);
+            if (statusText) {
+                statusText.textContent = newStatus ? 'Active' : 'Inactive';
+            }
 
             fetch(`/properties/m-properties/${propertyId}/status`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({
                         status: newStatus
                     })
                 })
                 .then(response => {
-                    if (!response.ok) throw new Error('Gagal update status');
+                    if (!response.ok) throw new Error("Gagal update status");
                     return response.json();
                 })
                 .then(() => {
-                    // ✅ Refresh tabel
-                    fetch(`/properties/m-properties/table?per_page=8`)
-                        .then(res => res.text())
-                        .then(html => {
-                            document.getElementById('propertyTableContainer').innerHTML = html;
+                    // 🔄 Refresh tabel dengan filter yang sedang aktif
+                    const formData = new FormData(document.getElementById('searchForm'));
+                    const params = new URLSearchParams(formData).toString();
+
+                    fetch(`/properties/m-properties/filter?${params}`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content'),
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('propertyTableContainer').innerHTML = data.html;
+
+                            if (data.pagination) {
+                                document.getElementById('paginationContainer').innerHTML = data.pagination;
+                                attachPaginationListeners();
+                            }
                         });
 
-                    // ✅ Notifikasi
-                    Toastify({
-                        text: "Status properti berhasil diperbarui",
-                        duration: 3000,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        style: {
-                            background: "#4CAF50"
-                        },
-                        stopOnFocus: true
-                    }).showToast();
+                    // 🔔 Notifikasi sukses
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Status properti berhasil diperbarui',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
                 })
-                .catch(error => {
-                    console.error('Error:', error);
+                .catch(err => {
+                    console.error(err);
+                    // Rollback checkbox state
                     checkbox.checked = !checkbox.checked;
-                    alert('Gagal memperbarui status properti');
+                    // Rollback status text
+                    if (statusText) {
+                        statusText.textContent = !newStatus ? 'Active' : 'Inactive';
+                    }
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Gagal memperbarui status properti',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
                 });
         }
+
+        // Event listeners untuk filter dan pencarian
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const perPageSelect = document.getElementById('perPageSelect');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(fetchData, 500));
+            }
+
+            if (statusFilter) {
+                statusFilter.addEventListener('change', fetchData);
+            }
+
+            if (perPageSelect) {
+                perPageSelect.addEventListener('change', fetchData);
+            }
+
+            // Attach pagination listeners initially
+            attachPaginationListeners();
+        });
+
+        // Juga tangani form submission untuk mencegah reload page
+        document.getElementById('searchForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetchData();
+        });
     </script>
 </x-app-layout>

@@ -1,19 +1,26 @@
 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
     <thead class="bg-gray-50 dark:bg-gray-800">
         <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Nama</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Provinsi</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Tanggal Penambahan</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Tanggal Perubahan</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col"
+                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Ditambahkan Oleh</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col"
+                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Status</th>
-            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th scope="col"
+                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Aksi</th>
         </tr>
     </thead>
@@ -23,9 +30,14 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 h-10 w-10">
-                            @if ($property->images->isNotEmpty() && !empty($property->images->first()->image))
-                                <img src="data:image/jpeg;base64,{{ $property->images->first()->image }}"
-                                    alt="Property Image" class="w-full h-full object-cover rounded" />
+                            @if ($property->thumbnail)
+                                <img src="{{ Storage::url($property->thumbnail->image) }}" alt="Property Image"
+                                    class="w-full h-full object-cover rounded"
+                                    onerror="this.src='{{ asset('images/picture.png') }}'" />
+                            @elseif ($property->images->isNotEmpty())
+                                <img src="{{ Storage::url($property->images->first()->image) }}" alt="Property Image"
+                                    class="w-full h-full object-cover rounded"
+                                    onerror="this.src='{{ asset('images/picture.png') }}'" />
                             @else
                                 <img src="{{ asset('images/picture.png') }}" alt="Default Property Image"
                                     class="w-full h-full object-cover rounded" />
@@ -77,13 +89,11 @@
                         <!-- View -->
                         <div x-data="modalView()" class="relative group">
                             @php
-                                // Initialize empty array for images
                                 $images = [];
 
-                                // Only add images that belong to this property
                                 foreach ($property->images as $image) {
                                     if (!empty($image->image)) {
-                                        $images[] = 'data:image/jpeg;base64,' . $image->image;
+                                        $images[] = asset('storage/' . $image->image);
                                     }
                                 }
 
@@ -93,7 +103,8 @@
                                     'amenities' => $facilities->get('amenities', []),
                                 ];
                             @endphp
-                            <button class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
+                            <button
+                                class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
                                 type="button"
                                 @click.prevent='openModal({
                                                 name: @json($property->name),
@@ -152,8 +163,8 @@
                                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1"
                                                 x-text="selectedProperty.name"></h3>
                                             <p class="text-gray-600 dark:text-gray-300 flex items-center">
-                                                <svg class="w-4 h-4 mr-1 text-gray-400 dark:text-gray-500" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4 mr-1 text-gray-400 dark:text-gray-500"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
                                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -236,7 +247,8 @@
                                                     <button @click="selectedProperty.currentImageIndex = index"
                                                         class="w-3 h-3 rounded-full transition-all"
                                                         :class="selectedProperty.currentImageIndex === index ?
-                                                            'bg-white dark:bg-gray-300 w-6' : 'bg-white/50 dark:bg-gray-500/50'"></button>
+                                                            'bg-white dark:bg-gray-300 w-6' :
+                                                            'bg-white/50 dark:bg-gray-500/50'"></button>
                                                 </template>
                                             </div>
                                         </div>
@@ -251,7 +263,8 @@
                                             <div class="flex flex-col lg:flex-row gap-8">
                                                 <!-- Left Column - Property Info Grid -->
                                                 <div class="lg:w-1/3">
-                                                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl space-y-6 text-center">
+                                                    <div
+                                                        class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl space-y-6 text-center">
 
                                                         <div class="flex flex-col items-center space-y-1">
                                                             <div class="flex items-center justify-center space-x-2">
@@ -332,7 +345,9 @@
                                                         <div x-show="selectedProperty.general.length > 0"
                                                             class="space-y-4">
                                                             <div class="flex items-center justify-end space-x-2">
-                                                                <h4 class="text-lg font-bold text-gray-900 dark:text-white">General
+                                                                <h4
+                                                                    class="text-lg font-bold text-gray-900 dark:text-white">
+                                                                    General
                                                                     Facilities</h4>
                                                             </div>
                                                             <div class="flex flex-wrap gap-2 justify-end">
@@ -351,7 +366,9 @@
                                                         <div x-show="selectedProperty.security.length > 0"
                                                             class="space-y-4">
                                                             <div class="flex items-center justify-end space-x-2">
-                                                                <h4 class="text-lg font-bold text-gray-900 dark:text-white">Security
+                                                                <h4
+                                                                    class="text-lg font-bold text-gray-900 dark:text-white">
+                                                                    Security
                                                                     Facilities</h4>
                                                             </div>
                                                             <div class="flex flex-wrap gap-2 justify-end">
@@ -370,7 +387,9 @@
                                                         <div x-show="selectedProperty.amenities.length > 0"
                                                             class="space-y-4">
                                                             <div class="flex items-center justify-end space-x-2">
-                                                                <h4 class="text-lg font-bold text-gray-900 dark:text-white">Amenities
+                                                                <h4
+                                                                    class="text-lg font-bold text-gray-900 dark:text-white">
+                                                                    Amenities
                                                                 </h4>
                                                             </div>
                                                             <div class="flex flex-wrap gap-2 justify-end">
@@ -408,6 +427,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <!-- Edit -->
                         <div x-data="modalPropertyEdit({{ $property }})" class="relative group">
                             @php
@@ -420,7 +440,7 @@
                                     ->map(function ($image) {
                                         return [
                                             'id' => $image->idrec,
-                                            'url' => 'data:image/jpeg;base64,' . $image->image,
+                                            'url' => asset('storage/' . $image->image),
                                             'caption' => $image->caption,
                                             'name' => 'Image_' . $image->idrec . '.jpg',
                                             'is_thumbnail' => $image->thumbnail == 1,
@@ -429,29 +449,32 @@
                                     ->toJson();
                             @endphp
 
-                            <button class="text-amber-600 hover:text-amber-900 dark:text-amber-500 dark:hover:text-amber-400" type="button"
+                            <button
+                                class="text-amber-600 hover:text-amber-900 dark:text-amber-500 dark:hover:text-amber-400"
+                                type="button"
                                 @click.prevent='openModal({
-                                                    name: @json($property->name),
-                                                    city: @json($property->city),
-                                                    province: @json($property->province),
-                                                    description: @json($property->description),
-                                                    created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
-                                                    updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
-                                                    creator: "{{ $property->creator->username ?? 'Unknown' }}",
-                                                    status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                                    location: @json($property->location),                                                                                                                      
-                                                    general: @json($property->general ?? []),
-                                                    security: @json($property->security ?? []),
-                                                    amenities: @json($property->amenities ?? []),
-                                                    existingImages: {!! $images !!},
-                                                    latitude: {{ $property->latitude ?? 'null' }},
-                                                    longitude: {{ $property->longitude ?? 'null' }},
-                                                    address: @json($property->address),
-                                                    subdistrict: @json($property->subdistrict),
-                                                    village: @json($property->village),
-                                                    postal_code: @json($property->postal_code),
-                                                    type: @json($property->type)
-                                                })'
+                                            name: @json($property->name),
+                                            city: @json($property->city),
+                                            province: @json($property->province),
+                                            description: @json($property->description),
+                                            created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
+                                            updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
+                                            creator: "{{ $property->creator->username ?? 'Unknown' }}",
+                                            status: "{{ $property->status ? 'Active' : 'Inactive' }}",
+                                            location: @json($property->location),                                                                                                                      
+                                            general: @json($property->general ?? []),
+                                            security: @json($property->security ?? []),
+                                            amenities: @json($property->amenities ?? []),
+                                            existingImages: {!! $images !!},
+                                            latitude: {{ $property->latitude ?? 'null' }},
+                                            longitude: {{ $property->longitude ?? 'null' }},
+                                            address: @json($property->address),
+                                            subdistrict: @json($property->subdistrict),
+                                            village: @json($property->village),
+                                            postal_code: @json($property->postal_code),
+                                            type: @json($property->type),
+                                            tags: @json($property->tags),
+                                        })'
                                 aria-controls="property-edit-modal-{{ $property->idrec }}" title="Edit Property">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -631,12 +654,13 @@
                                                     </div>
 
                                                     <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                                        <label
+                                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                             Jenis Properti <span class="text-red-500">*</span>
                                                         </label>
                                                         <div class="grid grid-cols-2 gap-4" x-data="{
                                                             types: [
-                                                                { label: 'Kos', value: 'House' },
+                                                                { label: 'Kos', value: 'Kos' },
                                                                 { label: 'Apartment', value: 'Apartment' },
                                                                 { label: 'Villa', value: 'Villa' },
                                                                 { label: 'Hotel', value: 'Hotel' }
@@ -697,7 +721,8 @@
                                                         <label
                                                             class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                             Pinpoint Lokasi <span class="text-red-500 ml-1">*</span>
-                                                            <span class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(Klik
+                                                            <span
+                                                                class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(Klik
                                                                 untuk menandai langsung pada
                                                                 peta)</span>
                                                         </label>
@@ -807,20 +832,12 @@
                                             </div>
 
                                             <!-- Step 3 - Facilities -->
-                                            <div x-show="editStep === 3"
-                                                x-transition:enter="transition ease-out duration-300"
-                                                x-transition:enter-start="opacity-0 translate-x-4"
-                                                x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
+                                            <div x-show="editStep === 3">
                                                 <div class="space-y-8">
                                                     <!-- General Facilities -->
                                                     <div>
                                                         <h3
                                                             class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                            <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                            </svg>
                                                             Fasilitas Umum
                                                         </h3>
                                                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -833,7 +850,7 @@
                                                                         class="sr-only peer"
                                                                         x-model="propertyData.general"
                                                                         :checked="propertyData.general.includes(
-                                                                            '{{ $facility->idrec }}')">
+                                                                            {{ $facility->idrec }})">
                                                                     <label
                                                                         for="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
                                                                         class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
@@ -848,12 +865,6 @@
                                                     <div>
                                                         <h3
                                                             class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                            <svg class="w-5 h-5 mr-2 text-green-600 dark:text-green-400" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                                            </svg>
                                                             Fasilitas Keamanan
                                                         </h3>
                                                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -866,7 +877,7 @@
                                                                         class="sr-only peer"
                                                                         x-model="propertyData.security"
                                                                         :checked="propertyData.security.includes(
-                                                                            '{{ $facility->idrec }}')">
+                                                                            {{ $facility->idrec }})">
                                                                     <label
                                                                         for="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
                                                                         class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200">
@@ -881,12 +892,6 @@
                                                     <div>
                                                         <h3
                                                             class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                            <svg class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                                            </svg>
                                                             Layanan Tambahan
                                                         </h3>
                                                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -899,7 +904,7 @@
                                                                         class="sr-only peer"
                                                                         x-model="propertyData.amenities"
                                                                         :checked="propertyData.amenities.includes(
-                                                                            '{{ $facility->idrec }}')">
+                                                                            {{ $facility->idrec }})">
                                                                     <label
                                                                         for="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
                                                                         class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200">
@@ -923,9 +928,11 @@
                                                         <input type="hidden" name="thumbnail_index"
                                                             x-model="thumbnailIndex">
 
-                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                                        <label
+                                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                             Foto Properti <span class="text-red-500">*</span>
-                                                            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                            <span
+                                                                class="text-sm font-normal text-gray-500 dark:text-gray-400">
                                                                 (Minimal <span x-text="editMinImages"></span> foto,
                                                                 maksimal <span x-text="editMaxImages"></span> foto)
                                                             </span>
@@ -933,9 +940,11 @@
 
                                                         <!-- Thumbnail Preview Section -->
                                                         <div class="mb-6">
-                                                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                            <h4
+                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                                 Thumbnail Saat Ini <span class="text-red-500">*</span>
-                                                                <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(Foto
+                                                                <span
+                                                                    class="text-xs font-normal text-gray-500 dark:text-gray-400">(Foto
                                                                     utama properti)</span>
                                                             </h4>
 
@@ -962,7 +971,8 @@
 
                                                                 <!-- Thumbnail Selection Instructions -->
                                                                 <div class="flex-1">
-                                                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                                                    <p
+                                                                        class="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                                         <span x-show="thumbnailIndex === null"
                                                                             class="font-medium text-red-500">
                                                                             Belum ada thumbnail dipilih!
@@ -974,7 +984,8 @@
                                                                         Klik salah satu foto di bawah untuk memilih
                                                                         sebagai thumbnail.
                                                                     </p>
-                                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                                    <p
+                                                                        class="text-xs text-gray-500 dark:text-gray-400">
                                                                         Pastikan memilih foto terbaik sebagai thumbnail
                                                                         karena ini akan menjadi gambar utama properti
                                                                         Anda.
@@ -996,7 +1007,8 @@
                                                                         stroke-linejoin="round" stroke-width="2"
                                                                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                                 </svg>
-                                                                <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
+                                                                <div
+                                                                    class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
                                                                     <label
                                                                         for="edit_property_images_{{ $property->idrec }}"
                                                                         class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
@@ -1010,7 +1022,8 @@
                                                                     </label>
                                                                     <p class="pl-1">atau drag and drop</p>
                                                                 </div>
-                                                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (maks.
+                                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                                    PNG, JPG, JPEG (maks.
                                                                     5MB per file)</p>
                                                                 <p class="text-xs text-blue-600 dark:text-blue-400"
                                                                     x-text="`Dapat upload ${editRemainingSlots} foto lagi`">
@@ -1029,18 +1042,22 @@
                                                                         stroke-linejoin="round" stroke-width="2"
                                                                         d="M5 13l4 4L19 7" />
                                                                 </svg>
-                                                                <p class="text-sm text-green-600 dark:text-green-400 font-medium">
+                                                                <p
+                                                                    class="text-sm text-green-600 dark:text-green-400 font-medium">
                                                                     <span x-text="editMaxImages"></span> foto telah
                                                                     diupload!
                                                                 </p>
-                                                                <p class="text-xs text-green-500 dark:text-green-400">Maksimal upload foto
+                                                                <p class="text-xs text-green-500 dark:text-green-400">
+                                                                    Maksimal upload foto
                                                                     tercapai</p>
                                                             </div>
                                                         </div>
 
                                                         <!-- Image Preview Grid -->
                                                         <div x-show="getAllImages().length > 0" class="mt-4">
-                                                            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Foto
+                                                            <h4
+                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                                Foto
                                                                 Terupload</h4>
 
                                                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
@@ -1154,7 +1171,8 @@
                                                                 <span
                                                                     x-text="`${getAllImages().length}/${editMaxImages} foto`"></span>
                                                             </div>
-                                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                                            <div
+                                                                class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                                                 <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
                                                                     :style="`width: ${(getAllImages().length / editMaxImages) * 100}%`">
                                                                 </div>
@@ -1174,7 +1192,8 @@
 
                                                             <div x-show="thumbnailIndex === null && getAllImages().length > 0"
                                                                 class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                                                                <p class="text-sm text-yellow-600 dark:text-yellow-400">
+                                                                <p
+                                                                    class="text-sm text-yellow-600 dark:text-yellow-400">
                                                                     <span class="font-medium">Perhatian:</span>
                                                                     Anda harus memilih thumbnail untuk melanjutkan.
                                                                 </p>
