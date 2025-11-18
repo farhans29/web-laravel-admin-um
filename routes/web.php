@@ -94,7 +94,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('properties')->group(function () {
         Route::get('/m-properties', [ManajementPropertiesController::class, 'index'])->name('properties.index');
-        Route::get('/m-properties/filter', [ManajementPropertiesController::class, 'filter'])->name('properties.filter');
+        Route::post('/m-properties/filter', [ManajementPropertiesController::class, 'filter'])->name('properties.filter');
+        Route::post('/properties/toggle-status', [ManajementPropertiesController::class, 'toggleStatus'])->name('properties.toggle-status');
         Route::put('/m-properties/{property}/status', [ManajementPropertiesController::class, 'updateStatus'])->name('properties.updateStatus');
         Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store');
         Route::put('/m-properties/update/{idrec}', [ManajementPropertiesController::class, 'update'])->name('properties.update');

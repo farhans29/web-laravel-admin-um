@@ -99,4 +99,12 @@ class Property extends Model
     {
         return PropertyFacility::whereIn('idrec', $this->amenities ?? [])->get();
     }
+
+    public function getImageUrlAttribute()
+    {
+        if (!empty($this->image)) {
+            return asset('storage/' . $this->image);
+        }
+        return null;
+    }
 }

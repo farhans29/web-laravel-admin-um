@@ -34,4 +34,20 @@ class PropertyImage extends Model
     {
         return $this->belongsTo(Property::class, 'property_id', 'idrec');
     }
+
+    public function getImageUrlAttribute()
+    {
+        if (!empty($this->image)) {
+            return asset('storage/' . $this->image);
+        }
+        return null;
+    }
+
+    public function getThumbnailUrlAttribute()
+    {
+        if (!empty($this->thumbnail)) {
+            return asset('storage/' . $this->thumbnail);
+        }
+        return null;
+    }
 }
