@@ -9,6 +9,8 @@ use App\Models\Room;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
 use App\Models\PropertyImage;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -148,21 +150,28 @@ class DashboardController extends Controller
     public function progress_index()
     {
 
-        $images = PropertyImage::with('property')
-            ->limit(10)
-            ->get();
+        // Coba buat storage link secara otomatis
+        $storageLinkResult = $this->createStorageLink();
 
-        return view('pages/progress_page/index', compact('images'));
-    }
-
-    public function testImages()
-    {
         // Ambil beberapa gambar untuk testing
         $images = PropertyImage::with('property')
             ->limit(10)
             ->get();
 
-        return view('pages/progress_page/index', compact('images'));
+        return view('pages/progress_page/index', compact('images', 'storageLinkResult'));
+    }
+
+   public function testImages()
+    {
+        // Coba buat storage link secara otomatis
+        $storageLinkResult = $this->createStorageLink();
+        
+        // Ambil beberapa gambar untuk testing
+        $images = PropertyImage::with('property')
+            ->limit(10)
+            ->get();
+            
+        return view('pages/progress_page/index', compact('images', 'storageLinkResult'));
     }
 
     public function testSingleImage($id)
@@ -172,7 +181,95 @@ class DashboardController extends Controller
             'success' => true,
             'image' => $image,
             'image_url' => $image->image_url,
-            'thumbnail_url' => $image->thumbnail_url
+            'thumbnail_url' => $image->thumbnail_url,
+            'storage_exists' => Storage::exists($image->image)
+        ]);
+    }
+
+    /**
+     * Membuat storage link secara otomatis
+     */
+    private function createStorageLink()
+    {
+        try {
+            // Cek apakah storage link sudah ada
+            $publicPath = public_path('storage');
+            $storagePath = storage_path('app/public');
+            
+            $result = [
+                'success' => false,
+                'message' => '',
+                'link_exists' => is_link($publicPath),
+                'target_exists' => file_exists($storagePath)
+            ];
+
+            // Jika symbolic link belum ada, buat
+            if (!is_link($publicPath)) {
+                Artisan::call('storage:link');
+                $result['success'] = true;
+                $result['message'] = 'Storage link created successfully!';
+                $result['link_exists'] = true;
+            } else {
+                $result['message'] = 'Storage link already exists.';
+                $result['success'] = true;
+            }
+
+            return $result;
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error creating storage link: ' . $e->getMessage(),
+                'link_exists' => false,
+                'target_exists' => file_exists(storage_path('app/public'))
+            ];
+        }
+    }
+
+    /**
+     * Force create storage link
+     */
+    public function forceStorageLink()
+    {
+        try {
+            $publicPath = public_path('storage');
+            
+            // Hapus link yang sudah ada jika ada
+            if (is_link($publicPath)) {
+                unlink($publicPath);
+            }
+            
+            // Buat link baru
+            Artisan::call('storage:link');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Storage link created successfully!'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check storage status
+     */
+    public function checkStorage()
+    {
+        $publicPath = public_path('storage');
+        $storagePath = storage_path('app/public');
+        
+        return response()->json([
+            'storage_link_exists' => is_link($publicPath),
+            'storage_path_exists' => file_exists($storagePath),
+            'public_storage_writable' => is_writable(public_path()),
+            'storage_app_public_writable' => is_writable($storagePath),
+            'link_target' => is_link($publicPath) ? readlink($publicPath) : null,
+            'expected_target' => $storagePath
         ]);
     }
 }
