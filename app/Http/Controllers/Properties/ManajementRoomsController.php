@@ -70,7 +70,8 @@ class ManajementRoomsController extends Controller
                     'properties' => $properties,
                     'rooms' => $rooms,
                     'per_page' => $perPage,
-                    'facilities' => $facilities, // Pastikan juga dikirim ke partial view
+                    'facilities' => $facilities, 
+                    'facilityData' => $facilityData,
                 ])->render(),
                 'pagination' => $rooms instanceof \Illuminate\Pagination\LengthAwarePaginator
                     ? $rooms->appends($request->input())->links()->toHtml()
@@ -100,7 +101,7 @@ class ManajementRoomsController extends Controller
             'daily_price' => 'nullable|numeric|min:0',
             'monthly_price' => 'nullable|numeric|min:0',
             'facilities' => 'nullable|array',
-            'room_images' => 'required|array|min:3|max:10',
+            'room_images' => 'required|array|min:3|max:5', // Ubah max menjadi 5
             'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
             'general_facilities' => 'nullable|array',
             'general_facilities.*' => 'string',
@@ -118,19 +119,26 @@ class ManajementRoomsController extends Controller
         $nameShort = strtolower(collect(explode(' ', $validated['room_name']))->map(fn($w) => substr($w, 0, 1))->implode(''));
         $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
 
-        // Encode images to base64
-        $imageBase64Array = [];
-        $imageCaptionArray = [];
+        // Process and store images
+        $imagePaths = [];
         $thumbnailIndex = $request->thumbnail_index;
 
-        foreach ($request->file('room_images') as $file) {
+        foreach ($request->file('room_images') as $index => $file) {
             if (!$file->isValid()) {
                 return back()->withErrors(['room_images' => 'Invalid file uploaded.']);
             }
 
-            $fileContents = file_get_contents($file->getRealPath());
-            $imageBase64Array[] = base64_encode($fileContents);
-            $imageCaptionArray[] = $file->getClientOriginalName();
+            // Generate unique filename
+            $filename = 'room_' . $idrec . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+
+            // Store image in storage - simpan di folder room_images
+            $path = $file->storeAs('room_images', $filename, 'public');
+
+            $imagePaths[] = [
+                'filename' => $path, // Simpan relative path ke storage
+                'thumbnail' => ($index == $thumbnailIndex),
+                'original_name' => $file->getClientOriginalName()
+            ];
         }
 
         // Determine price period
@@ -155,8 +163,8 @@ class ManajementRoomsController extends Controller
         $room->bed_type = $validated['room_bed'];
         $room->capacity = $validated['room_capacity'];
         $room->periode = json_encode($periode);
-        $room->periode_daily = $periode_daily;   
-        $room->periode_monthly = $periode_monthly; 
+        $room->periode_daily = $periode_daily;
+        $room->periode_monthly = $periode_monthly;
         $room->type = $property->type;
         $room->level = 1;
         $room->facility = $facilityData;
@@ -170,12 +178,12 @@ class ManajementRoomsController extends Controller
         $room->save();
 
         // Save to room_images table
-        foreach ($imageBase64Array as $index => $base64) {
+        foreach ($imagePaths as $index => $imageData) {
             $image = new MRoomImage();
             $image->room_id = $idrec;
-            $image->image = $base64;
-            $image->thumbnail = ($index == $thumbnailIndex) ? 1 : 0;
-            $image->caption = $imageCaptionArray[$index] ?? 'No caption';
+            $image->image = $imageData['filename']; // Simpan path file (contoh: 'room_images/filename.jpg')
+            $image->thumbnail = $imageData['thumbnail'] ? 1 : 0;
+            $image->caption = $imageData['original_name'] ?? 'No caption';
             $image->created_by = Auth::user()->id;
             $image->created_at = now();
             $image->save();
@@ -237,7 +245,7 @@ class ManajementRoomsController extends Controller
     }
 
     public function update(Request $request, $idrec)
-    { 
+    {
         // Validate input
         $validated = $request->validate([
             'property_id' => 'required|numeric|exists:m_properties,idrec',
@@ -255,6 +263,8 @@ class ManajementRoomsController extends Controller
             'thumbnail_index' => 'required|integer|min:0',
             'delete_images' => 'nullable|array',
             'delete_images.*' => 'integer',
+            'existing_images' => 'nullable|array', // Add validation for existing images
+            'existing_images.*' => 'integer', // Each should be integer (image ID)
         ]);
 
         // Begin database transaction
@@ -309,30 +319,48 @@ class ManajementRoomsController extends Controller
                 'updated_at' => now(),
             ]);
 
-
+            // Reset all thumbnails first
             MRoomImage::where('room_id', $idrec)->update(['thumbnail' => false]);
 
+            // Handle image deletion
             if (!empty($validated['delete_images'])) {
+                $imagesToDelete = MRoomImage::where('room_id', $idrec)
+                    ->whereIn('idrec', $validated['delete_images'])
+                    ->get();
+
+                // Delete physical files from storage
+                foreach ($imagesToDelete as $image) {
+                    if (Storage::disk('public')->exists($image->image)) {
+                        Storage::disk('public')->delete($image->image);
+                    }
+                }
+
+                // Delete from database
                 MRoomImage::where('room_id', $idrec)
                     ->whereIn('idrec', $validated['delete_images'])
                     ->delete();
             }
 
+            // Get remaining existing images
             $existingImages = MRoomImage::where('room_id', $idrec)
                 ->orderBy('idrec')
                 ->get();
 
+            // Handle new image uploads
             $newImageIds = [];
             if ($request->hasFile('room_images')) {
                 foreach ($request->file('room_images') as $index => $file) {
                     if (!$file->isValid()) continue;
 
-                    $fileContents = file_get_contents($file->getRealPath());
-                    $base64 = base64_encode($fileContents);
+                    // Generate unique filename
+                    $filename = 'room_' . $idrec . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+
+                    // Store file in storage
+                    $filePath = $file->storeAs('room_images', $filename, 'public');
 
                     $newImage = MRoomImage::create([
                         'room_id' => $idrec,
-                        'image' => $base64,
+                        'image' => $filePath, // Store file path instead of base64
                         'caption' => $file->getClientOriginalName(),
                         'thumbnail' => false, // Will be set later if needed
                         'created_by' => Auth::id(),
@@ -343,7 +371,7 @@ class ManajementRoomsController extends Controller
                 }
             }
 
-            // 5. Determine and set the thumbnail
+            // Determine and set the thumbnail
             $thumbnailIndex = $validated['thumbnail_index'];
             $totalImagesBeforeNew = $existingImages->count();
 
@@ -649,156 +677,5 @@ class ManajementRoomsController extends Controller
             ], 500);
         }
     }
-
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'property_id' => 'required|numeric|exists:m_properties,idrec',
-    //         'room_no' => 'required|string|max:255',
-    //         'room_name' => 'required|string|max:255',
-    //         'room_size' => 'required|numeric|min:0',
-    //         'room_bed' => 'required|string|in:Single,Double,King,Queen,Twin',
-    //         'room_capacity' => 'required|numeric|min:1',
-    //         'description_id' => 'required|string',
-    //         'daily_price' => 'nullable|numeric|min:0',
-    //         'monthly_price' => 'nullable|numeric|min:0',
-    //         'facilities' => 'nullable|array',
-    //         'room_images' => 'required|array|min:3|max:10',
-    //         'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
-    //     ]);
-
-    //     // Get property data
-    //     $property = Property::findOrFail($validated['property_id']);
-
-    //     // Process facilities
-    //     $allFacilities = [
-    //         'wifi',
-    //         'ac',
-    //         'tv',
-    //         'bathroom',
-    //         'hot_water',
-    //         'wardrobe',
-    //         'desk',
-    //         'refrigerator',
-    //         'breakfast'
-    //     ];
-
-    //     $facilityData = [
-    //         'features' => array_intersect($request->input('facilities', []), $allFacilities),
-    //     ];
-
-    //     // Generate ID and unique slug
-    //     $idrec = Room::max('idrec') + 1;
-    //     $tagShort = strtolower(substr($property->tags, 0, 3));
-    //     $nameShort = strtolower(collect(explode(' ', $validated['room_name']))->map(fn($w) => substr($w, 0, 1))->implode(''));
-    //     $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
-
-    //     // Process and store images as base64 files
-    //     $imagePaths = [];
-    //     foreach ($request->file('room_images') as $file) {
-    //         if (!$file->isValid()) {
-    //             return back()->withErrors(['room_images' => 'Invalid file uploaded.']);
-    //         }
-
-    //         // Convert to base64
-    //         $base64Image = base64_encode(file_get_contents($file->getRealPath()));
-
-    //         // Determine file extension
-    //         $extension = $file->getClientOriginalExtension();
-    //         $mimeType = $file->getClientMimeType();
-
-    //         // Generate filename
-    //         $filename = 'room_' . $idrec . '_' . time() . '_' . uniqid() . '.' . $extension;
-    //         $path = 'room_images/' . $filename;
-
-    //         // Save base64 to file
-    //         Storage::disk('public')->put($path, base64_decode($base64Image));
-
-    //         $imagePaths[] = [
-    //             'path' => $path,
-    //             'caption' => $file->getClientOriginalName(),
-    //             'mime_type' => $mimeType
-    //         ];
-    //     }
-
-    //     // Determine price period
-    //     $periode = [
-    //         'daily' => !empty($validated['daily_price']),
-    //         'monthly' => !empty($validated['monthly_price'])
-    //     ];
-
-    //     // Save to rooms table
-    //     $room = new Room();
-    //     $room->idrec = $idrec;
-    //     $room->property_id = $validated['property_id'];
-    //     $room->property_name = $property->name;
-    //     $room->slug = $slug;
-    //     $room->no = $validated['room_no'];
-    //     $room->name = $validated['room_name'];
-    //     $room->descriptions = $validated['description_id'];
-    //     $room->size = $validated['room_size'];
-    //     $room->bed_type = $validated['room_bed'];
-    //     $room->capacity = $validated['room_capacity'];
-    //     $room->periode = json_encode($periode);
-    //     $room->type = $property->type;
-    //     $room->level = 1;
-    //     $room->facility = $facilityData['features'];
-    //     $room->price = $validated['daily_price'] ?? $validated['monthly_price'] ?? 0;
-    //     $room->discount_percent = 0;
-    //     $room->price_original_daily = $validated['daily_price'] ?? 0;
-    //     $room->price_original_monthly = $validated['monthly_price'] ?? 0;
-    //     $room->created_by = Auth::id();
-    //     $room->status = 1;
-    //     $room->created_at = now();
-    //     $room->save();
-
-    //     // Save to room_images table
-    //     foreach ($imagePaths as $image) {
-    //         $roomImage = new MRoomImage();
-    //         $roomImage->room_id = $idrec;
-    //         $roomImage->image = $image['path']; // Store the path to the base64 file
-    //         $roomImage->caption = $image['caption'];
-    //         $roomImage->mime_type = $image['mime_type'];
-    //         $roomImage->created_by = Auth::id();
-    //         $roomImage->created_at = now();
-    //         $roomImage->save();
-    //     }
-
-    //     // Generate daily prices if daily price is set
-    //     if ($periode['daily']) {
-    //         $startDate = Carbon::now();
-    //         $endDate = $startDate->copy()->addYear();
-    //         $dailyPrice = $validated['daily_price'];
-
-    //         $priceInserts = [];
-    //         while ($startDate->lessThan($endDate)) {
-    //             $priceInserts[] = [
-    //                 'room_id' => $idrec,
-    //                 'date' => $startDate->format('Y-m-d'),
-    //                 'price' => $dailyPrice,
-    //                 'created_at' => now(),
-    //                 'created_by' => Auth::id(),
-    //                 'status' => '1',
-    //             ];
-
-    //             if (count($priceInserts) >= 1000) {
-    //                 RoomPrices::insert($priceInserts);
-    //                 $priceInserts = [];
-    //             }
-
-    //             $startDate->addDay();
-    //         }
-
-    //         if (!empty($priceInserts)) {
-    //             RoomPrices::insert($priceInserts);
-    //         }
-    //     }
-
-    //     return $request->wantsJson()
-    //         ? response()->json(['status' => 'success', 'message' => 'Ruangan berhasil dibuat!', 'data' => $room], 201)
-    //         : redirect()->route('rooms.index')->with('success', 'Ruangan berhasil dibuat!');
-    // }
-
-
 
 }

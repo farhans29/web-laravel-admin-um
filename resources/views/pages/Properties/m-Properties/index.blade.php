@@ -835,15 +835,30 @@
                     return res.json();
                 })
                 .then(() => {
-                    statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
+                    // Animasi perubahan label status
+                    statusLabel.classList.add('opacity-0');
+
+                    setTimeout(() => {
+                        statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
+                        statusLabel.classList.remove('opacity-0');
+                        statusLabel.classList.add('opacity-100');
+                    }, 200);
+
+                    // Notifikasi Toastify lebih menarik
                     Toastify({
-                        text: "Status properti berhasil diperbarui",
-                        duration: 3000,
+                        text: newStatus === 1 ?
+                            "✓ Kamar berhasil diaktifkan" :
+                            "⚠ Kamar berhasil dinonaktifkan",
+                        duration: 3500,
                         close: true,
                         gravity: "top",
                         position: "right",
+                        stopOnFocus: true,
+                        className: "shadow-lg rounded-md",
                         style: {
-                            background: "#4CAF50"
+                            background: newStatus === 1 ?
+                                "linear-gradient(to right, #4CAF50, #2E7D32)" :
+                                "linear-gradient(to right, #F44336, #C62828)"
                         }
                     }).showToast();
                 })

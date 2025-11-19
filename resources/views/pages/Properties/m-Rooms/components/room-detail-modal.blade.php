@@ -4,7 +4,8 @@
         $roomImages = [];
         foreach ($room->roomImages as $image) {
             if (!empty($image->image)) {
-                $roomImages[] = 'data:image/jpeg;base64,' . $image->image;
+                // Ubah dari base64 ke path storage
+                $roomImages[] = asset('storage/' . $image->image);
             }
         }
         $facilities = json_encode($room->facility, JSON_HEX_APOS | JSON_HEX_QUOT);
@@ -387,12 +388,20 @@
                 this.disableBodyScroll();
 
                 this.$nextTick(() => {
+                    // Filter gambar yang valid (URL atau path storage)
+                    const validImages = Array.isArray(room.images) ?
+                        room.images.filter(img => {
+                            if (!img) return false;
+                            // Terima URL (http/https) atau path yang mengandung 'room_images'
+                            return img.startsWith('http') ||
+                                img.startsWith('/storage') ||
+                                img.includes('room_images');
+                        }) : [];
+
                     this.selectedRoom = {
                         ...room,
                         currentImageIndex: 0,
-                        images: Array.isArray(room.images) ?
-                            room.images.filter(img => img && img.startsWith(
-                                'data:image')) : [],
+                        images: validImages,
                         facilities: Array.isArray(room.facilities) ? room.facilities :
                         []
                     };
@@ -423,7 +432,7 @@
                 if (this.hasMultipleImages) {
                     this.selectedRoom.currentImageIndex =
                         (this.selectedRoom.currentImageIndex - 1 + this.selectedRoom.images
-                            .length) %
+                        .length) %
                         this.selectedRoom.images.length;
                 }
             },

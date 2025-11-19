@@ -4,7 +4,7 @@
             ->map(function ($image) {
                 return [
                     'id' => $image->idrec,
-                    'url' => 'data:image/jpeg;base64,' . $image->image,
+                    'url' => asset('storage/' . $image->image),
                     'caption' => $image->caption,
                     'name' => 'Image_' . $image->idrec . '.jpg',
                     'is_thumbnail' => $image->thumbnail == 1,
@@ -737,7 +737,7 @@
             editModalOpen: false,
             editStep: 1,
             editMinImages: 3,
-            editMaxImages: 10,
+            editMaxImages: 5,
             editImages: [],
             priceTypes: [],
             dailyPrice: 0,
@@ -1066,10 +1066,16 @@
                     }
                 }
 
+                // Process existing images - filter valid image URLs
+                const validExistingImages = Array.isArray(data.existingImages) ?
+                    data.existingImages.filter(img => img && (img.url.startsWith('http') || img.url
+                        .startsWith('/storage'))) : [];
+
                 this.roomData = {
                     ...this.roomData,
                     ...data,
                     facilities: facilities,
+                    existingImages: validExistingImages, // Use filtered images
                     thumbnailIndex: 0,
                     thumbnailType: 'existing'
                 };
