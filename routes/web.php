@@ -33,6 +33,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/progress', [DashboardController::class, 'progress_index'])->name('progress');
 
+    Route::get('/test/images', [DashboardController::class, 'testImages'])->name('test.images');
+    Route::get('/test/image/{id}', [DashboardController::class, 'testSingleImage'])->name('test.image');
+
     Route::get('/account/getData', [UserController::class, 'accountGetData'])->name('account.getData');
     Route::get('/users/getList', [UserController::class, 'userGetData'])->name('users.getList');
     Route::get('/users/getMainMenus', [UserController::class, 'usergetMainMenus'])->name('menus.getMainMenus');
