@@ -397,6 +397,26 @@
                                 </a>
                             </li>
                         @endcan
+
+                        <!-- Internet/Device Registration -->
+                        <li>
+                            <a href="{{ route('network.index') }}"
+                                class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 18h.01M8.5 14.5a5 5 0 017 0M6 11a9 9 0 0112 0" />
+                                </svg>
+                                <span class="transition-opacity duration-200 whitespace-nowrap"
+                                    :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
+                                    x-show="sidebarExpanded || window.innerWidth < 1024">Internet Registration</span>
+                                <!-- Tooltip for collapsed state -->
+                                <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
+                                    class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                    Customers
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
 

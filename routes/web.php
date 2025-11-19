@@ -12,6 +12,7 @@ use App\Http\Controllers\Bookings\CheckOut\CheckOutController;
 use App\Http\Controllers\Bookings\Completed\CompletedController;
 use App\Http\Controllers\Bookings\NewReservation\NewReservController;
 use App\Http\Controllers\Bookings\Pending\PendingController;
+use App\Http\Controllers\Network\NetworkController;
 use App\Http\Controllers\Rooms\ChangeRoomController;
 use App\Http\Controllers\Properties\ManajementPropertiesController;
 use App\Http\Controllers\Properties\ManajementRoomsController;
@@ -90,6 +91,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/change-room', [ChangeRoomController::class, 'index'])->name('changerooom.index');
         Route::get('/change-room/available-rooms', [ChangeRoomController::class, 'getAvailableRooms']);
         Route::post('/change-room/store', [ChangeRoomController::class, 'store'])->name('changeroom.store');
+    });
+
+    Route::prefix('network')->group(function () {
+        Route::get('/index', [NetworkController::class, 'index'])->name('network.index');
+        Route::get('/index/filter', [NetworkController::class, 'filter'])->name('network.filter');
+        Route::post('/index/{order_id}', [NetworkController::class, 'checkOut'])->name('bookings.network');
+        Route::get('/index/{order_id}/details', [NetworkController::class, 'getBookingDetails'])->name('network.details');
     });
 
     Route::prefix('properties')->group(function () {
