@@ -18,6 +18,9 @@ use App\Http\Controllers\Properties\ManajementRoomsController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\RefundController;
 use Symfony\Component\Console\Command\CompleteCommand;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
+
 
 // Route::redirect('/', 'login');
 
@@ -28,6 +31,39 @@ Route::middleware(['guest'])->group(function () {
 Route::get('/home', function () {
     return redirect('/dashboard');
 });
+
+Route::get('storage/{path}', function ($path) {
+    // Remove any URL parameters if present
+    $path = explode('?', $path)[0];
+
+    // Build the full file path
+    $filePath = storage_path('app/public/' . ltrim($path, '/'));
+
+    // Log the path for debugging (check Laravel logs)
+    // \Log::info('Accessing file:', ['path' => $filePath]);
+
+    if (!File::exists($filePath)) {
+        \Log::error('File not found:', ['path' => $filePath]);
+        abort(404, 'File not found at path ' . $filePath);
+    }
+
+    try {
+        $file = File::get($filePath);
+        $type = File::mimeType($filePath);
+
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+        $response->header("Cache-Control", "public, max-age=31536000, immutable");
+
+        return $response;
+    } catch (\Exception $e) {
+        \Log::error('Error serving file:', [
+            'path' => $filePath,
+            'error' => $e->getMessage()
+        ]);
+        abort(500, 'Error serving file');
+    }
+})->where('path', '.*');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
