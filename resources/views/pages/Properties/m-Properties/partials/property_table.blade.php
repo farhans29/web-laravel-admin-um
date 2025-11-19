@@ -93,7 +93,6 @@
 
                                 foreach ($property->images as $image) {
                                     if (!empty($image->image)) {
-                                        // Gunakan asset() untuk mendapatkan full URL seperti profile_photo_url
                                         $images[] = asset('storage/' . $image->image);
                                     }
                                 }
@@ -429,7 +428,7 @@
                             </div>
                         </div>
 
-                        <!-- Edit -->
+                       <!-- Edit -->
                         <div x-data="modalPropertyEdit({{ $property }})" class="relative group">
                             @php
                                 $features = [
