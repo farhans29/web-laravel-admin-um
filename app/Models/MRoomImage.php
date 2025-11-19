@@ -34,14 +34,25 @@ class MRoomImage extends Model
     public function getImageUrlAttribute()
     {
         if ($this->image) {
-            $baseUrl = rtrim(config('app.url', 'http://localhost:8000'), '/');
-            $imageContent = Storage::disk('public')->get($this->image);
-            return $baseUrl . '/storage/' . 'data:image/jpeg;base64,' . base64_encode($imageContent);
+            if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+                return $this->image;
+            }
+
+            if (Storage::disk('public')->exists($this->image)) {
+
+                return asset('storage/' . ltrim($this->image, '/'));
+            }
+
+            return null;
         }
+
+        return null;
     }
 
 
     protected $appends = ['image_url'];
+
+    
 
    
 }
