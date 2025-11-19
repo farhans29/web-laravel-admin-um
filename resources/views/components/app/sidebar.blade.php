@@ -379,7 +379,7 @@
                         <!-- Customers -->
                         @can('view_customers')
                             <li>
-                                <a href="{{ route('progress') }}"
+                                <a href="{{ route('test.images') }}"
                                     class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">

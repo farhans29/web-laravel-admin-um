@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
+use App\Models\PropertyImage;
 
 class DashboardController extends Controller
 {
@@ -146,6 +147,32 @@ class DashboardController extends Controller
 
     public function progress_index()
     {
-        return view('pages/progress_page/index');
+
+        $images = PropertyImage::with('property')
+            ->limit(10)
+            ->get();
+
+        return view('pages/progress_page/index', compact('images'));
+    }
+
+    public function testImages()
+    {
+        // Ambil beberapa gambar untuk testing
+        $images = PropertyImage::with('property')
+            ->limit(10)
+            ->get();
+
+        return view('pages/progress_page/index', compact('images'));
+    }
+
+    public function testSingleImage($id)
+    {
+        $image = PropertyImage::with('property')->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'image' => $image,
+            'image_url' => $image->image_url,
+            'thumbnail_url' => $image->thumbnail_url
+        ]);
     }
 }
