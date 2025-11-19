@@ -35,6 +35,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/test/images', [DashboardController::class, 'testImages'])->name('test.images');
     Route::get('/test/image/{id}', [DashboardController::class, 'testSingleImage'])->name('test.image');
+    Route::post('/test/storage/link', [DashboardController::class, 'forceStorageLink'])->name('test.storage.link');
+    Route::get('/test/storage/check', [DashboardController::class, 'checkStorage'])->name('test.storage.check');
 
     Route::get('/account/getData', [UserController::class, 'accountGetData'])->name('account.getData');
     Route::get('/users/getList', [UserController::class, 'userGetData'])->name('users.getList');

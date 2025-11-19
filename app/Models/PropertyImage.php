@@ -31,7 +31,6 @@ class PropertyImage extends Model
         'thumbnail' => 'boolean',
     ];
 
-    // TAMBAHKAN appends untuk accessor
     protected $appends = ['image_url', 'thumbnail_url'];
 
     public function property()
@@ -40,14 +39,39 @@ class PropertyImage extends Model
     }
 
     /**
-     * Get full image URL
+     * Get full image URL - Handle multiple scenarios
      */
     public function getImageUrlAttribute()
     {
-        if (!empty($this->image)) {
-            return asset('storage/' . $this->image);
+        if (empty($this->image)) {
+            return null;
         }
-        return null;
+
+        // Cek jika sudah full URL
+        if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+            return $this->image;
+        }
+
+        // Cek jika path sudah ada storage/
+        if (strpos($this->image, 'storage/') === 0) {
+            return asset($this->image);
+        }
+
+        // Cek jika file exists di public path
+        $publicPath = public_path($this->image);
+        if (file_exists($publicPath)) {
+            return asset($this->image);
+        }
+
+        // Coba dengan storage path
+        $storagePath = 'storage/' . $this->image;
+        $fullStoragePath = public_path($storagePath);
+        if (file_exists($fullStoragePath)) {
+            return asset($storagePath);
+        }
+
+        // Fallback ke storage URL
+        return asset('storage/' . $this->image);
     }
 
     /**
@@ -55,10 +79,33 @@ class PropertyImage extends Model
      */
     public function getThumbnailUrlAttribute()
     {
-        if (!empty($this->thumbnail)) {
-            return asset('storage/' . $this->thumbnail);
+        if (!empty($this->thumbnail) && !empty($this->image)) {
+            return $this->image_url; // Use same logic as image_url
         }
         return null;
     }
 
+    /**
+     * Check if image file actually exists
+     */
+    public function getImageExistsAttribute()
+    {
+        if (empty($this->image)) {
+            return false;
+        }
+
+        $possiblePaths = [
+            public_path($this->image),
+            public_path('storage/' . $this->image),
+            storage_path('app/public/' . $this->image)
+        ];
+
+        foreach ($possiblePaths as $path) {
+            if (file_exists($path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
