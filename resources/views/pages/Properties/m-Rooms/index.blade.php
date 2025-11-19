@@ -170,44 +170,54 @@
 
                                         </div>
 
-                                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label for="room_no"
                                                     class="block text-sm font-semibold text-gray-700 mb-2">
                                                     Nomor Kamar <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="text" id="room_no" name="room_no" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                                    placeholder="Nomor Kamar">
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan nomor kamar">
                                             </div>
 
                                             <div>
                                                 <label for="room_name"
                                                     class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Nama / Tipe Kamar <span class="text-red-500">*</span>
+                                                    Nama Kamar <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="text" id="room_name" name="room_name" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                                    placeholder="Nama / Tipe Kamar">
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan nama kamar">
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="room_size"
+                                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                                    Ukuran Kamar (m²) <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="number" id="room_size" name="room_size" required
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan ukuran kamar">
                                             </div>
 
                                             <div>
                                                 <label for="room_bed"
                                                     class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Jenis Tempat Tidur <span class="text-red-500">*</span>
+                                                    Jenis Kasur <span class="text-red-500">*</span>
                                                 </label>
                                                 <select id="room_bed" name="room_bed" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4">
-                                                    <option value="">Pilih Jenis Tempat Tidur</option>
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                                    <option value="">Pilih Jenis Kasur</option>
                                                     <option value="Single">Single</option>
-                                                    <option value="Twin">Twin</option>
                                                     <option value="Double">Double</option>
-                                                    <option value="Queen">Queen</option>
                                                     <option value="King">King</option>
+                                                    <option value="Queen">Queen</option>
+                                                    <option value="Twin">Twin</option>
                                                 </select>
                                             </div>
-
-
 
                                             <div>
                                                 <label for="room_capacity"
@@ -216,20 +226,10 @@
                                                 </label>
                                                 <input type="number" id="room_capacity" name="room_capacity"
                                                     required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                                    placeholder="Kapasitas" readonly>
-                                            </div>
-                                            <div>
-                                                <label for="room_size"
-                                                    class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Ukuran Kamar (m²) <span class="text-red-500">*</span>
-                                                </label>
-                                                <input type="number" id="room_size" name="room_size" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                                    placeholder="Ukuran">
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Masukkan kapasitas kamar">
                                             </div>
                                         </div>
-
 
                                         <div>
                                             <label for="description_id"
@@ -1132,22 +1132,6 @@
                         });
                 }
             }));
-        });
-
-        document.getElementById('room_bed').addEventListener('change', function() {
-            const bed = this.value;
-            const capacityField = document.getElementById('room_capacity');
-
-            if (bed === "Single") {
-                capacityField.value = 1;
-                capacityField.readOnly = true;
-            } else if (bed === "Twin" || bed === "Double" || bed === "Queen" || bed === "King") {
-                capacityField.value = 2;
-                capacityField.readOnly = true;
-            } else {
-                capacityField.value = "";
-                capacityField.readOnly = false;
-            }
         });
 
         function toggleStatus(checkbox) {
