@@ -28,56 +28,26 @@
         @forelse ($properties as $property)
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                 <td class="px-6 py-4 whitespace-nowrap">
-    <div class="flex items-center">
-        <div class="flex-shrink-0 h-10 w-10">
-            @php
-                // Debug info (hapus di production)
-                $hasThumbnail = $property->thumbnail && !empty($property->thumbnail->image);
-                $hasImages = $property->images->isNotEmpty();
-                $firstImage = $property->images->first();
-            @endphp
-            
-            <!-- Debug info (sembunyikan di production) -->
-            <div class="hidden">
-                Thumbnail: {{ $hasThumbnail ? 'Yes' : 'No' }},
-                Images: {{ $hasImages ? 'Yes' : 'No' }},
-                First Image: {{ $firstImage ? $firstImage->image : 'None' }}
-            </div>
-
-            <!-- Option 1: Gunakan featured_image_url accessor (Recommended) -->
-            <img src="{{ $property->featured_image_url }}" 
-                 alt="Property Image"
-                 class="w-full h-full object-cover rounded"
-                 onerror="this.src='{{ asset('images/picture.png') }}'" />
-
-            <!-- Option 2: Atau gunakan cara manual dengan debug -->
-            {{-- 
-            @if ($property->thumbnail && !empty($property->thumbnail->image))
-                <img src="{{ asset('storage/' . $property->thumbnail->image) }}" 
-                     alt="Property Image"
-                     class="w-full h-full object-cover rounded"
-                     onerror="console.log('Thumbnail failed: {{ $property->thumbnail->image }}'); this.src='{{ asset('images/picture.png') }}'" />
-            @elseif ($property->images->isNotEmpty() && !empty($property->images->first()->image))
-                <img src="{{ asset('storage/' . $property->images->first()->image) }}" 
-                     alt="Property Image"
-                     class="w-full h-full object-cover rounded"
-                     onerror="console.log('First image failed: {{ $property->images->first()->image }}'); this.src='{{ asset('images/picture.png') }}'" />
-            @else
-                <img src="{{ asset('images/picture.png') }}" 
-                     alt="Default Property Image"
-                     class="w-full h-full object-cover rounded" />
-            @endif 
-            --}}
-        </div>
-        <div class="ml-4">
-            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $property->name }}</div>
-            <!-- Tambahkan debug info kecil -->
-            <div class="text-xs text-gray-500">
-                Images: {{ $property->images->count() }}
-            </div>
-        </div>
-    </div>
-</td>
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                            @if ($property->thumbnail)
+                                <img src="{{ Storage::url($property->thumbnail->image) }}" alt="Property Image"
+                                    class="w-full h-full object-cover rounded"
+                                    onerror="this.src='{{ asset('images/picture.png') }}'" />
+                            @elseif ($property->images->isNotEmpty())
+                                <img src="{{ Storage::url($property->images->first()->image) }}" alt="Property Image"
+                                    class="w-full h-full object-cover rounded"
+                                    onerror="this.src='{{ asset('images/picture.png') }}'" />
+                            @else
+                                <img src="{{ asset('images/picture.png') }}" alt="Default Property Image"
+                                    class="w-full h-full object-cover rounded" />
+                            @endif
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $property->name }}</div>
+                        </div>
+                    </div>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
                     <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $property->province }}</div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">{{ $property->city }}</div>

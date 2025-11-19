@@ -107,25 +107,4 @@ class Property extends Model
         }
         return null;
     }
-
-    public function getFeaturedImageAttribute()
-    {
-        // Prioritaskan thumbnail, lalu gambar pertama
-        if ($this->thumbnail) {
-            return $this->thumbnail;
-        }
-        return $this->images->first();
-    }
-
-    /**
-     * Accessor untuk featured image URL
-     */
-    public function getFeaturedImageUrlAttribute()
-    {
-        $featuredImage = $this->featured_image;
-        if ($featuredImage && !empty($featuredImage->image)) {
-            return asset('storage/' . $featuredImage->image);
-        }
-        return asset('images/picture.png');
-    }
 }
