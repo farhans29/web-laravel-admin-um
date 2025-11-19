@@ -13,16 +13,42 @@ class RolesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::insert([
-            // HO (Pusat)
-            ['name' => 'Super Admin', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Finance HO', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Manager HO', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            // Site (Cabang Hotel)
-            ['name' => 'Site Admin', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Receptionist', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Housekeeping', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-            ['name' => 'Manager Hotel', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
-        ]);
+        $timestamp = Carbon::now();
+
+        // Roles normal (tanpa ID khusus)
+        $defaultRoles = [
+            'Super Admin',
+            'Finance HO',
+            'Manager HO',
+            'Site Admin',
+            'Receptionist',
+            'Housekeeping',
+            'Manager Hotel',
+        ];
+
+        foreach ($defaultRoles as $role) {
+            Role::firstOrCreate(
+                ['name' => $role],
+                ['created_at' => $timestamp, 'updated_at' => $timestamp]
+            );
+        }
+
+        // Roles dengan ID khusus (164–166)
+        $customRoles = [
+            164 => 'Creative',
+            165 => 'Administrator',
+            166 => 'Finance',
+        ];
+
+        foreach ($customRoles as $id => $name) {
+            Role::updateOrCreate(
+                ['id' => $id],
+                [
+                    'name'       => $name,
+                    'created_at' => $timestamp,
+                    'updated_at' => $timestamp
+                ]
+            );
+        }
     }
 }
