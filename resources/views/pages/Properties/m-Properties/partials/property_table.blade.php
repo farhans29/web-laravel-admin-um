@@ -89,12 +89,20 @@
                         <!-- View -->
                         <div x-data="modalView()" class="relative group">
                             @php
-                                $images = [];
+                                $$images = [];
+                                $debugInfo = []; // Untuk debug
 
                                 foreach ($property->images as $image) {
                                     if (!empty($image->image)) {
-                                        // Gunakan asset() untuk mendapatkan full URL seperti profile_photo_url
-                                        $images[] = asset('storage/' . $image->image);
+                                        $fullPath = asset('storage/' . $image->image);
+                                        $images[] = $fullPath;
+
+                                        // Debug info
+                                        $debugInfo[] = [
+                                            'db_path' => $image->image,
+                                            'full_url' => $fullPath,
+                                            'exists' => Storage::disk('public')->exists($image->image),
+                                        ];
                                     }
                                 }
 
