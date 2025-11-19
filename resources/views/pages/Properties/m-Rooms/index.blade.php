@@ -616,33 +616,41 @@
             <!-- Search and Filter Section -->
             <div class="p-4 border-b border-gray-200">
                 <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+
+                    <!-- Filter Properti -->
                     <div>
                         <select id="room-filter"
                             class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                             <option value="" hidden>Pilih Properti</option>
                             @foreach ($properties as $property)
-                                <option value="{{ $property->idrec }}">{{ $property->name }}</option>
+                                <option value="{{ $property->idrec }}"
+                                    {{ request('property_id') == $property->idrec ? 'selected' : '' }}>
+                                    {{ $property->name }}
+                                </option>
                             @endforeach
                         </select>
-
                     </div>
+
+                    <!-- Search Kamar -->
+                    <div class="flex-1">
+                        <input type="text" id="search-input" placeholder="Cari kamar..."
+                            value="{{ request('search') }}"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Filter Status -->
                     <div>
                         <select id="status-filter"
                             class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Semua Status</option>
-                            <option value="1">Aktif</option>
-                            <option value="0">Nonaktif</option>
+                            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
+                            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Nonaktif</option>
                         </select>
                     </div>
-                    <div class="flex-1">
-                        <input type="text" id="search-input" placeholder="Cari kamar..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <button id="filter-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                        Filter
-                    </button>
+
                 </div>
             </div>
+
 
             <div class="overflow-x-auto" id="roomTableContainer">
                 @include('pages.Properties.m-Rooms.partials.room_table', [
@@ -663,7 +671,7 @@
                 modalOpen: false,
                 step: 1,
                 images: [],
-                maxImages: 10,
+                maxImages: 5,
                 minImages: 3,
                 priceTypes: [],
                 dailyPrice: 0,
@@ -816,7 +824,15 @@
                             };
                             reader.readAsDataURL(file);
                         } else {
-                            alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
+                            Swal.fire({
+                                toast: true,
+                                icon: 'error',
+                                title: `File ${file.name} terlalu besar. Maksimal 5MB.`,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
                         }
                     });
 
@@ -1151,10 +1167,12 @@
         });
 
         function toggleStatus(checkbox) {
-            const room = checkbox.getAttribute('data-id');
+            const propertyId = checkbox.getAttribute('data-id');
             const newStatus = checkbox.checked ? 1 : 0;
 
-            fetch(`/properties/rooms/${room}/status`, {
+            const statusLabel = checkbox.closest('label').querySelector('span');
+
+            fetch(`/properties/rooms/${propertyId}/status`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1164,35 +1182,43 @@
                         status: newStatus
                     })
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
+                .then(res => {
+                    if (!res.ok) throw new Error("Gagal update status");
+                    return res.json();
                 })
-                .then(data => {
-                    fetch(`/properties/rooms/table?per_page=8`)
-                        .then(res => res.text())
-                        .then(html => {
-                            document.getElementById('roomTableContainer').innerHTML = html;
-                        });
+                .then(() => {
+                    // Animasi perubahan label status
+                    statusLabel.classList.add('opacity-0');
 
+                    setTimeout(() => {
+                        statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
+                        statusLabel.classList.remove('opacity-0');
+                        statusLabel.classList.add('opacity-100');
+                    }, 200);
+
+                    // Notifikasi Toastify lebih menarik
                     Toastify({
-                        text: "Status kamar berhasil diperbarui",
-                        duration: 3000,
+                        text: newStatus === 1 ?
+                            "✓ Kamar berhasil diaktifkan" : "⚠ Kamar berhasil dinonaktifkan",
+                        duration: 3500,
                         close: true,
                         gravity: "top",
                         position: "right",
+                        stopOnFocus: true,
+                        className: "shadow-lg rounded-md",
                         style: {
-                            background: "#4CAF50"
-                        },
-                        stopOnFocus: true
+                            background: newStatus === 1 ?
+                                "linear-gradient(to right, #4CAF50, #2E7D32)" :
+                                "linear-gradient(to right, #F44336, #C62828)"
+                        }
                     }).showToast();
                 })
-                .catch(error => {
-                    console.error('Error:', error);
+
+                .catch(err => {
+                    console.error(err);
                     checkbox.checked = !checkbox.checked;
-                    alert('Gagal memperbarui status properti');
+
+                    alert("Gagal memperbarui status properti");
                 });
         }
 
@@ -1249,7 +1275,9 @@
             const roomFilter = document.getElementById('room-filter');
             const statusFilter = document.getElementById('status-filter');
             const searchInput = document.getElementById('search-input');
-            const filterBtn = document.getElementById('filter-btn');
+
+            // Timer untuk debounce
+            let searchTimer;
 
             // Fungsi untuk memproses filter
             function applyFilters() {
@@ -1261,12 +1289,20 @@
                 fetchRooms(propertyId, status, searchQuery);
             }
 
-            // Event listeners
-            filterBtn.addEventListener('click', applyFilters);
+            // Event listeners untuk filter real-time
+            roomFilter.addEventListener('change', applyFilters);
+            statusFilter.addEventListener('change', applyFilters);
+
+            // Debounce untuk search input (menunggu 500ms setelah user berhenti mengetik)
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(applyFilters, 500);
+            });
 
             // Juga bisa trigger filter saat enter di search input
             searchInput.addEventListener('keyup', function(e) {
                 if (e.key === 'Enter') {
+                    clearTimeout(searchTimer);
                     applyFilters();
                 }
             });
@@ -1290,9 +1326,12 @@
                 const perPage = params.get('per_page') || '8';
                 params.set('per_page', perPage);
 
-                // Tampilkan loading indicator jika diperlukan
+                // Update URL tanpa reload halaman
+                window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
+
+                // Tampilkan loading indicator
                 document.getElementById('roomTableContainer').innerHTML =
-                    '<div class="p-4 text-center">Loading...</div>';
+                    '<div class="p-4 text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div><p class="mt-2 text-gray-600">Memuat data...</p></div>';
 
                 // Kirim permintaan
                 fetch(`{{ route('rooms.index') }}?${params.toString()}`, {
@@ -1306,7 +1345,7 @@
                         return response.json();
                     })
                     .then(data => {
-                        // Pastikan container ada sebelum mengupdate
+                        // Update tabel dan pagination
                         const tableContainer = document.getElementById('roomTableContainer');
                         const paginationContainer = document.getElementById('paginationContainer');
 
@@ -1320,7 +1359,7 @@
                         const container = document.getElementById('roomTableContainer');
                         if (container) {
                             container.innerHTML =
-                                '<div class="p-4 text-center text-red-500">Error loading data</div>';
+                                '<div class="p-4 text-center text-red-500">Error loading data. Please try again.</div>';
                         }
                     });
             }
