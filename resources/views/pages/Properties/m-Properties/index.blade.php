@@ -711,10 +711,26 @@
                 </form>
             </div>
 
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden p-4 text-center">
+                <div
+                    class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm text-blue-700 transition ease-in-out duration-150">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-700" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    Memuat data...
+                </div>
+            </div>
+
             <div class="overflow-x-auto" id="propertyTableContainer">
                 @include('pages.Properties.m-Properties.partials.property_table', [
                     'properties' => $properties,
-                    'per_page' => request('per_page', 8),
+                    'per_page' => request('per_page', 5),
                 ])
             </div>
 
@@ -726,174 +742,118 @@
     </div>
 
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('modalView', () => ({
-                selectedProperty: {
-                    currentImageIndex: 0,
-                    images: [],
-                    general: [],
-                    security: [],
-                    amenities: []
-                },
-                facilities: {
-                    general: [],
-                    security: [],
-                    amenities: []
-                },
-                modalOpenDetail: false,
-                isLoading: false,
+        document.addEventListener('DOMContentLoaded', function() {
+            let searchTimeout;
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const perPageSelect = document.getElementById('perPageSelect');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const propertyTableContainer = document.getElementById('propertyTableContainer');
+            const paginationContainer = document.getElementById('paginationContainer');
 
-                openModal(property) {
-                    this.isLoading = true;
-                    this.modalOpenDetail = true;
-                    this.disableBodyScroll();
+            // Fungsi untuk memuat data dengan AJAX
+            function loadData() {
+                // Tampilkan loading indicator
+                loadingIndicator.classList.remove('hidden');
+                propertyTableContainer.classList.add('opacity-50');
 
-                    if (property.facilities) {
-                        this.facilities = {
-                            general: property.facilities.general || [],
-                            security: property.facilities.security || [],
-                            amenities: property.facilities.amenities || []
-                        };
-                    }
+                // Siapkan data form
+                const formData = new FormData();
+                formData.append('search', searchInput.value);
+                formData.append('status', statusFilter.value);
+                formData.append('per_page', perPageSelect.value);
+                formData.append('_token', '{{ csrf_token() }}');
 
-                    // Use nextTick to ensure DOM is ready before setting properties
-                    this.$nextTick(() => {
-                        this.selectedProperty = {
-                            ...property,
-                            currentImageIndex: 0,
-                            images: Array.isArray(property.images) ? property.images.filter(
-                                img => img) : [],
-                            general: Array.isArray(property.general) ?
-                                property.general : (property.general ? JSON.parse(property
-                                    .general) : []),
-                            security: Array.isArray(property.security) ?
-                                property.security : (property.security ? JSON.parse(property
-                                    .security) : []),
-                            amenities: Array.isArray(property.amenities) ?
-                                property.amenities : (property.amenities ? JSON.parse(
-                                    property.amenities) : [])
-                        };
-                        this.isLoading = false;
-                    });
-                },
-
-                closeModal() {
-                    this.modalOpenDetail = false;
-                    this.enableBodyScroll();
-                    // Reset for next opening
-                    setTimeout(() => {
-                        this.selectedProperty = {
-                            currentImageIndex: 0,
-                            images: [],
-                            features: []
-                        };
-                    }, 300); // Match this with your CSS transition duration
-                },
-
-                nextImage() {
-                    if (this.hasMultipleImages) {
-                        this.selectedProperty.currentImageIndex =
-                            (this.selectedProperty.currentImageIndex + 1) % this.selectedProperty.images
-                            .length;
-                    }
-                },
-
-                getFacilityName(id, category) {
-                    if (!this.facilities[category]) return 'Unknown Facility';
-
-                    const facility = this.facilities[category].find(f => f.idrec == id);
-                    return facility ? facility.facility : 'Unknown Facility';
-                },
-
-                prevImage() {
-                    if (this.hasMultipleImages) {
-                        this.selectedProperty.currentImageIndex =
-                            (this.selectedProperty.currentImageIndex - 1 + this.selectedProperty.images
-                                .length) %
-                            this.selectedProperty.images.length;
-                    }
-                },
-
-                goToImage(index) {
-                    if (this.hasMultipleImages && index >= 0 && index < this.selectedProperty.images
-                        .length) {
-                        this.selectedProperty.currentImageIndex = index;
-                    }
-                },
-
-                // Getters for computed properties
-                get hasMultipleImages() {
-                    return this.selectedProperty.images?.length > 1;
-                },
-
-                get currentImage() {
-                    return this.selectedProperty.images[this.selectedProperty.currentImageIndex];
-                },
-
-                // Touch event handlers for mobile swipe
-                handleTouchStart(e) {
-                    this.touchStartX = e.changedTouches[0].screenX;
-                },
-
-                handleTouchEnd(e) {
-                    this.touchEndX = e.changedTouches[0].screenX;
-                    this.handleSwipe();
-                },
-
-                handleSwipe() {
-                    const threshold = 50;
-                    const diff = this.touchStartX - this.touchEndX;
-
-                    if (diff > threshold) {
-                        this.nextImage(); // Swipe left
-                    } else if (diff < -threshold) {
-                        this.prevImage(); // Swipe right
-                    }
-                },
-
-                disableBodyScroll() {
-                    document.body.style.overflow = 'hidden';
-                    document.body.style.paddingRight = this.scrollbarWidth + 'px';
-                },
-
-                enableBodyScroll() {
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-                },
-
-                get scrollbarWidth() {
-                    return window.innerWidth - document.documentElement.clientWidth;
-                },
-
-                init() {
-                    // Keyboard event listener
-                    const handleKeyDown = (e) => {
-                        if (!this.modalOpenDetail) return;
-
-                        switch (e.key) {
-                            case 'Escape':
-                                this.closeModal();
-                                break;
-                            case 'ArrowRight':
-                                this.nextImage();
-                                break;
-                            case 'ArrowLeft':
-                                this.prevImage();
-                                break;
+                // Kirim request AJAX
+                fetch('{{ route('properties.filter') }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
-                    };
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Update tabel
+                        propertyTableContainer.innerHTML = data.html;
 
-                    document.addEventListener('keydown', handleKeyDown);
+                        // Update pagination jika ada
+                        if (data.pagination) {
+                            paginationContainer.innerHTML = data.pagination;
+                        } else {
+                            paginationContainer.innerHTML = '';
+                        }
 
-                    // Cleanup event listener when component is removed
-                    this.$el.addEventListener('alpine:initialized', () => {
-                        this.$el.addEventListener('alpine:destroying', () => {
-                            document.removeEventListener('keydown', handleKeyDown);
-                        });
+                        // Sembunyikan loading indicator
+                        loadingIndicator.classList.add('hidden');
+                        propertyTableContainer.classList.remove('opacity-50');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loadingIndicator.classList.add('hidden');
+                        propertyTableContainer.classList.remove('opacity-50');
+                        alert('Terjadi kesalahan saat memuat data.');
                     });
-                }
-            }));
+            }
+
+            // Event listener untuk search input dengan debounce
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(loadData, 500); // Delay 500ms
+            });
+
+            // Event listener untuk status filter
+            statusFilter.addEventListener('change', loadData);
+
+            // Event listener untuk per page select
+            perPageSelect.addEventListener('change', loadData);
         });
+
+        function toggleStatus(checkbox) {
+            const propertyId = checkbox.getAttribute('data-id');
+            const newStatus = checkbox.checked ? 1 : 0;
+
+            const statusLabel = checkbox.closest('label').querySelector('span');
+
+            fetch(`/properties/m-properties/${propertyId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("Gagal update status");
+                    return res.json();
+                })
+                .then(() => {
+                    statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
+                    Toastify({
+                        text: "Status properti berhasil diperbarui",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "#4CAF50"
+                        }
+                    }).showToast();
+                })
+                .catch(err => {
+                    console.error(err);
+                    checkbox.checked = !checkbox.checked;
+
+                    alert("Gagal memperbarui status properti");
+                });
+        }
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('modalProperty', () => ({
@@ -2343,253 +2303,173 @@
             }));
         });
 
-        // Fungsi debounce untuk optimasi performa
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('modalView', () => ({
+                selectedProperty: {
+                    currentImageIndex: 0,
+                    images: [],
+                    general: [],
+                    security: [],
+                    amenities: []
+                },
+                facilities: {
+                    general: [],
+                    security: [],
+                    amenities: []
+                },
+                modalOpenDetail: false,
+                isLoading: false,
 
-        // Fungsi untuk mengambil data dengan AJAX
-        function fetchData() {
-            const formData = new FormData(document.getElementById('searchForm'));
-            const params = new URLSearchParams(formData).toString();
+                openModal(property) {
+                    this.isLoading = true;
+                    this.modalOpenDetail = true;
+                    this.disableBodyScroll();
 
-            // Tampilkan loading state
-            const tableContainer = document.getElementById('propertyTableContainer');
-            const paginationContainer = document.getElementById('paginationContainer');
-
-            tableContainer.innerHTML = `
-        <div class="flex justify-center items-center py-8">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <span class="ml-2 text-gray-600 dark:text-gray-400">Memuat data...</span>
-        </div>
-    `;
-
-            if (paginationContainer) {
-                paginationContainer.innerHTML = '';
-            }
-
-            fetch(`/properties/m-properties/filter?${params}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('propertyTableContainer').innerHTML = data.html;
-
-                    // Update pagination container
-                    if (data.pagination) {
-                        document.getElementById('paginationContainer').innerHTML = data.pagination;
-                    } else {
-                        document.getElementById('paginationContainer').innerHTML = '';
+                    if (property.facilities) {
+                        this.facilities = {
+                            general: property.facilities.general || [],
+                            security: property.facilities.security || [],
+                            amenities: property.facilities.amenities || []
+                        };
                     }
 
-                    // Re-attach event listeners to pagination links
-                    attachPaginationListeners();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('propertyTableContainer').innerHTML = `
-                <div class="flex justify-center items-center py-8 text-red-500">
-                    Terjadi kesalahan saat memuat data. Silakan coba lagi.
-                </div>
-            `;
-                });
-        }
+                    // Use nextTick to ensure DOM is ready before setting properties
+                    this.$nextTick(() => {
+                        this.selectedProperty = {
+                            ...property,
+                            currentImageIndex: 0,
+                            images: Array.isArray(property.images) ? property.images.filter(
+                                img => img) : [],
+                            general: Array.isArray(property.general) ?
+                                property.general : (property.general ? JSON.parse(property
+                                    .general) : []),
+                            security: Array.isArray(property.security) ?
+                                property.security : (property.security ? JSON.parse(property
+                                    .security) : []),
+                            amenities: Array.isArray(property.amenities) ?
+                                property.amenities : (property.amenities ? JSON.parse(
+                                    property.amenities) : [])
+                        };
+                        this.isLoading = false;
+                    });
+                },
 
-        // Fungsi untuk menambahkan event listener ke link pagination
-        function attachPaginationListeners() {
-            const paginationLinks = document.querySelectorAll('#paginationContainer a[href]');
-            paginationLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const url = new URL(this.href);
+                closeModal() {
+                    this.modalOpenDetail = false;
+                    this.enableBodyScroll();
+                    // Reset for next opening
+                    setTimeout(() => {
+                        this.selectedProperty = {
+                            currentImageIndex: 0,
+                            images: [],
+                            features: []
+                        };
+                    }, 300); // Match this with your CSS transition duration
+                },
 
-                    // Update form values based on pagination URL
-                    const searchParams = new URLSearchParams(url.search);
-                    const page = searchParams.get('page');
-                    const search = searchParams.get('search');
-                    const status = searchParams.get('status');
-                    const per_page = searchParams.get('per_page');
-
-                    // Update form inputs
-                    if (search) document.getElementById('searchInput').value = search;
-                    if (status) document.getElementById('statusFilter').value = status;
-                    if (per_page) document.getElementById('perPageSelect').value = per_page;
-
-                    // Fetch data dengan parameter yang sesuai
-                    fetchDataWithParams(url.search);
-                });
-            });
-        }
-
-        // Fungsi fetch data dengan parameter tertentu
-        function fetchDataWithParams(queryString) {
-            // Tampilkan loading state
-            const tableContainer = document.getElementById('propertyTableContainer');
-            const paginationContainer = document.getElementById('paginationContainer');
-
-            tableContainer.innerHTML = `
-        <div class="flex justify-center items-center py-8">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <span class="ml-2 text-gray-600 dark:text-gray-400">Memuat data...</span>
-        </div>
-    `;
-
-            fetch(`/properties/m-properties/filter${queryString}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
+                nextImage() {
+                    if (this.hasMultipleImages) {
+                        this.selectedProperty.currentImageIndex =
+                            (this.selectedProperty.currentImageIndex + 1) % this.selectedProperty.images
+                            .length;
                     }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                },
+
+                getFacilityName(id, category) {
+                    if (!this.facilities[category]) return 'Unknown Facility';
+
+                    const facility = this.facilities[category].find(f => f.idrec == id);
+                    return facility ? facility.facility : 'Unknown Facility';
+                },
+
+                prevImage() {
+                    if (this.hasMultipleImages) {
+                        this.selectedProperty.currentImageIndex =
+                            (this.selectedProperty.currentImageIndex - 1 + this.selectedProperty.images
+                                .length) %
+                            this.selectedProperty.images.length;
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('propertyTableContainer').innerHTML = data.html;
+                },
 
-                    if (data.pagination) {
-                        document.getElementById('paginationContainer').innerHTML = data.pagination;
-                        attachPaginationListeners();
-                    } else {
-                        document.getElementById('paginationContainer').innerHTML = '';
+                goToImage(index) {
+                    if (this.hasMultipleImages && index >= 0 && index < this.selectedProperty.images
+                        .length) {
+                        this.selectedProperty.currentImageIndex = index;
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('propertyTableContainer').innerHTML = `
-                <div class="flex justify-center items-center py-8 text-red-500">
-                    Terjadi kesalahan saat memuat data. Silakan coba lagi.
-                </div>
-            `;
-                });
-        }
+                },
 
-        // Fungsi toggle status yang diperbaiki
-        function toggleStatus(checkbox) {
-            const propertyId = checkbox.getAttribute('data-id');
-            const newStatus = checkbox.checked ? 1 : 0;
+                // Getters for computed properties
+                get hasMultipleImages() {
+                    return this.selectedProperty.images?.length > 1;
+                },
 
-            // Update teks status secara langsung untuk feedback instan
-            const statusText = document.getElementById(`status-text-${propertyId}`);
-            if (statusText) {
-                statusText.textContent = newStatus ? 'Active' : 'Inactive';
-            }
+                get currentImage() {
+                    return this.selectedProperty.images[this.selectedProperty.currentImageIndex];
+                },
 
-            fetch(`/properties/m-properties/${propertyId}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        status: newStatus
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error("Gagal update status");
-                    return response.json();
-                })
-                .then(() => {
-                    // 🔄 Refresh tabel dengan filter yang sedang aktif
-                    const formData = new FormData(document.getElementById('searchForm'));
-                    const params = new URLSearchParams(formData).toString();
+                // Touch event handlers for mobile swipe
+                handleTouchStart(e) {
+                    this.touchStartX = e.changedTouches[0].screenX;
+                },
 
-                    fetch(`/properties/m-properties/filter?${params}`, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                    'content'),
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('propertyTableContainer').innerHTML = data.html;
+                handleTouchEnd(e) {
+                    this.touchEndX = e.changedTouches[0].screenX;
+                    this.handleSwipe();
+                },
 
-                            if (data.pagination) {
-                                document.getElementById('paginationContainer').innerHTML = data.pagination;
-                                attachPaginationListeners();
-                            }
+                handleSwipe() {
+                    const threshold = 50;
+                    const diff = this.touchStartX - this.touchEndX;
+
+                    if (diff > threshold) {
+                        this.nextImage(); // Swipe left
+                    } else if (diff < -threshold) {
+                        this.prevImage(); // Swipe right
+                    }
+                },
+
+                disableBodyScroll() {
+                    document.body.style.overflow = 'hidden';
+                    document.body.style.paddingRight = this.scrollbarWidth + 'px';
+                },
+
+                enableBodyScroll() {
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                },
+
+                get scrollbarWidth() {
+                    return window.innerWidth - document.documentElement.clientWidth;
+                },
+
+                init() {
+                    // Keyboard event listener
+                    const handleKeyDown = (e) => {
+                        if (!this.modalOpenDetail) return;
+
+                        switch (e.key) {
+                            case 'Escape':
+                                this.closeModal();
+                                break;
+                            case 'ArrowRight':
+                                this.nextImage();
+                                break;
+                            case 'ArrowLeft':
+                                this.prevImage();
+                                break;
+                        }
+                    };
+
+                    document.addEventListener('keydown', handleKeyDown);
+
+                    // Cleanup event listener when component is removed
+                    this.$el.addEventListener('alpine:initialized', () => {
+                        this.$el.addEventListener('alpine:destroying', () => {
+                            document.removeEventListener('keydown', handleKeyDown);
                         });
-
-                    // 🔔 Notifikasi sukses
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Status properti berhasil diperbarui',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
                     });
-                })
-                .catch(err => {
-                    console.error(err);
-                    // Rollback checkbox state
-                    checkbox.checked = !checkbox.checked;
-                    // Rollback status text
-                    if (statusText) {
-                        statusText.textContent = !newStatus ? 'Active' : 'Inactive';
-                    }
-
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'Gagal memperbarui status properti',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                    });
-                });
-        }
-
-        // Event listeners untuk filter dan pencarian
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const statusFilter = document.getElementById('statusFilter');
-            const perPageSelect = document.getElementById('perPageSelect');
-
-            if (searchInput) {
-                searchInput.addEventListener('input', debounce(fetchData, 500));
-            }
-
-            if (statusFilter) {
-                statusFilter.addEventListener('change', fetchData);
-            }
-
-            if (perPageSelect) {
-                perPageSelect.addEventListener('change', fetchData);
-            }
-
-            // Attach pagination listeners initially
-            attachPaginationListeners();
-        });
-
-        // Juga tangani form submission untuk mencegah reload page
-        document.getElementById('searchForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            fetchData();
+                }
+            }));
         });
     </script>
 </x-app-layout>
