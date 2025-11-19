@@ -44,6 +44,24 @@ class ManajementPropertiesController extends Controller
             ? $query->get()
             : $query->paginate((int) $perPage)->withQueryString();
 
+        // Process properties to include full image URLs
+        $properties->transform(function ($property) {
+            // Add full image URLs to each property
+            $property->image_urls = $property->images->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'image_url' => $image->image ? asset('storage/' . $image->image) : null,
+                ];
+            });
+
+            // Add featured image URL
+            $property->featured_image_url = $property->images->first() && $property->images->first()->image
+                ? asset('storage/' . $property->images->first()->image)
+                : null;
+
+            return $property;
+        });
+
         return view('pages.Properties.m-Properties.index', [
             'generalFacilities' => $generalFacilities,
             'securityFacilities' => $securityFacilities,
@@ -133,8 +151,6 @@ class ManajementPropertiesController extends Controller
             ], 500);
         }
     }
-
-
 
     public function updateStatus(Property $property, Request $request)
     {

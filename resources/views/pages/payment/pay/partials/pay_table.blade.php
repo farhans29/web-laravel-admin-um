@@ -551,7 +551,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
                     Belum ada pembayaran terbaru
                 </td>
             </tr>
