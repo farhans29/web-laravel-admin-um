@@ -39,12 +39,8 @@ Route::get('storage/{path}', function ($path) {
     // Build the full file path
     $filePath = storage_path('app/public/' . ltrim($path, '/'));
 
-    // Log the path for debugging (check Laravel logs)
-    // \Log::info('Accessing file:', ['path' => $filePath]);
-
     if (!File::exists($filePath)) {
-        \Log::error('File not found:', ['path' => $filePath]);
-        abort(404, 'File not found at path ' . $filePath);
+        abort(404, 'File not found');
     }
 
     try {
@@ -57,10 +53,6 @@ Route::get('storage/{path}', function ($path) {
 
         return $response;
     } catch (\Exception $e) {
-        \Log::error('Error serving file:', [
-            'path' => $filePath,
-            'error' => $e->getMessage()
-        ]);
         abort(500, 'Error serving file');
     }
 })->where('path', '.*');
