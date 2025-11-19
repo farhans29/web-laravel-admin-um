@@ -428,7 +428,7 @@
                             </div>
                         </div>
 
-                        <!-- Edit -->
+                       <!-- Edit -->
                         <div x-data="modalPropertyEdit({{ $property }})" class="relative group">
                             @php
                                 $features = [

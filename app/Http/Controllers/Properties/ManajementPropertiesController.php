@@ -14,7 +14,7 @@ class ManajementPropertiesController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 8);
+        $perPage = $request->input('per_page', 5);
 
         $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
@@ -26,6 +26,19 @@ class ManajementPropertiesController extends Controller
         $facilities = PropertyFacility::where('status', 1)
             ->get()
             ->groupBy('category');
+
+        // Apply filters if present
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                    ->orWhere('province', 'like', "%{$request->search}%")
+                    ->orWhere('city', 'like', "%{$request->search}%");
+            });
+        }
+
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
 
         $properties = $perPage === 'all'
             ? $query->get()
@@ -43,48 +56,85 @@ class ManajementPropertiesController extends Controller
 
     public function filter(Request $request)
     {
-        $perPage = $request->input('per_page', 8);
+        $perPage = $request->input('per_page', 5);
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $query = Property::with(['creator', 'images'])
+        $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
 
-        // Filter berdasarkan pencarian
-        if ($search) {
+        // Get all facilities data
+        $generalFacilities = PropertyFacility::where('status', 1)->byCategory('general')->get();
+        $securityFacilities = PropertyFacility::where('status', 1)->byCategory('security')->get();
+        $amenitiesFacilities = PropertyFacility::where('status', 1)->byCategory('amenities')->get();
+
+        // Get facilities grouped by category for view modal
+        $facilities = PropertyFacility::where('status', 1)
+            ->get()
+            ->groupBy('category');
+
+        // Search
+        if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('province', 'like', '%' . $search . '%')
-                    ->orWhere('city', 'like', '%' . $search . '%');
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('province', 'like', "%$search%")
+                    ->orWhere('city', 'like', "%$search%");
             });
         }
 
-        // Filter berdasarkan status
-        if ($status !== null) {
+        // Status Filter
+        if ($status !== null && $status !== '') {
             $query->where('status', $status);
         }
 
+        // Pagination
         $properties = $perPage === 'all'
             ? $query->get()
-            : $query->paginate((int) $perPage);
+            : $query->paginate((int) $perPage)->appends($request->all());
 
-        if ($request->ajax()) {
-            return response()->json([
-                'html' => view('pages.Properties.m-Properties.partials.property_table', [
-                    'properties' => $properties,
-                    'per_page' => $perPage,
-                ])->render(),
-                'pagination' => $perPage !== 'all'
-                    ? $properties->appends(request()->input())->links()->toHtml()
-                    : ''
-            ]);
-        }
-
-        return view('pages.Properties.m-Properties.index', [
-            'properties' => $properties,
-            'per_page' => $perPage,
+        return response()->json([
+            'html' => view('pages.Properties.m-Properties.partials.property_table', [
+                'properties' => $properties,
+                'per_page' => $perPage,
+                'generalFacilities' => $generalFacilities,
+                'securityFacilities' => $securityFacilities,
+                'amenitiesFacilities' => $amenitiesFacilities,
+                'facilities' => $facilities, // Tambahkan ini
+            ])->render(),
+            'pagination' => $perPage !== 'all'
+                ? $properties->links()->toHtml()
+                : ''
         ]);
     }
+
+    public function toggleStatus(Request $request)
+    {
+        try {
+            $property = Property::find($request->id);
+
+            if (!$property) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Property not found'
+                ], 404);
+            }
+
+            $property->status = $request->status;
+            $property->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status'
+            ], 500);
+        }
+    }
+
+
 
     public function updateStatus(Property $property, Request $request)
     {
@@ -100,6 +150,7 @@ class ManajementPropertiesController extends Controller
 
         return response()->json(['success' => true]);
     }
+
 
     protected function generateInitials($name)
     {
