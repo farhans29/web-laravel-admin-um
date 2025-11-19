@@ -157,12 +157,12 @@
                             <span class="text-sm text-gray-600 mr-2">Per halaman:</span>
                             <select name="per_page" id="perPageSelect"
                                 class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                                <option value="5" {{ request('per_page', 10) == 5 ? 'selected' : '' }}>5</option>
-                                <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10
+                                <option value="5" {{ request('per_page', 5) == 5 ? 'selected' : '' }}>5</option>
+                                <option value="10" {{ request('per_page', 5) == 10 ? 'selected' : '' }}>10
                                 </option>
-                                <option value="15" {{ request('per_page', 10) == 15 ? 'selected' : '' }}>15
+                                <option value="15" {{ request('per_page', 5) == 15 ? 'selected' : '' }}>15
                                 </option>
-                                <option value="20" {{ request('per_page', 10) == 20 ? 'selected' : '' }}>20
+                                <option value="20" {{ request('per_page', 5) == 20 ? 'selected' : '' }}>20
                                 </option>
                                 <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>Semua
                                 </option>
@@ -173,226 +173,10 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nama Fasilitas
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Kategori
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Dibuat Oleh
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Tanggal Perubahan
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($facilities as $facility)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex flex-col">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $facility->facility }}
-                                        </div>
-                                        <div class="text-sm text-gray-500 break-words whitespace-normal">
-                                            {{ $facility->description ?? 'No description' }}
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @php
-                                        $category = strtolower($facility->category);
-                                        $colors = [
-                                            'general' => 'bg-blue-100 text-blue-800',
-                                            'security' => 'bg-yellow-100 text-yellow-800',
-                                            'amenities' => 'bg-purple-100 text-purple-800',
-                                        ];
-                                        $colorClass = $colors[$category] ?? 'bg-gray-100 text-gray-800';
-                                    @endphp
-                                    <span
-                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
-                                        {{ ucfirst($facility->category) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ $facility->createdBy->username ?? 'System' }}
-                                    </div>
-                                    <div class="text-xs text-gray-400">
-                                        {{ $facility->created_at->format('d M Y') }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($facility->updated_by)
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $facility->updatedBy->username ?? 'System' }}
-                                        </div>
-                                        <div class="text-xs text-gray-400">
-                                            {{ $facility->updated_at->format('d M Y') }}
-                                        </div>
-                                    @else
-                                        <div class="text-sm font-medium text-gray-400 italic">
-                                            Not updated yet
-                                        </div>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $facility->status == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                        {{ $facility->status == 1 ? 'Active' : 'Inactive' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                                    <!-- Edit Button -->
-                                    <div x-data="modalEditFacility()" class="relative">
-                                        <!-- Trigger -->
-                                        <button type="button" @click="openEditModal(@js($facility))"
-                                            class="text-yellow-500">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                viewBox="0 0 20 20" fill="currentColor">
-                                                <path
-                                                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                            </svg>
-                                        </button>
-                                        <!-- Backdrop -->
-                                        <div x-show="modalOpenEdit"
-                                            class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 transition-opacity"
-                                            x-transition.opacity @click="modalOpenEdit = false" x-cloak></div>
-
-                                        <!-- Modal -->
-                                        <div x-show="modalOpenEdit"
-                                            class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-                                            x-transition:enter="transition ease-out duration-300"
-                                            x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-                                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                            x-transition:leave="transition ease-in duration-200"
-                                            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                                            x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak
-                                            @keydown.escape.window="modalOpenEdit = false">
-
-                                            <div class="bg-white w-full max-w-md rounded-xl shadow-lg overflow-hidden border border-gray-100"
-                                                @click.outside="modalOpenEdit = false">
-                                                <!-- Header -->
-                                                <div
-                                                    class="px-5 py-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-b flex items-center justify-between">
-                                                    <h3 class="text-sm font-semibold text-gray-800">
-                                                        Edit Fasilitas
-                                                    </h3>
-                                                    <button @click="modalOpenEdit = false"
-                                                        class="text-gray-400 hover:text-gray-600 transition">
-                                                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd"
-                                                                d="M10 8.586l4.95-4.95a1 1 0 011.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95a1 1 0 011.414-1.414L10 8.586z"
-                                                                clip-rule="evenodd" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-
-                                                <!-- Form -->
-                                                <form class="px-5 py-4 space-y-4" @submit.prevent="submitForm">
-                                                    @csrf
-                                                    <!-- Category -->
-                                                    <div>
-                                                        <label
-                                                            class="block text-sm font-medium text-gray-700 mb-1">Kategori
-                                                            <span class="text-red-500">*</span></label>
-                                                        <select name="edit_category"
-                                                            x-model="currentFacility.category" required
-                                                            class="w-full text-sm rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-                                                            <option value="general">General</option>
-                                                            <option value="security">Security</option>
-                                                            <option value="amenities">Amenities</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <!-- Facility Name -->
-                                                    <div>
-                                                        <label
-                                                            class="block text-sm font-medium text-gray-700 mb-1">Nama
-                                                            Fasilitas <span class="text-red-500">*</span></label>
-                                                        <input type="text" name="edit_facility"
-                                                            x-model="currentFacility.facility"
-                                                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                                            placeholder="Nama fasilitas" required />
-                                                    </div>
-
-                                                    <!-- Description -->
-                                                    <div>
-                                                        <label
-                                                            class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                                                        <textarea name="edit_description" x-model="currentFacility.description" rows="3"
-                                                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                                            placeholder="Deskripsi fasilitas (opsional)"></textarea>
-                                                    </div>
-
-                                                    <!-- Status Section -->
-                                                    <div class="mb-4">
-                                                        <div class="flex justify-between items-center">
-                                                            <label class="text-sm font-medium text-gray-700">
-                                                                Status <span class="text-red-500">*</span>
-                                                            </label>
-                                                            <div class="flex items-center space-x-2">
-                                                                <span class="text-sm text-gray-600">Inactive</span>
-                                                                <label
-                                                                    class="relative inline-flex items-center cursor-pointer">
-                                                                    <input type="checkbox" class="sr-only peer"
-                                                                        x-model="currentFacility.status"
-                                                                        :checked="currentFacility.status === 1"
-                                                                        :value="currentFacility.status === 1 ? 1 : 0">
-                                                                    <div
-                                                                        class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer-checked:bg-blue-600 transition-all duration-300">
-                                                                    </div>
-                                                                    <div
-                                                                        class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300 peer-checked:translate-x-5">
-                                                                    </div>
-                                                                </label>
-                                                                <span class="text-sm text-gray-600">Active</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Actions -->
-                                                    <div class="flex justify-end gap-2 pt-2 border-t">
-                                                        <button type="button" @click="modalOpenEdit = false"
-                                                            class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md bg-white hover:bg-gray-50">
-                                                            Batal
-                                                        </button>
-                                                        <button type="submit"
-                                                            class="px-4 py-1.5 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow">
-                                                            Simpan Perubahan
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    No facilities found.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                @include('pages.Properties.Facility_properties.partials.facility-property_table', [
+                    'facilities' => $facilities,
+                    'per_page' => request('per_page', 5),
+                ])
             </div>
 
             <!-- Pagination -->
@@ -403,6 +187,122 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const perPageSelect = document.getElementById('perPageSelect');
+
+            // Debounce function untuk delay search
+            let searchTimeout;
+
+            // Function untuk melakukan filtering dengan AJAX
+            function applyFilters() {
+                const params = new URLSearchParams();
+
+                // Add all filter values to params
+                if (searchInput.value) params.append('search', searchInput.value);
+                if (statusFilter.value) params.append('status', statusFilter.value);
+                if (categoryFilter.value) params.append('category', categoryFilter.value);
+                if (perPageSelect.value) params.append('per_page', perPageSelect.value);
+
+                // Show loading state
+                showLoading();
+
+                // AJAX request
+                fetch(`/properties/m-properties/facility?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        // Parse HTML response
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+                        // Update table body
+                        const newTableBody = doc.querySelector('tbody');
+                        const currentTableBody = document.querySelector('tbody');
+                        if (newTableBody && currentTableBody) {
+                            currentTableBody.innerHTML = newTableBody.innerHTML;
+                        }
+
+                        // Update pagination
+                        const newPagination = doc.getElementById('paginationContainer');
+                        const currentPagination = document.getElementById('paginationContainer');
+                        if (newPagination && currentPagination) {
+                            currentPagination.innerHTML = newPagination.innerHTML;
+                        }
+
+                        // Update URL tanpa reload halaman
+                        const newUrl = `${window.location.pathname}?${params.toString()}`;
+                        window.history.pushState({}, '', newUrl);
+
+                        // Hide loading
+                        hideLoading();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        hideLoading();
+                    });
+            }
+
+            // Event listeners untuk real-time filtering
+            searchInput.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    applyFilters();
+                }, 500); // Delay 500ms setelah user berhenti mengetik
+            });
+
+            statusFilter.addEventListener('change', applyFilters);
+            categoryFilter.addEventListener('change', applyFilters);
+            perPageSelect.addEventListener('change', applyFilters);
+
+            // Function untuk menampilkan loading state
+            function showLoading() {
+                const tableBody = document.querySelector('tbody');
+                if (!tableBody) return;
+
+                // Create loading overlay
+                const loadingOverlay = document.createElement('div');
+                loadingOverlay.id = 'loadingOverlay';
+                loadingOverlay.className =
+                    'absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10';
+                loadingOverlay.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="text-sm text-gray-600">Loading...</span>
+                            </div>
+                        `;
+
+                // Add relative positioning to table container
+                const tableContainer = document.querySelector('.overflow-x-auto');
+                if (tableContainer) {
+                    tableContainer.style.position = 'relative';
+                    tableContainer.appendChild(loadingOverlay);
+                }
+            }
+
+            // Function untuk menyembunyikan loading state
+            function hideLoading() {
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                if (loadingOverlay) {
+                    loadingOverlay.remove();
+                }
+            }
+
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', function() {
+                applyFilters();
+            });
+        });
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('modalFacility', () => ({
                 modalOpenDetail: false,
@@ -411,7 +311,7 @@
                     facility: '',
                     description: '',
                     category: 'general',
-                    status: '1',                    
+                    status: '1',
                 },
                 facilities: [],
 

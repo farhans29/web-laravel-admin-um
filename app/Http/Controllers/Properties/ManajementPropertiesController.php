@@ -436,21 +436,30 @@ class ManajementPropertiesController extends Controller
     {
         $query = PropertyFacility::with(['createdBy', 'updatedBy'])
             ->when($request->search, function ($q) use ($request) {
-                $q->where('facility', 'like', '%' . $request->search . '%');
+                $q->where('facility', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
             })
             ->when($request->status, function ($q) use ($request) {
-                $q->where('status', $request->status);
+                // Convert status string to integer
+                $status = $request->status === 'active' ? 1 : 0;
+                $q->where('status', $status);
             })
             ->when($request->category, function ($q) use ($request) {
                 $q->where('category', $request->category);
-            });
+            })
+            ->orderBy('created_at', 'desc');
 
-        $perPage = $request->per_page ?? 8;
+        $perPage = $request->per_page ?? 5;
         $facilities = $perPage === 'all'
             ? $query->get()
-            : $query->paginate($perPage);
+            : $query->paginate($perPage)->withQueryString();
 
         $categories = PropertyFacility::distinct()->pluck('category');
+
+        // Jika request AJAX, kembalikan hanya bagian table dan pagination
+        if ($request->ajax() || $request->header('X-Requested-With') == 'XMLHttpRequest') {
+            return view('pages.Properties.Facility_properties.partials.facility-property_table', compact('facilities', 'categories'));
+        }
 
         return view('pages.Properties.Facility_properties.index', compact('facilities', 'categories'));
     }

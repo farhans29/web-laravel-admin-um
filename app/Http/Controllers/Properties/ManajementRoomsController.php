@@ -452,7 +452,11 @@ class ManajementRoomsController extends Controller
             $start = Carbon::parse($validated['start_date']);
             $end = Carbon::parse($validated['end_date']);
 
-            $dates = collect($start->daysUntil($end))->map(fn($date) => $date->toDateString());
+            // Build an inclusive collection of date strings between start and end
+            $dates = collect();
+            for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+                $dates->push($date->toDateString());
+            }
             // dd($dates);
 
             DB::beginTransaction();
@@ -543,18 +547,30 @@ class ManajementRoomsController extends Controller
     {
         $query = RoomFacility::with(['createdBy', 'updatedBy'])
             ->when($request->search, function ($q) use ($request) {
-                $q->where('facility', 'like', '%' . $request->search . '%');
+                $q->where('facility', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
             })
             ->when($request->status, function ($q) use ($request) {
-                $q->where('status', $request->status);
-            });
+                // Convert status string to integer
+                $status = $request->status === 'active' ? 1 : 0;
+                $q->where('status', $status);
+            })
+            ->when($request->category, function ($q) use ($request) {
+                $q->where('category', $request->category);
+            })
+            ->orderBy('created_at', 'desc');
 
-        $perPage = $request->per_page ?? 8;
+        $perPage = $request->per_page ?? 5;
         $facilities = $perPage === 'all'
             ? $query->get()
-            : $query->paginate($perPage);
+            : $query->paginate($perPage)->withQueryString();
 
-        return view('pages.Properties.m-Rooms.Facility_rooms.index', compact('facilities'));
+        // Jika request AJAX, kembalikan hanya bagian table dan pagination
+        if ($request->ajax() || $request->header('X-Requested-With') == 'XMLHttpRequest') {
+            return view('pages.Properties.Facility_rooms.partials.facility-room_table', compact('facilities'));
+        }
+
+        return view('pages.Properties.Facility_rooms.index', compact('facilities'));
     }
 
     public function storeFacility(Request $request)
