@@ -223,32 +223,15 @@ class NewReservController extends Controller
             abort(404, 'Transaction data not found');
         }
 
-        // Generate nomor invoice sesuai format: No. (nomor)/KGA-INV/(bulan)/(tahun)
+        // Generate nomor invoice sesuai format: No. (id)/KGA-INV/(bulan)/(tahun)
         $transactionDate = $booking->transaction->transaction_date ?? now();
         $currentYear = $transactionDate->format('Y');
         $currentMonth = $transactionDate->format('m');
 
-        // Ambil nomor urut terakhir dari database atau hitung berdasarkan transaksi bulan ini
-        $lastInvoice = Transaction::whereYear('transaction_date', $currentYear)
-            ->whereMonth('transaction_date', $currentMonth)
-            ->orderBy('created_at', 'desc')
-            ->first();
+        // Ambil ID transaksi
+        $transactionId = $booking->transaction->idrec;
 
-        $invoiceNumber = 1;
-        if ($lastInvoice) {
-            // Jika sudah ada invoice number yang disimpan, gunakan logika increment
-            if ($lastInvoice->invoice_number && preg_match('/^No\. (\d+)\/KGA-INV/', $lastInvoice->invoice_number, $matches)) {
-                $invoiceNumber = intval($matches[1]) + 1;
-            } else {
-                // Jika belum ada, hitung berdasarkan jumlah transaksi bulan ini
-                $monthlyCount = Transaction::whereYear('transaction_date', $currentYear)
-                    ->whereMonth('transaction_date', $currentMonth)
-                    ->count();
-                $invoiceNumber = $monthlyCount;
-            }
-        }
-
-        $invoiceNumberFormatted = "No. {$invoiceNumber}/KGA-INV/{$currentMonth}/{$currentYear}";
+        $invoiceNumberFormatted = "No.{$transactionId}/KGA-INV/{$currentMonth}/{$currentYear}";
 
         // Return view dengan data invoice number
         return view('pages.bookings.components.invoice', compact('booking', 'invoiceNumberFormatted'));
