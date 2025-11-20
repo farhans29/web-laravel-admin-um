@@ -177,6 +177,12 @@
                                                     x-text="currentDateTime">
                                                 </p>
                                             </div>
+                                            <p class="text-sm text-gray-600 mt-1">Silakan tinjau informasi dan
+                                                selesaikan
+                                                proses check-in</p>
+                                            <p class="text-lg font-bold text-gray-800 mt-1" x-text="currentDateTime">
+                                            </p>
+                                        </div>
 
                                             <!-- Konten Modal -->
                                             <div class="flex-1 overflow-y-auto px-6 py-6">
