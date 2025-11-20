@@ -110,7 +110,8 @@
                                             <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                                         </span>
                                     </div>
-                                    <p class="text-gray-500 text-xs mt-1">Harus mengandung huruf besar, kecil, angka, simbol, dan minimal 8 karakter</p>
+                                    <p class="text-gray-500 text-xs mt-1">Harus mengandung huruf besar, kecil, angka,
+                                        simbol, dan minimal 8 karakter</p>
                                     @error('password')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
@@ -118,8 +119,8 @@
 
                                 <!-- Confirm Password -->
                                 <div class="mb-5">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi <span
-                                            class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi
+                                        <span class="text-red-500">*</span></label>
                                     <div class="relative">
                                         <input :type="showConfirmPassword ? 'text' : 'password'"
                                             name="password_confirmation" id="password_confirmation" minlength="8"
@@ -265,12 +266,15 @@
                                 <td class="px-4 py-4 text-sm text-gray-900">
                                     {{ $user->email }}
                                 </td>
-                                <!-- Role -->
+                                @php
+                                    $roleName = optional($user->role)->name ?? 'No Role';
+                                @endphp
+
                                 <td class="px-4 py-4">
                                     <span
                                         class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
 
-                                        @switch($user->role->name)
+                                        @switch($roleName)
                                             @case('Owner')
                                                 <i class="fas fa-crown"></i>
                                             @break
@@ -303,9 +307,10 @@
                                                 <i class="fas fa-user"></i>
                                         @endswitch
 
-                                        {{ $user->role->name }}
+                                        {{ $roleName }}
                                     </span>
                                 </td>
+
 
                                 <!-- Status -->
                                 <td class="px-4 py-4">
@@ -349,7 +354,8 @@
                                                     <!-- Header -->
                                                     <div
                                                         class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
-                                                        <h2 class="text-xl font-semibold text-gray-900">Edit Pengguna</h2>
+                                                        <h2 class="text-xl font-semibold text-gray-900">Edit Pengguna
+                                                        </h2>
                                                         <button
                                                             class="text-gray-500 text-xl hover:text-gray-700 transition-colors"
                                                             @click="modalOpenEdit{{ $user->id }} = false">
@@ -383,7 +389,8 @@
                                                                 <div>
                                                                     <label for="last_name_{{ $user->id }}"
                                                                         class="block text-sm font-medium text-gray-700 mb-1">
-                                                                        Nama Belakang <span class="text-red-500">*</span>
+                                                                        Nama Belakang <span
+                                                                            class="text-red-500">*</span>
                                                                     </label>
                                                                     <input type="text" name="last_name"
                                                                         id="last_name_{{ $user->id }}"
