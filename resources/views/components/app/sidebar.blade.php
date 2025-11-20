@@ -455,7 +455,7 @@
                             @endcan
 
                             <!-- Invoices -->
-                            @can('view_invoices')
+                            {{-- @can('view_invoices')
                                 <li>
                                     <a href="{{ route('progress') }}"
                                         class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative">
@@ -474,7 +474,7 @@
                                         </div>
                                     </a>
                                 </li>
-                            @endcan
+                            @endcan --}}
 
                             <!-- Reports -->
                             @can('view_reports')
