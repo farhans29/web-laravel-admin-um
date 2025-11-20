@@ -269,7 +269,7 @@
                                 @php
                                     $roleName = optional($user->role)->name ?? 'No Role';
                                 @endphp
-                                <!-- Role -->
+
                                 <td class="px-4 py-4">
                                     <span
                                         class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
