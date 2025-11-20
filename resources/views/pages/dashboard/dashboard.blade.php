@@ -143,7 +143,8 @@
                             'checkOuts' => $checkOuts,
                             'per_page' => request('per_page', 4),
                             'type' => 'check-out',
-                            'showActions' => $showActions,
+                            'showStatus' => false, 
+                            'showActions' => false,
                         ])
                     </div>
                     <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
@@ -179,6 +180,8 @@
                             'checkIns' => $checkIns,
                             'per_page' => request('per_page', 4),
                             'type' => 'check-in',
+                            'showStatus' => false, 
+                            'showActions' => false,
                         ])
                     </div>
                     <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
@@ -187,7 +190,334 @@
                 </div>
             </div>
         </div>
+
+        <!-- Sales Report Section -->
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Sales Summary & Charts -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Sales Summary Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-blue-100 text-sm font-medium">Total Transaksi</p>
+                                <h3 class="text-2xl font-bold mt-1">
+                                    {{ number_format($salesReport['summary']['total_transactions']) }}
+                                </h3>
+                            </div>
+                            <div class="bg-white/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-blue-100 text-xs mt-2">30 hari terakhir</p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-green-100 text-sm font-medium">Pendapatan Kotor</p>
+                                <h3 class="text-2xl font-bold mt-1">
+                                    Rp {{ number_format($salesReport['summary']['gross_amount'] / 1000000, 1) }}JT
+                                </h3>
+                            </div>
+                            <div class="bg-white/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-green-100 text-xs mt-2">Bruto</p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-purple-100 text-sm font-medium">Pendapatan Bersih</p>
+                                <h3 class="text-2xl font-bold mt-1">
+                                    Rp {{ number_format($salesReport['summary']['net_amount'] / 1000000, 1) }}JT
+                                </h3>
+                            </div>
+                            <div class="bg-white/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-purple-100 text-xs mt-2">Setelah admin fee</p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-orange-100 text-sm font-medium">Rata-rata</p>
+                                <h3 class="text-2xl font-bold mt-1">
+                                    Rp {{ number_format($salesReport['summary']['average_transaction'] / 1000, 0) }}K
+                                </h3>
+                            </div>
+                            <div class="bg-white/20 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-orange-100 text-xs mt-2">Per transaksi</p>
+                    </div>
+                </div>
+
+                <!-- Daily Revenue Chart -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="font-semibold text-gray-800">Trend Pendapatan Harian (30 Hari)</h3>
+                        <p class="text-sm text-gray-500">Perkembangan pendapatan harian</p>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="dailyRevenueChart" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Room Type Revenue Chart -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="font-semibold text-gray-800">Pendapatan per Tipe Kamar</h3>
+                        <p class="text-sm text-gray-500">Distribusi revenue berdasarkan jenis kamar</p>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="roomRevenueChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="space-y-6">
+                <!-- Booking Type Distribution -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="font-semibold text-gray-800">Distribusi Tipe Booking</h3>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="bookingTypeChart" height="250"></canvas>
+                    </div>
+                </div>
+
+                <!-- Monthly Trend -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="font-semibold text-gray-800">Trend 6 Bulan</h3>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="monthlyTrendChart" height="250"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h3 class="font-semibold text-gray-800">Transaksi Terbaru</h3>
+                    </div>
+                    <div class="p-4">
+                        @php
+                        $recentTransactions = \App\Models\Transaction::with(['room', 'user'])
+                            ->where('transaction_status', 'paid')
+                            ->orderBy('transaction_date', 'desc')
+                            ->limit(6)
+                            ->get();
+                        @endphp
+
+                        <div class="space-y-3">
+                            @foreach($recentTransactions as $transaction)
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-800 truncate max-w-[120px]">
+                                            {{ $transaction->room_name ?? 'N/A' }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ $transaction->user_name }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-green-600">
+                                        Rp {{ number_format($transaction->grandtotal_price / 1000, 0) }}K
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $transaction->transaction_date->format('d M') }}
+                                    </p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script></script>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Daily Revenue Chart
+            const dailyCtx = document.getElementById('dailyRevenueChart').getContext('2d');
+            new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: @json($salesReport['chart_data']['daily_labels']),
+                    datasets: [{
+                        label: 'Pendapatan Harian',
+                        data: @json($salesReport['chart_data']['daily_revenue']),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Rp ' + context.raw.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rp ' + (value / 1000).toLocaleString('id-ID') + 'K';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Room Revenue Chart
+            const roomCtx = document.getElementById('roomRevenueChart').getContext('2d');
+            new Chart(roomCtx, {
+                type: 'bar',
+                data: {
+                    labels: @json($salesReport['chart_data']['room_types']),
+                    datasets: [{
+                        label: 'Pendapatan',
+                        data: @json($salesReport['chart_data']['room_revenues']),
+                        backgroundColor: [
+                            '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Rp ' + context.raw.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rp ' + (value / 1000000).toFixed(1) + 'JT';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Booking Type Chart
+            const bookingCtx = document.getElementById('bookingTypeChart').getContext('2d');
+            new Chart(bookingCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: @json($salesReport['chart_data']['booking_types']),
+                    datasets: [{
+                        data: @json($salesReport['chart_data']['booking_counts']),
+                        backgroundColor: [
+                            '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Monthly Trend Chart
+            const monthlyCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+            new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: @json($salesReport['chart_data']['monthly_labels']),
+                    datasets: [{
+                        label: 'Pendapatan Bulanan',
+                        data: @json($salesReport['chart_data']['monthly_revenue']),
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Rp ' + context.raw.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rp ' + (value / 1000000).toFixed(1) + 'JT';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </x-app-layout>

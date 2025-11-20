@@ -31,15 +31,14 @@ class DashboardController extends Controller
             ->limit(4)
             ->get();
 
-
         // Get today's check-outs (paid bookings with today's check-out date, checked in but not checked out)
         $checkOuts = Booking::with(['user', 'room', 'property', 'transaction'])
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid')
-                    ->whereDate('check_out', now()->toDateString()); // dari tabel transactions
+                    ->whereDate('check_out', now()->toDateString());
             })
-            ->whereNotNull('check_in_at') // sudah check-in
-            ->whereNull('check_out_at') // belum check-out
+            ->whereNotNull('check_in_at')
+            ->whereNull('check_out_at')
             ->orderBy(
                 Transaction::select('check_out')
                     ->whereColumn('t_transactions.order_id', 't_booking.order_id')
@@ -73,6 +72,9 @@ class DashboardController extends Controller
                 ->whereHas('transaction', fn($q) => $q->whereDate('check_out', now()->toDateString()))
                 ->count(),
         ];
+
+        // Sales Report Data (Last 30 days)
+        $salesReport = $this->getSalesReport();
 
         // Get room availability for the next 7 days
         $startDate = now();
@@ -125,8 +127,126 @@ class DashboardController extends Controller
             'checkOuts',
             'roomAvailability',
             'stats',
+            'salesReport',
             'showActions'
         ));
+    }
+
+
+    private function getSalesReport()
+    {
+        $startDate = now()->subDays(30);
+        $endDate = now();
+
+        // Total transactions and gross amount
+        $totalData = Transaction::where('transaction_status', 'paid')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->select(
+                DB::raw('COUNT(*) as total_transactions'),
+                DB::raw('SUM(grandtotal_price) as gross_amount'),
+                DB::raw('SUM(admin_fees) as total_admin_fees'),
+                DB::raw('AVG(grandtotal_price) as average_transaction')
+            )
+            ->first();
+
+        // Daily sales data for chart
+        $dailySales = Transaction::where('transaction_status', 'paid')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->select(
+                DB::raw('DATE(transaction_date) as date'),
+                DB::raw('COUNT(*) as transaction_count'),
+                DB::raw('SUM(grandtotal_price) as daily_revenue'),
+                DB::raw('SUM(admin_fees) as daily_admin_fees')
+            )
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Weekly sales data
+        $weeklySales = Transaction::where('transaction_status', 'paid')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->select(
+                DB::raw('YEAR(transaction_date) as year'),
+                DB::raw('WEEK(transaction_date) as week'),
+                DB::raw('COUNT(*) as transaction_count'),
+                DB::raw('SUM(grandtotal_price) as weekly_revenue')
+            )
+            ->groupBy('year', 'week')
+            ->orderBy('year')
+            ->orderBy('week')
+            ->get();
+
+        // Revenue by room type
+        $revenueByRoom = Transaction::where('transaction_status', 'paid')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->join('m_rooms', 't_transactions.room_id', '=', 'm_rooms.idrec')
+            ->select(
+                'm_rooms.type as room_type',
+                DB::raw('COUNT(*) as booking_count'),
+                DB::raw('SUM(t_transactions.grandtotal_price) as total_revenue')
+            )
+            ->groupBy('m_rooms.type')
+            ->orderByDesc('total_revenue')
+            ->get();
+
+        // Booking type distribution
+        $bookingTypeStats = Transaction::where('transaction_status', 'paid')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->select(
+                'booking_type',
+                DB::raw('COUNT(*) as count'),
+                DB::raw('SUM(grandtotal_price) as revenue')
+            )
+            ->groupBy('booking_type')
+            ->get();
+
+        // Monthly trend data
+        $monthlyTrend = Transaction::where('transaction_status', 'paid')
+            ->whereBetween('transaction_date', [now()->subMonths(6), now()])
+            ->select(
+                DB::raw('YEAR(transaction_date) as year'),
+                DB::raw('MONTH(transaction_date) as month'),
+                DB::raw('COUNT(*) as transaction_count'),
+                DB::raw('SUM(grandtotal_price) as monthly_revenue')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        return [
+            'period' => [
+                'start' => $startDate->format('d M Y'),
+                'end' => $endDate->format('d M Y')
+            ],
+            'summary' => [
+                'total_transactions' => $totalData->total_transactions ?? 0,
+                'gross_amount' => $totalData->gross_amount ?? 0,
+                'total_admin_fees' => $totalData->total_admin_fees ?? 0,
+                'average_transaction' => $totalData->average_transaction ?? 0,
+                'net_amount' => ($totalData->gross_amount ?? 0) - ($totalData->total_admin_fees ?? 0)
+            ],
+            'daily_sales' => $dailySales,
+            'weekly_sales' => $weeklySales,
+            'monthly_trend' => $monthlyTrend,
+            'revenue_by_room' => $revenueByRoom,
+            'booking_type_stats' => $bookingTypeStats,
+            'chart_data' => [
+                'daily_labels' => $dailySales->pluck('date')->map(function ($date) {
+                    return \Carbon\Carbon::parse($date)->format('d M');
+                })->toArray(),
+                'daily_revenue' => $dailySales->pluck('daily_revenue')->toArray(),
+                'daily_transactions' => $dailySales->pluck('transaction_count')->toArray(),
+                'room_types' => $revenueByRoom->pluck('room_type')->toArray(),
+                'room_revenues' => $revenueByRoom->pluck('total_revenue')->toArray(),
+                'booking_types' => $bookingTypeStats->pluck('booking_type')->toArray(),
+                'booking_counts' => $bookingTypeStats->pluck('count')->toArray(),
+                'monthly_labels' => $monthlyTrend->map(function ($item) {
+                    return \Carbon\Carbon::create()->month($item->month)->format('M Y');
+                })->toArray(),
+                'monthly_revenue' => $monthlyTrend->pluck('monthly_revenue')->toArray(),
+            ]
+        ];
     }
 
     public function analytics()
