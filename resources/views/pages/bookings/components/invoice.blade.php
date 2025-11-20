@@ -298,7 +298,7 @@
 
         <tbody>
             <tr class="table-data">
-                <td class="text-center">{{ $invoice_number ?? ($booking->transaction->transaction_code ?? 'N/A') }}</td>
+                <td class="text-center">{{ $invoiceNumberFormatted ?? ($booking->transaction->transaction_code ?? 'N/A') }}</td>
                 <td>{{ $booking->transaction->property_type ?? ($booking->property->type ?? 'N/A') }}</td>
                 <td>{{ $booking->transaction->room_name ?? ($booking->room->name ?? 'N/A') }}</td>
                 <td>
