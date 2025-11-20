@@ -110,4 +110,26 @@ class Booking extends Model
     {
         return $this->hasOne(Payment::class, 'order_id', 'order_id');
     }
+
+    public function getInvoiceData()
+    {
+        return [
+            'transaction_code' => $this->transaction->transaction_code ?? 'N/A',
+            'transaction_date' => $this->transaction->transaction_date ?? now(),
+            'user_name' => $this->transaction->user_name ?? $this->user_name ?? 'N/A',
+            'user_phone' => $this->transaction->user_phone_number ?? $this->user_phone_number ?? 'N/A',
+            'user_email' => $this->transaction->user_email ?? $this->user_email ?? 'N/A',
+            'property_type' => $this->transaction->property_type ?? $this->property->type ?? 'N/A',
+            'check_in' => $this->transaction->check_in ?? $this->check_in_at,
+            'check_out' => $this->transaction->check_out ?? $this->check_out_at,
+            'room_name' => $this->transaction->room_name ?? $this->room->name ?? 'N/A',
+            'booking_days' => $this->transaction->booking_days ?? 0,
+            'booking_months' => $this->transaction->booking_months ?? 0,
+            'booking_type' => $this->transaction->booking_type ?? 'daily',
+            'room_price' => $this->transaction->room_price ?? 0,
+            'admin_fees' => $this->transaction->admin_fees ?? 0,
+            'grandtotal' => $this->transaction->grandtotal_price ?? 0,
+            'status' => $this->transaction->transaction_status ?? 'pending'
+        ];
+    }
 }

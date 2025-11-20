@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Payment;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -206,4 +207,52 @@ class NewReservController extends Controller
 
         return response()->json($response);
     }
+
+    public function getInvoice($orderId)
+    {
+        $booking = Booking::with([
+            'transaction',
+            'property',
+            'room',
+            'transaction.user',
+            'user',
+            'payment'
+        ])->where('order_id', $orderId)->firstOrFail();
+
+        if (!$booking->transaction) {
+            abort(404, 'Transaction data not found');
+        }
+
+        // Generate nomor invoice sesuai format: No. (nomor)/KGA-INV/(bulan)/(tahun)
+        $transactionDate = $booking->transaction->transaction_date ?? now();
+        $currentYear = $transactionDate->format('Y');
+        $currentMonth = $transactionDate->format('m');
+
+        // Ambil nomor urut terakhir dari database atau hitung berdasarkan transaksi bulan ini
+        $lastInvoice = Transaction::whereYear('transaction_date', $currentYear)
+            ->whereMonth('transaction_date', $currentMonth)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $invoiceNumber = 1;
+        if ($lastInvoice) {
+            // Jika sudah ada invoice number yang disimpan, gunakan logika increment
+            if ($lastInvoice->invoice_number && preg_match('/^No\. (\d+)\/KGA-INV/', $lastInvoice->invoice_number, $matches)) {
+                $invoiceNumber = intval($matches[1]) + 1;
+            } else {
+                // Jika belum ada, hitung berdasarkan jumlah transaksi bulan ini
+                $monthlyCount = Transaction::whereYear('transaction_date', $currentYear)
+                    ->whereMonth('transaction_date', $currentMonth)
+                    ->count();
+                $invoiceNumber = $monthlyCount;
+            }
+        }
+
+        $invoiceNumberFormatted = "No. {$invoiceNumber}/KGA-INV/{$currentMonth}/{$currentYear}";
+
+        // Return view dengan data invoice number
+        return view('pages.bookings.components.invoice', compact('booking', 'invoiceNumberFormatted'));
+    }
+
+    
 }

@@ -19,7 +19,7 @@
             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
             </th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
             </th>
         </tr>
@@ -594,7 +594,14 @@
                         </div>
                     @elseif (!is_null($booking->check_in_at) && is_null($booking->check_out_at))
                         {{-- Sudah check-in, belum check-out --}}
-                        <span class="text-yellow-600">Currently Staying</span>
+                        <div class="flex flex-col items-start space-y-2">
+                            <span class="text-yellow-600 font-semibold">Currently Staying</span>
+
+                            <a href="{{ route('newReserv.checkin.invoice', $booking->order_id) }}" target="_blank"
+                                class="inline-block px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700">
+                                View Invoice
+                            </a>
+                        </div>
                     @elseif (!is_null($booking->check_in_at) && !is_null($booking->check_out_at))
                         {{-- Sudah check-in dan check-out --}}
                         <span class="text-green-600">Checked-Out</span>
