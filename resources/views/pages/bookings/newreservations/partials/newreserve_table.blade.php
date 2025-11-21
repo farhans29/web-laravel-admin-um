@@ -115,10 +115,10 @@
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         @if (is_null($booking->check_in_at))
                             <div class="flex flex-col items-center space-y-2">
-                                {{-- <a href="{{ route('newReserv.checkin.regist', $booking->order_id) }}" target="_blank"
+                                <a href="{{ route('newReserv.checkin.regist', $booking->order_id) }}" target="_blank"
                                     class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-amber-600 rounded hover:bg-amber-700 focus:outline-none">
                                     Print Regist Form
-                                </a> --}}
+                                </a>
                                 <div x-data="checkInModal('{{ $booking->order_id }}')">
                                     <!-- Tombol Trigger -->
                                     <button type="button"
@@ -301,7 +301,7 @@
                                                                     </template>
                                                                 </div>
 
-                                                                <!-- Informasi Kontak - DIUBAH MENJADI FORM INPUT -->
+                                                                <!-- Informasi Kontak -->
                                                                 <div>
                                                                     <h4 class="text-sm font-medium text-gray-700 mb-2">
                                                                         Informasi Kontak</h4>
@@ -377,7 +377,6 @@
 
                                                                 <!-- Tab untuk memilih metode unggah -->
                                                                 <div>
-                                                                    <!-- Ganti bagian tombol upload method dengan ini: -->
                                                                     <div class="flex border-b border-gray-200">
                                                                         <button type="button"
                                                                             @click="handleUploadMethodChange('file')"
@@ -635,9 +634,8 @@
                                                     Batal
                                                 </button>
                                                 <button type="button" @click="submitCheckIn"
-                                                    :disabled="!docPreview || !guestContact.name || !guestContact.email || !
-                                                        guestContact
-                                                        .phone"
+                                                    :disabled="(!docPreview && !profilePhotoUrl) || !guestContact.name || !
+                                                        guestContact.email || !guestContact.phone"
                                                     class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                                     Selesaikan Check-In
                                                 </button>

@@ -319,7 +319,7 @@
                     @endif
                 </td>
 
-                <td>Rp {{ number_format($booking->transaction->grandtotal_price ?? 0, 0, ',', '.') }}</td>
+                <td>Rp {{ number_format($booking->transaction->room_price ?? 0, 0, ',', '.') }}</td>
             </tr>
         </tbody>
     </table>

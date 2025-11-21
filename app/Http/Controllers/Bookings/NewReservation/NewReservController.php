@@ -109,7 +109,7 @@ class NewReservController extends Controller
     {
         $validated = $request->validate([
             'doc_type' => 'required|string|in:ktp,passport,sim,other',
-            'doc_image' => 'required|string', // Ubah menjadi required karena sekarang wajib ada
+            'doc_image' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB
             'has_profile_photo' => 'sometimes|boolean',
             'guest_name' => 'required|string|max:255',
             'guest_email' => 'required|email|max:255',
@@ -117,45 +117,34 @@ class NewReservController extends Controller
         ]);
 
         try {
-            // Find the booking
             $booking = Booking::where('order_id', $order_id)->firstOrFail();
 
-            // Check if already checked in
             if ($booking->check_in_at) {
-                return response()->json(
-                    [
-                        'success' => false,
-                        'message' => 'This booking has already been checked in',
-                    ],
-                    400,
-                );
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This booking has already been checked in'
+                ], 400);
             }
 
-            $path = null;
-            $imageData = $validated['doc_image'];
+            $filePath = null;
 
-            if (!preg_match('/^data:(image\/(png|jpeg|jpg)|application\/pdf);base64,/', $imageData)) {
-                return response()->json(
-                    [
-                        'success' => false,
-                        'message' => 'Invalid document format',
-                    ],
-                    400,
-                );
+            if ($request->hasFile('doc_image')) {
+                $file = $request->file('doc_image');
+                $fileName = 'doc_' . $booking->order_id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('documents', $fileName, 'public');
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Document image file is missing!'
+                ], 400);
             }
-
-            $fileName = 'doc_' . $booking->order_id . '_' . time() . '.' . (str_contains($imageData, 'image/jpeg') ? 'jpg' : (str_contains($imageData, 'image/png') ? 'png' : 'pdf'));
-
-            $path = 'documents/' . $fileName;
-            Storage::disk('public')->put($path, base64_decode(preg_replace('/^data:\w+\/\w+;base64,/', '', $imageData)));
 
             $updated = $booking->update([
                 'check_in_at' => now(),
                 'doc_type' => $validated['doc_type'],
-                'doc_path' => $path,
+                'doc_path' => $filePath,
                 'updated_by' => Auth::id(),
                 'verified_with_profile' => !empty($validated['has_profile_photo']),
-                // Simpan data kontak tamu yang diinput manual
                 'user_name' => $validated['guest_name'],
                 'user_email' => $validated['guest_email'],
                 'user_phone_number' => $validated['guest_phone'],
@@ -169,23 +158,18 @@ class NewReservController extends Controller
                 ]);
             }
 
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Check-in update failed',
-                ],
-                500,
-            );
+            return response()->json([
+                'success' => false,
+                'message' => 'Check-in update failed'
+            ], 500);
         } catch (\Exception $e) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Error during check-in: ' . $e->getMessage(),
-                ],
-                500,
-            );
+            return response()->json([
+                'success' => false,
+                'message' => 'Error during check-in: ' . $e->getMessage()
+            ], 500);
         }
     }
+
 
     public function getBookingDetails($orderId)
     {
@@ -208,22 +192,90 @@ class NewReservController extends Controller
         return response()->json($response);
     }
 
-    public function getRegist($orderId)
+    //Formulir Registrasi & Invoice
+    public function getRegist($order_id)
     {
-        $booking = Booking::with([
-            'transaction',
-            'property',
-            'room',
-            'transaction.user',
-            'user',
-            'payment'
-        ])->where('order_id', $orderId)->firstOrFail();
+        try {
+            // Ambil data transaksi dengan relasi
+            $transaction = Transaction::where('order_id', $order_id)
+                ->with(['user', 'property', 'room', 'booking'])
+                ->firstOrFail();
 
-        if (!$booking->transaction) {
-            abort(404, 'Transaction data not found');
+            // Ambil data booking jika ada
+            $booking = $transaction->booking;
+
+            // Format data untuk view
+            $bookingDetails = [
+                'order_id' => $transaction->order_id,
+                'check_in_date' => $transaction->check_in ? date('F d, Y', strtotime($transaction->check_in)) : 'N/A',
+                'check_in_time' => $transaction->check_in_time ?? ($transaction->check_in ? date('H:i', strtotime($transaction->check_in)) : 'N/A'),
+                'check_out_date' => $transaction->check_out ? date('F d, Y', strtotime($transaction->check_out)) : 'N/A',
+                'check_out_time' => $transaction->check_out_time ?? ($transaction->check_out ? date('H:i', strtotime($transaction->check_out)) : 'N/A'),
+                'guest_name' => $transaction->user_name ?? $transaction->user->first_name ?? 'N/A',
+                'guest_email' => $transaction->user_email ?? $transaction->user->email ?? 'N/A',
+                'guest_phone' => $transaction->user_phone_number ?? 'N/A',
+                'property_name' => $transaction->property_name ?? $transaction->property->name ?? 'N/A',
+                'room_name' => $transaction->room_name ?? $transaction->room->name ?? 'N/A',
+                'room_number' => $transaction->room->no ?? 'N/A',
+                'total_payment' => $transaction->grandtotal_price ? $this->formatRupiah($transaction->grandtotal_price) : 'N/A',
+                'transaction_type' => $transaction->transaction_type ?? 'N/A',
+                'duration' => $this->calculateDuration($transaction->check_in, $transaction->check_out),
+                'guest_count' => $transaction->booking_days ?? 1, // Default 1 jika tidak ada
+                'advance_payment' => $transaction->grandtotal_price ? $this->formatRupiah($transaction->grandtotal_price) : 'N/A',
+                'company_name' => '-', // Tambahkan field ini jika ada di model
+            ];
+
+            $guestContact = [
+                'name' => $transaction->user_name ?? $transaction->user->first_name ?? 'N/A',
+                'email' => $transaction->user_email ?? $transaction->user->email ?? 'N/A',
+                'phone' => $transaction->user_phone_number ?? 'N/A',
+                'address' => $transaction->user->address ?? '-',
+            ];
+
+            $currentDate = date('F d, Y');
+            $logoPath = url('/images/frist_icon.png');
+
+            // Ambil document image dari booking jika ada
+            $documentImage = null;
+            if ($booking && $booking->doc_path) {
+                $documentImage = $booking->doc_path;
+                if (!str_starts_with($documentImage, 'http')) {
+                    $documentImage = url('/' . ltrim($documentImage, '/'));
+                }
+            }
+
+            return view('pages.bookings.components.regist_form', compact(
+                'bookingDetails',
+                'guestContact',
+                'currentDate',
+                'logoPath',
+                'documentImage'
+            ));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load registration form: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Tambahkan method helper jika belum ada
+    private function formatRupiah($amount)
+    {
+        return 'Rp ' . number_format($amount, 0, ',', '.');
+    }
+
+    private function calculateDuration($check_in, $check_out)
+    {
+        if (!$check_in || !$check_out) {
+            return 'N/A';
         }
 
-        return view('pages.bookings.components.regist_form', compact('booking'));
+        $start = new \DateTime($check_in);
+        $end = new \DateTime($check_out);
+        $interval = $start->diff($end);
+
+        return $interval->days . ' Hari';
     }
 
     public function getInvoice($orderId)

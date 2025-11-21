@@ -98,7 +98,7 @@
                     </td>
                 @endif
                 @if ($showActions ?? true)
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right" x-data="{ open: false }">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-center" x-data="{ open: false }">
                         @if (is_null($booking->check_out_at))
                             <div x-data="checkOutModal('{{ $booking->order_id }}')">
                                 <!-- Trigger Button -->
@@ -348,12 +348,12 @@
                                 </div>
                             </div>
                         @elseif (!is_null($booking->check_in_at) && !is_null($booking->check_out_at))
-                            <div class="flex flex-col items-start space-y-2">
+                            <div class="flex flex-col items-center space-y-2">
                                 <span class="text-green-600">Sudah Check-Out</span>
 
                                 <a href="{{ route('newReserv.checkin.invoice', $booking->order_id) }}"
                                     target="_blank"
-                                    class="inline-block px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700">
+                                    class="iinline-flex items-center px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none">
                                     View Invoice
                                 </a>
                             </div>

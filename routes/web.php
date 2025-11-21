@@ -99,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/newReserv/{order_id}', [NewReservController::class, 'checkIn'])->name('newReserv.checkin');
         Route::get('/newReserv-in/{order_id}/details', [NewReservController::class, 'getBookingDetails'])->name('newReserv.checkin.details');
 
+        Route::get('/newReserv-in/{order_id}/regist', [NewReservController::class, 'getRegist'])->name('newReserv.checkin.regist');
         Route::get('/newReserv-in/{order_id}/invoice', [NewReservController::class, 'getInvoice'])->name('newReserv.checkin.invoice');
 
         Route::get('/completed', [CompletedController::class, 'index'])->name('completed.index');

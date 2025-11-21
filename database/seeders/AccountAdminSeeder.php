@@ -7,11 +7,6 @@ use Illuminate\Database\Seeder;
 
 class AccountAdminSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         User::insert([
@@ -21,7 +16,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'admin',
                 'email' => 'admin_tsno@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 1, 
+                'role_id' => 1,
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -32,7 +27,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'user',
                 'email' => 'user_tsno@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 2, 
+                'role_id' => 2,
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -43,7 +38,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'purchasing',
                 'email' => 'purchasing_tsno@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 3, 
+                'role_id' => 3,
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -54,7 +49,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'farhan',
                 'email' => 'm.farhanshihab11@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 4, 
+                'role_id' => 4,
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -65,7 +60,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'farhans299',
                 'email' => 'farhans29@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 5, 
+                'role_id' => 5,
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -76,7 +71,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'hadrian',
                 'email' => 'hadriannaufal10@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 6, 
+                'role_id' => 6,
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -87,7 +82,7 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'vin123',
                 'email' => 'vin123@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 7, 
+                'role_id' => 7,
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),
@@ -98,7 +93,45 @@ class AccountAdminSeeder extends Seeder
                 'username' => 'vincent',
                 'email' => 'vincent.code7@gmail.com',
                 'password' => bcrypt('DigitaLL24$$'),
-                'role_id' => 2, 
+                'role_id' => 2,
+                'is_admin' => 1,
+                'status' => 1,
+                'created_at' => now(),
+            ],
+
+            // ===============================
+            // Tambahan 3 akun baru
+            // ===============================
+
+            [
+                'first_name' => 'HO Creative',
+                'last_name' => 'Team',
+                'username' => 'ho_creative',
+                'email' => 'ho-creative@ulinmahoni.com',
+                'password' => bcrypt('6zwBGfvAjBYGGd99wq'),
+                'role_id' => 164,
+                'is_admin' => 1,
+                'status' => 1,
+                'created_at' => now(),
+            ],
+            [
+                'first_name' => 'HO Administrator',
+                'last_name' => 'Team',
+                'username' => 'ho_admin',
+                'email' => 'ho-administrator@ulinmahoni.com',
+                'password' => bcrypt('5uAtAAQWgd9QcEQFYe'),
+                'role_id' => 165,
+                'is_admin' => 1,
+                'status' => 1,
+                'created_at' => now(),
+            ],
+            [
+                'first_name' => 'HO Finance',
+                'last_name' => 'Team',
+                'username' => 'ho_finance',
+                'email' => 'ho-finance@ulinmahoni.com',
+                'password' => bcrypt('XMDvAP9Xce8g6wy7Yy'),
+                'role_id' => 166,
                 'is_admin' => 1,
                 'status' => 1,
                 'created_at' => now(),

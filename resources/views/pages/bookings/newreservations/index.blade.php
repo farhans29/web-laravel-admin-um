@@ -61,9 +61,9 @@
         <!-- Bookings Table -->
         <div class="overflow-x-auto" id="bookingTableContainer">
             @include('pages.bookings.newreservations.partials.newreserve_table', [
-            'checkIns' => $checkIns,
-            'per_page' => request('per_page', 8),
-            'showActions' => $showActions,
+                'checkIns' => $checkIns,
+                'per_page' => request('per_page', 8),
+                'showActions' => $showActions,
             ])
         </div>
         <!-- Pagination -->
@@ -79,6 +79,7 @@
                 isDragging: false,
                 docPreview: null,
                 docPreviewType: null,
+                docFile: null, // Variabel baru untuk menyimpan file
                 profilePhotoUrl: null,
                 profilePhotoUrlDemo: null,
                 profilePhotoUrlWeb: null,
@@ -108,11 +109,12 @@
                     total_payment: ''
                 },
 
-                // Variabel baru untuk webcam
+                // Variabel untuk webcam
                 uploadMethod: 'file',
                 isCapturing: false,
                 webcamPhoto: null,
                 webcamStream: null,
+                webcamInitialized: false,
 
                 init() {
                     // Update time every second
@@ -249,7 +251,6 @@
                     }
                 },
 
-
                 retakePhoto() {
                     this.webcamPhoto = null;
                     this.startWebcam();
@@ -259,6 +260,11 @@
                     if (this.webcamPhoto) {
                         this.docPreview = this.webcamPhoto;
                         this.docPreviewType = 'image';
+
+                        // Konversi data URL ke File object
+                        const fileName = `webcam-capture-${Date.now()}.jpg`;
+                        this.docFile = this.dataURLtoFile(this.webcamPhoto, fileName);
+
                         this.webcamPhoto = null;
                         this.showSuccessToast(
                             'Foto berhasil diambil dan akan digunakan sebagai dokumen identifikasi.'
@@ -273,6 +279,23 @@
                     if (method === 'file' && this.isCapturing) {
                         this.stopWebcam();
                     }
+                },
+
+                // Method untuk mengkonversi data URL ke File object
+                dataURLtoFile(dataurl, filename) {
+                    const arr = dataurl.split(',');
+                    const mime = arr[0].match(/:(.*?);/)[1];
+                    const bstr = atob(arr[1]);
+                    let n = bstr.length;
+                    const u8arr = new Uint8Array(n);
+
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+
+                    return new File([u8arr], filename, {
+                        type: mime
+                    });
                 },
 
                 async fetchBookingDetails() {
@@ -377,7 +400,6 @@
                 },
 
                 getDocumentImageUrl() {
-
                     if (this.bookingDetails.doc_path) {
                         if (this.bookingDetails.doc_path.startsWith('http')) {
                             return this.bookingDetails.doc_path;
@@ -394,470 +416,6 @@
                     }
 
                     return null;
-                },
-
-                printAgreement() {
-                    const printWindow = window.open('', '_blank');
-                    const logoPath = window.location.origin + '/images/frist_icon.png';
-
-                    let docImagePath = this.getDocumentImageUrl();
-
-                    const currentDate = new Date().toLocaleString('id-ID', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-
-                    printWindow.document.write(`
-                                <html>
-                                <head>
-                                    <title>Registration Form - ${this.bookingDetails.order_id}</title>
-                                    <style>
-                                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-                                        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
-                                        body {
-                                            font-family: 'Inter', sans-serif;
-                                            margin: 0;
-                                            padding: 12px;
-                                            background: #fff;
-                                            color: #000;
-                                            font-size: 12px;
-                                            line-height: 1.3;
-                                        }
-                                        .header {
-                                            display: flex;
-                                            align-items: center;
-                                            border-bottom: 1px solid #000;
-                                            padding-bottom: 10px;
-                                            margin-bottom: 12px;
-                                            position: relative;
-                                        }
-                                        .logo-container {
-                                            flex-shrink: 0;
-                                            margin-right: 15px;
-                                        }
-                                        .header img {
-                                            height: 45px;
-                                            filter: grayscale(100%) contrast(120%);
-                                        }
-                                        .header-content {
-                                            flex: 1;
-                                            text-align: center;
-                                        }
-                                        .header h2 {
-                                            font-size: 17px;
-                                            font-weight: 700;
-                                            margin: 3px 0 2px 0;
-                                        }
-                                        .header p {
-                                            margin: 0;
-                                            font-size: 13px;
-                                            font-weight: 500;
-                                        }
-                                        table {
-                                            width: 100%;
-                                            border-collapse: collapse;
-                                            font-size: 11px;
-                                            margin-bottom: 10px;
-                                        }
-                                        td {
-                                            border: 1px solid #000;
-                                            padding: 4px 5px;
-                                            vertical-align: top;
-                                        }
-                                        .section-title {
-                                            font-weight: 700;
-                                            font-size: 12px;
-                                            margin: 10px 0 6px 0;
-                                            text-decoration: underline;
-                                        }
-                                        .notes, .disclaimer {
-                                            font-size: 10px;
-                                            margin-top: 8px;
-                                            line-height: 1.3;
-                                        }
-                                        .bottom-section {
-                                            margin-top: 5px;
-                                            border-top: 1px solid #000;
-                                            padding-top: 8px;
-                                            font-size: 10px;
-                                        }
-                                        .bottom-table {
-                                            margin-bottom: 8px;
-                                        }
-                                        .bottom-table td {
-                                            border: 1px solid #000;
-                                            text-align: left;
-                                            vertical-align: top;
-                                            padding: 5px;
-                                            font-size: 10px;
-                                            height: 30px;
-                                        }
-                                        
-                                        .info-table {
-                                            width: 100%;
-                                            border-collapse: collapse;
-                                            margin-top: 10px;
-                                            font-size: 10px;
-                                            height: 170px;
-                                        }
-                                        .info-table td {
-                                            border: 1px solid #000;
-                                            padding: 6px;
-                                            vertical-align: top;
-                                        }
-                                        .info-table .left-col {
-                                            width: 65%;
-                                        }
-                                        .info-table .right-col {
-                                            width: 35%;
-                                            text-align: center;
-                                        }
-                                        .signature-container {
-                                            display: flex;
-                                            flex-direction: column;
-                                            height: 100%;
-                                        }
-                                        .document-section {
-                                            flex: 1;
-                                            margin-bottom: 10px;
-                                            display: flex;
-                                            flex-direction: column;
-                                            align-items: center;
-                                            justify-content: center;
-                                            min-height: 150px;
-                                            padding: 5px;
-                                        }
-                                        .document-image {
-                                            max-width: 100%;
-                                            max-height: 120px;
-                                            object-fit: contain;
-                                        }
-                                        .document-label {
-                                            font-size: 9px;
-                                            margin-top: 5px;
-                                            font-weight: bold;
-                                        }
-                                        .signature-section {
-                                            padding: 10px;
-                                            text-align: center;
-                                        }
-                                        .signature-title {
-                                            margin-bottom: 15px;
-                                        }
-                                        .signature-spacing {
-                                            height: 60px;
-                                            width: 100%;
-                                            margin-bottom: 10px;
-                                        }
-                                        .right-signature-box {
-                                            height: 50px;
-                                            display: flex;
-                                            align-items: center;
-                                            justify-content: center;
-                                            margin-top: 6px;
-                                        }
-                                        .right-icons {
-                                            font-size: 15px;
-                                        }
-                                        .right-icons i {
-                                            margin: 0 5px;
-                                        }
-
-                                        .icon-ban {
-                                            position: relative;
-                                            display: inline-block;
-                                            width: 24px;
-                                            height: 24px;
-                                            margin-right: 5px;
-                                        }
-
-                                        .icon-ban i:first-child {
-                                            font-size: 19px;
-                                            color: #4b5563;
-                                        }
-
-                                        .icon-ban .fa-ban {
-                                            position: absolute;
-                                            top: 0;
-                                            left: 0;
-                                            color: red;
-                                            font-size: 24px;
-                                            opacity: 0.8;
-                                        }
-                                        
-                                        .compact-text {
-                                            font-size: 10px;
-                                            line-height: 1.3;
-                                            margin: 3px 0;
-                                        }
-                                        
-                                        .penalty-table {
-                                            width: 100%;
-                                            border-collapse: collapse;
-                                            margin-top: 8px;
-                                            font-size: 10px;
-                                        }
-                                        .penalty-table td {
-                                            border: 1px solid #000;
-                                            padding: 5px;
-                                            vertical-align: top;
-                                            width: 33.33%;
-                                        }
-                                        .penalty-title {
-                                            font-weight: 700;
-                                        }
-                                        
-                                        .left-content-cell {
-                                            height: 100%;
-                                            display: flex;
-                                            flex-direction: column;
-                                            justify-content: space-between;
-                                        }
-                                        
-                                        .bottom-table tr td:first-child {
-                                            padding-left: 8px;
-                                        }
-                                        
-                                        /* Style untuk text bahasa Indonesia normal */
-                                        .id-text {
-                                            font-style: normal;
-                                            font-weight: normal;
-                                        }
-                                        
-                                        /* Style untuk text bahasa Inggris miring */
-                                        .en-text {
-                                            font-style: italic;
-                                            font-weight: normal;
-                                        }
-                                        
-                                        @media print {
-                                            body {
-                                                margin: 0;
-                                                padding: 10px;
-                                                font-size: 11px;
-                                                line-height: 1.25;
-                                            }
-                                            .header {
-                                                margin-bottom: 8px;
-                                                padding-bottom: 8px;
-                                            }
-                                            .header img {
-                                                height: 40px;
-                                            }
-                                            table {
-                                                font-size: 10px;
-                                                margin-bottom: 8px;
-                                            }
-                                            td {
-                                                padding: 3px 4px;
-                                            }
-                                            .info-table {
-                                                height: 150px;
-                                            }
-                                            .bottom-section {
-                                                margin-top: 4px;
-                                            }
-                                            .compact-text {
-                                                font-size: 9px;
-                                                line-height: 1.25;
-                                            }
-                                            .document-section {
-                                                min-height: 140px;
-                                            }
-                                        }
-                                        
-                                        @page {
-                                            size: A4;
-                                            margin: 10mm;
-                                        }
-                                    </style>
-                                </head>
-                                <body>
-                                    <div class="header">
-                                        <div class="logo-container">
-                                            <img src="${logoPath}" alt="Logo Ulin Mahoni" onerror="this.style.display='none'">
-                                        </div>
-                                        <div class="header-content">
-                                            <h2>ULIN MAHONI</h2>
-                                            <p><span class="en-text">REGISTRATION FORM</span> / FORMULIR PENDAFTARAN</p>
-                                        </div>
-                                    </div>
-
-                                    <table>
-                                        <tr>
-                                            <td><span class="en-text"><strong>Folio Number</span> / Nomor Folio</strong><br>${this.bookingDetails.order_id}</td>
-                                            <td><span class="en-text"><strong>Arrival Date</span> / Tanggal Kedatangan</strong><br>${this.bookingDetails.check_in_date}</td>
-                                            <td><span class="en-text"><strong>ETA</span></strong><br>${this.bookingDetails.check_in_time}</td>
-                                            <td><span class="en-text"><strong>Departure Date</span> / Tanggal Keberangkatan</strong><br>${this.bookingDetails.check_out_date}</td>
-                                            <td><span class="en-text"><strong>ETD</span></strong><br>${this.bookingDetails.check_out_time}</td>
-                                            <td><span class="en-text"><strong>Guarantee</span> / Garansi</strong><br>-</td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="en-text"><strong>Rate Per Night</span> / Harga Per Malam</strong><br>${this.bookingDetails.total_payment || '-'}</td>
-                                            <td><span class="en-text"><strong>Number of Guest</span> / Jumlah Tamu</strong><br>${this.bookingDetails.guest_count || '-'}</td>
-                                            <td><span class="en-text"><strong>Advance Payment</span> / Uang Muka</strong><br>${this.bookingDetails.advance_payment || '-'}</td>
-                                            <td><span class="en-text"><strong>Room Type</span> / Jenis Kamar</strong><br>${this.bookingDetails.room_name}</td>
-                                            <td><span class="en-text"><strong>Number of Room</span> / Jumlah Kamar</strong><br>1</td>
-                                            <td><span class="en-text"><strong>Room Number</span> / Nomor Kamar</strong><br>${this.bookingDetails.room_number || '-'}</td>
-                                        </tr>
-                                    </table>
-
-                                    <div class="section-title"><span class="en-text"><strong>Guest Information</span> / Informasi Tamu</div>
-                                    <table>
-                                        <tr>
-                                            <td><span class="en-text"><strong>Name (Mr/Mrs/Miss)</span> / Nama (Tn/Ny/Nona)</strong><br>${this.guestContact.name}</td>
-                                            <td><span class="en-text"><strong>Nationality</span> / Kewarganegaraan</strong><br>Indonesia</td>
-                                            <td><span class="en-text"><strong>Date of Birth</span> / Tanggal Lahir</strong><br>-</td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="en-text"><strong>ID Card / SIM / Passport No.</span></strong><br>-</td>
-                                            <td><span class="en-text"><strong>Company</span> / Perusahaan</strong><br>${this.bookingDetails.company_name || '-'}</td>
-                                            <td><span class="en-text"><strong>Telephone</span> / Telepon</strong><br>${this.guestContact.phone}</td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="3"><span class="en-text"><strong>Home Address</span> / Alamat Rumah</strong><br>${this.guestContact.address || '-'}</td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="en-text"><strong>Terms of Payment</span> / Cara Pembayaran</strong><br>${this.bookingDetails.transaction_type || '-'}</td>
-                                            <td><span class="en-text"><strong>Credit Card</span> / Kartu Kredit</strong><br>-</td>
-                                            <td><span class="en-text"><strong>Visa Type</span> / Jenis Visa</strong><br><span class="en-text">Tourist</span> / Wisatawan</td>
-                                        </tr>
-                                    </table>
-
-                                    <table class="info-table">
-                                        <tr>
-                                            <td class="left-col">
-                                                <div class="compact-text">
-                                                    <span class="en-text"><strong>NOTES FOR NON-SMOKING ROOM</span> / CATATAN UNTUK KAMAR BEBAS ROKOK</strong><br>
-                                                    <em class="en-text">
-                                                        Please note that the hotel strictly prohibits bringing durian and pets into the hotel premises.<br>
-                                                        You have been assigned to a NON-SMOKING room.<br>
-                                                        By signing beside, you agree to comply with the NON-SMOKING policy—both for yourself and any visiting guests.<br>
-                                                        If smoking occurs in your room, you will be liable to pay a cleaning and fabric replacement charge of Rp. 2.000.000,- per incident, which is non-negotiable.
-                                                    </em><br>
-                                                    <span class="id-text">
-                                                        Harap diketahui bahwa hotel tidak mengizinkan Anda membawa durian dan hewan peliharaan ke dalam area hotel.<br>
-                                                        Anda telah ditempatkan di kamar bebas rokok (NON-SMOKING).<br>
-                                                        Dengan menandatangani kolom di samping ini, Anda setuju untuk mematuhi kebijakan bebas rokok, baik oleh Anda sendiri maupun tamu yang berkunjung.<br>
-                                                        Apabila Anda atau tamu Anda diketahui merokok di dalam kamar dan menyebabkan kamar tersebut tidak dapat dijual kembali, maka Anda berkewajiban membayar biaya pembersihan dan penggantian perlengkapan yang tercemar sebesar Rp. 2.000.000,- untuk setiap kejadian, dan biaya tersebut tidak dapat dinegosiasikan.
-                                                    </span>
-                                                </div>
-                                            </td>
-
-                                            <!-- Kolom kanan digabung jadi 1 kolom kebawah -->
-                                            <td class="right-col" rowspan="2">
-                                                <div class="signature-container">
-                                                    <div class="document-section">
-                                                        ${docImagePath ? 
-                                                            `<img src="${docImagePath}" alt="Guest Document" class="document-image" onerror="this.style.display='none'">`
-                                                            : 
-                                                            '<div class="document-label">No Document Available</div>'
-                                                        }
-                                                    </div>
-                                                    <div class="signature-section">
-                                                        <div class="compact-text signature-title">
-                                                            <span class="en-text"><strong>Guest Signature</span> / Tanda Tangan Tamu</strong>
-                                                        </div>
-                                                        
-                                                        <div class="signature-spacing"></div>
-                                                        
-                                                        <div class="right-signature-box">
-                                                            <div class="right-icons">
-                                                                <span class="icon-ban" title="No Durian">
-                                                                    <i class="fa-solid fa-lemon"></i>
-                                                                    <i class="fa-solid fa-ban"></i>
-                                                                </span>
-                                                                <span class="icon-ban" title="No Pets">
-                                                                    <i class="fa-solid fa-dog"></i>
-                                                                    <i class="fa-solid fa-ban"></i>
-                                                                </span>
-                                                                <span class="icon-ban" title="No Smoking">
-                                                                    <i class="fa-solid fa-smoking"></i>
-                                                                    <i class="fa-solid fa-ban"></i>
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="left-col">
-                                                <div class="compact-text">
-                                                    <strong>DISCLAIMER / PENAFIAN</strong><br>
-                                                    <em class="en-text">
-                                                        Guests are advised not to leave valuable belongings unattended in the room.<br>
-                                                        For your safety, please use the in-room safe deposit box to store valuable items.<br>
-                                                        By signing this form, I acknowledge that I am fully responsible for any expenses incurred by the above-named person, company, or association during the stay at Ulin Mahoni.
-                                                    </em><br>
-                                                    <span class="id-text">
-                                                        Tamu dihimbau untuk tidak meninggalkan barang-barang berharga tanpa pengawasan di dalam kamar.<br>
-                                                        Untuk keamanan, silakan gunakan kotak penyimpanan (safe deposit box) yang tersedia untuk menyimpan barang-barang berharga.<br>
-                                                        Dengan menandatangani formulir ini, saya menyatakan bahwa saya sepenuhnya bertanggung jawab atas biaya yang timbul oleh nama, perusahaan, atau asosiasi yang disebutkan di atas selama masa menginap di Ulin Mahoni.
-                                                    </span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <table class="penalty-table">
-                                        <tr>
-                                            <td class="penalty-title">
-                                                <span class="en-text"><strong>PENALTY INFORMATION</span> / INFORMASI DENDA</strong><br>
-                                                <span style="font-weight: normal;">
-                                                    <span class="en-text">Prohibited strong smell fruit, pets & arms with penalty Rp. 500.000</span><br>
-                                                    <span class="id-text">Dilarang membawa buah yang berbau menyengat, hewan peliharaan & senjata, akan dikenakan denda Rp. 500.000</span>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="en-text">Penalty for lost key card Rp. 50.000</span><br>
-                                                <span class="id-text">Denda untuk kartu kunci yang hilang Rp. 50.000</span>
-                                            </td>
-                                            <td>
-                                                <span class="en-text"><strong>Date</span> / Tanggal</strong><br>
-                                                <span class="id-text">${currentDate}</span>
-                                            </td>
-                                        </tr>
-                                    </table>
-
-                                    <div class="bottom-section">
-                                        <table class="bottom-table">
-                                            <tr>
-                                                <td><span class="en-text">Check-In By</span><br><span class="id-text">Melapor Masuk Oleh</span></td>
-                                                <td><span class="en-text">Check-Out By</span><br><span class="id-text">Melapor Keluar Oleh</span></td>
-                                                <td><span class="en-text">Front Desk</span><br><span class="id-text">Penyelia / Supervisor</span></td>
-                                            </tr>
-                                        </table>
-
-                                        <div style="text-align:center; margin-top:8px;" class="compact-text">
-                                            <span class="en-text"><strong>Rates are inclusive of service charge and government tax</strong></span><br>
-                                            <span class="id-text">Harga sudah termasuk jasa pelayanan dan pajak pemerintah</span>
-                                        </div>
-                                    </div>
-
-                                    <div style="margin-top: 12px; font-size: 9px; text-align: center; color: #555; line-height: 1.2;">
-                                        <p>Dokumen ini dibuat secara elektronik oleh Ulin Mahoni dan sah tanpa tanda tangan basah.</p>
-                                        <p>© ${new Date().getFullYear()} Ulin Mahoni — Semua Hak Dilindungi Undang-Undang.</p>
-                                    </div>
-                                </body>
-                                </html>
-                            `);
-
-                    printWindow.document.close();
-                    setTimeout(() => {
-                        printWindow.print();
-                    }, 600);
-                },
-
-                calculateDuration(checkIn, checkOut) {
-                    if (!checkIn || !checkOut) return 'N/A';
-
-                    const start = new Date(checkIn);
-                    const end = new Date(checkOut);
-                    const diffTime = Math.abs(end - start);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                    return `${diffDays} night${diffDays > 1 ? 's' : ''}`;
                 },
 
                 handleDocDrop(e) {
@@ -886,6 +444,7 @@
                     reader.onload = (e) => {
                         this.docPreview = e.target.result;
                         this.docPreviewType = file.type === 'application/pdf' ? 'pdf' : 'image';
+                        this.docFile = file; // Simpan file object
                     };
                     reader.readAsDataURL(file);
                 },
@@ -893,18 +452,24 @@
                 removeDoc() {
                     this.docPreview = null;
                     this.docPreviewType = null;
-                    this.$refs.docInput.value = '';
+                    this.docFile = null; // Reset file juga
+                    if (this.$refs.docInput) {
+                        this.$refs.docInput.value = '';
+                    }
                 },
 
                 async submitCheckIn() {
-                    // Validasi form
+                    // Validasi informasi kontak
                     if (!this.guestContact.name || !this.guestContact.email || !this.guestContact
                         .phone) {
                         this.showErrorToast('Harap lengkapi semua informasi kontak');
                         return;
                     }
 
-                    if (!this.docPreview) {
+                    // Validasi dokumen identifikasi
+                    // Jika ada profile photo, tidak wajib upload dokumen tambahan
+                    // Jika tidak ada profile photo, wajib upload dokumen
+                    if (!this.profilePhotoUrl && !this.docFile) {
                         this.showErrorToast('Harap unggah dokumen identifikasi');
                         return;
                     }
@@ -913,70 +478,53 @@
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
 
-                        // Prepare the data to send
-                        const requestData = {
-                            doc_type: this.selectedDocType,
-                            has_profile_photo: !!this.profilePhotoUrl,
-                            agreement_accepted: true,
-                            guest_name: this.guestContact.name,
-                            guest_email: this.guestContact.email,
-                            guest_phone: this.guestContact.phone
-                        };
+                        let formData = new FormData();
+                        formData.append('doc_type', this.selectedDocType);
+                        formData.append('has_profile_photo', this.profilePhotoUrl ? 1 : 0);
+                        formData.append('guest_name', this.guestContact.name);
+                        formData.append('guest_email', this.guestContact.email);
+                        formData.append('guest_phone', this.guestContact.phone);
 
-                        // Include doc_image only if there's no profile photo
-                        if (!this.profilePhotoUrl && this.docPreview) {
-                            requestData.doc_image = this.docPreview;
-                        } else if (!this.profilePhotoUrl && !this.docPreview) {
-                            this.showErrorToast('Please upload your identification document first');
-                            return;
+                        // Upload dokumen jika ada
+                        if (this.docFile) {
+                            formData.append('doc_image', this.docFile);
                         }
+
+                        // Debug: log data yang akan dikirim
+                        console.log('Submitting check-in with:', {
+                            hasProfilePhoto: !!this.profilePhotoUrl,
+                            hasDocFile: !!this.docFile,
+                            hasDocPreview: !!this.docPreview,
+                            docType: this.selectedDocType
+                        });
 
                         const response = await fetch(`/bookings/newReserv/${this.bookingId}`, {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json' // Explicitly request JSON
+                                'Accept': 'application/json'
                             },
-                            body: JSON.stringify(requestData)
+                            body: formData
                         });
-
-                        // Check if response is JSON
-                        const contentType = response.headers.get('content-type');
-                        if (!contentType || !contentType.includes('application/json')) {
-                            const textResponse = await response.text();
-                            console.error('Non-JSON response:', textResponse.substring(0, 500));
-                            throw new Error(
-                                'Server returned non-JSON response. Please check the server logs.'
-                            );
-                        }
 
                         const data = await response.json();
 
                         if (!response.ok) {
-                            throw new Error(data.message ||
-                                `HTTP error! status: ${response.status}`);
+                            throw new Error(data.message || `HTTP error: ${response.status}`);
                         }
 
                         if (data.success) {
-                            this.showSuccessToast('Check-in submitted successfully!');
-                            this.printAgreement();
+                            this.showSuccessToast('Check-in berhasil!');
                             setTimeout(() => {
                                 window.location.reload();
                             }, 1500);
                         } else {
-                            this.showErrorToast(data.message || 'Check-in failed');
+                            this.showErrorToast(data.message || 'Check-in gagal');
                         }
-                    } catch (error) {
-                        console.error('Error during check-in:', error);
 
-                        if (error.message.includes('non-JSON response')) {
-                            this.showErrorToast(
-                                'Server error: Invalid response format. Please try again.');
-                        } else {
-                            this.showErrorToast(error.message ||
-                                'An error occurred during check-in');
-                        }
+                    } catch (error) {
+                        console.error("Check-in error:", error);
+                        this.showErrorToast(error.message || 'Terjadi kesalahan saat check-in');
                     }
                 },
 
@@ -1001,7 +549,6 @@
                         showConfirmButton: false,
                         timer: 1500,
                         timerProgressBar: true
-
                     });
                 },
 
@@ -1020,6 +567,17 @@
                     }).format(numericValue);
                 },
 
+                calculateDuration(checkIn, checkOut) {
+                    if (!checkIn || !checkOut) return 'N/A';
+
+                    const start = new Date(checkIn);
+                    const end = new Date(checkOut);
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    return `${diffDays} night${diffDays > 1 ? 's' : ''}`;
+                },
+
                 closeModal() {
                     this.isOpen = false;
                     this.stopWebcam(); // Pastikan webcam dihentikan saat modal ditutup
@@ -1029,6 +587,7 @@
                 resetForm() {
                     this.docPreview = null;
                     this.docPreviewType = null;
+                    this.docFile = null; // Reset file
                     this.selectedDocType = 'ktp';
                     this.uploadMethod = 'file';
                     this.isCapturing = false;
@@ -1045,7 +604,6 @@
                 }
             }));
         });
-
         document.addEventListener('DOMContentLoaded', function() {
             const defaultStartDate = new Date();
             const defaultEndDate = new Date();
@@ -1100,14 +658,16 @@
             }
 
             // Set initial values if they exist
-            @if(request('start_date') && request('end_date'))
-            const startDate = new Date('{{ request('
-                start_date ') }}');
-            const endDate = new Date('{{ request('
-                end_date ') }}');
+            @if (request('start_date') && request('end_date'))
+                const startDate = new Date(
+                    '{{ request('
+                                                                    start_date ') }}');
+                const endDate = new Date(
+                    '{{ request('
+                                                                    end_date ') }}');
 
-            // Always set both start and end dates, even if they're the same
-            datePicker.setDate([startDate, endDate], true);
+                // Always set both start and end dates, even if they're the same
+                datePicker.setDate([startDate, endDate], true);
             @endif
 
             // Get all filter elements

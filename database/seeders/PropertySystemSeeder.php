@@ -175,7 +175,7 @@ class PropertySystemSeeder extends Seeder
             $price = json_decode($room['price'], true);
             $dailyPrice = $price['discounted_daily'] ?? $price['original_daily'] ?? 0;
             $roomPrice = $dailyPrice * $bookingDays;
-            $adminFees = $roomPrice * 0.1;
+            $adminFees = $roomPrice * 0.2;
             $grandTotal = $roomPrice + $adminFees;
             $paidAt = now()->subDays(rand(0, 10));
 
@@ -241,7 +241,7 @@ class PropertySystemSeeder extends Seeder
                 'property_type' => 'Hotel',
                 'transaction_type' => 'cash',
                 'transaction_code' => 'TRX-' . strtoupper(Str::random(8)),
-                'transaction_status' => 'waiting',
+                'transaction_status' => 'paid',
                 'status' => '1',
                 'paid_at' => $paidAt,
                 'notes' => 'Booking belum dibayar',
