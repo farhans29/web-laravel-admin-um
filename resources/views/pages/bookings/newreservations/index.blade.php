@@ -662,15 +662,15 @@
 
             // Set initial values if they exist
             @if (request('start_date') && request('end_date'))
-                const startDate = new Date('{{ request('start_date') }}');
-                const endDate = new Date('{{ request('end_date') }}');
+                const startDate = new Date(
+                    '{{ request('
+                                                                    start_date ') }}');
+                const endDate = new Date(
+                    '{{ request('
+                                                                    end_date ') }}');
 
-                // Jika start_date dan end_date sama, set hanya 1 tanggal
-                if (formatDate(startDate) === formatDate(endDate)) {
-                    datePicker.setDate(startDate);
-                } else {
-                    datePicker.setDate([startDate, endDate]);
-                }
+                // Always set both start and end dates, even if they're the same
+                datePicker.setDate([startDate, endDate], true);
             @endif
 
             // Get all filter elements
