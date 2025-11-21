@@ -199,13 +199,31 @@ class NewReservController extends Controller
         if ($booking->transaction->user && $booking->transaction->user->profile_photo_path) {
             $photoPath = $booking->transaction->user->profile_photo_path;
             $response['user_profile_photo_demo'] = 'https://demo-ulinmahoni.integrated-os.cloud/storage/' . $photoPath;
-            $response['user_profile_photo_web'] = 'https://web.ulinmahoni.com/storage/' . $photoPath;
+            $response['user_profile_photo_web'] = 'https://staging-web.ulinmahoni.com/storage/' . $photoPath;
         } else {
             $response['user_profile_photo_demo'] = null;
             $response['user_profile_photo_web'] = null;
         }
 
         return response()->json($response);
+    }
+
+    public function getRegist($orderId)
+    {
+        $booking = Booking::with([
+            'transaction',
+            'property',
+            'room',
+            'transaction.user',
+            'user',
+            'payment'
+        ])->where('order_id', $orderId)->firstOrFail();
+
+        if (!$booking->transaction) {
+            abort(404, 'Transaction data not found');
+        }
+
+        return view('pages.bookings.components.regist_form', compact('booking'));
     }
 
     public function getInvoice($orderId)
