@@ -309,8 +309,16 @@
                     @endif
                 </td>
                 <td>{{ $booking->transaction->booking_type ?? 'daily' }}</td>
+                <td>
+                    Rp
+                    @if (($booking->transaction->booking_type ?? 'daily') === 'monthly')
+                        {{ number_format($booking->transaction->monthly_price ?? 0, 0, ',', '.') }}
+                    @else
+                        {{ number_format($booking->transaction->daily_price ?? 0, 0, ',', '.') }}
+                    @endif
+                </td>
+
                 <td>Rp {{ number_format($booking->transaction->room_price ?? 0, 0, ',', '.') }}</td>
-                <td>Rp {{ number_format($booking->transaction->grandtotal_price ?? 0, 0, ',', '.') }}</td>
             </tr>
         </tbody>
     </table>

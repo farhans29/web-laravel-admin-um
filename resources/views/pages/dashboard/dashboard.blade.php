@@ -143,7 +143,8 @@
                             'checkOuts' => $checkOuts,
                             'per_page' => request('per_page', 4),
                             'type' => 'check-out',
-                            'showActions' => $showActions,
+                            'showStatus' => false, 
+                            'showActions' => false,
                         ])
                     </div>
                     <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
@@ -179,6 +180,8 @@
                             'checkIns' => $checkIns,
                             'per_page' => request('per_page', 4),
                             'type' => 'check-in',
+                            'showStatus' => false, 
+                            'showActions' => false,
                         ])
                     </div>
                     <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
@@ -187,7 +190,9 @@
                 </div>
             </div>
         </div>
+
+       
     </div>
 
-    <script></script>
+   <script></script>
 </x-app-layout>

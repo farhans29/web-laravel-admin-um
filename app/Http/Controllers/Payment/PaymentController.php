@@ -23,7 +23,7 @@ class PaymentController extends Controller
             'user',
             'transaction' => function ($query) {
                 $query->with(['property', 'room', 'user'])
-                    ->where('status', 1); 
+                    ->where('status', 1);
             }
         ])->whereHas('transaction') // Hanya ambil payment yang punya transaction
             ->orderBy('idrec', 'desc');
@@ -209,13 +209,13 @@ class PaymentController extends Controller
         // Update related booking status to 0 (cancelled)
         if ($payment->booking) {
             $payment->booking->update([
-            'status' => '0',
-            'reason' => $cancelReason,
+                'status' => '0',
+                'reason' => $cancelReason,
             ]);
         } else {
             Booking::where('order_id', $payment->order_id)->update([
-            'status' => '0',
-            'reason' => $cancelReason,
+                'status' => '0',
+                'reason' => $cancelReason,
             ]);
         }
 

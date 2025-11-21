@@ -206,99 +206,99 @@
                     <div x-show="editStep === 1" x-transition:enter="transition ease-out duration-300"
                         x-transition:enter-start="opacity-0 translate-x-4"
                         x-transition:enter-end="opacity-100 translate-x-0">
+
                         <div class="space-y-6">
-                            <!-- Property Selector -->
+
+                            <!-- Properti -->
                             <div>
                                 <label for="edit_property_id_{{ $room->idrec }}"
                                     class="block text-sm font-semibold text-gray-700 mb-2">
                                     Properti <span class="text-red-500">*</span>
                                 </label>
+
                                 <input type="text" id="edit_property_id_{{ $room->idrec }}" name="property_name"
                                     value="{{ $room->property->name ?? '' }}" readonly
-                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 bg-gray-100 text-gray-700 focus:outline-none transition-all duration-200">
+                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 bg-gray-100 text-gray-700">
 
-                                {{-- Hidden input untuk menyimpan ID-nya ke database --}}
                                 <input type="hidden" name="property_id" value="{{ $room->property_id }}">
                             </div>
 
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Row digabung 1 baris -->
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+
+                                <!-- Nomor Kamar -->
                                 <div>
-                                    <label for="edit_room_no_{{ $room->idrec }}"
-                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
                                         Nomor Kamar <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="edit_room_no_{{ $room->idrec }}" name="room_no"
-                                        required
-                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                        placeholder="Masukkan nomor kamar" x-model="roomData.number">
+                                    <input type="text" name="room_no" required
+                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
+                                        placeholder="Nomor Kamar" x-model="roomData.number">
                                 </div>
 
+                                <!-- Nama / Tipe Kamar -->
                                 <div>
-                                    <label for="edit_room_name_{{ $room->idrec }}"
-                                        class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Nama Kamar <span class="text-red-500">*</span>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Nama / Tipe Kamar <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="edit_room_name_{{ $room->idrec }}" name="room_name"
-                                        required
-                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                        placeholder="Masukkan nama kamar" x-model="roomData.name">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label for="edit_room_size_{{ $room->idrec }}"
-                                        class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Ukuran Kamar (m²) <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="number" id="edit_room_size_{{ $room->idrec }}" name="room_size"
-                                        required
-                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                        placeholder="Masukkan ukuran kamar" x-model="roomData.size">
+                                    <input type="text" name="room_name" required
+                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
+                                        placeholder="Nama / Tipe" x-model="roomData.name">
                                 </div>
 
+                                <!-- Jenis Kasur -->
                                 <div>
-                                    <label for="edit_room_bed_{{ $room->idrec }}"
-                                        class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Jenis Kasur <span class="text-red-500">*</span>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Jenis Tempat Tidur <span class="text-red-500">*</span>
                                     </label>
-                                    <select id="edit_room_bed_{{ $room->idrec }}" name="room_bed" required
-                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                        x-model="roomData.bed">
-                                        <option value="">Pilih Jenis Kasur
-                                        </option>
+                                    <select name="room_bed" required
+                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
+                                        x-model="roomData.bed" @change="updateCapacity()">
+                                        <option value="">Pilih Jenis Kasur</option>
                                         <option value="Single">Single</option>
-                                        <option value="Double">Double</option>
-                                        <option value="King">King</option>
-                                        <option value="Queen">Queen</option>
                                         <option value="Twin">Twin</option>
+                                        <option value="Double">Double</option>
+                                        <option value="Queen">Queen</option>
+                                        <option value="King">King</option>
                                     </select>
                                 </div>
 
+                                <!-- Ukuran Kamar -->
                                 <div>
-                                    <label for="edit_room_capacity_{{ $room->idrec }}"
-                                        class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Ukuran Kamar (m²) <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" name="room_size" required
+                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
+                                        placeholder="Ukuran" x-model="roomData.size">
+                                </div>
+
+                                <!-- Kapasitas -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
                                         Kapasitas (Pax) <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="number" id="edit_room_capacity_{{ $room->idrec }}"
-                                        name="room_capacity" required
-                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                        placeholder="Masukkan kapasitas kamar" x-model="roomData.capacity">
+                                    <input type="number" name="room_capacity" required
+                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 bg-gray-100 cursor-not-allowed"
+                                        x-model="roomData.capacity" readonly />
                                 </div>
                             </div>
 
+
+                            <!-- Deskripsi -->
                             <div>
-                                <label for="edit_description_{{ $room->idrec }}"
-                                    class="block text-sm font-semibold text-gray-700 mb-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Deskripsi Kamar <span class="text-red-500">*</span>
                                 </label>
-                                <textarea id="edit_description_{{ $room->idrec }}" name="description" rows="4" required
-                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                    placeholder="Deskripsikan kamar Anda..." x-model="roomData.description"></textarea>
+                                <textarea name="description" rows="4" required
+                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4" placeholder="Deskripsikan kamar..."
+                                    x-model="roomData.description"></textarea>
                             </div>
+
                         </div>
                     </div>
+
 
                     <!-- Step 2 - Pricing -->
                     <div x-show="editStep === 2" x-transition:enter="transition ease-out duration-300"
@@ -1112,6 +1112,22 @@
                 this.editModalOpen = true;
                 this.editStep = 1;
                 this.editImages = [];
+            },
+
+            updateCapacity() {
+                switch (this.roomData.bed) {
+                    case "Single":
+                        this.roomData.capacity = 1;
+                        break;
+                    case "Twin":
+                    case "Double":
+                    case "Queen":
+                    case "King":
+                        this.roomData.capacity = 2;
+                        break;
+                    default:
+                        this.roomData.capacity = '';
+                }
             },
 
             getAllImages() {
