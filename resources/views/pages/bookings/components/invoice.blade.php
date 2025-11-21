@@ -298,7 +298,8 @@
 
         <tbody>
             <tr class="table-data">
-                <td class="text-center">{{ $invoiceNumberFormatted ?? ($booking->transaction->transaction_code ?? 'N/A') }}</td>
+                <td class="text-center">
+                    {{ $invoiceNumberFormatted ?? ($booking->transaction->transaction_code ?? 'N/A') }}</td>
                 <td>{{ $booking->transaction->property_type ?? ($booking->property->type ?? 'N/A') }}</td>
                 <td>{{ $booking->transaction->room_name ?? ($booking->room->name ?? 'N/A') }}</td>
                 <td>
@@ -309,7 +310,15 @@
                     @endif
                 </td>
                 <td>{{ $booking->transaction->booking_type ?? 'daily' }}</td>
-                <td>Rp {{ number_format($booking->transaction->room_price ?? 0, 0, ',', '.') }}</td>
+                <td>
+                    Rp
+                    @if (($booking->transaction->booking_type ?? 'daily') === 'monthly')
+                        {{ number_format($booking->transaction->monthly_price ?? 0, 0, ',', '.') }}
+                    @else
+                        {{ number_format($booking->transaction->daily_price ?? 0, 0, ',', '.') }}
+                    @endif
+                </td>
+
                 <td>Rp {{ number_format($booking->transaction->grandtotal_price ?? 0, 0, ',', '.') }}</td>
             </tr>
         </tbody>
