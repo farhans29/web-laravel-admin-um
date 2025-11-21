@@ -64,6 +64,9 @@
                 'checkIns' => $checkIns,
                 'per_page' => request('per_page', 8),
                 'showActions' => $showActions,
+                'checkIns' => $checkIns,
+                'per_page' => request('per_page', 8),
+                'showActions' => $showActions,
             ])
         </div>
         <!-- Pagination -->
@@ -743,3 +746,4 @@
         });
     </script>
 </x-app-layout>
+

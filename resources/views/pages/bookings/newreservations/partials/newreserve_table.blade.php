@@ -437,6 +437,7 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                </div>
 
                                                                     <!-- Area Webcam -->
                                                                     <div x-show="uploadMethod === 'camera'"
