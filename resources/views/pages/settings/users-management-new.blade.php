@@ -303,6 +303,14 @@
                                                 <i class="fas fa-building"></i>
                                             @break
 
+                                            @case('creative')
+                                                <i class="fas fa-paint-brush"></i>
+                                            @break
+
+                                            @case('administrator')
+                                                <i class="fas fa-user-shield"></i> 
+                                            @break
+
                                             @default
                                                 <i class="fas fa-user"></i>
                                         @endswitch
