@@ -607,6 +607,7 @@
                 }
             }));
         });
+        
         document.addEventListener('DOMContentLoaded', function() {
             const defaultStartDate = new Date();
             const defaultEndDate = new Date();

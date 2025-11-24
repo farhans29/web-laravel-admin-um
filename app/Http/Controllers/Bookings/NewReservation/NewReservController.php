@@ -182,8 +182,8 @@ class NewReservController extends Controller
         // Tambahkan dua versi URL foto profil jika tersedia
         if ($booking->transaction->user && $booking->transaction->user->profile_photo_path) {
             $photoPath = $booking->transaction->user->profile_photo_path;
-            $response['user_profile_photo_demo'] = 'https://demo-ulinmahoni.integrated-os.cloud/storage/' . $photoPath;
-            $response['user_profile_photo_web'] = 'https://staging.ulinmahoni.com/storage/' . $photoPath;
+            $response['user_profile_photo_demo'] = 'https://staging.ulinmahoni.com/storage/storage/' . $photoPath;
+            $response['user_profile_photo_web'] = 'https://web.ulinmahoni.com/storage/' . $photoPath;
         } else {
             $response['user_profile_photo_demo'] = null;
             $response['user_profile_photo_web'] = null;
@@ -201,7 +201,12 @@ class NewReservController extends Controller
                 ->with(['user', 'property', 'room', 'booking'])
                 ->firstOrFail();
 
-            // Ambil data booking jika ada
+            // Update status cetak berdasarkan order_id
+            Booking::where('order_id', $order_id)->update([
+                'its_printed' => 1
+            ]);
+
+            // Ambil ulang booking setelah update (optional)
             $booking = $transaction->booking;
 
             // Format data untuk view
@@ -220,9 +225,11 @@ class NewReservController extends Controller
                 'total_payment' => $transaction->grandtotal_price ? $this->formatRupiah($transaction->grandtotal_price) : 'N/A',
                 'transaction_type' => $transaction->transaction_type ?? 'N/A',
                 'duration' => $this->calculateDuration($transaction->check_in, $transaction->check_out),
-                'guest_count' => $transaction->booking_days ?? 1, // Default 1 jika tidak ada
+                'guest_count' => $transaction->booking_days ?? 1,
                 'advance_payment' => $transaction->grandtotal_price ? $this->formatRupiah($transaction->grandtotal_price) : 'N/A',
-                'company_name' => '-', // Tambahkan field ini jika ada di model
+                'company_name' => '-',
+                'daily_price' => $transaction->daily_price,
+                'monthly_price' => $transaction->monthly_price,
             ];
 
             $guestContact = [
@@ -235,7 +242,7 @@ class NewReservController extends Controller
             $currentDate = date('F d, Y');
             $logoPath = url('/images/frist_icon.png');
 
-            // Ambil document image dari booking jika ada
+            // Create full doc URL
             $documentImage = null;
             if ($booking && $booking->doc_path) {
                 $documentImage = $booking->doc_path;
@@ -244,7 +251,16 @@ class NewReservController extends Controller
                 }
             }
 
-            return view('pages.bookings.components.regist_form', compact(
+            // Tentukan view berdasarkan harga yang ada
+            $viewName = 'pages.bookings.components.regist_form_monthly'; // default
+
+            if (!empty($transaction->daily_price) && empty($transaction->monthly_price)) {
+                $viewName = 'pages.bookings.components.regist_form_daily';
+            } elseif (!empty($transaction->monthly_price) && empty($transaction->daily_price)) {
+                $viewName = 'pages.bookings.components.regist_form_monthly';
+            }
+
+            return view($viewName, compact(
                 'bookingDetails',
                 'guestContact',
                 'currentDate',
@@ -258,6 +274,8 @@ class NewReservController extends Controller
             ], 500);
         }
     }
+
+
 
     // Tambahkan method helper jika belum ada
     private function formatRupiah($amount)
@@ -306,6 +324,4 @@ class NewReservController extends Controller
         // Return view dengan data invoice number
         return view('pages.bookings.components.invoice', compact('booking', 'invoiceNumberFormatted'));
     }
-
-    
 }

@@ -325,7 +325,7 @@
             <td><span class="en-text"><strong>Departure Date</span> / Tanggal
                 Keberangkatan</strong><br>{{ $bookingDetails['check_out_date'] }}</td>
             <td><span class="en-text"><strong>ETD</span></strong><br>{{ $bookingDetails['check_out_time'] }}</td>
-            <td><span class="en-text"><strong>Guarantee</span> / Garansi</strong><br>-</td>
+            <td></td>
         </tr>
         <tr>
             <td><span class="en-text"><strong>Rate Per Night</span> / Harga Per
@@ -530,22 +530,7 @@
             </td>
         </tr>
     </table>
-
-    <div class="bottom-section">
-        <table class="bottom-table">
-            <tr>
-                <td><span class="en-text">Check-In By</span><br><span class="id-text">Melapor Masuk Oleh</span></td>
-                <td><span class="en-text">Check-Out By</span><br><span class="id-text">Melapor Keluar Oleh</span></td>
-                <td><span class="en-text">Front Desk</span><br><span class="id-text">Penyelia / Supervisor</span></td>
-            </tr>
-        </table>
-
-        <div style="text-align:center; margin-top:8px;" class="compact-text">
-            <span class="en-text"><strong>Rates are inclusive of service charge and government tax</strong></span><br>
-            <span class="id-text">Harga sudah termasuk jasa pelayanan dan pajak pemerintah</span>
-        </div>
-    </div>
-
+    
     <div style="margin-top: 12px; font-size: 9px; text-align: center; color: #555; line-height: 1.2;">
         <p>Dokumen ini dibuat secara elektronik oleh Ulin Mahoni dan sah tanpa tanda tangan basah.</p>
         <p>© {{ date('Y') }} Ulin Mahoni — Semua Hak Dilindungi Undang-Undang.</p>
