@@ -203,7 +203,7 @@ class NewReservController extends Controller
 
             // Update status cetak berdasarkan order_id
             Booking::where('order_id', $order_id)->update([
-                'its_printed' => 1
+                'is_printed' => 1
             ]);
 
             // Ambil ulang booking setelah update (optional)
@@ -242,12 +242,15 @@ class NewReservController extends Controller
             $currentDate = date('F d, Y');
             $logoPath = url('/images/frist_icon.png');
 
-            // Create full doc URL
+            // Create full doc URL - PERBAIKAN DI SINI
             $documentImage = null;
             if ($booking && $booking->doc_path) {
-                $documentImage = $booking->doc_path;
+                // Gunakan Storage facade untuk generate URL yang benar
+                $documentImage = Storage::url($booking->doc_path);
+
+                // Pastikan URL lengkap (untuk kasus dimana Storage::url() hanya return relative path)
                 if (!str_starts_with($documentImage, 'http')) {
-                    $documentImage = url('/' . ltrim($documentImage, '/'));
+                    $documentImage = url($documentImage);
                 }
             }
 

@@ -149,41 +149,77 @@ class PropertySystemSeeder extends Seeder
         $userIds = range(1, 8);
 
         for ($k = 1; $k <= 10; $k++) {
-            // Get random user ID from our predefined list (1-8)
+
             $userId = $userIds[array_rand($userIds)];
-            $propertyId = rand(1, 5); // Acak 5 properti
+            $propertyId = rand(1, 5);
             $property = $properties[$propertyId];
 
-            // Get random room from this property
             $propertyRooms = array_filter($rooms, function ($room) use ($propertyId) {
                 return $room['property_id'] == $propertyId;
             });
             $room = $propertyRooms[array_rand($propertyRooms)];
 
             $orderId = 'ORD-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6));
-
-            // Set transaction date to today
             $transactionDate = now();
 
-            // Set check-in to random date from today up to 3 months ahead
             $today = now();
             $endOfMonth = now()->endOfMonth();
             $checkIn = now()->addDays(rand(0, $today->diffInDays($endOfMonth)))->setTime(14, 0);
             $checkOut = (clone $checkIn)->addDays(rand(1, 14))->setTime(12, 0);
             $bookingDays = $checkIn->diffInDays($checkOut);
-            
+
+            // ==========================
+            // PRICE LOGIC
+            // ==========================
             $price = json_decode($room['price'], true);
-            $dailyPrice = $price['discounted_daily'] ?? $price['original_daily'] ?? 0;
-            $roomPrice = $dailyPrice * $bookingDays;
+
+            $hasDaily   = isset($price['discounted_daily']) || isset($price['original_daily']);
+            $hasMonthly = isset($price['discounted_monthly']) || isset($price['original_monthly']);
+
+            $dailyPrice = null;
+            $monthlyPrice = null;
+            $bookingTypeText = null;
+
+            if ($hasDaily && !$hasMonthly) {
+                $bookingTypeText = 'daily';
+                $dailyPrice = $price['discounted_daily'] ?? $price['original_daily'];
+            } elseif (!$hasDaily && $hasMonthly) {
+                $bookingTypeText = 'monthly';
+                $monthlyPrice = $price['discounted_monthly'] ?? $price['original_monthly'];
+            } elseif ($hasDaily && $hasMonthly) {
+
+                $pick = rand(0, 1); // random: 0=daily, 1=monthly
+
+                if ($pick === 0) {
+                    $bookingTypeText = 'daily';
+                    $dailyPrice = $price['discounted_daily'] ?? $price['original_daily'];
+                } else {
+                    $bookingTypeText = 'monthly';
+                    $monthlyPrice = $price['discounted_monthly'] ?? $price['original_monthly'];
+                }
+            } else {
+                $bookingTypeText = 'daily';
+                $dailyPrice = 0;
+            }
+
+            // Hitung harga sesuai tipe
+            if ($bookingTypeText === 'daily') {
+                $roomPrice = $dailyPrice * $bookingDays;
+                $bookingMonths = null;
+            } else {
+                $months = rand(1, 3);
+                $roomPrice = $monthlyPrice * $months;
+                $bookingMonths = $months;
+            }
+
             $adminFees = $roomPrice * 0.2;
             $grandTotal = $roomPrice + $adminFees;
             $paidAt = now()->subDays(rand(0, 10));
 
-            // Get user details (you would need to fetch this from DB in real scenario)
-            $userName = 'Unknown';
-            $userEmail = 'unknown@example.com';
 
-            // Simple mapping based on the AccountAdminSeeder data
+            // ====================
+            // User mapping
+            // ====================
             switch ($userId) {
                 case 1:
                     $userName = 'Admin System';
@@ -219,6 +255,9 @@ class PropertySystemSeeder extends Seeder
                     break;
             }
 
+            // ==========================
+            // TRANSACTION RECORD
+            // ==========================
             $transactions[] = [
                 'property_id' => (string)$propertyId,
                 'room_id' => (string)$room['idrec'],
@@ -233,11 +272,18 @@ class PropertySystemSeeder extends Seeder
                 'room_name' => $room['name'],
                 'user_email' => $userEmail,
                 'booking_days' => $bookingDays,
-                'booking_months' => null,
+                'booking_months' => $bookingMonths,
+
+                // NEW REQUIRED FIELD
+                'booking_type' => $bookingTypeText,
+
+                // Finalized Pricing
                 'daily_price' => $dailyPrice,
+                'monthly_price' => $monthlyPrice,
                 'room_price' => $roomPrice,
                 'admin_fees' => $adminFees,
                 'grandtotal_price' => $grandTotal,
+
                 'property_type' => 'Hotel',
                 'transaction_type' => 'cash',
                 'transaction_code' => 'TRX-' . strtoupper(Str::random(8)),
@@ -249,6 +295,10 @@ class PropertySystemSeeder extends Seeder
                 'updated_at' => now()
             ];
 
+
+            // ==========================
+            // BOOKING RECORD
+            // ==========================
             $bookings[] = [
                 'property_id' => $propertyId,
                 'order_id' => $orderId,
@@ -262,20 +312,22 @@ class PropertySystemSeeder extends Seeder
                 'updated_at' => now()
             ];
 
+            // ==========================
+            // PAYMENT RECORD
+            // ==========================
             $payments[] = [
                 'order_id'          => $orderId,
                 'user_id'           => $userId,
                 'grandtotal_price'  => $grandTotal,
                 'verified_by'       => null,
                 'verified_at'       => null,
-                'notes'             => 'Pembayaran untuk booking ' . $orderId,
+                'notes'             => "Pembayaran untuk booking $orderId",
                 'payment_status'    => 'unpaid',
                 'created_at'        => now(),
                 'updated_at'        => now(),
                 'created_by'        => $userId
             ];
         }
-
 
         DB::table('t_transactions')->insert($transactions);
         DB::table('t_booking')->insert($bookings);

@@ -85,24 +85,16 @@
                             </label>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
+                            @php
+                                $periode = is_array($room->periode)
+                                    ? $room->periode
+                                    : json_decode($room->periode, true);
+
+                                $isDaily = $periode['daily'] ?? false;
+                                $isMonthly = $periode['monthly'] ?? false;
+                            @endphp
+
                             <div class="flex flex-col items-center space-y-2">
-                                @php
-                                    $periode = [];
-                                    if (isset($room->periode) && is_string($room->periode) && !empty($room->periode)) {
-                                        try {
-                                            $decoded = json_decode($room->periode, true);
-
-                                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                                                $periode = $decoded;
-                                            }
-                                        } catch (Exception $e) {
-                                            $periode = [];
-                                        }
-                                    }
-                                    $isDaily = isset($periode['daily']) && $periode['daily'] === true;
-                                    $isMonthly = isset($periode['monthly']) && $periode['monthly'] === true;
-                                @endphp
-
                                 @if ($isDaily && $isMonthly)
                                     <div class="flex items-center justify-center">
                                         <span
@@ -153,27 +145,33 @@
                                 @endif
                             </div>
                         </td>
+
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex space-x-2 justify-center">
                                 <!-- View Room Button -->
-                                @include('pages.Properties.m-Rooms.components.room-detail-modal', ['room' => $room])
+                                @include('pages.Properties.m-Rooms.components.room-detail-modal', [
+                                    'room' => $room,
+                                ])
 
                                 <!-- Edit Room Modal -->
-                                @include('pages.Properties.m-Rooms.components.room-edit-modal', ['room' => $room])
+                                @include('pages.Properties.m-Rooms.components.room-edit-modal', [
+                                    'room' => $room,
+                                ])
 
                                 @if ($isDaily)
                                     <!-- Edit Price (Calendar) -->
-                                    @include('pages.Properties.m-Rooms.components.edit-price-daily-modal', ['room' => $room])
+                                    @include('pages.Properties.m-Rooms.components.edit-price-daily-modal', [
+                                        'room' => $room,
+                                    ])
                                 @endif
 
                                 <!-- Delete (Bin) -->
                                 <button title="Delete"
                                     class="p-2 flex items-center justify-center text-red-600 hover:text-red-900 transition-colors duration-200 rounded-full hover:bg-red-50"
                                     onclick="deleteRoom({{ $room->idrec }})">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6 18L18 6M6 6l12 12" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
 

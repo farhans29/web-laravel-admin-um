@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('t_wifis', function (Blueprint $table) {
+        Schema::create('t_wifi', function (Blueprint $table) {
             $table->id('idrec');
             $table->string('idrouter');
             $table->string('first_name')->nullable();
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('t_wifis');
+        Schema::dropIfExists('t_wifi');
     }
 };

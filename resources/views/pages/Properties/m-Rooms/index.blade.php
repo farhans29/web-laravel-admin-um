@@ -1086,7 +1086,12 @@
                     formData.append('image_count', this.images.length);
 
                     // Add price types
-                    formData.append('price_types', JSON.stringify(this.priceTypes));
+                    const priceObject = {
+                        daily: this.priceTypes.includes('daily'),
+                        monthly: this.priceTypes.includes('monthly')
+                    };
+                    formData.append('price_types', JSON.stringify(priceObject));
+
 
                     // Submit the form
                     fetch(form.action, {
