@@ -317,7 +317,6 @@
 
                         const data = await response.json();
 
-                        // Rest of your existing code for processing booking details...
                         const formatDateTime = (dateString, timeString) => {
                             if (!dateString) return {
                                 date: 'N/A',
@@ -351,6 +350,15 @@
                         const checkOut = formatDateTime(data.transaction?.check_out, data
                             .transaction?.check_out_time);
 
+                        // PERBAIKAN: Hitung durasi berdasarkan booking_type
+                        const duration = this.calculateDuration(
+                            data.transaction?.check_in,
+                            data.transaction?.check_out,
+                            data.transaction?.booking_type,
+                            data.transaction?.booking_days,
+                            data.transaction?.booking_months
+                        );
+
                         this.bookingDetails = {
                             order_id: data.order_id,
                             check_in: data.transaction?.check_in ?
@@ -383,8 +391,7 @@
                             room_name: data.room?.name || 'N/A',
                             room_number: data.room?.no || 'N/A',
                             update_by: data.transaction?.update_by || 'N/A',
-                            duration: this.calculateDuration(data.transaction?.check_in, data
-                                .transaction?.check_out),
+                            duration: duration, // Gunakan durasi yang sudah dihitung
                             total_payment: data.transaction?.grandtotal_price ?
                                 this.formatRupiah(data.transaction.grandtotal_price) : 'N/A',
                             transaction_type: data.transaction?.transaction_type || 'N/A',
@@ -400,6 +407,42 @@
                         console.error('Error fetching booking details:', error);
                         this.showErrorToast('Failed to load booking details: ' + error.message);
                     }
+                },
+
+                // PERBAIKAN: Method calculateDuration yang diperbarui
+                calculateDuration(checkIn, checkOut, bookingType, bookingDays, bookingMonths) {
+                    if (!checkIn || !checkOut) return 'N/A';
+
+                    // Jika booking_type tersedia, gunakan logika berdasarkan jenis booking
+                    if (bookingType) {
+                        switch (bookingType.toLowerCase()) {
+                            case 'daily':
+                                if (bookingDays && !isNaN(bookingDays)) {
+                                    return `${bookingDays} hari`;
+                                }
+                                // Fallback ke perhitungan normal jika bookingDays tidak tersedia
+                                break;
+
+                            case 'monthly':
+                                if (bookingMonths && !isNaN(bookingMonths)) {
+                                    return `${bookingMonths} bulan`;
+                                }
+                                // Fallback ke perhitungan normal jika bookingMonths tidak tersedia
+                                break;
+
+                            default:
+                                // Untuk jenis booking lain, gunakan perhitungan normal
+                                break;
+                        }
+                    }
+
+                    // Perhitungan durasi normal berdasarkan tanggal check-in dan check-out
+                    const start = new Date(checkIn);
+                    const end = new Date(checkOut);
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    return `${diffDays} malam`;
                 },
 
                 getDocumentImageUrl() {
@@ -470,8 +513,6 @@
                     }
 
                     // Validasi dokumen identifikasi
-                    // Jika ada profile photo, tidak wajib upload dokumen tambahan
-                    // Jika tidak ada profile photo, wajib upload dokumen
                     if (!this.profilePhotoUrl && !this.docFile) {
                         this.showErrorToast('Harap unggah dokumen identifikasi');
                         return;
@@ -493,14 +534,6 @@
                             formData.append('doc_image', this.docFile);
                         }
 
-                        // Debug: log data yang akan dikirim
-                        console.log('Submitting check-in with:', {
-                            hasProfilePhoto: !!this.profilePhotoUrl,
-                            hasDocFile: !!this.docFile,
-                            hasDocPreview: !!this.docPreview,
-                            docType: this.selectedDocType
-                        });
-
                         const response = await fetch(`/bookings/newReserv/${this.bookingId}`, {
                             method: 'POST',
                             headers: {
@@ -518,8 +551,14 @@
 
                         if (data.success) {
                             this.showSuccessToast('Check-in berhasil!');
+
+                            // Refresh tabel setelah check-in berhasil
+                            this.refreshBookingTable();
+
+                            // Buka form registrasi di tab baru setelah check-in berhasil
                             setTimeout(() => {
-                                window.location.reload();
+                                this.openRegistrationForm(this.bookingId);
+                                this.closeModal();
                             }, 1500);
                         } else {
                             this.showErrorToast(data.message || 'Check-in gagal');
@@ -528,6 +567,51 @@
                     } catch (error) {
                         console.error("Check-in error:", error);
                         this.showErrorToast(error.message || 'Terjadi kesalahan saat check-in');
+                    }
+                },
+
+                // Tambahkan method untuk refresh tabel
+                refreshBookingTable() {
+                    // Method 1: Reload bagian tabel saja
+                    fetch('/bookings/newReserv?per_page=' + this.getCurrentPerPage())
+                        .then(response => response.text())
+                        .then(html => {
+                            // Cari container tabel dan update isinya
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newTable = doc.querySelector('#bookingTableContainer');
+
+                            if (newTable) {
+                                document.querySelector('#bookingTableContainer').innerHTML =
+                                    newTable.innerHTML;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error refreshing table:', error);
+                            // Fallback: reload page jika metode di atas gagal
+                            window.location.reload();
+                        });
+                },
+
+                // Method untuk mendapatkan nilai per_page saat ini
+                getCurrentPerPage() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get('per_page') || 8;
+                },
+
+                openRegistrationForm(orderId) {
+                    const url = `/bookings/newReserv-in/${orderId}/regist`;
+
+                    // Buka di tab baru
+                    const newWindow = window.open(url, '_blank');
+
+                    // Focus ke window baru jika berhasil dibuka
+                    if (newWindow) {
+                        newWindow.focus();
+                    } else {
+                        // Fallback: jika popup diblokir, redirect di tab saat ini
+                        this.showErrorToast('Popup diblokir. Membuka form di tab ini...');
+                        window.location.href = url;
                     }
                 },
 
@@ -570,17 +654,6 @@
                     }).format(numericValue);
                 },
 
-                calculateDuration(checkIn, checkOut) {
-                    if (!checkIn || !checkOut) return 'N/A';
-
-                    const start = new Date(checkIn);
-                    const end = new Date(checkOut);
-                    const diffTime = Math.abs(end - start);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                    return `${diffDays} night${diffDays > 1 ? 's' : ''}`;
-                },
-
                 closeModal() {
                     this.isOpen = false;
                     this.stopWebcam(); // Pastikan webcam dihentikan saat modal ditutup
@@ -607,6 +680,7 @@
                 }
             }));
         });
+
         document.addEventListener('DOMContentLoaded', function() {
             const defaultStartDate = new Date();
             const defaultEndDate = new Date();
@@ -664,10 +738,12 @@
             @if (request('start_date') && request('end_date'))
                 const startDate = new Date(
                     '{{ request('
-                                                                    start_date ') }}');
+                                                                                                                                                                        start_date ') }}'
+                );
                 const endDate = new Date(
                     '{{ request('
-                                                                    end_date ') }}');
+                                                                                                                                                                        end_date ') }}'
+                );
 
                 // Always set both start and end dates, even if they're the same
                 datePicker.setDate([startDate, endDate], true);
@@ -746,4 +822,3 @@
         });
     </script>
 </x-app-layout>
-

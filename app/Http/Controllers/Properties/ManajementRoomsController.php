@@ -142,10 +142,8 @@ class ManajementRoomsController extends Controller
         }
 
         // Determine price period
-        $periode = [
-            'daily' => !empty($validated['daily_price']),
-            'monthly' => !empty($validated['monthly_price'])
-        ];
+        $periode = json_decode($request->price_types, true);
+
 
         $periode_daily = $periode['daily'] ? 1 : 0;
         $periode_monthly = $periode['monthly'] ? 1 : 0;
@@ -162,7 +160,7 @@ class ManajementRoomsController extends Controller
         $room->size = $validated['room_size'];
         $room->bed_type = $validated['room_bed'];
         $room->capacity = $validated['room_capacity'];
-        $room->periode = json_encode($periode);
+        $room->periode = $periode;
         $room->periode_daily = $periode_daily;
         $room->periode_monthly = $periode_monthly;
         $room->type = $property->type;

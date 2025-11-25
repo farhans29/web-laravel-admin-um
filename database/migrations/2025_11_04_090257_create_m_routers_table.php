@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('m_routers', function (Blueprint $table) {
+        Schema::create('m_router', function (Blueprint $table) {
             $table->string('idrouter')->primary();
             $table->string('serialno')->nullable();
             $table->integer('room_id')->nullable();
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('m_routers');
+        Schema::dropIfExists('m_router');
     }
 };
