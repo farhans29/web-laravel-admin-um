@@ -428,7 +428,7 @@
                             </div>
                         </div>
 
-                       <!-- Edit -->
+                        <!-- Edit -->
                         <div x-data="modalPropertyEdit({{ $property }})" class="relative group">
                             @php
                                 $features = [
@@ -831,91 +831,263 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Step 3 - Facilities -->
-                                            <div x-show="editStep === 3">
-                                                <div class="space-y-8">
-                                                    <!-- General Facilities -->
-                                                    <div>
-                                                        <h3
-                                                            class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                            Fasilitas Umum
-                                                        </h3>
-                                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                            @foreach ($generalFacilities as $facility)
-                                                                <div class="relative">
-                                                                    <input
-                                                                        id="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        name="general[]" type="checkbox"
-                                                                        value="{{ $facility->idrec }}"
-                                                                        class="sr-only peer"
-                                                                        x-model="propertyData.general"
-                                                                        :checked="propertyData.general.includes(
-                                                                            {{ $facility->idrec }})">
-                                                                    <label
-                                                                        for="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
-                                                                        <span>{{ $facility->facility }}</span>
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
+                                           <!-- Step 3 - Facilities (Versi Create/New) -->
+<div x-show="step === 3" x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-x-4"
+    x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
+    <div class="space-y-8">
+        <!-- General Facilities -->
+        <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Fasilitas Umum
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
+                @foreach ($generalFacilities as $facility)
+                    <div class="relative">
+                        <input id="general-{{ $facility->idrec }}" name="general_facilities[]" type="checkbox" 
+                            value="{{ $facility->idrec }}" class="sr-only peer">
+                        <label for="general-{{ $facility->idrec }}" 
+                            class="flex flex-col p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200 min-h-[100px]">
+                            <div class="flex-1">
+                                <span class="block font-medium mb-2">{{ $facility->facility }}</span>
+                                @if (!empty($facility->description))
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400 leading-relaxed overflow-hidden">
+                                        {{ $facility->description }}
+                                    </span>
+                                @endif
+                            </div>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
 
-                                                    <!-- Security Facilities -->
-                                                    <div>
-                                                        <h3
-                                                            class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                            Fasilitas Keamanan
-                                                        </h3>
-                                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                            @foreach ($securityFacilities as $facility)
-                                                                <div class="relative">
-                                                                    <input
-                                                                        id="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        name="security[]" type="checkbox"
-                                                                        value="{{ $facility->idrec }}"
-                                                                        class="sr-only peer"
-                                                                        x-model="propertyData.security"
-                                                                        :checked="propertyData.security.includes(
-                                                                            {{ $facility->idrec }})">
-                                                                    <label
-                                                                        for="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200">
-                                                                        <span>{{ $facility->facility }}</span>
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
+            @if ($generalFacilities->isEmpty())
+                <div class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                    <svg class="w-10 h-10 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak ada fasilitas umum tersedia</p>
+                </div>
+            @endif
+        </div>
 
-                                                    <!-- Amenities -->
-                                                    <div>
-                                                        <h3
-                                                            class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
-                                                            Layanan Tambahan
-                                                        </h3>
-                                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                            @foreach ($amenitiesFacilities as $facility)
-                                                                <div class="relative">
-                                                                    <input
-                                                                        id="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        name="amenities[]" type="checkbox"
-                                                                        value="{{ $facility->idrec }}"
-                                                                        class="sr-only peer"
-                                                                        x-model="propertyData.amenities"
-                                                                        :checked="propertyData.amenities.includes(
-                                                                            {{ $facility->idrec }})">
-                                                                    <label
-                                                                        for="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
-                                                                        class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200">
-                                                                        <span>{{ $facility->facility }}</span>
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+        <!-- Security Facilities -->
+        <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Fasilitas Keamanan
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
+                @foreach ($securityFacilities as $facility)
+                    <div class="relative">
+                        <input id="security-{{ $facility->idrec }}" name="security_facilities[]" type="checkbox" 
+                            value="{{ $facility->idrec }}" class="sr-only peer">
+                        <label for="security-{{ $facility->idrec }}" 
+                            class="flex flex-col p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200 min-h-[100px]">
+                            <div class="flex-1">
+                                <span class="block font-medium mb-2">{{ $facility->facility }}</span>
+                                @if (!empty($facility->description))
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400 leading-relaxed overflow-hidden">
+                                        {{ $facility->description }}
+                                    </span>
+                                @endif
+                            </div>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+
+            @if ($securityFacilities->isEmpty())
+                <div class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                    <svg class="w-10 h-10 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak ada fasilitas keamanan tersedia</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Amenities -->
+        <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Layanan Tambahan
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
+                @foreach ($amenitiesFacilities as $facility)
+                    <div class="relative">
+                        <input id="amenities-{{ $facility->idrec }}" name="amenities_facilities[]" type="checkbox" 
+                            value="{{ $facility->idrec }}" class="sr-only peer">
+                        <label for="amenities-{{ $facility->idrec }}" 
+                            class="flex flex-col p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200 min-h-[100px]">
+                            <div class="flex-1">
+                                <span class="block font-medium mb-2">{{ $facility->facility }}</span>
+                                @if (!empty($facility->description))
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400 leading-relaxed overflow-hidden">
+                                        {{ $facility->description }}
+                                    </span>
+                                @endif
+                            </div>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+
+            @if ($amenitiesFacilities->isEmpty())
+                <div class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                    <svg class="w-10 h-10 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak ada layanan tambahan tersedia</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Step 3 - Facilities (Versi Edit) -->
+<div x-show="editStep === 3" x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-x-4"
+    x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
+    <div class="space-y-8">
+        <!-- General Facilities -->
+        <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Fasilitas Umum
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
+                @foreach ($generalFacilities as $facility)
+                    <div class="relative">
+                        <input id="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}" 
+                            name="general[]" type="checkbox" value="{{ $facility->idrec }}" 
+                            class="sr-only peer" x-model="propertyData.general"
+                            :checked="propertyData.general.includes({{ $facility->idrec }})">
+                        <label for="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}" 
+                            class="flex flex-col p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200 min-h-[100px]">
+                            <div class="flex-1">
+                                <span class="block font-medium mb-2">{{ $facility->facility }}</span>
+                                @if (!empty($facility->description))
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400 leading-relaxed overflow-hidden">
+                                        {{ $facility->description }}
+                                    </span>
+                                @endif
+                            </div>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+
+            @if ($generalFacilities->isEmpty())
+                <div class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                    <svg class="w-10 h-10 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak ada fasilitas umum tersedia</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Security Facilities -->
+        <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Fasilitas Keamanan
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
+                @foreach ($securityFacilities as $facility)
+                    <div class="relative">
+                        <input id="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}" 
+                            name="security[]" type="checkbox" value="{{ $facility->idrec }}" 
+                            class="sr-only peer" x-model="propertyData.security"
+                            :checked="propertyData.security.includes({{ $facility->idrec }})">
+                        <label for="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}" 
+                            class="flex flex-col p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200 min-h-[100px]">
+                            <div class="flex-1">
+                                <span class="block font-medium mb-2">{{ $facility->facility }}</span>
+                                @if (!empty($facility->description))
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400 leading-relaxed overflow-hidden">
+                                        {{ $facility->description }}
+                                    </span>
+                                @endif
+                            </div>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+
+            @if ($securityFacilities->isEmpty())
+                <div class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                    <svg class="w-10 h-10 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak ada fasilitas keamanan tersedia</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Amenities -->
+        <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Layanan Tambahan
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
+                @foreach ($amenitiesFacilities as $facility)
+                    <div class="relative">
+                        <input id="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}" 
+                            name="amenities[]" type="checkbox" value="{{ $facility->idrec }}" 
+                            class="sr-only peer" x-model="propertyData.amenities"
+                            :checked="propertyData.amenities.includes({{ $facility->idrec }})">
+                        <label for="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}" 
+                            class="flex flex-col p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200 min-h-[100px]">
+                            <div class="flex-1">
+                                <span class="block font-medium mb-2">{{ $facility->facility }}</span>
+                                @if (!empty($facility->description))
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400 leading-relaxed overflow-hidden">
+                                        {{ $facility->description }}
+                                    </span>
+                                @endif
+                            </div>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+
+            @if ($amenitiesFacilities->isEmpty())
+                <div class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                    <svg class="w-10 h-10 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak ada layanan tambahan tersedia</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
 
                                             <!-- Step 4 - Photos -->
                                             <div x-show="editStep === 4"
@@ -1023,8 +1195,7 @@
                                                                     <p class="pl-1">atau drag and drop</p>
                                                                 </div>
                                                                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                                    PNG, JPG, JPEG (maks.
-                                                                    5MB per file)</p>
+                                                                    PNG, JPG, JPEG (maks. 5MB per file)</p>
                                                                 <p class="text-xs text-blue-600 dark:text-blue-400"
                                                                     x-text="`Dapat upload ${editRemainingSlots} foto lagi`">
                                                                 </p>
@@ -1048,8 +1219,7 @@
                                                                     diupload!
                                                                 </p>
                                                                 <p class="text-xs text-green-500 dark:text-green-400">
-                                                                    Maksimal upload foto
-                                                                    tercapai</p>
+                                                                    Maksimal upload foto tercapai</p>
                                                             </div>
                                                         </div>
 
@@ -1057,8 +1227,8 @@
                                                         <div x-show="getAllImages().length > 0" class="mt-4">
                                                             <h4
                                                                 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Foto
-                                                                Terupload</h4>
+                                                                Foto Terupload
+                                                            </h4>
 
                                                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
                                                                 x-transition:enter="transition ease-out duration-300"
@@ -1071,19 +1241,20 @@
                                                                     :key="'existing-' + index">
                                                                     <div class="relative group"
                                                                         x-show="!image.markedForDeletion"
-                                                                        @click="setThumbnail(index)">
+                                                                        @click="setThumbnail(getImageIndex('existing', index))">
                                                                         <!-- Image Container -->
                                                                         <div class="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border-2 transition-all duration-200"
-                                                                            :class="thumbnailIndex === index || image
-                                                                                .is_thumbnail ?
+                                                                            :class="thumbnailIndex === getImageIndex('existing',
+                                                                                    index) ?
                                                                                 'border-blue-600 ring-2 ring-blue-400' :
                                                                                 'border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'">
                                                                             <img :src="image.url"
-                                                                                :alt="'Existing Image ' + (index + 1)"
+                                                                                :alt="'Existing Image ' + (getDisplayIndex(
+                                                                                    'existing', index) + 1)"
                                                                                 class="w-full h-full object-cover">
 
                                                                             <!-- Thumbnail Badge -->
-                                                                            <div x-show="thumbnailIndex === index || image.is_thumbnail"
+                                                                            <div x-show="thumbnailIndex === getImageIndex('existing', index)"
                                                                                 class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
                                                                                 Thumbnail
                                                                             </div>
@@ -1091,7 +1262,8 @@
                                                                             <!-- Image Number -->
                                                                             <div
                                                                                 class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                                                                                <span x-text="index + 1"></span>
+                                                                                <span
+                                                                                    x-text="getDisplayIndex('existing', index) + 1"></span>
                                                                             </div>
                                                                         </div>
 
@@ -1119,21 +1291,20 @@
                                                                 <template x-for="(image, index) in editImages"
                                                                     :key="'new-' + index">
                                                                     <div class="relative group"
-                                                                        @click="setThumbnail(propertyData.existingImages.filter(img => !img.markedForDeletion).length + index)">
+                                                                        @click="setThumbnail(getImageIndex('new', index))">
                                                                         <!-- Image Container -->
                                                                         <div class="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border-2 transition-all duration-200"
-                                                                            :class="thumbnailIndex === (propertyData
-                                                                                    .existingImages.filter(img => !img
-                                                                                        .markedForDeletion).length +
+                                                                            :class="thumbnailIndex === getImageIndex('new',
                                                                                     index) ?
                                                                                 'border-blue-600 ring-2 ring-blue-400' :
                                                                                 'border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'">
                                                                             <img :src="image.url"
-                                                                                :alt="'New Image ' + (index + 1)"
+                                                                                :alt="'New Image ' + (getDisplayIndex('new',
+                                                                                    index) + 1)"
                                                                                 class="w-full h-full object-cover">
 
                                                                             <!-- Thumbnail Badge -->
-                                                                            <div x-show="thumbnailIndex === (propertyData.existingImages.filter(img => !img.markedForDeletion).length + index)"
+                                                                            <div x-show="thumbnailIndex === getImageIndex('new', index)"
                                                                                 class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
                                                                                 Thumbnail
                                                                             </div>
@@ -1142,7 +1313,7 @@
                                                                             <div
                                                                                 class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
                                                                                 <span
-                                                                                    x-text="propertyData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                                                    x-text="getDisplayIndex('new', index) + 1"></span>
                                                                             </div>
                                                                         </div>
 

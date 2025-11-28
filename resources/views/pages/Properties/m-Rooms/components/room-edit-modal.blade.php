@@ -447,10 +447,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                                     Foto Kamar <span class="text-red-500">*</span>
                                     <span class="text-sm font-normal text-gray-500">
-                                        (Minimal <span x-text="editMinImages"></span>
-                                        foto,
-                                        maksimal <span x-text="editMaxImages"></span>
-                                        foto)
+                                        (Minimal <span x-text="editMinImages"></span> foto,
+                                        maksimal <span x-text="editMaxImages"></span> foto)
                                     </span>
                                 </label>
 
@@ -458,8 +456,7 @@
                                 <div class="mb-6">
                                     <h4 class="text-sm font-semibold text-gray-700 mb-2">
                                         Thumbnail Saat Ini <span class="text-red-500">*</span>
-                                        <span class="text-xs font-normal text-gray-500">(Foto
-                                            utama kamar)</span>
+                                        <span class="text-xs font-normal text-gray-500">(Foto utama kamar)</span>
                                     </h4>
 
                                     <div class="flex items-center space-x-4">
@@ -492,13 +489,11 @@
                                                     class="font-medium text-green-600">
                                                     Thumbnail sudah dipilih.
                                                 </span>
-                                                Klik salah satu foto di bawah untuk
-                                                memilih sebagai thumbnail.
+                                                Klik salah satu foto di bawah untuk memilih sebagai thumbnail.
                                             </p>
                                             <p class="text-xs text-gray-500">
-                                                Pastikan memilih foto terbaik sebagai
-                                                thumbnail karena ini akan menjadi gambar
-                                                utama properti Anda.
+                                                Pastikan memilih foto terbaik sebagai thumbnail karena ini akan menjadi
+                                                gambar utama kamar Anda.
                                             </p>
                                         </div>
                                     </div>
@@ -526,8 +521,7 @@
                                             </label>
                                             <p class="pl-1">atau drag and drop</p>
                                         </div>
-                                        <p class="text-xs text-gray-500">PNG, JPG, JPEG
-                                            (maks. 5MB per file)</p>
+                                        <p class="text-xs text-gray-500">PNG, JPG, JPEG (maks. 5MB per file)</p>
                                         <p class="text-xs text-blue-600"
                                             x-text="`Dapat upload ${editRemainingSlots} foto lagi`">
                                         </p>
@@ -544,18 +538,15 @@
                                                 d="M5 13l4 4L19 7" />
                                         </svg>
                                         <p class="text-sm text-green-600 font-medium">
-                                            <span x-text="editMaxImages"></span> foto
-                                            telah diupload!
+                                            <span x-text="editMaxImages"></span> foto telah diupload!
                                         </p>
-                                        <p class="text-xs text-green-500">Maksimal
-                                            upload foto tercapai</p>
+                                        <p class="text-xs text-green-500">Maksimal upload foto tercapai</p>
                                     </div>
                                 </div>
 
                                 <!-- Image Preview Grid -->
                                 <div x-show="getAllImages().length > 0" class="mt-4">
-                                    <h4 class="text-sm font-semibold text-gray-700 mb-2">
-                                        Foto Terupload</h4>
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-2">Foto Terupload</h4>
                                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
                                         x-transition:enter="transition ease-out duration-300"
                                         x-transition:enter-start="opacity-0 scale-95"
@@ -565,18 +556,17 @@
                                         <template x-for="(image, index) in roomData.existingImages"
                                             :key="'existing-' + index">
                                             <div class="relative group" x-show="!image.markedForDeletion"
-                                                @click="setThumbnail(index)">
+                                                @click="setThumbnail(getImageIndex('existing', index))">
                                                 <!-- Image Container -->
                                                 <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
-                                                    :class="thumbnailIndex === index || image
-                                                        .is_thumbnail ?
+                                                    :class="thumbnailIndex === getImageIndex('existing', index) ?
                                                         'border-blue-600 ring-2 ring-blue-400' :
                                                         'border-gray-200 hover:border-blue-400'">
                                                     <img :src="image.url" class="w-full h-full object-cover"
-                                                        :alt="'Existing Image ' + (index + 1)">
+                                                        :alt="'Existing Image ' + (getDisplayIndex('existing', index) + 1)">
 
                                                     <!-- Thumbnail Badge -->
-                                                    <div x-show="thumbnailIndex === index || image.is_thumbnail"
+                                                    <div x-show="thumbnailIndex === getImageIndex('existing', index)"
                                                         class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
                                                         Thumbnail
                                                     </div>
@@ -584,7 +574,7 @@
                                                     <!-- Image Number -->
                                                     <div
                                                         class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                                                        <span x-text="index + 1"></span>
+                                                        <span x-text="getDisplayIndex('existing', index) + 1"></span>
                                                     </div>
                                                 </div>
 
@@ -607,21 +597,17 @@
                                         <!-- New Images -->
                                         <template x-for="(image, index) in editImages" :key="'new-' + index">
                                             <div class="relative group"
-                                                @click="setThumbnail(roomData.existingImages.filter(img => !img.markedForDeletion).length + index)">
+                                                @click="setThumbnail(getImageIndex('new', index))">
                                                 <!-- Image Container -->
                                                 <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all duration-200"
-                                                    :class="thumbnailIndex === (roomData
-                                                            .existingImages.filter(
-                                                                img => !img
-                                                                .markedForDeletion)
-                                                            .length + index) ?
+                                                    :class="thumbnailIndex === getImageIndex('new', index) ?
                                                         'border-blue-600 ring-2 ring-blue-400' :
                                                         'border-gray-200 hover:border-blue-400'">
                                                     <img :src="image.url" class="w-full h-full object-cover"
-                                                        :alt="'New Image ' + (index + 1)">
+                                                        :alt="'New Image ' + (getDisplayIndex('new', index) + 1)">
 
                                                     <!-- Thumbnail Badge -->
-                                                    <div x-show="thumbnailIndex === (roomData.existingImages.filter(img => !img.markedForDeletion).length + index)"
+                                                    <div x-show="thumbnailIndex === getImageIndex('new', index)"
                                                         class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
                                                         Thumbnail
                                                     </div>
@@ -629,8 +615,7 @@
                                                     <!-- Image Number -->
                                                     <div
                                                         class="absolute bottom-1 left-1 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full font-medium">
-                                                        <span
-                                                            x-text="roomData.existingImages.filter(img => !img.markedForDeletion).length + index + 1"></span>
+                                                        <span x-text="getDisplayIndex('new', index) + 1"></span>
                                                     </div>
                                                 </div>
 
@@ -675,8 +660,7 @@
                                         class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                         <p class="text-sm text-yellow-600">
                                             <span class="font-medium">Perhatian:</span>
-                                            Anda harus memilih thumbnail untuk
-                                            melanjutkan.
+                                            Anda harus memilih thumbnail untuk melanjutkan.
                                         </p>
                                     </div>
 
@@ -684,8 +668,7 @@
                                         class="p-3 bg-green-50 border border-green-200 rounded-lg">
                                         <p class="text-sm text-green-600">
                                             <span class="font-medium">Sempurna!</span>
-                                            Foto sudah memenuhi syarat dan thumbnail
-                                            telah dipilih.
+                                            Foto sudah memenuhi syarat dan thumbnail telah dipilih.
                                         </p>
                                     </div>
                                 </div>
@@ -981,18 +964,34 @@
                                 isNew: true
                             });
 
-                            // Jika ini gambar pertama yang diupload, set sebagai thumbnail
+                            // If this is the first image being uploaded and no thumbnail exists, set it as thumbnail
                             if (this.editImages.length === 1 && this.thumbnailIndex ===
-                                null) {
-                                this.setThumbnail(this.roomData.existingImages.length);
+                                null &&
+                                this.roomData.existingImages.filter(img => !img
+                                    .markedForDeletion).length === 0) {
+                                this.setThumbnail(0);
                             }
                         };
                         reader.readAsDataURL(file);
                     } else {
-                        alert(`File ${file.name} terlalu besar. Maksimal 5MB.`);
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: `File ${file.name} terlalu besar. Maksimal 5MB.`,
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
                     }
                 });
+
+                // Clear the file input
+                if (event.target) {
+                    event.target.value = '';
+                }
             },
+
 
             get editRemainingSlots() {
                 const existingImagesCount = this.roomData.existingImages.filter(img => !img
@@ -1075,9 +1074,7 @@
                     ...this.roomData,
                     ...data,
                     facilities: facilities,
-                    existingImages: validExistingImages, // Use filtered images
-                    thumbnailIndex: 0,
-                    thumbnailType: 'existing'
+                    existingImages: validExistingImages,
                 };
 
                 this.editModalOpen = true;
@@ -1100,18 +1097,17 @@
                     this.monthlyPrice = rawMonthlyPrice;
                 }
 
-                const existingThumbnail = data.existingImages.find(img => img.is_thumbnail);
-                if (existingThumbnail) {
-                    const index = data.existingImages.indexOf(existingThumbnail);
-                    this.thumbnailIndex = index;
-                } else if (data.existingImages.length > 0) {
+                // Initialize thumbnail - find existing thumbnail or set to first image
+                const existingThumbnailIndex = this.roomData.existingImages.findIndex(img => img
+                    .is_thumbnail);
+                if (existingThumbnailIndex !== -1) {
+                    this.thumbnailIndex = this.getImageIndex('existing', existingThumbnailIndex);
+                } else if (this.roomData.existingImages.length > 0) {
                     this.thumbnailIndex = 0;
-                    data.existingImages[0].is_thumbnail = true;
+                    this.roomData.existingImages[0].is_thumbnail = true;
+                } else {
+                    this.thumbnailIndex = null;
                 }
-
-                this.editModalOpen = true;
-                this.editStep = 1;
-                this.editImages = [];
             },
 
             updateCapacity() {
@@ -1130,42 +1126,77 @@
                 }
             },
 
+            getImageIndex(type, index) {
+                if (type === 'existing') {
+                    // For existing images, count only non-deleted ones up to this index
+                    let actualIndex = 0;
+                    for (let i = 0; i < index; i++) {
+                        if (!this.roomData.existingImages[i].markedForDeletion) {
+                            actualIndex++;
+                        }
+                    }
+                    return actualIndex;
+                } else {
+                    // For new images, add after all non-deleted existing images
+                    const existingCount = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length;
+                    return existingCount + index;
+                }
+            },
+
+            // Get display index (sequential numbering for UI)
+            getDisplayIndex(type, index) {
+                if (type === 'existing') {
+                    // Count display position among non-deleted existing images
+                    let displayIndex = 0;
+                    for (let i = 0; i < index; i++) {
+                        if (!this.roomData.existingImages[i].markedForDeletion) {
+                            displayIndex++;
+                        }
+                    }
+                    return displayIndex;
+                } else {
+                    // For new images, continue numbering after existing images
+                    const existingCount = this.roomData.existingImages.filter(img => !img
+                        .markedForDeletion).length;
+                    return existingCount + index;
+                }
+            },
+
+            // Get all images in correct order for processing
             getAllImages() {
                 const existing = this.roomData.existingImages.filter(img => !img.markedForDeletion);
                 return [...existing, ...this.editImages];
             },
 
+            // Get current thumbnail with proper index handling
             getCurrentThumbnail() {
                 if (this.thumbnailIndex === null) {
                     // Try to find the existing thumbnail if none is selected
-                    const thumbnailIndex = this.roomData.existingImages.findIndex(
-                        img => img.is_thumbnail && !img.markedForDeletion
-                    );
+                    const allImages = this.getAllImages();
+                    const thumbnailIndex = allImages.findIndex(img => img.is_thumbnail);
                     if (thumbnailIndex !== -1) {
                         this.thumbnailIndex = thumbnailIndex;
-                        return this.roomData.existingImages[thumbnailIndex];
+                        return allImages[thumbnailIndex];
                     }
                     return null;
                 }
+
                 const allImages = this.getAllImages();
                 return allImages[this.thumbnailIndex] || null;
             },
 
+            // Set thumbnail with proper index validation
             setThumbnail(index) {
-                // Reset all existing thumbnails first
-                this.roomData.existingImages.forEach(img => {
-                    img.is_thumbnail = false;
-                });
-
-                // Set new thumbnail
                 const allImages = this.getAllImages();
-                if (index < allImages.length) {
+                if (index >= 0 && index < allImages.length) {
                     this.thumbnailIndex = index;
 
-                    // If the selected image is an existing one
-                    if (index < this.roomData.existingImages.length) {
-                        this.roomData.existingImages[index].is_thumbnail = true;
-                    }
+                    // Update is_thumbnail flag for existing images
+                    this.roomData.existingImages.forEach((img, i) => {
+                        const globalIndex = this.getImageIndex('existing', i);
+                        img.is_thumbnail = (globalIndex === index);
+                    });
                 }
             },
 
@@ -1191,36 +1222,46 @@
             },
 
             removeEditExistingImage(index) {
-                // If deleting the current thumbnail, reset to first available image
-                if (this.thumbnailIndex === index) {
-                    const firstAvailable = this.roomData.existingImages.findIndex(
-                        (img, i) => !img.markedForDeletion && i !== index
-                    );
-                    this.thumbnailIndex = firstAvailable >= 0 ? firstAvailable :
-                        this.editImages.length > 0 ?
-                        this.roomData.existingImages.filter(img => !img.markedForDeletion).length :
-                        null;
-                }
+                const currentThumbnailIndex = this.thumbnailIndex;
+                const imageGlobalIndex = this.getImageIndex('existing', index);
 
                 // Mark image for deletion
                 this.roomData.existingImages[index].markedForDeletion = true;
+
+                // Update thumbnail index if the deleted image was the thumbnail
+                if (currentThumbnailIndex === imageGlobalIndex) {
+                    this.updateThumbnailAfterDeletion();
+                }
+            },
+
+            updateThumbnailAfterDeletion() {
+                const allImages = this.getAllImages();
+                if (allImages.length === 0) {
+                    this.thumbnailIndex = null;
+                } else {
+                    // Set thumbnail to first available image
+                    this.thumbnailIndex = 0;
+
+                    // Update is_thumbnail flag for the new thumbnail
+                    this.roomData.existingImages.forEach((img, i) => {
+                        const globalIndex = this.getImageIndex('existing', i);
+                        img.is_thumbnail = (globalIndex === 0);
+                    });
+                }
             },
 
             removeEditImage(index) {
-                const existingCount = this.roomData.existingImages.filter(img => !img
-                    .markedForDeletion).length;
-                const totalIndex = existingCount + index;
+                const currentThumbnailIndex = this.thumbnailIndex;
+                const imageGlobalIndex = this.getImageIndex('new', index);
 
-                // If deleting the current thumbnail, reset to first available image
-                if (this.thumbnailIndex === totalIndex) {
-                    const firstAvailable = this.getAllImages().findIndex((img, i) => i !==
-                        totalIndex);
-                    this.thumbnailIndex = firstAvailable >= 0 ? firstAvailable : null;
-                }
-
+                // Remove the image
                 this.editImages.splice(index, 1);
-            },
 
+                // Update thumbnail index if the deleted image was the thumbnail
+                if (currentThumbnailIndex === imageGlobalIndex) {
+                    this.updateThumbnailAfterDeletion();
+                }
+            },
             validateEditStep(step) {
                 if (step === 1) {
                     if (!this.roomData.property_id) {

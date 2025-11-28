@@ -167,10 +167,9 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-
                                         </div>
 
-                                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                        <div class="grid grid-cols-4 md:grid-cols-4 gap-4">
                                             <div>
                                                 <label for="room_no"
                                                     class="block text-sm font-semibold text-gray-700 mb-2">
@@ -186,9 +185,14 @@
                                                     class="block text-sm font-semibold text-gray-700 mb-2">
                                                     Nama / Tipe Kamar <span class="text-red-500">*</span>
                                                 </label>
-                                                <input type="text" id="room_name" name="room_name" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                                    placeholder="Nama / Tipe Kamar">
+                                                <select id="room_name" name="room_name" required
+                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4">
+                                                    <option value="" disabled selected>Pilih Tipe Kamar</option>
+                                                    <option value="Standar">Standar</option>
+                                                    <option value="Superior">Superior</option>
+                                                    <option value="Deluxe">Deluxe</option>
+                                                    <option value="Suite">Suite</option>
+                                                </select>
                                             </div>
 
                                             <div>
@@ -207,8 +211,6 @@
                                                 </select>
                                             </div>
 
-
-
                                             <div>
                                                 <label for="room_capacity"
                                                     class="block text-sm font-semibold text-gray-700 mb-2">
@@ -219,17 +221,19 @@
                                                     class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
                                                     placeholder="Kapasitas" readonly>
                                             </div>
-                                            <div>
-                                                <label for="room_size"
-                                                    class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Ukuran Kamar (m²) <span class="text-red-500">*</span>
-                                                </label>
-                                                <input type="number" id="room_size" name="room_size" required
-                                                    class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                                    placeholder="Ukuran">
-                                            </div>
                                         </div>
 
+                                        <!-- Hidden Room Size Input -->
+                                        <div class="hidden">
+                                            <label for="room_size"
+                                                class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Ukuran Kamar (m²) <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="number" id="room_size" name="room_size" value="0"
+                                                required
+                                                class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
+                                                placeholder="Ukuran">
+                                        </div>
 
                                         <div>
                                             <label for="description_id"
@@ -682,181 +686,681 @@
                 roomNoError: '',
                 thumbnailIndex: null,
                 facilities: [],
-
+                formErrors: {},
+                isLoading: false,
 
                 init() {
-                    // Initialize price input formatting
-                    if (this.$refs.dailyPriceInput) {
-                        new Cleave(this.$refs.dailyPriceInput, {
-                            numeral: true,
-                            numeralThousandsGroupStyle: 'thousand',
-                            onValueChanged: (e) => {
-                                this.validatePriceInput(this.$refs.dailyPriceInput,
-                                    'dailyPrice');
-                            }
-                        });
+                    console.log('Modal Room initialized');
+
+                    // Initialize price input formatting dengan error handling
+                    try {
+                        if (this.$refs.dailyPriceInput) {
+                            new Cleave(this.$refs.dailyPriceInput, {
+                                numeral: true,
+                                numeralThousandsGroupStyle: 'thousand',
+                                onValueChanged: (e) => {
+                                    this.validatePriceInput(this.$refs.dailyPriceInput,
+                                        'dailyPrice');
+                                }
+                            });
+                        }
+
+                        if (this.$refs.monthlyPriceInput) {
+                            new Cleave(this.$refs.monthlyPriceInput, {
+                                numeral: true,
+                                numeralThousandsGroupStyle: 'thousand',
+                                onValueChanged: (e) => {
+                                    this.validatePriceInput(this.$refs.monthlyPriceInput,
+                                        'monthlyPrice');
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        this.showErrorAlert('Gagal menginisialisasi form input harga: ' + error
+                        .message);
                     }
 
-                    if (this.$refs.monthlyPriceInput) {
-                        new Cleave(this.$refs.monthlyPriceInput, {
-                            numeral: true,
-                            numeralThousandsGroupStyle: 'thousand',
-                            onValueChanged: (e) => {
-                                this.validatePriceInput(this.$refs.monthlyPriceInput,
-                                    'monthlyPrice');
-                            }
-                        });
-                    }
+                    // Set up global error handler
+                    this.setupGlobalErrorHandling();
+                },
+
+                setupGlobalErrorHandling() {
+                    // Handle unhandled promise rejections
+                    window.addEventListener('unhandledrejection', (event) => {
+                        console.error('Unhandled promise rejection:', event.reason);
+                        this.showErrorAlert(
+                            'Terjadi kesalahan sistem: ' + (event.reason?.message ||
+                                'Unknown error'),
+                            'Kesalahan Sistem'
+                        );
+                        event.preventDefault();
+                    });
+
+                    // Handle JavaScript runtime errors
+                    window.addEventListener('error', (event) => {
+                        console.error('JavaScript error:', event.error);
+                        this.showErrorAlert(
+                            'Terjadi kesalahan JavaScript: ' + (event.error?.message ||
+                                'Unknown error'),
+                            'Kesalahan Aplikasi'
+                        );
+                    });
                 },
 
                 validatePriceInput(inputRef, priceType) {
-                    // Get the raw value without formatting
-                    let rawValue = inputRef.value.replace(/[^\d.]/g, '');
-
-                    // Ensure only one decimal point
-                    const decimalParts = rawValue.split('.');
-                    if (decimalParts.length > 2) {
-                        rawValue = decimalParts[0] + '.' + decimalParts.slice(1).join('');
-                    }
-
-                    // Limit to 4 decimal places
-                    if (decimalParts.length === 2 && decimalParts[1].length > 4) {
-                        rawValue = decimalParts[0] + '.' + decimalParts[1].substring(0, 4);
-                        this[priceType + 'Error'] = 'Maksimal 4 digit di belakang koma';
-                    } else {
-                        this[priceType + 'Error'] = '';
-                    }
-
-                    // Limit total digits (14 before decimal + 4 after = 18)
-                    const withoutDecimal = rawValue.replace('.', '');
-                    if (withoutDecimal.length > 18) {
-                        rawValue = rawValue.substring(0, rawValue.length - (withoutDecimal.length -
-                            18));
-                        this[priceType + 'Error'] =
-                            'Maksimal 18 digit total (14 sebelum koma, 4 setelah)';
-                    }
-
-                    // Convert to number and check maximum value
-                    const numericValue = parseFloat(rawValue) || 0;
-                    if (numericValue > 999999999999) {
-                        this[priceType + 'Error'] = 'Nilai maksimum adalah 999,999,999,999.9999';
-                    }
-
-                    // Update the model value (without formatting)
-                    this[priceType] = numericValue;
-
-                    // Update the input value with proper formatting
-                    if (inputRef) {
-                        // Format with Cleave (it will handle the thousands separators)
-                        const cleave = inputRef._cleave;
-                        if (cleave) {
-                            cleave.setRawValue(rawValue);
+                    try {
+                        if (!inputRef) {
+                            throw new Error('Input reference tidak ditemukan');
                         }
+
+                        // Get the raw value without formatting
+                        let rawValue = inputRef.value.replace(/[^\d.]/g, '');
+
+                        // Ensure only one decimal point
+                        const decimalParts = rawValue.split('.');
+                        if (decimalParts.length > 2) {
+                            rawValue = decimalParts[0] + '.' + decimalParts.slice(1).join('');
+                        }
+
+                        // Limit to 4 decimal places
+                        if (decimalParts.length === 2 && decimalParts[1].length > 4) {
+                            rawValue = decimalParts[0] + '.' + decimalParts[1].substring(0, 4);
+                            this[priceType + 'Error'] = 'Maksimal 4 digit di belakang koma';
+                            this.showErrorAlert('Maksimal 4 digit di belakang koma untuk harga');
+                        } else {
+                            this[priceType + 'Error'] = '';
+                        }
+
+                        // Limit total digits (14 before decimal + 4 after = 18)
+                        const withoutDecimal = rawValue.replace('.', '');
+                        if (withoutDecimal.length > 18) {
+                            rawValue = rawValue.substring(0, rawValue.length - (withoutDecimal.length -
+                                18));
+                            this[priceType + 'Error'] =
+                                'Maksimal 18 digit total (14 sebelum koma, 4 setelah)';
+                            this.showErrorAlert(
+                                'Maksimal 18 digit total untuk harga (14 sebelum koma, 4 setelah)');
+                        }
+
+                        // Convert to number and check maximum value
+                        const numericValue = parseFloat(rawValue) || 0;
+                        if (numericValue > 999999999999) {
+                            this[priceType + 'Error'] = 'Nilai maksimum adalah 999,999,999,999.9999';
+                            this.showErrorAlert('Nilai maksimum harga adalah 999,999,999,999.9999');
+                        }
+
+                        // Update the model value (without formatting)
+                        this[priceType] = numericValue;
+
+                        // Update the input value with proper formatting
+                        if (inputRef) {
+                            const cleave = inputRef._cleave;
+                            if (cleave) {
+                                cleave.setRawValue(rawValue);
+                            }
+                        }
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan validasi harga: ' + error.message);
                     }
                 },
 
-                // Enhanced photo upload methods
+                // Enhanced photo upload methods dengan comprehensive error handling
                 handleFileSelect(event) {
-                    const files = Array.from(event.target.files);
-                    const wasEmpty = this.images.length === 0;
-                    this.processFiles(files);
+                    try {
+                        if (!event.target.files || event.target.files.length === 0) {
+                            this.showWarningAlert('Tidak ada file yang dipilih', 'Pilih File');
+                            return;
+                        }
 
-                    if (wasEmpty && this.images.length > 0) {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'info',
-                            title: 'Foto pertama akan menjadi thumbnail kamar',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true,
-                        });
+                        const files = Array.from(event.target.files);
+                        const wasEmpty = this.images.length === 0;
+
+                        this.processFiles(files, event);
+
+                        if (wasEmpty && this.images.length > 0) {
+                            this.showSuccessAlert('Foto pertama akan menjadi thumbnail kamar');
+                        }
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan saat memproses file: ' + error.message);
                     }
                 },
 
                 handleDrop(event) {
-                    event.preventDefault();
-                    const files = Array.from(event.dataTransfer.files);
-                    this.processFiles(files);
+                    try {
+                        event.preventDefault();
+
+                        if (!event.dataTransfer.files || event.dataTransfer.files.length === 0) {
+                            this.showWarningAlert('Tidak ada file yang di-drop', 'Drag & Drop');
+                            return;
+                        }
+
+                        const files = Array.from(event.dataTransfer.files);
+                        this.processFiles(files, event);
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan saat drag & drop: ' + error.message);
+                    }
                 },
 
-                processFiles(files) {
-                    const imageFiles = files.filter(file => file.type.startsWith('image/'));
-                    const availableSlots = this.maxImages - this.images.length;
+                processFiles(files, event) {
+                    try {
+                        const imageFiles = files.filter(file => {
+                            try {
+                                // Validasi tipe file yang diizinkan
+                                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png',
+                                    'image/gif', 'image/webp'
+                                ];
+                                const isAllowedType = allowedTypes.includes(file.type);
 
-                    if (availableSlots <= 0) {
-                        Swal.fire({
-                            toast: true,
-                            icon: 'error',
-                            title: `Maksimal hanya ${this.maxImages} foto yang dapat diupload.`,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true,
+                                // Blokir format HEIC/HEIF berdasarkan tipe dan ekstensi
+                                const isHeic = file.type === 'image/heic' ||
+                                    file.type === 'image/heif' ||
+                                    file.name.toLowerCase().endsWith('.heic') ||
+                                    file.name.toLowerCase().endsWith('.heif');
+
+                                // Validasi ukuran file (5MB)
+                                const isWithinSizeLimit = file.size <= 5 * 1024 * 1024;
+
+                                return isAllowedType && !isHeic && isWithinSizeLimit;
+                            } catch (filterError) {
+                                console.error('Error filtering file:', filterError);
+                                return false;
+                            }
                         });
-                        return;
-                    }
 
-                    const filesToProcess = imageFiles.slice(0, availableSlots);
+                        const availableSlots = this.maxImages - this.images.length;
 
-                    if (imageFiles.length > availableSlots) {
-                        Swal.fire({
-                            toast: true,
-                            icon: 'warning',
-                            title: `Hanya ${availableSlots} foto yang dapat ditambahkan.`,
-                            text: `Sisa slot: ${availableSlots}`,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000,
-                            timerProgressBar: true,
-                        });
-                    }
-
-                    filesToProcess.forEach(file => {
-                        if (file.size <= 5 * 1024 * 1024) { // 5MB limit
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                this.images.push({
-                                    file: file,
-                                    url: e.target.result,
-                                    name: file.name
-                                });
-                            };
-                            reader.readAsDataURL(file);
-                        } else {
-                            Swal.fire({
-                                toast: true,
-                                icon: 'error',
-                                title: `File ${file.name} terlalu besar. Maksimal 5MB.`,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                            });
+                        if (availableSlots <= 0) {
+                            this.showErrorAlert(
+                                `Maksimal hanya ${this.maxImages} foto yang dapat diupload.`);
+                            return;
                         }
-                    });
 
-                    // Clear the file input to allow re-selection
-                    if (event.target) {
-                        event.target.value = '';
+                        const filesToProcess = imageFiles.slice(0, availableSlots);
+
+                        // Deteksi dan tampilkan file yang ditolak
+                        const rejectedFiles = files.filter(file => {
+                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png',
+                                'image/gif', 'image/webp'
+                            ];
+                            const isHeic = file.type === 'image/heic' ||
+                                file.type === 'image/heif' ||
+                                file.name.toLowerCase().endsWith('.heic') ||
+                                file.name.toLowerCase().endsWith('.heif');
+                            const isOversized = file.size > 5 * 1024 * 1024;
+
+                            return !allowedTypes.includes(file.type) || isHeic || isOversized;
+                        });
+
+                        // Tampilkan warning untuk file yang ditolak
+                        if (rejectedFiles.length > 0) {
+                            let errorMessage = 'Beberapa file tidak memenuhi syarat:<br><br>';
+                            let errorCount = {
+                                heic: 0,
+                                oversized: 0,
+                                format: 0
+                            };
+
+                            rejectedFiles.forEach(file => {
+                                const isHeic = file.type === 'image/heic' ||
+                                    file.type === 'image/heif' ||
+                                    file.name.toLowerCase().endsWith('.heic') ||
+                                    file.name.toLowerCase().endsWith('.heif');
+                                const isOversized = file.size > 5 * 1024 * 1024;
+
+                                if (isHeic) {
+                                    errorCount.heic++;
+                                } else if (isOversized) {
+                                    errorCount.oversized++;
+                                } else {
+                                    errorCount.format++;
+                                }
+                            });
+
+                            if (errorCount.heic > 0) {
+                                errorMessage +=
+                                    `• ${errorCount.heic} file format HEIC tidak didukung<br>`;
+                            }
+                            if (errorCount.oversized > 0) {
+                                errorMessage += `• ${errorCount.oversized} file melebihi 5MB<br>`;
+                            }
+                            if (errorCount.format > 0) {
+                                errorMessage += `• ${errorCount.format} file format tidak didukung<br>`;
+                            }
+
+                            this.showWarningAlert('File Tidak Sesuai', errorMessage);
+                        }
+
+                        if (imageFiles.length > availableSlots) {
+                            this.showWarningAlert(
+                                `Hanya ${availableSlots} foto yang dapat ditambahkan`,
+                                `Sisa slot upload: ${availableSlots} foto`
+                            );
+                        }
+
+                        // Process valid files
+                        let processedCount = 0;
+                        let processingErrors = [];
+
+                        filesToProcess.forEach(file => {
+                            try {
+                                const reader = new FileReader();
+
+                                reader.onload = (e) => {
+                                    try {
+                                        this.images.push({
+                                            file: file,
+                                            url: e.target.result,
+                                            name: file.name,
+                                            size: file.size,
+                                            type: file.type
+                                        });
+
+                                        processedCount++;
+
+                                        // Auto-set thumbnail untuk gambar pertama
+                                        if (this.thumbnailIndex === null &&
+                                            processedCount === 1) {
+                                            this.thumbnailIndex = 0;
+                                            this.showInfoAlert(
+                                                'Foto pertama otomatis dipilih sebagai thumbnail'
+                                                );
+                                        }
+                                    } catch (pushError) {
+                                        processingErrors.push(
+                                            `Gagal memproses ${file.name}: ${pushError.message}`
+                                            );
+                                    }
+                                };
+
+                                reader.onerror = () => {
+                                    processingErrors.push(
+                                        `Gagal membaca file: ${file.name}`);
+                                };
+
+                                reader.onabort = () => {
+                                    processingErrors.push(
+                                        `Pembacaan file dibatalkan: ${file.name}`);
+                                };
+
+                                reader.readAsDataURL(file);
+                            } catch (fileError) {
+                                processingErrors.push(
+                                    `Error processing ${file.name}: ${fileError.message}`);
+                            }
+                        });
+
+                        // Tampilkan error processing jika ada
+                        if (processingErrors.length > 0) {
+                            this.showErrorAlert(
+                                processingErrors.join('\n'),
+                                'Kesalahan Memproses File'
+                            );
+                        }
+
+                        // Clear the file input
+                        if (event.target) {
+                            event.target.value = '';
+                        }
+
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan saat memproses file: ' + error.message);
                     }
                 },
 
                 setThumbnail(index) {
-                    this.thumbnailIndex = index;
+                    try {
+                        if (index < 0 || index >= this.images.length) {
+                            throw new Error('Index thumbnail tidak valid');
+                        }
+
+                        this.thumbnailIndex = index;
+                        this.showSuccessAlert('Thumbnail berhasil dipilih!');
+                    } catch (error) {
+                        this.showErrorAlert('Gagal memilih thumbnail: ' + error.message);
+                    }
                 },
 
                 removeImage(index, event) {
-                    if (event) event.preventDefault();
+                    try {
+                        if (event) event.preventDefault();
 
-                    // Adjust thumbnail index if we're removing the current thumbnail
-                    if (this.thumbnailIndex === index) {
-                        this.thumbnailIndex = null;
-                    } else if (this.thumbnailIndex > index) {
-                        this.thumbnailIndex--;
+                        if (index < 0 || index >= this.images.length) {
+                            throw new Error('Index gambar tidak valid');
+                        }
+
+                        const imageName = this.images[index].name;
+
+                        // Adjust thumbnail index if we're removing the current thumbnail
+                        if (this.thumbnailIndex === index) {
+                            this.thumbnailIndex = null;
+                        } else if (this.thumbnailIndex > index) {
+                            this.thumbnailIndex--;
+                        }
+
+                        this.images.splice(index, 1);
+                        this.showInfoAlert(`Foto "${imageName}" berhasil dihapus`);
+                    } catch (error) {
+                        this.showErrorAlert('Gagal menghapus foto: ' + error.message);
                     }
+                },
 
-                    this.images.splice(index, 1);
+                // Comprehensive Alert Methods
+                showErrorAlert(message, title = 'Error') {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: title,
+                        html: typeof message === 'string' ? message.replace(/\n/g, '<br>') :
+                            message,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc2626',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    });
+                },
+
+                showSuccessAlert(message, title = 'Sukses') {
+                    return Swal.fire({
+                        icon: 'success',
+                        title: title,
+                        text: message,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#059669',
+                        timer: 3000,
+                        showConfirmButton: true
+                    });
+                },
+
+                showWarningAlert(title, message) {
+                    return Swal.fire({
+                        icon: 'warning',
+                        title: title,
+                        html: typeof message === 'string' ? message.replace(/\n/g, '<br>') :
+                            message,
+                        confirmButtonText: 'Mengerti',
+                        confirmButtonColor: '#d97706'
+                    });
+                },
+
+                showInfoAlert(message, title = 'Informasi') {
+                    return Swal.fire({
+                        icon: 'info',
+                        title: title,
+                        text: message,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#2563eb',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
+                },
+
+                showLoadingAlert(title = 'Memproses...') {
+                    return Swal.fire({
+                        title: title,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+
+                // Validasi step dengan comprehensive error handling
+                async validateStep(step) {
+                    try {
+                        this.clearFormErrors();
+
+                        let isValid = false;
+
+                        switch (step) {
+                            case 1:
+                                isValid = await this.validateStep1();
+                                break;
+                            case 2:
+                                isValid = this.validateStep2();
+                                break;
+                            case 3:
+                                isValid = this.validateStep3();
+                                break;
+                            case 4:
+                                isValid = this.validateStep4();
+                                break;
+                            default:
+                                throw new Error('Step tidak valid: ' + step);
+                        }
+
+                        if (!isValid) {
+                            this.highlightErrorFields();
+                        }
+
+                        return isValid;
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan saat validasi: ' + error.message);
+                        return false;
+                    }
+                },
+
+                clearFormErrors() {
+                    // Clear all error borders
+                    const errorFields = document.querySelectorAll('.border-red-500');
+                    errorFields.forEach(field => {
+                        field.classList.remove('border-red-500');
+                    });
+                    this.formErrors = {};
+                },
+
+                highlightErrorFields() {
+                    // Highlight fields dengan error
+                    Object.keys(this.formErrors).forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.classList.add('border-red-500');
+                        }
+                    });
+                },
+
+                async validateStep1() {
+                    try {
+                        const requiredFields = [{
+                                id: 'property_id',
+                                name: 'Properti'
+                            },
+                            {
+                                id: 'room_no',
+                                name: 'Nomor Kamar'
+                            },
+                            {
+                                id: 'room_name',
+                                name: 'Nama Kamar'
+                            },
+                            {
+                                id: 'room_size',
+                                name: 'Ukuran Kamar'
+                            },
+                            {
+                                id: 'room_bed',
+                                name: 'Jenis Tempat Tidur'
+                            },
+                            {
+                                id: 'room_capacity',
+                                name: 'Kapasitas'
+                            },
+                            {
+                                id: 'description_id',
+                                name: 'Deskripsi'
+                            }
+                        ];
+
+                        const missingFields = [];
+                        this.formErrors = {};
+
+                        requiredFields.forEach(field => {
+                            const el = document.getElementById(field.id);
+                            if (el && !el.value.trim()) {
+                                this.formErrors[field.id] = `${field.name} harus diisi`;
+                                missingFields.push(field.name);
+                            }
+                        });
+
+                        if (missingFields.length > 0) {
+                            await this.showErrorAlert(
+                                `<strong>Field berikut harus diisi:</strong><br>${missingFields.map(field => `• ${field}`).join('<br>')}`,
+                                'Data Belum Lengkap'
+                            );
+                            return false;
+                        }
+
+                        // Validasi nomor kamar unik
+                        const propertyId = document.getElementById('property_id').value;
+                        const roomNo = document.getElementById('room_no').value;
+
+                        if (!propertyId || !roomNo) {
+                            await this.showErrorAlert(
+                                'Property ID dan Nomor Kamar harus diisi untuk validasi');
+                            return false;
+                        }
+
+                        this.isCheckingRoomNo = true;
+                        this.roomNoError = '';
+
+                        const loadingAlert = this.showLoadingAlert('Memeriksa nomor kamar...');
+
+                        try {
+                            const response = await fetch('/properties/rooms/check-room-number', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    property_id: propertyId,
+                                    room_no: roomNo
+                                })
+                            });
+
+                            Swal.close(loadingAlert);
+
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+
+                            const data = await response.json();
+                            this.isCheckingRoomNo = false;
+
+                            if (data.exists) {
+                                this.formErrors['room_no'] = data.message;
+                                document.getElementById('room_no').classList.add('border-red-500');
+
+                                await this.showErrorAlert(
+                                    data.message,
+                                    'Nomor Kamar Sudah Ada'
+                                );
+                                return false;
+                            }
+
+                            return true;
+                        } catch (fetchError) {
+                            Swal.close(loadingAlert);
+                            this.isCheckingRoomNo = false;
+
+                            await this.showErrorAlert(
+                                'Gagal memeriksa nomor kamar: ' + fetchError.message,
+                                'Kesalahan Jaringan'
+                            );
+                            return true; // Biarkan lanjut meskipun error checking
+                        }
+
+                    } catch (error) {
+                        this.isCheckingRoomNo = false;
+                        await this.showErrorAlert('Terjadi kesalahan validasi step 1: ' + error
+                            .message);
+                        return false;
+                    }
+                },
+
+                validateStep2() {
+                    try {
+                        if (this.priceTypes.length === 0) {
+                            this.showErrorAlert(
+                                'Pilih minimal satu jenis harga (harian atau bulanan)',
+                                'Jenis Harga Belum Dipilih'
+                            );
+                            return false;
+                        }
+
+                        const errors = [];
+
+                        // Validate the selected price types have valid values
+                        if (this.priceTypes.includes('daily')) {
+                            if (!this.dailyPrice || this.dailyPrice <= 0) {
+                                errors.push('• Harga harian harus diisi dengan nilai yang valid');
+                            } else if (this.dailyPriceError) {
+                                errors.push('• ' + this.dailyPriceError);
+                            }
+                        }
+
+                        if (this.priceTypes.includes('monthly')) {
+                            if (!this.monthlyPrice || this.monthlyPrice <= 0) {
+                                errors.push('• Harga bulanan harus diisi dengan nilai yang valid');
+                            } else if (this.monthlyPriceError) {
+                                errors.push('• ' + this.monthlyPriceError);
+                            }
+                        }
+
+                        if (errors.length > 0) {
+                            this.showErrorAlert(
+                                `<strong>Validasi harga gagal:</strong><br>${errors.join('<br>')}`,
+                                'Kesalahan Input Harga'
+                            );
+                            return false;
+                        }
+
+                        return true;
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan validasi step 2: ' + error.message);
+                        return false;
+                    }
+                },
+
+                validateStep3() {
+                    // Facilities are optional, no validation needed
+                    return true;
+                },
+
+                validateStep4() {
+                    try {
+                        if (this.images.length < this.minImages) {
+                            this.showErrorAlert(
+                                `<strong>Minimal ${this.minImages} foto kamar harus diupload!</strong><br>Saat ini hanya ${this.images.length} foto yang terupload.<br>Silakan upload ${this.minImages - this.images.length} foto lagi.`,
+                                'Foto Tidak Mencukupi'
+                            );
+                            return false;
+                        }
+
+                        if (this.thumbnailIndex === null) {
+                            this.showErrorAlert(
+                                'Anda harus memilih satu foto sebagai thumbnail untuk kamar ini!<br>Klik pada foto yang ingin dijadikan thumbnail.',
+                                'Thumbnail Belum Dipilih'
+                            );
+                            return false;
+                        }
+
+                        // Validasi tambahan untuk memastikan semua file valid
+                        const invalidImages = this.images.filter(img => !img.file || !img.url);
+                        if (invalidImages.length > 0) {
+                            this.showErrorAlert(
+                                `Terdapat ${invalidImages.length} foto yang tidak valid. Silakan upload ulang.`,
+                                'Foto Tidak Valid'
+                            );
+                            return false;
+                        }
+
+                        return true;
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan validasi step 4: ' + error.message);
+                        return false;
+                    }
                 },
 
                 get canUploadMore() {
@@ -867,290 +1371,159 @@
                     return this.maxImages - this.images.length;
                 },
 
-                get imageUploadStatus() {
-                    const current = this.images.length;
-                    if (current < this.minImages) {
-                        return `Minimal ${this.minImages} foto diperlukan (${current}/${this.minImages})`;
-                    } else if (current >= this.minImages && current < this.maxImages) {
-                        return `${current}/${this.maxImages} foto (dapat menambah ${this.remainingSlots} lagi)`;
-                    } else {
-                        return `${current}/${this.maxImages} foto (maksimal tercapai)`;
-                    }
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
                 },
 
-                get isImageRequirementMet() {
-                    return this.images.length >= this.minImages;
-                },
+                // Submit form dengan comprehensive error handling
+                async submitForm() {
+                    try {
+                        this.isLoading = true;
 
-                validateStep(step) {
-                    let isValid = true;
+                        // Validasi final sebelum submit
+                        if (!await this.validateStep(4)) {
+                            this.isLoading = false;
+                            return;
+                        }
 
-                    if (step === 1) {
-                        const requiredFields = ['property_id', 'room_no', 'room_name', 'room_size',
-                            'room_bed', 'room_capacity', 'description_id'
-                        ];
+                        // Store original button state
+                        const submitBtn = document.querySelector('#roomForm button[type="submit"]');
+                        const originalBtnContent = submitBtn?.innerHTML;
 
-                        requiredFields.forEach(field => {
-                            const el = document.getElementById(field);
-                            if (el) {
-                                if (!el.value) {
-                                    el.classList.add('border-red-500');
-                                    isValid = false;
-                                } else {
-                                    el.classList.remove('border-red-500');
-                                }
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = `
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Menyimpan Data...
+                    `;
+                        }
+
+                        const loadingAlert = this.showLoadingAlert('Menyimpan data kamar...');
+
+                        const form = document.getElementById('roomForm');
+                        const formData = new FormData(form);
+
+                        // Clear any existing file inputs
+                        formData.delete('room_images[]');
+                        formData.append('thumbnail_index', this.thumbnailIndex);
+
+                        // Add each selected image
+                        this.images.forEach((image, index) => {
+                            if (image.file) {
+                                formData.append('room_images[]', image.file);
                             }
                         });
 
-                        if (isValid) {
-                            const propertyId = document.getElementById('property_id').value;
-                            const roomNo = document.getElementById('room_no').value;
+                        // Add image count for backend validation
+                        formData.append('image_count', this.images.length);
 
-                            // Tampilkan loading
-                            this.isCheckingRoomNo = true;
-                            this.roomNoError = '';
+                        // Add price types
+                        const priceObject = {
+                            daily: this.priceTypes.includes('daily'),
+                            monthly: this.priceTypes.includes('monthly')
+                        };
+                        formData.append('price_types', JSON.stringify(priceObject));
 
-                            // Lakukan AJAX request untuk mengecek nomor kamar
-                            return fetch('/properties/rooms/check-room-number', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector(
-                                            'meta[name="csrf-token"]').content
-                                    },
-                                    body: JSON.stringify({
-                                        property_id: propertyId,
-                                        room_no: roomNo
-                                    })
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    this.isCheckingRoomNo = false;
-
-                                    if (data.exists) {
-                                        document.getElementById('room_no').classList.add(
-                                            'border-red-500');
-                                        this.roomNoError = data.message;
-
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Nomor Kamar Sudah Ada',
-                                            text: data.message,
-                                            confirmButtonText: 'OK'
-                                        });
-
-                                        return false;
-                                    }
-
-                                    return true;
-                                })
-                                .catch(error => {
-                                    this.isCheckingRoomNo = false;
-                                    console.error('Error:', error);
-                                    return true; // Biarkan lanjut meskipun error
-                                });
-                        }
-
-                    } else if (step === 2) {
-                        if (this.priceTypes.length === 0) {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'warning',
-                                title: 'Pilih minimal satu jenis harga!',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                            });
-                            isValid = false;
-                        }
-
-                        // Validate the selected price types have valid values
-                        if (this.priceTypes.includes('daily')) {
-                            if (!this.dailyPrice || this.dailyPrice <= 0) {
-                                this.dailyPriceError = 'Masukkan harga harian yang valid';
-                                isValid = false;
-                            } else if (this.dailyPriceError) {
-                                isValid = false;
-                            }
-                        }
-
-                        if (this.priceTypes.includes('monthly')) {
-                            if (!this.monthlyPrice || this.monthlyPrice <= 0) {
-                                this.monthlyPriceError = 'Masukkan harga bulanan yang valid';
-                                isValid = false;
-                            } else if (this.monthlyPriceError) {
-                                isValid = false;
-                            }
-                        }
-
-                        // Show error messages if any
-                        if (!isValid) {
-                            if (this.priceTypes.includes('daily') && this.dailyPriceError) {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: this.dailyPriceError,
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                });
-                            }
-
-                            if (this.priceTypes.includes('monthly') && this.monthlyPriceError) {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: this.monthlyPriceError,
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                });
-                            }
-                        }
-                    } else if (step === 3) {
-                        // No validation needed for step 3 (facilities) as they're optional
-                    } else if (step === 4) {
-                        if (step === 4) {
-                            if (this.images.length < this.minImages) {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: `Minimal ${this.minImages} foto kamar harus diupload!`,
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                });
-                                return false;
-                            }
-
-                            if (this.thumbnailIndex === null) {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: 'Anda harus memilih thumbnail untuk kamar ini!',
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                });
-                                return false;
-                            }
-
-                            return true;
-                        }
-                    }
-
-                    return isValid;
-                },
-
-                getImageFiles() {
-                    return this.images.map(img => img.file);
-                },
-
-                resetImages() {
-                    this.images = [];
-                },
-
-                submitForm() {
-                    if (!this.validateStep(4)) return;
-
-                    // Store original button state
-                    const submitBtn = document.querySelector('#roomForm button[type="submit"]');
-                    const originalBtnContent = submitBtn?.innerHTML;
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = `
-                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                Menyimpan...
-                                            `;
-                    }
-
-                    const form = document.getElementById('roomForm');
-                    const formData = new FormData(form);
-
-                    // Clear any existing file inputs
-                    formData.delete('room_images[]');
-                    formData.append('thumbnail_index', this.thumbnailIndex);
-
-                    // Add each selected image
-                    this.images.forEach((image, index) => {
-                        formData.append('room_images[]', image.file);
-                    });
-
-                    // Add image count for backend validation
-                    formData.append('image_count', this.images.length);
-
-                    // Add price types
-                    const priceObject = {
-                        daily: this.priceTypes.includes('daily'),
-                        monthly: this.priceTypes.includes('monthly')
-                    };
-                    formData.append('price_types', JSON.stringify(priceObject));
-
-
-                    // Submit the form
-                    fetch(form.action, {
+                        // Submit the form
+                        const response = await fetch(form.action, {
                             method: 'POST',
                             body: formData,
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .content,
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content,
                                 'Accept': 'application/json'
                             }
-                        })
-                        .then(async response => {
-                            const contentType = response.headers.get('content-type');
-                            if (!contentType || !contentType.includes('application/json')) {
-                                const text = await response.text();
-                                throw new Error(
-                                    `Expected JSON but got: ${text.substring(0, 100)}...`);
-                            }
-
-                            const data = await response.json();
-
-                            if (!response.ok) {
-                                let errorMsg = data.message || 'Submission failed';
-                                if (data.errors) {
-                                    errorMsg = Object.values(data.errors).join('\n');
-                                }
-                                throw new Error(errorMsg);
-                            }
-
-                            return data;
-                        })
-                        .then(data => {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: `Kamar berhasil disimpan dengan ${this.images.length} foto!`,
-                                showConfirmButton: false,
-                                timer: 1000,
-                                timerProgressBar: true,
-                                didClose: () => {
-                                    window.location.reload();
-                                }
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: error.message || 'Failed to submit form',
-                            });
-                        })
-                        .finally(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalBtnContent;
-                            }
                         });
+
+                        Swal.close(loadingAlert);
+
+                        // Handle non-JSON responses
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            const text = await response.text();
+                            throw new Error(
+                                `Server mengembalikan response tidak valid. Status: ${response.status}`
+                                );
+                        }
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            let errorMsg = data.message || 'Gagal menyimpan data';
+                            if (data.errors) {
+                                // Format validation errors
+                                errorMsg = Object.values(data.errors).flat().join('<br>• ');
+                                errorMsg = `<strong>Kesalahan Validasi:</strong><br>• ${errorMsg}`;
+                            }
+                            throw new Error(errorMsg);
+                        }
+
+                        // Success
+                        await this.showSuccessAlert(
+                            `Kamar berhasil disimpan dengan ${this.images.length} foto!`,
+                            'Data Berhasil Disimpan'
+                        );
+
+                        // Reset form dan close modal
+                        this.modalOpen = false;
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+
+                    } catch (error) {
+                        console.error('Submission Error:', error);
+                        await this.showErrorAlert(
+                            error.message ||
+                            'Terjadi kesalahan tidak terduga saat menyimpan data',
+                            'Gagal Menyimpan Data'
+                        );
+                    } finally {
+                        this.isLoading = false;
+                        const submitBtn = document.querySelector('#roomForm button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = `
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Simpan
+                    `;
+                        }
+                    }
+                },
+
+                // Navigation between steps dengan error handling
+                nextStep() {
+                    try {
+                        this.validateStep(this.step).then(isValid => {
+                            if (isValid && this.step < 4) {
+                                this.step++;
+                            }
+                        }).catch(error => {
+                            this.showErrorAlert('Terjadi kesalahan saat pindah step: ' + error
+                                .message);
+                        });
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan navigasi: ' + error.message);
+                    }
+                },
+
+                prevStep() {
+                    try {
+                        if (this.step > 1) {
+                            this.step--;
+                        }
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan saat kembali ke step sebelumnya: ' +
+                            error.message);
+                    }
                 }
             }));
         });

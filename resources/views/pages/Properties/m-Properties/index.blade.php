@@ -338,19 +338,43 @@
                                                     </svg>
                                                     Fasilitas Umum
                                                 </h3>
-                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                <div
+                                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
                                                     @foreach ($generalFacilities as $facility)
                                                         <div class="relative">
                                                             <input id="general-{{ $facility->idrec }}"
                                                                 name="general_facilities[]" type="checkbox"
                                                                 value="{{ $facility->idrec }}" class="sr-only peer">
                                                             <label for="general-{{ $facility->idrec }}"
-                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
-                                                                <span>{{ $facility->facility }}</span>
+                                                                class="flex items-start p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
+                                                                <div class="flex-1">
+                                                                    <span
+                                                                        class="block">{{ $facility->facility }}</span>
+                                                                    @if (!empty($facility->description))
+                                                                        <span
+                                                                            class="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                            {{ $facility->description }}
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
                                                             </label>
                                                         </div>
                                                     @endforeach
                                                 </div>
+
+                                                @if ($generalFacilities->isEmpty())
+                                                    <div
+                                                        class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                                                        <svg class="w-10 h-10 mx-auto text-gray-400" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak
+                                                            ada fasilitas umum tersedia</p>
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             <!-- Security Facilities -->
@@ -365,19 +389,43 @@
                                                     </svg>
                                                     Fasilitas Keamanan
                                                 </h3>
-                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                <div
+                                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
                                                     @foreach ($securityFacilities as $facility)
                                                         <div class="relative">
                                                             <input id="security-{{ $facility->idrec }}"
                                                                 name="security_facilities[]" type="checkbox"
                                                                 value="{{ $facility->idrec }}" class="sr-only peer">
                                                             <label for="security-{{ $facility->idrec }}"
-                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200">
-                                                                <span>{{ $facility->facility }}</span>
+                                                                class="flex items-start p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200">
+                                                                <div class="flex-1">
+                                                                    <span
+                                                                        class="block">{{ $facility->facility }}</span>
+                                                                    @if (!empty($facility->description))
+                                                                        <span
+                                                                            class="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                            {{ $facility->description }}
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
                                                             </label>
                                                         </div>
                                                     @endforeach
                                                 </div>
+
+                                                @if ($securityFacilities->isEmpty())
+                                                    <div
+                                                        class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                                                        <svg class="w-10 h-10 mx-auto text-gray-400" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak
+                                                            ada fasilitas keamanan tersedia</p>
+                                                    </div>
+                                                @endif
                                             </div>
 
                                             <!-- Amenities -->
@@ -392,19 +440,43 @@
                                                     </svg>
                                                     Layanan Tambahan
                                                 </h3>
-                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                <div
+                                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
                                                     @foreach ($amenitiesFacilities as $facility)
                                                         <div class="relative">
                                                             <input id="amenities-{{ $facility->idrec }}"
                                                                 name="amenities_facilities[]" type="checkbox"
                                                                 value="{{ $facility->idrec }}" class="sr-only peer">
                                                             <label for="amenities-{{ $facility->idrec }}"
-                                                                class="flex items-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200">
-                                                                <span>{{ $facility->facility }}</span>
+                                                                class="flex items-start p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200">
+                                                                <div class="flex-1">
+                                                                    <span
+                                                                        class="block">{{ $facility->facility }}</span>
+                                                                    @if (!empty($facility->description))
+                                                                        <span
+                                                                            class="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                            {{ $facility->description }}
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
                                                             </label>
                                                         </div>
                                                     @endforeach
                                                 </div>
+
+                                                @if ($amenitiesFacilities->isEmpty())
+                                                    <div
+                                                        class="text-center py-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                                                        <svg class="w-10 h-10 mx-auto text-gray-400" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak
+                                                            ada layanan tambahan tersedia</p>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -847,8 +919,7 @@
                     // Notifikasi Toastify lebih menarik
                     Toastify({
                         text: newStatus === 1 ?
-                            "✓ Kamar berhasil diaktifkan" :
-                            "⚠ Kamar berhasil dinonaktifkan",
+                            "✓ Kamar berhasil diaktifkan" : "⚠ Kamar berhasil dinonaktifkan",
                         duration: 3500,
                         close: true,
                         gravity: "top",
@@ -1935,62 +2006,113 @@
                     }
                 },
 
-                removeEditImage(index) {
-                    const existingCount = this.propertyData.existingImages.filter(img => !img
-                        .markedForDeletion).length;
-                    const totalIndex = existingCount + index;
-
-                    // If deleting the current thumbnail, reset to first available image
-                    if (this.thumbnailIndex === totalIndex) {
-                        const firstAvailable = this.getAllImages().findIndex((img, i) => i !==
-                            totalIndex);
-                        this.thumbnailIndex = firstAvailable >= 0 ? firstAvailable : null;
+                // Get the actual index in the combined array
+                getImageIndex(type, index) {
+                    if (type === 'existing') {
+                        // For existing images, count only non-deleted ones up to this index
+                        let actualIndex = 0;
+                        for (let i = 0; i < index; i++) {
+                            if (!this.propertyData.existingImages[i].markedForDeletion) {
+                                actualIndex++;
+                            }
+                        }
+                        return actualIndex;
+                    } else {
+                        // For new images, add after all non-deleted existing images
+                        const existingCount = this.propertyData.existingImages.filter(img => !img
+                            .markedForDeletion).length;
+                        return existingCount + index;
                     }
-
-                    this.editImages.splice(index, 1);
                 },
 
+                // Get display index (sequential numbering for UI)
+                getDisplayIndex(type, index) {
+                    if (type === 'existing') {
+                        // Count display position among non-deleted existing images
+                        let displayIndex = 0;
+                        for (let i = 0; i < index; i++) {
+                            if (!this.propertyData.existingImages[i].markedForDeletion) {
+                                displayIndex++;
+                            }
+                        }
+                        return displayIndex;
+                    } else {
+                        // For new images, continue numbering after existing images
+                        const existingCount = this.propertyData.existingImages.filter(img => !img
+                            .markedForDeletion).length;
+                        return existingCount + index;
+                    }
+                },
+
+                // Get all images in correct order for processing
                 getAllImages() {
                     const existing = this.propertyData.existingImages.filter(img => !img
                         .markedForDeletion);
                     return [...existing, ...this.editImages];
                 },
 
+                // Get current thumbnail with proper index handling
                 getCurrentThumbnail() {
                     if (this.thumbnailIndex === null) {
                         // Try to find the existing thumbnail if none is selected
-                        const thumbnailIndex = this.propertyData.existingImages.findIndex(
-                            img => img.is_thumbnail && !img.markedForDeletion
-                        );
+                        const allImages = this.getAllImages();
+                        const thumbnailIndex = allImages.findIndex(img => img.is_thumbnail);
                         if (thumbnailIndex !== -1) {
                             this.thumbnailIndex = thumbnailIndex;
-                            return this.propertyData.existingImages[thumbnailIndex];
+                            return allImages[thumbnailIndex];
                         }
                         return null;
                     }
+
                     const allImages = this.getAllImages();
                     return allImages[this.thumbnailIndex] || null;
                 },
 
+                // Set thumbnail with proper index validation
                 setThumbnail(index) {
-                    this.thumbnailIndex = index;
+                    const allImages = this.getAllImages();
+                    if (index >= 0 && index < allImages.length) {
+                        this.thumbnailIndex = index;
+                    }
                 },
 
+                // Remove existing image with proper index handling
                 removeEditExistingImage(index) {
-                    // If deleting the current thumbnail, reset to first available image
-                    if (this.thumbnailIndex === index) {
-                        const firstAvailable = this.propertyData.existingImages.findIndex(
-                            (img, i) => !img.markedForDeletion && i !== index
-                        );
-                        this.thumbnailIndex = firstAvailable >= 0 ? firstAvailable :
-                            this.editImages.length > 0 ?
-                            this.propertyData.existingImages.filter(img => !img.markedForDeletion)
-                            .length :
-                            null;
-                    }
+                    const currentThumbnailIndex = this.thumbnailIndex;
+                    const imageGlobalIndex = this.getImageIndex('existing', index);
 
                     // Mark image for deletion
                     this.propertyData.existingImages[index].markedForDeletion = true;
+
+                    // Update thumbnail index if the deleted image was the thumbnail
+                    if (currentThumbnailIndex === imageGlobalIndex) {
+                        this.updateThumbnailAfterDeletion();
+                    }
+                },
+
+                // Remove new image with proper index handling
+                removeEditImage(index) {
+                    const currentThumbnailIndex = this.thumbnailIndex;
+                    const imageGlobalIndex = this.getImageIndex('new', index);
+
+                    // Remove the image
+                    this.editImages.splice(index, 1);
+
+                    // Update thumbnail index if the deleted image was the thumbnail
+                    if (currentThumbnailIndex === imageGlobalIndex) {
+                        this.updateThumbnailAfterDeletion();
+                    }
+                },
+
+                // Update thumbnail index after image deletion
+                updateThumbnailAfterDeletion() {
+                    const allImages = this.getAllImages();
+                    if (allImages.length === 0) {
+                        this.thumbnailIndex = null;
+                    } else {
+                        // Set thumbnail to first available image
+                        this.thumbnailIndex = 0;
+                    }
                 },
 
                 nextStep() {
