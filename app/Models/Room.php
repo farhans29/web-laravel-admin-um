@@ -38,6 +38,7 @@ class Room extends Model
         'created_by',
         'updated_by',
         'status',
+        'rental_status',
         'created_at',
         'updated_at',
     ];
@@ -68,7 +69,7 @@ class Room extends Model
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class, 'room_id');
+        return $this->hasMany(Booking::class, 'room_id', 'idrec');
     }
 
     public function thumbnail()
