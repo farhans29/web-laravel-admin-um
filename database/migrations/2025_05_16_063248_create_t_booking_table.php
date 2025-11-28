@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('user_phone_number', 50)->nullable();
             $table->string('room_id', 255);
             $table->dateTime('check_in_at')->nullable();
+            $table->binary('ktp_img')->nullable();
             $table->string('doc_type', 50)->nullable();
             $table->string('doc_path', 255)->nullable();            
             $table->dateTime('check_out_at')->nullable();

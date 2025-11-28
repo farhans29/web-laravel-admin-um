@@ -8,9 +8,196 @@ use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
+use App\Models\Property;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    public function getPropertyRoomReportData($propertyId = null)
+    {
+        try {
+            // Jika tidak ada propertyId, ambil property pertama atau semua property
+            if ($propertyId) {
+                $property = Property::findOrFail($propertyId);
+                $properties = collect([$property]);
+            } else {
+                $properties = Property::where('status', 1)->get();
+            }
+
+            $report = [];
+
+            foreach ($properties as $property) {
+                // Total kamar di property ini
+                $totalRooms = Room::where('property_id', $property->idrec)
+                    ->where('status', 1)
+                    ->count();
+
+                // Kamar yang sedang dipesan berdasarkan transactions
+                $currentDate = now()->toDateString();
+
+                $bookedRooms = Transaction::where('property_id', $property->idrec)
+                    ->where('transaction_status', 'paid')
+                    ->whereDate('check_in', '<=', $currentDate)
+                    ->whereDate('check_out', '>=', $currentDate)
+                    ->whereHas('booking', function ($q) {
+                        $q->whereNull('check_out_at');
+                    })
+                    ->count();
+
+                // Kamar tersedia
+                $availableRooms = $totalRooms - $bookedRooms;
+
+                // Data durasi sewa
+                $bookingDurations = $this->getBookingDurations($property->idrec);
+
+                // Data penjualan bulan ini
+                $monthlySales = $this->getMonthlySales($property->idrec);
+
+                // Breakdown tipe kamar
+                $roomTypesBreakdown = $this->getRoomTypesBreakdown($property->idrec);
+
+                $report[$property->idrec] = [
+                    'property' => [
+                        'id' => $property->idrec,
+                        'name' => $property->name,
+                        'initial' => $property->initial,
+                    ],
+                    'room_stats' => [
+                        'total_rooms' => $totalRooms,
+                        'available_rooms' => $availableRooms,
+                        'booked_rooms' => $bookedRooms,
+                        'occupancy_rate' => $totalRooms > 0 ? round(($bookedRooms / $totalRooms) * 100, 2) : 0,
+                    ],
+                    'booking_durations' => $bookingDurations,
+                    'monthly_sales' => $monthlySales,
+                    'room_types_breakdown' => $roomTypesBreakdown,
+                ];
+            }
+
+            return $propertyId ? $report[$propertyId] : $report;
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    private function getBookingDurations($propertyId)
+    {
+        // Durasi statistik dari transactions yang sudah completed (check-out)
+        $durations = Transaction::where('property_id', $propertyId)
+            ->where('transaction_status', 'paid')
+            ->whereNotNull('check_in')
+            ->whereNotNull('check_out')
+            ->whereHas('booking', function ($q) {
+                $q->whereNotNull('check_out_at');
+            })
+            ->select(
+                DB::raw('AVG(DATEDIFF(check_out, check_in)) as avg_duration'),
+                DB::raw('MIN(DATEDIFF(check_out, check_in)) as min_duration'),
+                DB::raw('MAX(DATEDIFF(check_out, check_in)) as max_duration'),
+                DB::raw('COUNT(*) as total_bookings')
+            )
+            ->first();
+
+        // Breakdown by duration ranges
+        $durationRanges = Transaction::where('property_id', $propertyId)
+            ->where('transaction_status', 'paid')
+            ->whereNotNull('check_in')
+            ->whereNotNull('check_out')
+            ->whereHas('booking', function ($q) {
+                $q->whereNotNull('check_out_at');
+            })
+            ->select(
+                DB::raw('CASE 
+                    WHEN DATEDIFF(check_out, check_in) = 1 THEN "1 Hari"
+                    WHEN DATEDIFF(check_out, check_in) BETWEEN 2 AND 3 THEN "2-3 Hari"
+                    WHEN DATEDIFF(check_out, check_in) BETWEEN 4 AND 7 THEN "4-7 Hari"
+                    WHEN DATEDIFF(check_out, check_in) BETWEEN 8 AND 30 THEN "1-4 Minggu"
+                    ELSE "Lebih dari 1 Bulan"
+                END as duration_range'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('duration_range')
+            ->orderBy(DB::raw('MIN(DATEDIFF(check_out, check_in))'))
+            ->get();
+
+        return [
+            'average_duration' => round($durations->avg_duration ?? 0, 1),
+            'min_duration' => $durations->min_duration ?? 0,
+            'max_duration' => $durations->max_duration ?? 0,
+            'total_bookings' => $durations->total_bookings ?? 0,
+            'duration_ranges' => $durationRanges
+        ];
+    }
+
+    private function getMonthlySales($propertyId)
+    {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        $sales = Transaction::where('property_id', $propertyId)
+            ->where('transaction_status', 'paid')
+            ->whereYear('transaction_date', $currentYear)
+            ->whereMonth('transaction_date', $currentMonth)
+            ->select(
+                DB::raw('COUNT(*) as total_bookings'),
+                DB::raw('SUM(grandtotal_price) as total_revenue')
+            )
+            ->first();
+
+        return [
+            'total_bookings' => $sales->total_bookings ?? 0,
+            'total_revenue' => $sales->total_revenue ?? 0
+        ];
+    }
+
+    private function getRoomTypesBreakdown($propertyId)
+    {
+        // Subquery untuk kamar yang sedang dipesan berdasarkan transactions
+        $bookedRoomsSubquery = Transaction::where('property_id', $propertyId)
+            ->where('transaction_status', 'paid')
+            ->whereDate('check_in', '<=', now()->toDateString())
+            ->whereDate('check_out', '>=', now()->toDateString())
+            ->whereHas('booking', function ($q) {
+                $q->whereNull('check_out_at');
+            })
+            ->select('room_id')
+            ->pluck('room_id');
+
+        return Room::where('property_id', $propertyId)
+            ->where('status', 1)
+            ->select(
+                'type',
+                DB::raw('COUNT(*) as total_rooms'),
+                DB::raw('SUM(CASE WHEN idrec NOT IN (' . ($bookedRoomsSubquery->count() > 0 ? $bookedRoomsSubquery->implode(',') : '0') . ') THEN 1 ELSE 0 END) as available_rooms')
+            )
+            ->groupBy('type')
+            ->get();
+    }
+
+    private function getCurrentOccupancyData($propertyId = null)
+    {
+        $query = Transaction::where('transaction_status', 'paid')
+            ->whereDate('check_in', '<=', now()->toDateString())
+            ->whereDate('check_out', '>=', now()->toDateString())
+            ->whereHas('booking', function ($q) {
+                $q->whereNull('check_out_at');
+            });
+
+        if ($propertyId) {
+            $query->where('property_id', $propertyId);
+        }
+
+        return [
+            'current_guests' => $query->count(),
+            'total_revenue_today' => Transaction::where('transaction_status', 'paid')
+                ->whereDate('paid_at', now()->toDateString())
+                ->when($propertyId, function ($q) use ($propertyId) {
+                    $q->where('property_id', $propertyId);
+                })
+                ->sum('grandtotal_price')
+        ];
+    }
+
     public function index()
     {
         $dataFeed = new DataFeed();
@@ -119,6 +306,9 @@ class DashboardController extends Controller
             ];
         }
 
+        // Get room reports - PERBAIKAN DI SINI
+        $roomReports = $this->getPropertyRoomReportData(); // Langsung panggil method data, bukan API
+
         $showActions = true;
 
         return view('pages/dashboard/dashboard', compact(
@@ -128,125 +318,45 @@ class DashboardController extends Controller
             'roomAvailability',
             'stats',
             'salesReport',
-            'showActions'
+            'showActions',
+            'roomReports'
         ));
     }
-
 
     private function getSalesReport()
     {
         $startDate = now()->subDays(30);
         $endDate = now();
 
-        // Total transactions and gross amount
-        $totalData = Transaction::where('transaction_status', 'paid')
-            ->whereBetween('transaction_date', [$startDate, $endDate])
-            ->select(
-                DB::raw('COUNT(*) as total_transactions'),
-                DB::raw('SUM(grandtotal_price) as gross_amount'),
-                DB::raw('SUM(admin_fees) as total_admin_fees'),
-                DB::raw('AVG(grandtotal_price) as average_transaction')
-            )
-            ->first();
-
-        // Daily sales data for chart
-        $dailySales = Transaction::where('transaction_status', 'paid')
+        $salesData = Transaction::where('transaction_status', 'paid')
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->select(
                 DB::raw('DATE(transaction_date) as date'),
-                DB::raw('COUNT(*) as transaction_count'),
-                DB::raw('SUM(grandtotal_price) as daily_revenue'),
-                DB::raw('SUM(admin_fees) as daily_admin_fees')
+                DB::raw('COUNT(*) as total_bookings'),
+                DB::raw('SUM(grandtotal_price) as total_revenue')
             )
             ->groupBy('date')
             ->orderBy('date')
             ->get();
 
-        // Weekly sales data
-        $weeklySales = Transaction::where('transaction_status', 'paid')
-            ->whereBetween('transaction_date', [$startDate, $endDate])
-            ->select(
-                DB::raw('YEAR(transaction_date) as year'),
-                DB::raw('WEEK(transaction_date) as week'),
-                DB::raw('COUNT(*) as transaction_count'),
-                DB::raw('SUM(grandtotal_price) as weekly_revenue')
-            )
-            ->groupBy('year', 'week')
-            ->orderBy('year')
-            ->orderBy('week')
-            ->get();
-
-        // Revenue by room type
-        $revenueByRoom = Transaction::where('transaction_status', 'paid')
-            ->whereBetween('transaction_date', [$startDate, $endDate])
-            ->join('m_rooms', 't_transactions.room_id', '=', 'm_rooms.idrec')
-            ->select(
-                'm_rooms.type as room_type',
-                DB::raw('COUNT(*) as booking_count'),
-                DB::raw('SUM(t_transactions.grandtotal_price) as total_revenue')
-            )
-            ->groupBy('m_rooms.type')
-            ->orderByDesc('total_revenue')
-            ->get();
-
-        // Booking type distribution
-        $bookingTypeStats = Transaction::where('transaction_status', 'paid')
-            ->whereBetween('transaction_date', [$startDate, $endDate])
-            ->select(
-                'booking_type',
-                DB::raw('COUNT(*) as count'),
-                DB::raw('SUM(grandtotal_price) as revenue')
-            )
-            ->groupBy('booking_type')
-            ->get();
-
-        // Monthly trend data
-        $monthlyTrend = Transaction::where('transaction_status', 'paid')
-            ->whereBetween('transaction_date', [now()->subMonths(6), now()])
-            ->select(
-                DB::raw('YEAR(transaction_date) as year'),
-                DB::raw('MONTH(transaction_date) as month'),
-                DB::raw('COUNT(*) as transaction_count'),
-                DB::raw('SUM(grandtotal_price) as monthly_revenue')
-            )
-            ->groupBy('year', 'month')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get();
-
         return [
-            'period' => [
-                'start' => $startDate->format('d M Y'),
-                'end' => $endDate->format('d M Y')
-            ],
-            'summary' => [
-                'total_transactions' => $totalData->total_transactions ?? 0,
-                'gross_amount' => $totalData->gross_amount ?? 0,
-                'total_admin_fees' => $totalData->total_admin_fees ?? 0,
-                'average_transaction' => $totalData->average_transaction ?? 0,
-                'net_amount' => ($totalData->gross_amount ?? 0) - ($totalData->total_admin_fees ?? 0)
-            ],
-            'daily_sales' => $dailySales,
-            'weekly_sales' => $weeklySales,
-            'monthly_trend' => $monthlyTrend,
-            'revenue_by_room' => $revenueByRoom,
-            'booking_type_stats' => $bookingTypeStats,
-            'chart_data' => [
-                'daily_labels' => $dailySales->pluck('date')->map(function ($date) {
-                    return \Carbon\Carbon::parse($date)->format('d M');
-                })->toArray(),
-                'daily_revenue' => $dailySales->pluck('daily_revenue')->toArray(),
-                'daily_transactions' => $dailySales->pluck('transaction_count')->toArray(),
-                'room_types' => $revenueByRoom->pluck('room_type')->toArray(),
-                'room_revenues' => $revenueByRoom->pluck('total_revenue')->toArray(),
-                'booking_types' => $bookingTypeStats->pluck('booking_type')->toArray(),
-                'booking_counts' => $bookingTypeStats->pluck('count')->toArray(),
-                'monthly_labels' => $monthlyTrend->map(function ($item) {
-                    return \Carbon\Carbon::create()->month($item->month)->format('M Y');
-                })->toArray(),
-                'monthly_revenue' => $monthlyTrend->pluck('monthly_revenue')->toArray(),
-            ]
+            'labels' => $salesData->pluck('date')->map(function ($date) {
+                return \Carbon\Carbon::parse($date)->format('M d');
+            }),
+            'bookings' => $salesData->pluck('total_bookings'),
+            'revenue' => $salesData->pluck('total_revenue')
         ];
+    }
+
+    public function getPropertyRoomReport($propertyId = null)
+    {
+        $data = $this->getPropertyRoomReportData($propertyId);
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'message' => 'Room report retrieved successfully'
+        ]);
     }
 
     public function analytics()
@@ -254,11 +364,6 @@ class DashboardController extends Controller
         return view('pages/dashboard/analytics');
     }
 
-    /**
-     * Displays the fintech screen
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
     public function fintech()
     {
         return view('pages/dashboard/fintech');

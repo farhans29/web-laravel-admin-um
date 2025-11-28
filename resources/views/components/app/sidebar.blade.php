@@ -397,6 +397,29 @@
                                 </a>
                             </li>
                         @endcan
+
+                        @can('view_room_availability')
+                            <li>
+                                <a href="{{ route('room-availability.index') }}"
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('roomAvailability.index', 'roomAvailability.*')) bg-indigo-900 @endif">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 15l2 2 4-4" />
+                                    </svg>
+                                    <span class="transition-opacity duration-200 whitespace-nowrap"
+                                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
+                                        x-show="sidebarExpanded || window.innerWidth < 1024">Room Availability</span>
+
+                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
+                                        class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                        Room Availability
+                                    </div>
+                                </a>
+                            </li>
+                        @endcan
                     </ul>
                 </div>
 

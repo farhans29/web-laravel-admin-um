@@ -17,6 +17,7 @@ use App\Http\Controllers\Properties\ManajementPropertiesController;
 use App\Http\Controllers\Properties\ManajementRoomsController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\RefundController;
+use App\Http\Controllers\RoomAvailability\RoomAvailabilityController;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -59,6 +60,8 @@ Route::get('storage/{path}', function ($path) {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/room-report', [DashboardController::class, 'getPropertyRoomReport']);
+    Route::get('/dashboard/room-report/{propertyId}', [DashboardController::class, 'getPropertyRoomReport']);
     Route::get('/progress', [DashboardController::class, 'progress_index'])->name('progress');
 
     Route::get('/account/getData', [UserController::class, 'accountGetData'])->name('account.getData');
@@ -121,6 +124,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/change-room', [ChangeRoomController::class, 'index'])->name('changerooom.index');
         Route::get('/change-room/available-rooms', [ChangeRoomController::class, 'getAvailableRooms']);
         Route::post('/change-room/store', [ChangeRoomController::class, 'store'])->name('changeroom.store');
+
+        // ---------------------------------------------------------------------------------------------------------------------
+
+        Route::get('/room-availability', [RoomAvailabilityController::class, 'index'])->name('room-availability.index');
+        Route::get('/room-availability/data', [RoomAvailabilityController::class, 'getAvailabilityData'])->name('room-availability.data');
+        Route::post('/room-availability/{id}/status', [RoomAvailabilityController::class, 'updateRentalStatus'])->name('room-availability.update-status');
+        Route::get('/room-availability/{room}/bookings', [RoomAvailabilityController::class, 'getRoomBookings'])->name('room-availability.bookings');
     });
 
     Route::prefix('properties')->group(function () {

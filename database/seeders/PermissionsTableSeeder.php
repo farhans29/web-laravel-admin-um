@@ -41,12 +41,14 @@ class PermissionsTableSeeder extends Seeder
             // Customers
             'view_customers',
 
+            // Rentals
+            'view_room_availability',
+
             // Financial
             'financial',
 
             // Payments
             'view_payments',
-            'view_invoices',
             'view_reports',
 
             // Settings

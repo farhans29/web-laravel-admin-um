@@ -121,13 +121,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 80px;
+            min-height: 120px; /* Diperbesar dari 80px */
             padding: 3px;
         }
 
         .document-image {
             max-width: 100%;
-            max-height: 70px;
+            max-height: 100px; /* Diperbesar dari 70px */
             object-fit: contain;
         }
 
@@ -237,6 +237,71 @@
             margin-bottom: 2px;
         }
 
+        /* New styles for vehicle form */
+        .vehicle-title {
+            font-weight: 700;
+            font-size: 13px;
+            margin: 12px 0 6px 0;
+            text-align: center;
+            text-decoration: underline;
+        }
+
+        .no-border {
+            border: none !important;
+        }
+
+        .checkbox-box {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border: 1px solid #000;
+            margin-right: 5px;
+        }
+
+        .signature-box {
+            height: 30px;
+            border: 1px solid #000;
+            margin-top: 5px;
+        }
+
+        .vehicle-section {
+            margin-top: 8px;
+        }
+
+        .compact-list {
+            font-size: 9px;
+            line-height: 1.2;
+            margin: 4px 0;
+        }
+
+        /* New styles for two-column layout */
+        .two-column-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .penalty-column {
+            flex: 1.5;
+        }
+
+        .vehicle-column {
+            flex: 1;
+        }
+
+        .vehicle-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9px;
+            margin-bottom: 6px;
+        }
+
+        .vehicle-table td {
+            border: 1px solid #000;
+            padding: 3px 4px;
+            vertical-align: top;
+        }
+
         @media print {
             body {
                 margin: 0;
@@ -273,7 +338,15 @@
             }
             
             .document-section {
-                min-height: 75px;
+                min-height: 100px; /* Diperbesar dari 75px */
+            }
+
+            .compact-list {
+                font-size: 8px;
+            }
+
+            .two-column-container {
+                gap: 6px;
             }
         }
 
@@ -291,7 +364,7 @@
         </div>
         <div class="header-content">
             <h2>ULIN MAHONI</h2>
-            <p><span class="en-text">REGISTRATION FORM</span> / FORMULIR PENDAFTARAN</p>
+            <p><span class="en-text">MONTHLY REGISTRATION FORM</span> / FORMULIR PENDAFTARAN BULANAN</p>
         </div>
     </div>
 
@@ -304,7 +377,7 @@
             <td><span class="en-text"><strong>ETD</span></strong><br>{{ $bookingDetails['check_out_time'] }}</td>
         </tr>
         <tr>
-            <td><span class="en-text"><strong>Rate Per Night</span> / Harga Per Malam</strong><br>{{ $bookingDetails['total_payment'] }}</td>
+            <td><span class="en-text"><strong>Monthly Rate</span> / Harga Bulanan</strong><br>{{ $bookingDetails['total_payment'] }}</td>
             <td><span class="en-text"><strong>Number of Guest</span> / Jumlah Tamu</strong><br>{{ $bookingDetails['guest_count'] }}</td>
             <td><span class="en-text"><strong>Advance Payment</span> / Uang Muka</strong><br>{{ $bookingDetails['advance_payment'] }}</td>
             <td><span class="en-text"><strong>Room Type</span> / Jenis Kamar</strong><br>{{ $bookingDetails['room_name'] }}</td>
@@ -340,19 +413,19 @@
                 <div class="compact-text">
                     <span class="en-text"><strong>SYARAT DAN KETENTUAN</strong></span><br>
                     <em class="en-text">
-                        This Registration Form is accepted and approved in accordance with the Terms and Conditions as stated in the attached Room Rental Agreement No. …… dated {{ $currentDate }} ("Rental Agreement"). This Registration Form is an inseparable part of the Rental Agreement.
+                        This Monthly Registration Form is accepted and approved in accordance with the Terms and Conditions as stated in the attached Monthly Room Rental Agreement No. …… dated {{ $currentDate }} ("Monthly Rental Agreement"). This Monthly Registration Form is an inseparable part of the Monthly Rental Agreement.
                     </em><br>
                     <span class="id-text">
-                        Formulir Pendaftaran ini diterima dan disetujui dengan Syarat dan Ketentuan sebagaimana terlampir di dalam Perjanjian Sewa Menyewa Kamar Kost No. …… tanggal {{ $currentDate }} ("Perjanjian Sewa Menyewa") dan menjadi satu kesatuan serta bagian yang tidak terpisahkan dari Formulir Pendaftaran ini.
+                        Formulir Pendaftaran Bulanan ini diterima dan disetujui dengan Syarat dan Ketentuan sebagaimana terlampir di dalam Perjanjian Sewa Menyewa Kamar Kost Bulanan No. …… tanggal {{ $currentDate }} ("Perjanjian Sewa Menyewa Bulanan") dan menjadi satu kesatuan serta bagian yang tidak terpisahkan dari Formulir Pendaftaran Bulanan ini.
                     </span>
                 </div>
                 <div class="compact-text">
                     <strong>DISCLAIMER / PENAFIAN</strong><br>
                     <em class="en-text">
-                        Ulin Mahoni shall not be held responsible for any damage, loss, or inconvenience experienced by tenants or visitors caused by failure to comply with the Terms and Conditions stated in this Registration Form and Rental Agreement. By signing, the tenant waives their right to file any claim or legal action against Ulin Mahoni.
+                        Ulin Mahoni shall not be held responsible for any damage, loss, or inconvenience experienced by tenants or visitors caused by failure to comply with the Terms and Conditions stated in this Monthly Registration Form and Monthly Rental Agreement. By signing, the tenant waives their right to file any claim or legal action against Ulin Mahoni.
                     </em><br>
                     <span class="id-text">
-                        Ulin Mahoni tidak bertanggung jawab atas kerusakan dan/atau kehilangan dan/atau kerugian yang diderita oleh Penyewa dan/atau tamu yang diakibatkan oleh tidak dipatuhinya Syarat dan Ketentuan yang tercantum di dalam Formulir Pendaftaran ini dan Perjanjian Sewa Menyewa. Dengan ini, Penyewa melepaskan haknya untuk mengajukan klaim/tuntutan/gugatan kepada Ulin Mahoni.
+                        Ulin Mahoni tidak bertanggung jawab atas kerusakan dan/atau kehilangan dan/atau kerugian yang diderita oleh Penyewa dan/atau tamu yang diakibatkan oleh tidak dipatuhinya Syarat dan Ketentuan yang tercantum di dalam Formulir Pendaftaran Bulanan ini dan Perjanjian Sewa Menyewa Bulanan. Dengan ini, Penyewa melepaskan haknya untuk mengajukan klaim/tuntutan/gugatan kepada Ulin Mahoni.
                     </span>
                 </div>
             </td>
@@ -419,50 +492,136 @@
         </tr>
     </table>
 
-    <table class="penalty-table">
-        <tr>
-            <td class="penalty-title">
-                <div class="penalty-content">
-                    <span class="en-text"><strong>PENALTY INFORMATION</strong> / INFORMASI DENDA</span><br><br>
+    <div class="two-column-container">
+        <!-- Penalty Information Column -->
+        <div class="penalty-column">
+            <table class="penalty-table">
+                <tr>
+                    <td class="penalty-title">
+                        <div class="penalty-content">
+                            <span class="en-text"><strong>PENALTY INFORMATION / INFORMASI DENDA</strong></span><br><br>
 
-                    <div style="font-weight: normal;">
-                        Ulin Mahoni tidak bertanggung jawab dan Penyewa melepaskan haknya untuk mengajukan klaim/tuntutan/gugatan kepada Ulin Mahoni apabila:
+                            <div style="font-weight: normal; line-height:1.3;">
 
-                        <ol>
-                            <li>Terjadi kerusakan dan/atau kehilangan terhadap barang pribadi milik Penyewa dan/atau tamu dari Penyewa.</li>
-                            <li>Terjadi kerusakan dan/atau kehilangan terhadap kendaraan milik Penyewa dan/atau tamu dari Penyewa.</li>
-                        </ol>
+                                Ulin Mahoni tidak bertanggung jawab dan Penyewa melepaskan haknya untuk mengajukan
+                                klaim/tuntutan/gugatan kepada Ulin Mahoni, apabila:
+                                <br>
 
-                        <strong>13. Penyewa wajib membayarkan denda kepada Ulin Mahoni, apabila:</strong>
+                                <ol style="margin-top:3px;">
+                                    <li>Terjadi kerusakan dan/atau kehilangan terhadap barang pribadi milik Penyewa dan/atau
+                                        tamu dari Penyewa.</li>
+                                    <li>Terjadi kerusakan dan/atau kehilangan terhadap kendaraan milik Penyewa dan/atau tamu
+                                        dari Penyewa.</li>
+                                </ol>
 
-                        <ol type="a">
-                            <li>Membawa durian ke kamar kost. Penyewa wajib membayarkan denda sebesar <strong>Rp 2.000.000,- (Dua Juta Rupiah)</strong>.</li>
-                            <li>Merusak kamar kost dan/atau fasilitas atau ruangan lain pada bangunan kost. Penyewa wajib membayarkan denda sebesar kerugian yang diderita oleh Ulin Mahoni.</li>
-                            <li>Kebakaran yang terbukti diakibatkan oleh Penyewa sebesar kerugian yang diderita oleh Ulin Mahoni. Penyewa wajib membayarkan denda sebesar kerugian yang diderita oleh Ulin Mahoni.</li>
-                        </ol>
+                                <strong>13. Penyewa wajib membayarkan denda kepada Ulin Mahoni, apabila:</strong>
 
-                        <div>
-                            Penyewa wajib membayarkan denda sebagaimana huruf a sampai dengan c di atas.<br>
-                            Apabila Penyewa melanggar baik sebagian maupun seluruh perjanjian ini dan S&amp;K, maka deposit yang telah dibayarkan oleh Penyewa tidak akan dikembalikan. Dalam hal ini Penyewa melepaskan haknya untuk mengajukan klaim/tuntutan/gugatan kepada Ulin Mahoni.
-                        </div>
+                                <ol type="a" style="margin-top:3px;">
+                                    <li>
+                                        Membawa Durian ke Kamar Kost. Penyewa wajib membayarkan denda sebesar
+                                        <strong>Rp 2,000,000,- (Dua Juta Rupiah).</strong>
+                                    </li>
+                                    <li>
+                                        Merusak Kamar Kost dan/atau fasilitas atau ruangan lain pada bangunan kost.
+                                        Penyewa wajib membayarkan denda sebesar kerugian yang diderita oleh Ulin Mahoni.
+                                    </li>
+                                    <li>
+                                        Kebakaran yang terbukti diakibatkan oleh Penyewa sebesar kerugian yang diderita oleh
+                                        Ulin Mahoni.
+                                        Penyewa wajib membayarkan denda sebesar kerugian yang diderita oleh Ulin Mahoni.
+                                    </li>
+                                </ol>
 
-                        <div style="margin-top:6px;">
-                            <strong>Penalty for lost key card:</strong> Rp 50.000<br>
-                            <strong>Denda untuk kartu kunci yang hilang:</strong> Rp 50.000
-                        </div>
+                                <div style="margin-top:4px;">
+                                    Penyewa wajib membayarkan denda sebagaimana huruf a sampai dengan c di atas.<br>
+                                    Apabila Penyewa melanggar baik sebagian maupun seluruh Perjanjian ini dan S&amp;K,
+                                    maka Deposit yang telah dibayarkan oleh Penyewa tidak akan dikembalikan.
+                                    Dalam hal ini Penyewa melepaskan haknya untuk mengajukan klaim/tuntutan/gugatan kepada Ulin
+                                    Mahoni.
+                                </div>
 
-                        <div style="display:flex; justify-content:flex-end; margin-top:10px; text-align:right;">
-                            <div>
-                                <strong>Date / Tanggal:</strong><br>
-                                {{ $currentDate }}
+                                <div style="margin-top:6px;">
+                                    Penalty for lost key card Rp. 50.000<br>
+                                    Denda untuk kartu kunci yang hilang Rp. 50.000
+                                </div>
+
+                                <div style="display:flex; justify-content:flex-end; margin-top:12px; text-align:right;">
+                                    <div>
+                                        <strong>Date / Tanggal:</strong><br>
+                                        {{ $currentDate }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
+        <!-- Vehicle Information Column -->
+        <div class="vehicle-column">
+            <div class="vehicle-section">
+                <!-- Informasi Kendaraan -->
+                <div class="section-title">Informasi Kendaraan</div>
+
+                <table class="vehicle-table">
+                    <tr>
+                        <td width="40%"><strong>Jenis Kendaraan</strong><br></td>
+                        <td width="30%"><strong>Merk / Tipe</strong><br></td>
+                        <td width="30%"><strong>Warna Kendaraan</strong><br></td>
+                    </tr>
+                    <tr>
+                        <td><strong>STNK atas nama</strong><br></td>
+                        <td colspan="2"><strong>Plat Nomor</strong><br></td>
+                    </tr>
+                </table>
+
+                <div class="section-title">Lampiran Wajib</div>
+
+                <table class="no-border">
+                    <tr class="no-border">
+                        <td class="no-border"><span class="checkbox-box"></span> Fotokopi / Foto STNK</td>
+                    </tr>
+                    <tr class="no-border">
+                        <td class="no-border"><span class="checkbox-box"></span> Foto Kendaraan</td>
+                    </tr>
+                    <tr class="no-border">
+                        <td class="no-border"><span class="checkbox-box"></span> Fotokopi KTP Penyewa</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">Pernyataan</div>
+
+                <div class="compact-list">
+                    Saya yang bertanda tangan di bawah ini menyatakan bahwa data yang saya isi adalah benar.
+                    Saya juga bersedia mematuhi aturan parkir dan ketertiban kendaraan yang berlaku di lingkungan kost.
+                </div>
+
+                <div class="compact-list">
+                    Form ini berlaku <strong>hanya untuk satu kendaraan.</strong> Jika penghuni memiliki lebih dari satu kendaraan
+                    maka akan dikenakan charge sebesar:
+                    <br>1. Mobil: Rp. 250.000/bulan
+                    <br>2. Motor: Rp. 100.000/bulan
+                </div>
+
+                <table class="vehicle-table">
+                    <tr>
+                        <td width="50%">
+                            Tanggal pengisian: _____ / ______ / _____ <br><br>
+                            Tanda Tangan Penyewa:
+                            <div class="signature-box"></div>
+                        </td>
+
+                        <td width="50%">
+                            Untuk Pengelola Kost: <br><br>
+                            Disetujui oleh: __________________ <br><br>
+                            Tanggal Verifikasi: _____ / ______ / _____
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
     <div style="margin-top: 8px; font-size: 8px; text-align: center; color: #555; line-height: 1.1;">
         <p>Dokumen ini dibuat secara elektronik oleh Ulin Mahoni dan sah tanpa tanda tangan basah.</p>
         <p>© {{ date('Y') }} Ulin Mahoni — Semua Hak Dilindungi Undang-Undang.</p>

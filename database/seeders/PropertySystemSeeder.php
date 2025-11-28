@@ -47,7 +47,7 @@ class PropertySystemSeeder extends Seeder
         ];
 
         $amenities = json_encode(['High-speed WiFi', 'Parking', 'Swimming Pool', 'Gym', 'Restaurant']);
-        
+
         $rules = json_encode(['No Smoking', 'No Pets', 'Check-in after 2PM', 'Check-out before 12PM', 'ID Card Required', 'Deposit Required']);
 
         $i = 1;
@@ -73,7 +73,7 @@ class PropertySystemSeeder extends Seeder
                 'price_original_daily' => rand(500000, 2000000),
                 'price_discounted_daily' => rand(400000, 1800000),
                 'price_original_monthly' => rand(10000000, 30000000),
-                'price_discounted_monthly' => rand(9000000, 28000000),                
+                'price_discounted_monthly' => rand(9000000, 28000000),
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -127,6 +127,7 @@ class PropertySystemSeeder extends Seeder
                         'discounted_monthly' => $monthlyPrice * 0.85
                     ]),
                     'status' => 1,
+                    'rental_status' => 0, // Default 0, akan diupdate nanti
                     'created_at' => now(),
                     'updated_at' => now(),
                     'created_by' => 1,
@@ -137,7 +138,6 @@ class PropertySystemSeeder extends Seeder
             }
         }
 
-
         DB::table('m_rooms')->insert($rooms);
 
         // Seed t_transactions, t_booking, and t_payment
@@ -147,6 +147,9 @@ class PropertySystemSeeder extends Seeder
 
         // Define the user IDs from AccountAdminSeeder (1-8)
         $userIds = range(1, 8);
+
+        // Array untuk melacak room yang memiliki booking bulanan
+        $monthlyBookedRooms = [];
 
         for ($k = 1; $k <= 10; $k++) {
 
@@ -168,9 +171,6 @@ class PropertySystemSeeder extends Seeder
             $checkOut = (clone $checkIn)->addDays(rand(1, 14))->setTime(12, 0);
             $bookingDays = $checkIn->diffInDays($checkOut);
 
-            // ==========================
-            // PRICE LOGIC
-            // ==========================
             $price = json_decode($room['price'], true);
 
             $hasDaily   = isset($price['discounted_daily']) || isset($price['original_daily']);
@@ -210,16 +210,15 @@ class PropertySystemSeeder extends Seeder
                 $months = rand(1, 3);
                 $roomPrice = $monthlyPrice * $months;
                 $bookingMonths = $months;
+
+                // Tandai room ini memiliki booking bulanan
+                $monthlyBookedRooms[$room['idrec']] = true;
             }
 
             $adminFees = $roomPrice * 0.2;
             $grandTotal = $roomPrice + $adminFees;
             $paidAt = now()->subDays(rand(0, 10));
 
-
-            // ====================
-            // User mapping
-            // ====================
             switch ($userId) {
                 case 1:
                     $userName = 'Admin System';
@@ -295,7 +294,6 @@ class PropertySystemSeeder extends Seeder
                 'updated_at' => now()
             ];
 
-
             // ==========================
             // BOOKING RECORD
             // ==========================
@@ -332,5 +330,13 @@ class PropertySystemSeeder extends Seeder
         DB::table('t_transactions')->insert($transactions);
         DB::table('t_booking')->insert($bookings);
         DB::table('t_payment')->insert($payments);
+
+        // Update rental_status di m_rooms berdasarkan booking bulanan
+        if (!empty($monthlyBookedRooms)) {
+            $monthlyRoomIds = array_keys($monthlyBookedRooms);
+            DB::table('m_rooms')
+                ->whereIn('idrec', $monthlyRoomIds)
+                ->update(['rental_status' => 1]);
+        }
     }
 }

@@ -143,7 +143,7 @@
                             'checkOuts' => $checkOuts,
                             'per_page' => request('per_page', 4),
                             'type' => 'check-out',
-                            'showStatus' => false, 
+                            'showStatus' => false,
                             'showActions' => false,
                         ])
                     </div>
@@ -180,7 +180,7 @@
                             'checkIns' => $checkIns,
                             'per_page' => request('per_page', 4),
                             'type' => 'check-in',
-                            'showStatus' => false, 
+                            'showStatus' => false,
                             'showActions' => false,
                         ])
                     </div>
@@ -191,8 +191,215 @@
             </div>
         </div>
 
-       
+        <!-- Room Reports Section -->
+        <div class="mt-8 grid grid-cols-2 lg:grid-cols-2 gap-8">
+            <!-- Room Availability Report -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <div class="flex justify-between items-center mb-6">
+                        <!-- Left Section -->
+                        <div class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            <h2 class="font-semibold text-gray-800 text-lg">Laporan Ketersediaan Kamar</h2>
+                        </div>
+
+                        <!-- Search Input -->
+                        <div class="relative w-full max-w-xs hidden sm:block">
+                            <input id="searchKamar" type="text" placeholder="Cari Properti..."
+                                class="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+                            </svg>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="p-6">
+                    @if (is_array($roomReports) && count($roomReports) > 0)
+                        @foreach ($roomReports as $propertyId => $report)
+                            <div class="mb-6 last:mb-0 p-4 border border-gray-200 rounded-lg">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="font-semibold text-gray-700">{{ $report['property']['name'] }}</h3>
+                                    <a href=""
+                                        class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
+                                        Lihat Semua
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </a>
+                                </div>
+
+                                <!-- Room Stats -->
+                                <div class="grid grid-cols-3 gap-4 mb-4">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-gray-800">
+                                            {{ $report['room_stats']['total_rooms'] }}</div>
+                                        <div class="text-sm text-gray-600">Total Kamar</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-green-600">
+                                            {{ $report['room_stats']['available_rooms'] }}</div>
+                                        <div class="text-sm text-gray-600">Tersedia</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-orange-600">
+                                            {{ $report['room_stats']['booked_rooms'] }}</div>
+                                        <div class="text-sm text-gray-600">Terisi</div>
+                                    </div>
+                                </div>
+
+                                <!-- Occupancy Rate -->
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                        <span>Occupancy Rate</span>
+                                        <span>{{ $report['room_stats']['occupancy_rate'] }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full"
+                                            style="width: {{ $report['room_stats']['occupancy_rate'] }}%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Room Types Breakdown -->
+                                @if (count($report['room_types_breakdown']) > 0)
+                                    <div class="mt-4">
+                                        <h4 class="font-medium text-gray-700 mb-2">Breakdown Tipe Kamar</h4>
+                                        <div class="space-y-2">
+                                            @foreach ($report['room_types_breakdown'] as $roomType)
+                                                <div class="flex justify-between items-center text-sm">
+                                                    <span class="text-gray-600">{{ $roomType->type }}</span>
+                                                    <div class="flex items-center space-x-2">
+                                                        <span
+                                                            class="text-gray-500">{{ $roomType->available_rooms }}/{{ $roomType->total_rooms }}</span>
+                                                        <span
+                                                            class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                                            {{ $roomType->total_rooms > 0 ? round(($roomType->available_rooms / $roomType->total_rooms) * 100) : 0 }}%
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-8 text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="mt-2">Tidak ada data laporan kamar</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Detailed Duration & Sales Report -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-teal-50">
+                    <div class="flex items-center space-x-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h2 class="font-semibold text-gray-800 text-lg">Detail Durasi Sewa & Penjualan</h2>
+                    </div>
+                </div>
+                <div class="p-6">
+                    @if (is_array($roomReports) && count($roomReports) > 0)
+                        @foreach ($roomReports as $propertyId => $report)
+                            <div class="mb-6 last:mb-0">
+                                <h3 class="font-semibold text-gray-700 mb-3">{{ $report['property']['name'] }}
+                                </h3>
+
+                                <!-- Durasi Sewa -->
+                                <div class="mb-4">
+                                    <h4 class="font-medium text-gray-700 mb-2">Statistik Durasi Sewa</h4>
+                                    <div class="grid grid-cols-3 gap-4 text-sm">
+                                        <div class="text-center p-2 bg-blue-50 rounded-lg">
+                                            <div class="font-bold text-blue-600">
+                                                {{ $report['booking_durations']['average_duration'] }} hari</div>
+                                            <div class="text-blue-500 text-xs">Rata-rata</div>
+                                        </div>
+                                        <div class="text-center p-2 bg-green-50 rounded-lg">
+                                            <div class="font-bold text-green-600">
+                                                {{ $report['booking_durations']['min_duration'] }} hari</div>
+                                            <div class="text-green-500 text-xs">Terpendek</div>
+                                        </div>
+                                        <div class="text-center p-2 bg-purple-50 rounded-lg">
+                                            <div class="font-bold text-purple-600">
+                                                {{ $report['booking_durations']['max_duration'] }} hari</div>
+                                            <div class="text-purple-500 text-xs">Terlama</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Breakdown Durasi -->
+                                @if (count($report['booking_durations']['duration_ranges']) > 0)
+                                    <div class="mb-4">
+                                        <h4 class="font-medium text-gray-700 mb-2">Distribusi Durasi</h4>
+                                        <div class="space-y-2">
+                                            @foreach ($report['booking_durations']['duration_ranges'] as $duration)
+                                                <div
+                                                    class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                                    <span
+                                                        class="text-sm font-medium text-gray-700">{{ $duration->duration_range }}</span>
+                                                    <div class="flex items-center space-x-2">
+                                                        <span
+                                                            class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+                                                            {{ $duration->count }} booking
+                                                        </span>
+                                                        <span class="text-xs text-gray-500">
+                                                            {{ $report['booking_durations']['total_bookings'] > 0 ? round(($duration->count / $report['booking_durations']['total_bookings']) * 100, 1) : 0 }}%
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Monthly Sales -->
+                                <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <h4 class="font-medium text-yellow-800 mb-2">Penjualan Bulan Ini</h4>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div class="text-center">
+                                            <div class="text-xl font-bold text-yellow-700">
+                                                {{ $report['monthly_sales']['total_bookings'] }}</div>
+                                            <div class="text-yellow-600 text-xs">Total Booking</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-xl font-bold text-yellow-700">Rp
+                                                {{ number_format($report['monthly_sales']['total_revenue'], 0, ',', '.') }}
+                                            </div>
+                                            <div class="text-yellow-600 text-xs">Total Pendapatan</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-8 text-gray-500">
+                            <p>Tidak ada data laporan</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
     </div>
 
-   <script></script>
+    <script></script>
 </x-app-layout>
