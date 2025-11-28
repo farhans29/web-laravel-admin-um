@@ -37,7 +37,7 @@
                     x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak>
 
                     <div class="bg-white rounded-2xl shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
-                        @click.outside="modalOpen = false" @keydown.escape.window="modalOpen = false">
+                        @click.outside="modalOpen = true" @keydown.escape.window="modalOpen = false">
 
                         <!-- Modal header with step indicator -->
                         <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">

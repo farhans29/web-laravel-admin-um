@@ -75,7 +75,7 @@
         x-transition:leave-end="opacity-0 translate-y-4 scale-95" x-cloak>
 
         <div class="bg-white rounded-2xl shadow-lg overflow-auto w-3/4 max-h-full flex flex-col text-left"
-            @click.outside="editModalOpen = false" @keydown.escape.window="editModalOpen = false">
+            @click.outside="editModalOpen = true" @keydown.escape.window="editModalOpen = false">
 
             <!-- Modal header with step indicator -->
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -225,7 +225,7 @@
 
 
                             <!-- Row digabung 1 baris -->
-                            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <div class="grid grid-cols-4 md:grid-cols-4 gap-4">
 
                                 <!-- Nomor Kamar -->
                                 <div>
@@ -265,7 +265,7 @@
                                 </div>
 
                                 <!-- Ukuran Kamar -->
-                                <div>
+                                <div class="hidden">
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                                         Ukuran Kamar (m²) <span class="text-red-500">*</span>
                                     </label>
@@ -1274,10 +1274,6 @@
                     }
                     if (!this.roomData.number || !this.roomData.number.toString().trim()) {
                         alert('Nomor kamar harus diisi');
-                        return false;
-                    }
-                    if (!this.roomData.size) {
-                        alert('Ukuran kamar harus diisi');
                         return false;
                     }
                     if (!this.roomData.bed) {
