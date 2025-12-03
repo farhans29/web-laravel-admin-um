@@ -151,16 +151,272 @@ class PropertySystemSeeder extends Seeder
         // Array untuk melacak room yang memiliki booking bulanan
         $monthlyBookedRooms = [];
 
-        for ($k = 1; $k <= 10; $k++) {
+        // ==========================
+        // SPECIAL BOOKING: 3 USER MEMESAN KAMAR YANG SAMA
+        // ==========================
+        $specialRoomId = 1; // Pilih kamar pertama untuk booking khusus
+        $specialPropertyId = 1; // Property ID untuk kamar khusus
+        $specialProperty = $properties[$specialPropertyId];
+        $specialRoom = $rooms[$specialRoomId - 1]; // Karena array rooms dimulai dari index 0
 
+        // User untuk booking khusus
+        $specialUsers = [
+            [
+                'id' => 4,
+                'name' => 'Farhan',
+                'email' => 'm.farhanshihab11@gmail.com',
+                'booking_type' => 'daily',
+                'days' => 2
+            ],
+            [
+                'id' => 6,
+                'name' => 'Hadrian',
+                'email' => 'hadriannaufal10@gmail.com',
+                'booking_type' => 'daily',
+                'days' => 2
+            ],
+            [
+                'id' => 8,
+                'name' => 'Vincent',
+                'email' => 'vincent.code7@gmail.com',
+                'booking_type' => 'monthly',
+                'months' => 1
+            ]
+        ];
+
+        // Tanggal yang berbeda untuk setiap booking
+        $baseDate = now()->addDays(5); // Mulai dari 5 hari dari sekarang
+        $bookingDates = [
+            $baseDate->copy(),
+            $baseDate->copy()->addDays(10), // 10 hari setelah booking pertama
+            $baseDate->copy()->addDays(20)  // 20 hari setelah booking pertama
+        ];
+
+        foreach ($specialUsers as $index => $user) {
+            $orderId = 'SPECIAL-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6));
+            $transactionDate = now();
+
+            $price = json_decode($specialRoom['price'], true);
+
+            // Tentukan tanggal check-in dan check-out
+            $checkIn = $bookingDates[$index]->copy()->setTime(14, 0);
+
+            if ($user['booking_type'] === 'daily') {
+                $checkOut = $checkIn->copy()->addDays($user['days'])->setTime(12, 0);
+                $bookingDays = $user['days'];
+                $bookingMonths = null;
+
+                $dailyPrice = $price['discounted_daily'] ?? $price['original_daily'];
+                $monthlyPrice = null;
+                $roomPrice = $dailyPrice * $bookingDays;
+            } else {
+                $checkOut = $checkIn->copy()->addMonths($user['months'])->setTime(12, 0);
+                $bookingDays = null;
+                $bookingMonths = $user['months'];
+
+                $dailyPrice = null;
+                $monthlyPrice = $price['discounted_monthly'] ?? $price['original_monthly'];
+                $roomPrice = $monthlyPrice * $bookingMonths;
+
+                // Tandai room ini memiliki booking bulanan
+                $monthlyBookedRooms[$specialRoomId] = true;
+            }
+
+            $adminFees = $roomPrice * 0.2;
+            $grandTotal = $roomPrice + $adminFees;
+            $paidAt = now()->subDays(rand(0, 10));
+
+            // ==========================
+            // TRANSACTION RECORD
+            // ==========================
+            $transactions[] = [
+                'property_id' => (string)$specialPropertyId,
+                'room_id' => (string)$specialRoomId,
+                'order_id' => $orderId,
+                'user_id' => $user['id'],
+                'user_name' => $user['name'],
+                'user_phone_number' => '0812' . rand(1000000, 9999999),
+                'property_name' => $specialProperty['name'],
+                'transaction_date' => $transactionDate,
+                'check_in' => $checkIn,
+                'check_out' => $checkOut,
+                'room_name' => $specialRoom['name'],
+                'user_email' => $user['email'],
+                'booking_days' => $bookingDays,
+                'booking_months' => $bookingMonths,
+
+                // NEW REQUIRED FIELD
+                'booking_type' => $user['booking_type'],
+
+                // Finalized Pricing
+                'daily_price' => $dailyPrice,
+                'monthly_price' => $monthlyPrice,
+                'room_price' => $roomPrice,
+                'admin_fees' => $adminFees,
+                'grandtotal_price' => $grandTotal,
+
+                'property_type' => 'Hotel',
+                'transaction_type' => 'cash',
+                'transaction_code' => 'SPECIAL-' . strtoupper(Str::random(8)),
+                'transaction_status' => 'paid',
+                'status' => '1',
+                'paid_at' => $paidAt,
+                'notes' => 'Special booking - ' . $user['booking_type'] . ' period',
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+            // ==========================
+            // BOOKING RECORD
+            // ==========================
+            $bookings[] = [
+                'property_id' => $specialPropertyId,
+                'order_id' => $orderId,
+                'room_id' => (string)$specialRoomId,
+                'check_in_at' => null,
+                'check_out_at' => null,
+                'created_by' => $user['id'],
+                'updated_by' => $user['id'],
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+            // ==========================
+            // PAYMENT RECORD
+            // ==========================
+            $payments[] = [
+                'order_id'          => $orderId,
+                'user_id'           => $user['id'],
+                'grandtotal_price'  => $grandTotal,
+                'verified_by'       => null,
+                'verified_at'       => null,
+                'notes'             => "Pembayaran untuk special booking $orderId",
+                'payment_status'    => 'paid',
+                'created_at'        => now(),
+                'updated_at'        => now(),
+                'created_by'        => $user['id']
+            ];
+        }
+
+        // ==========================
+        // BOOKING HARI INI (TODAY BOOKING)
+        // ==========================
+        // Pilih kamar yang berbeda untuk booking hari ini
+        $todayRoomId = 2; // Pilih kamar kedua untuk booking hari ini
+        $todayPropertyId = 2; // Property ID untuk booking hari ini
+        $todayProperty = $properties[$todayPropertyId];
+        $todayRoom = $rooms[$todayRoomId - 1];
+
+        // User untuk booking hari ini
+        $todayUser = [
+            'id' => 3,
+            'name' => 'Jhon Doe',
+            'email' => 'jhondoe@gmail.com',
+            'booking_type' => 'daily',
+            'days' => 3
+        ];
+
+        $orderId = 'TODAY-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6));
+        $transactionDate = now();
+        $price = json_decode($todayRoom['price'], true);
+
+        // Check-in hari ini pukul 14:00
+        $checkIn = now()->setTime(14, 0);
+        // Check-out 3 hari dari sekarang pukul 12:00
+        $checkOut = now()->addDays(3)->setTime(12, 0);
+        $bookingDays = 3;
+
+        $dailyPrice = $price['discounted_daily'] ?? $price['original_daily'];
+        $roomPrice = $dailyPrice * $bookingDays;
+        $adminFees = $roomPrice * 0.2;
+        $grandTotal = $roomPrice + $adminFees;
+        $paidAt = now()->subHours(5); // Sudah dibayar 5 jam yang lalu
+
+        // ==========================
+        // TRANSACTION RECORD untuk booking hari ini
+        // ==========================
+        $transactions[] = [
+            'property_id' => (string)$todayPropertyId,
+            'room_id' => (string)$todayRoomId,
+            'order_id' => $orderId,
+            'user_id' => $todayUser['id'],
+            'user_name' => $todayUser['name'],
+            'user_phone_number' => '0812' . rand(1000000, 9999999),
+            'property_name' => $todayProperty['name'],
+            'transaction_date' => $transactionDate,
+            'check_in' => $checkIn,
+            'check_out' => $checkOut,
+            'room_name' => $todayRoom['name'],
+            'user_email' => $todayUser['email'],
+            'booking_days' => $bookingDays,
+            'booking_months' => null,
+            'booking_type' => 'daily',
+            'daily_price' => $dailyPrice,
+            'monthly_price' => null,
+            'room_price' => $roomPrice,
+            'admin_fees' => $adminFees,
+            'grandtotal_price' => $grandTotal,
+            'property_type' => 'Hotel',
+            'transaction_type' => 'cash',
+            'transaction_code' => 'TODAY-' . strtoupper(Str::random(8)),
+            'transaction_status' => 'paid',
+            'status' => '1',
+            'paid_at' => $paidAt,
+            'notes' => 'Booking yang check-in hari ini',
+            'created_at' => now()->subHours(6),
+            'updated_at' => now()
+        ];
+
+        // ==========================
+        // BOOKING RECORD untuk hari ini
+        // ==========================
+        $bookings[] = [
+            'property_id' => $todayPropertyId,
+            'order_id' => $orderId,
+            'room_id' => (string)$todayRoomId,
+            'check_in_at' => null, // Belum check-in, akan dilakukan hari ini
+            'check_out_at' => null,
+            'created_by' => $todayUser['id'],
+            'updated_by' => $todayUser['id'],
+            'status' => 1,
+            'created_at' => now()->subHours(6),
+            'updated_at' => now()
+        ];
+
+        // ==========================
+        // PAYMENT RECORD untuk hari ini
+        // ==========================
+        $payments[] = [
+            'order_id'          => $orderId,
+            'user_id'           => $todayUser['id'],
+            'grandtotal_price'  => $grandTotal,
+            'verified_by'       => 1, // Admin System
+            'verified_at'       => $paidAt,
+            'notes'             => "Pembayaran untuk booking $orderId (check-in hari ini)",
+            'payment_status'    => 'paid',
+            'created_at'        => now()->subHours(6),
+            'updated_at'        => now(),
+            'created_by'        => $todayUser['id']
+        ];
+
+        // ==========================
+        // REGULAR BOOKING (sisanya)
+        // ==========================
+        for ($k = 1; $k <= 6; $k++) { // Kurangi menjadi 6 karena sudah ada 3 special booking + 1 booking hari ini
             $userId = $userIds[array_rand($userIds)];
             $propertyId = rand(1, 5);
-            $property = $properties[$propertyId];
 
-            $propertyRooms = array_filter($rooms, function ($room) use ($propertyId) {
-                return $room['property_id'] == $propertyId;
-            });
-            $room = $propertyRooms[array_rand($propertyRooms)];
+            // Hindari menggunakan kamar yang sama dengan special booking atau booking hari ini
+            do {
+                $property = $properties[$propertyId];
+                $propertyRooms = array_filter($rooms, function ($room) use ($propertyId) {
+                    return $room['property_id'] == $propertyId;
+                });
+                $room = $propertyRooms[array_rand($propertyRooms)];
+            } while (($room['idrec'] == $specialRoomId && $propertyId == $specialPropertyId) ||
+                ($room['idrec'] == $todayRoomId && $propertyId == $todayPropertyId)
+            );
 
             $orderId = 'ORD-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6));
             $transactionDate = now();
@@ -187,7 +443,6 @@ class PropertySystemSeeder extends Seeder
                 $bookingTypeText = 'monthly';
                 $monthlyPrice = $price['discounted_monthly'] ?? $price['original_monthly'];
             } elseif ($hasDaily && $hasMonthly) {
-
                 $pick = rand(0, 1); // random: 0=daily, 1=monthly
 
                 if ($pick === 0) {
@@ -229,8 +484,8 @@ class PropertySystemSeeder extends Seeder
                     $userEmail = 'user_tsno@gmail.com';
                     break;
                 case 3:
-                    $userName = 'Purchasing Staff';
-                    $userEmail = 'purchasing_tsno@gmail.com';
+                    $userName = 'Jhon Doe';
+                    $userEmail = 'jhondoe@gmail.com';
                     break;
                 case 4:
                     $userName = 'Farhan';

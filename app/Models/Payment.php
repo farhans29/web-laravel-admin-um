@@ -24,6 +24,12 @@ class Payment extends Model
         'updated_by',
     ];
 
+    protected $casts = [
+        'created_by' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function transaction()
     {
         return $this->belongsTo(Transaction::class, 'order_id', 'order_id');

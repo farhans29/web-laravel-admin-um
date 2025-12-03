@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AccountSettings\UserSettingsController;
 use App\Http\Controllers\Bookings\Booking\AllBookingController;
 use App\Http\Controllers\Bookings\CheckIn\CheckInController;
 use App\Http\Controllers\Bookings\CheckOut\CheckOutController;
@@ -89,6 +90,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user-access/edit', [UserController::class, 'indexUserAccessManagement'])->name('user-access.edit');
     Route::get('/user-access/{userId}/permissions', [UserController::class, 'getUserPermissions']);
     Route::post('/user-access/{userId}/update', [UserController::class, 'update']);
+
+    // User Settings Routes
+    Route::put('/user/password', [UserSettingsController::class, 'updatePassword'])->name('user.password.update');
+    Route::get('/user/activity', [UserSettingsController::class, 'getUserActivity'])->name('user.activity');
 
     Route::prefix('bookings')->group(function () {
         Route::get('/bookings', [AllBookingController::class, 'index'])->name('bookings.index');

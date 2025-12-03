@@ -111,235 +111,8 @@
             </div>
         </div>
 
-        @if (Auth::user()->is_admin == 1)
-            <!-- Occupied Rooms & Analytics Section -->
-            <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <!-- Revenue Per Room Card -->
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">Pendapatan Per Kamar</h3>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-80" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div class="text-3xl font-bold mb-2">
-                    Rp {{ number_format($revenuePerRoom['average_per_room'], 0, ',', '.') }}
-                </div>
-                <p class="text-blue-100 text-sm">Rata-rata per kamar terisi</p>
-                <div class="mt-4 pt-4 border-t border-blue-400">
-                    <div class="flex justify-between text-sm">
-                        <span>Total Pendapatan:</span>
-                        <span class="font-semibold">Rp
-                            {{ number_format($revenuePerRoom['total_revenue'], 0, ',', '.') }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rental Duration Trends Card -->
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">Rata-rata Durasi Sewa</h3>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-80" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
-                <div class="text-3xl font-bold mb-2">
-                    {{ $rentalDurationTrends['current_month_avg'] }} hari
-                </div>
-                <div class="flex items-center text-sm">
-                    @if ($rentalDurationTrends['trend_direction'] === 'up')
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-300 mr-1" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-green-300">{{ abs($rentalDurationTrends['trend_percentage']) }}%
-                            naik</span>
-                    @elseif($rentalDurationTrends['trend_direction'] === 'down')
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-300 mr-1" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586 3.707 5.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-red-300">{{ abs($rentalDurationTrends['trend_percentage']) }}%
-                            turun</span>
-                    @else
-                        <span class="text-purple-200">Stabil</span>
-                    @endif
-                    <span class="text-purple-200 ml-1">vs bulan lalu</span>
-                </div>
-                <div class="mt-4 pt-4 border-t border-purple-400">
-                    <div class="flex justify-between text-sm">
-                        <span>Booking bulan ini:</span>
-                        <span class="font-semibold">{{ $rentalDurationTrends['current_bookings'] }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Current Occupancy Card -->
-            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">Kamar Terisi Saat Ini</h3>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-80" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </div>
-                <div class="text-3xl font-bold mb-2">
-                    {{ $revenuePerRoom['occupied_rooms'] }} kamar
-                </div>
-                <p class="text-green-100 text-sm">Tamu sedang menginap</p>
-                <div class="mt-4 pt-4 border-t border-green-400">
-                    <div class="flex justify-between text-sm">
-                        <span>Check-Out Hari Ini:</span>
-                        <span class="font-semibold">{{ $stats['checkout'] }}</span>
-                    </div>
-                </div>
-            </div>
-            </div>
-        @endif
-
-        @if (Auth::user()->is_admin == 1)
-            <!-- Occupied Rooms Details -->
-        @if (count($occupiedRooms) > 0)
-            <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center space-x-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <h2 class="font-semibold text-gray-800 text-lg">Kamar Terisi Saat Ini</h2>
-                            <span
-                                class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($occupiedRooms) }}
-                                Aktif</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        @foreach ($occupiedRooms as $occupied)
-                            <div
-                                class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow {{ $occupied['is_overdue'] ? 'border-red-300 bg-red-50' : ($occupied['is_checkout_today'] ? 'border-yellow-300 bg-yellow-50' : '') }}">
-                                <!-- Header -->
-                                <div class="flex justify-between items-start mb-3">
-                                    <div>
-                                        <h4 class="font-semibold text-gray-800">{{ $occupied['guest_name'] }}</h4>
-                                        <p class="text-sm text-gray-600">{{ $occupied['room_name'] }} •
-                                            {{ $occupied['room_type'] }}</p>
-                                        <p class="text-xs text-gray-500">{{ $occupied['property_name'] }}</p>
-                                    </div>
-                                    @if ($occupied['is_overdue'])
-                                        <span
-                                            class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                            </svg>
-                                            Terlambat
-                                        </span>
-                                    @elseif($occupied['is_checkout_today'])
-                                        <span
-                                            class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Check-Out Hari Ini
-                                        </span>
-                                    @else
-                                        <span
-                                            class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                                            Aktif
-                                        </span>
-                                    @endif
-                                </div>
-
-                                <!-- Stay Details -->
-                                <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
-                                    <div class="flex items-center text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-green-500"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        {{ $occupied['check_in_date'] }}
-                                    </div>
-                                    <div class="flex items-center text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-red-500"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        {{ $occupied['check_out_date'] }}
-                                    </div>
-                                </div>
-
-                                <!-- Progress Bar -->
-                                <div class="mb-3">
-                                    <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                        <span>Hari {{ $occupied['days_stayed'] }} dari {{ $occupied['total_days'] }}</span>
-                                        <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-indigo-600 h-2 rounded-full transition-all"
-                                            style="width: {{ $occupied['progress_percentage'] }}%"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Revenue Info -->
-                                <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                    <div>
-                                        <p class="text-xs text-gray-500">Tarif Harian</p>
-                                        <p class="text-sm font-semibold text-gray-800">Rp
-                                            {{ number_format($occupied['daily_rate'], 0, ',', '.') }}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-xs text-gray-500">Total</p>
-                                        <p class="text-sm font-semibold text-indigo-600">Rp
-                                            {{ number_format($occupied['total_price'], 0, ',', '.') }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            @endif
-        @endif
-
-        @if (Auth::user()->is_admin == 1)
-            <!-- Occupancy History Chart -->
-        <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-                <div class="flex items-center space-x-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    <h2 class="font-semibold text-gray-800 text-lg">Tren Okupansi 30 Hari</h2>
-                </div>
-            </div>
-            <div class="p-6">
-                <canvas id="occupancyChart" height="80"></canvas>
-            </div>
-            </div>
-        @endif
-
         <!-- Main Content -->
-        <div class="mt-8 grid grid-cols-1 lg:grid-cols-1 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
             <!-- Left Column -->
             <div class="lg:col-span-2 space-y-8">
                 <!-- Check-out Section -->
@@ -418,9 +191,8 @@
             </div>
         </div>
 
-        @if (Auth::user()->is_admin == 1)
-            <!-- Room Reports Section -->
-            <div class="mt-8 grid grid-cols-2 lg:grid-cols-2 gap-8">
+        <!-- Room Reports Section -->
+        <div class="mt-8 grid grid-cols-2 lg:grid-cols-2 gap-8">
             <!-- Room Availability Report -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -488,7 +260,7 @@
                                 <!-- Occupancy Rate -->
                                 <div class="mb-4">
                                     <div class="flex justify-between text-sm text-gray-600 mb-1">
-                                        <span>Tingkat Okupansi</span>
+                                        <span>Occupancy Rate</span>
                                         <span>{{ $report['room_stats']['occupancy_rate'] }}%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2">
@@ -564,8 +336,7 @@
                     @if (is_array($roomReports) && count($roomReports) > 0)
                         @foreach ($roomReports as $propertyId => $report)
                             <div class="mb-6 last:mb-0 duration-sales-item">
-                                <h3 class="font-semibold text-gray-700 mb-3 property-name-sales">
-                                    {{ $report['property']['name'] }}
+                                <h3 class="font-semibold text-gray-700 mb-3 property-name-sales">{{ $report['property']['name'] }}
                                 </h3>
 
                                 <!-- Durasi Sewa -->
@@ -641,100 +412,14 @@
                     @endif
                 </div>
             </div>
-            </div>
-        @endif
+        </div>
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Occupancy History Chart
+        // Search functionality for dashboard reports
         document.addEventListener('DOMContentLoaded', function() {
-            @if (Auth::user()->is_admin == 1)
-                const ctx = document.getElementById('occupancyChart');
-                if (ctx) {
-                const occupancyData = @json($occupancyHistory);
-
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: occupancyData.map(d => d.date),
-                        datasets: [{
-                                label: 'Kamar Terisi',
-                                data: occupancyData.map(d => d.occupied),
-                                borderColor: 'rgb(59, 130, 246)',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            },
-                            {
-                                label: 'Tingkat Okupansi (%)',
-                                data: occupancyData.map(d => d.occupancy_rate),
-                                borderColor: 'rgb(16, 185, 129)',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                tension: 0.4,
-                                fill: true,
-                                yAxisID: 'y1'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top'
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                        }
-                                        if (context.datasetIndex === 1) {
-                                            label += context.parsed.y + '%';
-                                        } else {
-                                            label += context.parsed.y + ' kamar';
-                                        }
-                                        return label;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                    display: true,
-                                    text: 'Kamar'
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                    display: true,
-                                    text: 'Tingkat Okupansi (%)'
-                                },
-                                grid: {
-                                    drawOnChartArea: false
-                                },
-                                max: 100
-                            }
-                        }
-                    }
-                });
-                }
-
-                // Search functionality for dashboard reports
+            // Helper function for search with fade animation
             function setupSearch(searchInputId, containerSelector, noResultsMsgId) {
                 const searchInput = document.getElementById(searchInputId);
 
@@ -751,6 +436,7 @@
 
                                 if (searchTerm === '' || propertyText.includes(searchTerm)) {
                                     container.style.display = 'block';
+                                    // Add fade-in animation
                                     container.style.opacity = '0';
                                     setTimeout(() => {
                                         container.style.transition = 'opacity 0.3s ease-in';
@@ -762,8 +448,9 @@
                             }
                         });
 
-                        const visibleContainers = Array.from(reportContainers).filter(c => c.style
-                            .display !== 'none');
+                        // Show "no results" message if all are hidden
+                        const visibleContainers = Array.from(reportContainers).filter(c => c.style.display !==
+                            'none');
                         const parentContainer = reportContainers[0]?.parentElement;
 
                         if (visibleContainers.length === 0 && parentContainer) {
@@ -794,18 +481,19 @@
                 }
             }
 
+            // Setup search for Room Availability Report
             setupSearch(
                 'searchKamar',
                 '.mb-6.last\\:mb-0.p-4.border.border-gray-200.rounded-lg',
                 'no-results-message-kamar'
             );
 
+            // Setup search for Duration & Sales Report
             setupSearch(
                 'searchDurasi',
                 '.duration-sales-item',
                 'no-results-message-durasi'
             );
-            @endif
         });
     </script>
 </x-app-layout>

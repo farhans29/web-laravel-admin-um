@@ -21,6 +21,32 @@
 
                     <!-- Initiate Transfer Tab Content -->
                     <div id="initiateTransferContent">
+                        <!-- Success/Error Messages -->
+                        @if (session('success'))
+                            <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+                                role="alert">
+                                <span class="block sm:inline">{{ session('success') }}</span>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                                role="alert">
+                                <span class="block sm:inline">{{ session('error') }}</span>
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                                role="alert">
+                                <ul class="list-disc list-inside">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <form id="roomTransferForm" action="{{ route('changeroom.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="order_id" id="formOrderId">
@@ -217,88 +243,96 @@
                             </div>
 
                             <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-800">
                                         <tr>
                                             <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                 ID Pesanan</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                 Tamu</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                 Dari Kamar</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                 Ke Kamar</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Tanggal/Waktu</th>
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Tanggal Transfer</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                 Alasan</th>
                                             <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                 Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach ($transferHistory as $history)
-                                            <tr>
+                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        @forelse ($transferHistory as $history)
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                                                         {{ $history['order_id'] }}</div>
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                                                    <div class="text-sm font-medium text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                                                         {{ $history['guest_name'] }}</div>
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                                                    <div class="text-sm font-medium text-gray-900">
-                                                        @if ($history['previous_room'])
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
+                                                    @if ($history['previous_room'])
+                                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
                                                             {{ $history['previous_room']->room->name ?? 'N/A' }}
-                                                            ({{ $history['previous_room']->room->type ?? '' }})
-                                                        @else
-                                                            N/A
-                                                        @endif
-                                                    </div>
+                                                        </div>
+                                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                            {{ $history['previous_room']->room->type ?? '' }}
+                                                        </div>
+                                                    @else
+                                                        <div class="text-gray-500 dark:text-gray-400">N/A</div>
+                                                    @endif
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                                                    <div class="text-sm font-medium text-gray-900">
-                                                        @if ($history['current_room'])
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
+                                                    @if ($history['current_room'])
+                                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
                                                             {{ $history['current_room']->room->name ?? 'N/A' }}
-                                                            ({{ $history['current_room']->room->type ?? '' }})
-                                                        @else
-                                                            N/A
-                                                        @endif
-                                                    </div>
+                                                        </div>
+                                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                            {{ $history['current_room']->room->type ?? '' }}
+                                                        </div>
+                                                    @else
+                                                        <div class="text-gray-500 dark:text-gray-400">N/A</div>
+                                                    @endif
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                                                    <div class="text-sm font-medium text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
                                                         {{ $history['created_at']->format('Y M d') }}
                                                     </div>
-                                                    <div class="text-xs text-gray-400">
+                                                    <div class="text-xs text-gray-400 dark:text-gray-500">
                                                         {{ $history['created_at']->format('H:i') }}
                                                     </div>
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                    <div class="text-sm font-medium text-gray-900">
-                                                        {{ $history['reason'] }}</div>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                        {{ ucfirst($history['reason']) }}
+                                                    </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     <span
-                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
                                                         Completed
                                                     </span>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="px-6 py-10 text-center">
+                                                    <div class="text-gray-500 dark:text-gray-400">
+                                                        <p class="text-sm">Tidak ada riwayat transfer kamar.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
