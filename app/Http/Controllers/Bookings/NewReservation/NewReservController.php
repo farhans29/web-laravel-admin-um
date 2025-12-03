@@ -184,14 +184,13 @@ class NewReservController extends Controller
 
         $response = $booking->toArray();
 
-        // Tambahkan dua versi URL foto profil jika tersedia
+        // Tambahkan URL foto profil jika tersedia menggunakan APP_URL_IMAGES dari .env
         if ($booking->transaction->user && $booking->transaction->user->profile_photo_path) {
             $photoPath = $booking->transaction->user->profile_photo_path;
-            $response['user_profile_photo_demo'] = 'https://staging.ulinmahoni.com/storage/' . $photoPath;
-            $response['user_profile_photo_web'] = 'https://web.ulinmahoni.com/storage/' . $photoPath;
+            $baseUrl = env('APP_URL_IMAGES', config('app.url'));
+            $response['user_profile_photo_url'] = $baseUrl . '/storage/' . $photoPath;
         } else {
-            $response['user_profile_photo_demo'] = null;
-            $response['user_profile_photo_web'] = null;
+            $response['user_profile_photo_url'] = null;
         }
 
         return response()->json($response);

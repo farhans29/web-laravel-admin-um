@@ -84,8 +84,6 @@
                 docPreviewType: null,
                 docFile: null, // Variabel baru untuk menyimpan file
                 profilePhotoUrl: null,
-                profilePhotoUrlDemo: null,
-                profilePhotoUrlWeb: null,
                 selectedDocType: 'ktp',
                 bookingId: initialOrderId,
                 docRequired: docRequired, // Add docRequired property
@@ -399,10 +397,7 @@
                             doc_path: data.doc_path
                         };
 
-                        this.profilePhotoUrlDemo = data.user_profile_photo_demo || null;
-                        this.profilePhotoUrlWeb = data.user_profile_photo_web || null;
-                        this.profilePhotoUrl = this.profilePhotoUrlWeb || this
-                            .profilePhotoUrlDemo || null;
+                        this.profilePhotoUrl = data.user_profile_photo_url || null;
 
                     } catch (error) {
                         console.error('Error fetching booking details:', error);
