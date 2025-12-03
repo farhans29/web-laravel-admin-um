@@ -187,7 +187,7 @@ class NewReservController extends Controller
         // Tambahkan dua versi URL foto profil jika tersedia
         if ($booking->transaction->user && $booking->transaction->user->profile_photo_path) {
             $photoPath = $booking->transaction->user->profile_photo_path;
-            $response['user_profile_photo_demo'] = 'https://staging.ulinmahoni.com/storage/storage/' . $photoPath;
+            $response['user_profile_photo_demo'] = 'https://staging.ulinmahoni.com/storage/' . $photoPath;
             $response['user_profile_photo_web'] = 'https://web.ulinmahoni.com/storage/' . $photoPath;
         } else {
             $response['user_profile_photo_demo'] = null;
