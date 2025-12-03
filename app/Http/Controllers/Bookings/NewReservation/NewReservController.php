@@ -107,15 +107,6 @@ class NewReservController extends Controller
 
     public function checkIn(Request $request, $order_id)
     {
-        $validated = $request->validate([
-            'doc_type' => 'required|string|in:ktp,passport,sim,other',
-            'doc_image' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB
-            'has_profile_photo' => 'sometimes|boolean',
-            'guest_name' => 'required|string|max:255',
-            'guest_email' => 'required|email|max:255',
-            'guest_phone' => 'required|string|max:50',
-        ]);
-
         try {
             $booking = Booking::where('order_id', $order_id)->firstOrFail();
 
@@ -126,17 +117,31 @@ class NewReservController extends Controller
                 ], 400);
             }
 
-            $filePath = null;
+            // Conditional validation: only require doc_image if doc_path is null
+            $rules = [
+                'doc_type' => 'required|string|in:ktp,passport,sim,other',
+                'has_profile_photo' => 'sometimes|boolean',
+                'guest_name' => 'required|string|max:255',
+                'guest_email' => 'required|email|max:255',
+                'guest_phone' => 'required|string|max:50',
+            ];
 
+            // Only require doc_image if booking doesn't have doc_path
+            if (is_null($booking->doc_path)) {
+                $rules['doc_image'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120'; // 5MB
+            } else {
+                $rules['doc_image'] = 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:5120'; // Optional
+            }
+
+            $validated = $request->validate($rules);
+
+            $filePath = $booking->doc_path; // Keep existing doc_path if no new file uploaded
+
+            // Only update doc_path if a new file is uploaded
             if ($request->hasFile('doc_image')) {
                 $file = $request->file('doc_image');
                 $fileName = 'doc_' . $booking->order_id . '_' . time() . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('documents', $fileName, 'public');
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Document image file is missing!'
-                ], 400);
             }
 
             $updated = $booking->update([

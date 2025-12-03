@@ -115,11 +115,17 @@
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         @if (is_null($booking->check_in_at))
                             <div class="flex flex-col items-center space-y-2">
-                                <a href="{{ route('newReserv.checkin.regist', $booking->order_id) }}" target="_blank"
-                                    class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-amber-600 rounded hover:bg-amber-700 focus:outline-none">
-                                    Print Regist Form
-                                </a>
-                                <div x-data="checkInModal('{{ $booking->order_id }}')">
+                                @if (!is_null($booking->doc_path) && $booking->is_printed != 1)
+                                    {{-- Document exists and not yet printed - Show Print Registration Form button --}}
+                                    <a href="{{ route('newReserv.checkin.regist', $booking->order_id) }}"
+                                        onclick="event.preventDefault(); window.open(this.href, 'RegistrationForm', 'width=800,height=600'); setTimeout(() => { document.getElementById('checkin-btn-{{ $booking->order_id }}')?.classList.remove('hidden'); }, 1000);"
+                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-amber-600 rounded hover:bg-amber-700 focus:outline-none">
+                                        Print Regist Form
+                                    </a>
+                                @endif
+                                <div x-data="checkInModal('{{ $booking->order_id }}', {{ is_null($booking->doc_path) ? 'true' : 'false' }})"
+                                     class="{{ (!is_null($booking->doc_path) && $booking->is_printed != 1) ? 'hidden' : '' }}"
+                                     id="checkin-btn-{{ $booking->order_id }}">
                                     <!-- Tombol Trigger -->
                                     <button type="button"
                                         @click="openModal('{{ $booking->idrec }}', '{{ $booking->order_id }}')"
@@ -359,7 +365,7 @@
                                                                 Unggah Identifikasi
                                                             </h3>
 
-                                                            <div class="space-y-4">
+                                                            <div class="space-y-4" x-show="docRequired">
                                                                 <!-- Pemilihan Jenis Dokumen -->
                                                                 <div>
                                                                     <label for="documentType"
@@ -613,13 +619,26 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <!-- Pesan Validasi -->
-                                                                <div class="mt-3" x-show="!docPreview">
+                                                                                <!-- Pesan Validasi -->
+                                                                <div class="mt-3" x-show="!docPreview && docRequired">
                                                                     <p class="text-sm text-red-600">
                                                                         <span class="font-medium">Catatan:</span>
                                                                         Dokumen
                                                                         identifikasi diperlukan untuk check-in.
                                                                     </p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mt-3" x-show="!docRequired">
+                                                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                                    <div class="flex items-start">
+                                                                        <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                        </svg>
+                                                                        <p class="text-sm text-blue-700">
+                                                                            <span class="font-semibold">Dokumen Identifikasi Sudah Tersimpan</span><br>
+                                                                            <span class="text-blue-600">Anda dapat langsung melanjutkan proses check-in tanpa mengunggah dokumen baru.</span>
+                                                                        </p>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -633,8 +652,7 @@
                                                         Batal
                                                     </button>
                                                     <button type="button" @click="submitCheckIn"
-                                                        :disabled="(!docPreview && !profilePhotoUrl) || !guestContact.name || !
-                                                            guestContact.email || !guestContact.phone"
+                                                        :disabled="(docRequired && !docPreview && !profilePhotoUrl) || !guestContact.name || !guestContact.email || !guestContact.phone"
                                                         class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                                         Selesaikan Check-In
                                                     </button>
@@ -666,7 +684,7 @@
         @empty
             <tr>
                 <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
-                    No bookings found
+                    Tidak ada pemesanan baru.
                 </td>
             </tr>
         @endforelse

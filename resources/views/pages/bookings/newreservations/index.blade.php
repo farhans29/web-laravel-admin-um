@@ -77,7 +77,7 @@
 
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('checkInModal', (initialOrderId) => ({
+            Alpine.data('checkInModal', (initialOrderId, docRequired = true) => ({
                 isOpen: false,
                 isDragging: false,
                 docPreview: null,
@@ -88,6 +88,7 @@
                 profilePhotoUrlWeb: null,
                 selectedDocType: 'ktp',
                 bookingId: initialOrderId,
+                docRequired: docRequired, // Add docRequired property
                 guestContact: {
                     name: '',
                     email: '',
@@ -512,8 +513,8 @@
                         return;
                     }
 
-                    // Validasi dokumen identifikasi
-                    if (!this.profilePhotoUrl && !this.docFile) {
+                    // Validasi dokumen identifikasi (hanya jika docRequired = true)
+                    if (this.docRequired && !this.profilePhotoUrl && !this.docFile) {
                         this.showErrorToast('Harap unggah dokumen identifikasi');
                         return;
                     }
@@ -555,9 +556,8 @@
                             // Refresh tabel setelah check-in berhasil
                             this.refreshBookingTable();
 
-                            // Buka form registrasi di tab baru setelah check-in berhasil
+                            // Close modal tanpa membuka tab baru
                             setTimeout(() => {
-                                this.openRegistrationForm(this.bookingId);
                                 this.closeModal();
                             }, 1500);
                         } else {
