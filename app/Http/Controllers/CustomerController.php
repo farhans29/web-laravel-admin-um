@@ -49,10 +49,10 @@ class CustomerController extends Controller
         // TAMBAHKAN FILTER WHERE is_admin != 1 ATAU is_admin = 0
         $registeredUsers = User::select([
             'users.id',
-            'users.name',
-            'users.email',
-            DB::raw('NULL as phone'),
-            DB::raw('"registered" as registration_status'),
+            DB::raw('CAST(users.name AS CHAR) COLLATE utf8mb4_unicode_ci as name'),
+            DB::raw('CAST(users.email AS CHAR) COLLATE utf8mb4_unicode_ci as email'),
+            DB::raw('CAST(NULL AS CHAR) COLLATE utf8mb4_unicode_ci as phone'),
+            DB::raw('CAST("registered" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
             DB::raw('COALESCE(COUNT(DISTINCT t_transactions.order_id), 0) as total_bookings'),
             DB::raw('COALESCE(SUM(t_transactions.grandtotal_price), 0) as total_spent'),
             DB::raw('MAX(t_transactions.transaction_date) as last_booking_date')
@@ -69,10 +69,10 @@ class CustomerController extends Controller
         // Get guest customers (transactions without user_id)
         $guestCustomers = Transaction::select([
             DB::raw('NULL as id'),
-            'user_name as name',
-            'user_email as email',
-            'user_phone_number as phone',
-            DB::raw('"guest" as registration_status'),
+            DB::raw('CAST(user_name AS CHAR) COLLATE utf8mb4_unicode_ci as name'),
+            DB::raw('CAST(user_email AS CHAR) COLLATE utf8mb4_unicode_ci as email'),
+            DB::raw('CAST(user_phone_number AS CHAR) COLLATE utf8mb4_unicode_ci as phone'),
+            DB::raw('CAST("guest" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
             DB::raw('COUNT(DISTINCT order_id) as total_bookings'),
             DB::raw('SUM(grandtotal_price) as total_spent'),
             DB::raw('MAX(transaction_date) as last_booking_date')
