@@ -19,6 +19,7 @@ use App\Http\Controllers\Properties\ManajementRoomsController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\RefundController;
 use App\Http\Controllers\RoomAvailability\RoomAvailabilityController;
+use App\Http\Controllers\CustomerController;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -181,5 +182,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/refund', [RefundController::class, 'index'])->name('admin.refunds.index');
         Route::post('/refund/store', [RefundController::class, 'store'])->name('admin.refunds.store');
         Route::post('/refund/cancel/{id_booking}', [RefundController::class, 'cancel'])->name('admin.refunds.cancel');
+    });
+
+    Route::prefix('customers')->group(function () {
+        Route::get('/', [CustomerController::class, 'index'])->name('customers.index');
+        Route::get('/filter', [CustomerController::class, 'filter'])->name('customers.filter');
+        Route::get('/{identifier}/bookings', [CustomerController::class, 'getBookings'])->name('customers.bookings');
     });
 });

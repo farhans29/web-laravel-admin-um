@@ -1,0 +1,174 @@
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                </th>
+                <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact Info
+                </th>
+                <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Registration
+                </th>
+                <th scope="col"
+                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Bookings
+                </th>
+                <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Last Booking
+                </th>
+                <th scope="col"
+                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Spent
+                </th>
+                <th scope="col"
+                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            @forelse ($customers as $customer)
+                @php
+                    $colors = [
+                        'bg-red-500/35',
+                        'bg-blue-500/35',
+                        'bg-green-500/35',
+                        'bg-purple-500/35',
+                        'bg-pink-500/35',
+                        'bg-yellow-500/35',
+                        'bg-indigo-500/35',
+                        'bg-teal-500/35',
+                        'bg-orange-500/35',
+                    ];
+                    $bgColor = $colors[array_rand($colors)];
+                    $initials = strtoupper(substr($customer->name ?? 'U', 0, 1));
+                    if ($customer->name && strpos($customer->name, ' ') !== false) {
+                        $nameParts = explode(' ', $customer->name);
+                        $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 1));
+                    }
+                @endphp
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <!-- Customer Name with Avatar -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div
+                                class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full {{ $bgColor }} text-white font-semibold">
+                                {{ $initials }}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ $customer->name ?? 'Unknown' }}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Contact Info -->
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">{{ $customer->email ?? '-' }}</div>
+                        @if ($customer->phone)
+                            <div class="text-sm text-gray-500">{{ $customer->phone }}</div>
+                        @endif
+                    </td>
+
+                    <!-- Registration Status -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        @if ($customer->registration_status === 'registered')
+                            <span
+                                class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Registered
+                            </span>
+                        @else
+                            <span
+                                class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Guest
+                            </span>
+                        @endif
+                    </td>
+
+                    <!-- Total Bookings -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold {{ $customer->total_bookings > 0 ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-500' }}">
+                            {{ $customer->total_bookings ?? 0 }}
+                        </span>
+                    </td>
+
+                    <!-- Last Booking Date -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        @if ($customer->last_booking_date)
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-400"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                {{ \Carbon\Carbon::parse($customer->last_booking_date)->format('M d, Y') }}
+                            </div>
+                        @else
+                            <span class="text-gray-400">-</span>
+                        @endif
+                    </td>
+
+                    <!-- Total Spent -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                        <span class="font-semibold text-green-600">
+                            Rp {{ number_format($customer->total_spent ?? 0, 0, ',', '.') }}
+                        </span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button
+                            onclick="window.dispatchEvent(new CustomEvent('open-customer-modal', { detail: { identifier: '{{ $customer->registration_status === 'registered' ? $customer->id : $customer->email }}', type: '{{ $customer->registration_status }}', name: '{{ $customer->name }}' } }))"
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <p class="text-gray-600 font-medium text-lg">No customers found</p>
+                        <p class="text-gray-500 text-sm mt-1">Try adjusting your search or filter criteria.</p>
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@if ($customers->hasPages())
+    <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
+        {{ $customers->links() }}
+    </div>
+@endif
