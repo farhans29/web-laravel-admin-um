@@ -307,22 +307,23 @@
                         <div class="space-y-6">
                             <div class="mb-4">
                                 <h3 class="text-md font-semibold text-gray-700 mb-2">
-                                    Jenis Harga</h3>
+                                    Jenis Harga <span class="text-red-500">*</span></h3>
+                                <p class="text-xs text-gray-500 mb-3">Pilih satu jenis periode pembayaran</p>
                                 <div class="flex space-x-6">
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" value="daily" x-model="priceTypes"
-                                            class="form-checkbox text-blue-600">
-                                        <span class="ml-2">Harian</span>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="radio" name="edit_price_type" value="daily" x-model="priceType"
+                                            class="form-radio text-blue-600 h-4 w-4">
+                                        <span class="ml-2 text-sm font-medium text-gray-700">Harian</span>
                                     </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" value="monthly" x-model="priceTypes"
-                                            class="form-checkbox text-blue-600">
-                                        <span class="ml-2">Bulanan</span>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="radio" name="edit_price_type" value="monthly" x-model="priceType"
+                                            class="form-radio text-blue-600 h-4 w-4">
+                                        <span class="ml-2 text-sm font-medium text-gray-700">Bulanan</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <div x-show="priceTypes.includes('daily')" x-transition>
+                            <div x-show="priceType === 'daily'" x-transition>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Harga Harian <span class="text-red-500">*</span>
                                 </label>
@@ -338,7 +339,7 @@
                                 </div>
                             </div>
 
-                            <div x-show="priceTypes.includes('monthly')" x-transition class="mt-4">
+                            <div x-show="priceType === 'monthly'" x-transition class="mt-4">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Harga Bulanan <span class="text-red-500">*</span>
                                 </label>
@@ -366,11 +367,7 @@
                                     </div>
                                     <div class="ml-3">
                                         <p class="text-sm text-blue-700">
-                                            Anda bisa memilih salah satu atau kedua
-                                            jenis harga. Pastikan
-                                            mengisi harga yang sesuai dengan jenis
-                                            yang
-                                            dipilih.
+                                            Pilih salah satu jenis periode pembayaran. Isi harga sesuai dengan periode yang dipilih.
                                         </p>
                                     </div>
                                 </div>
@@ -722,7 +719,7 @@
             editMinImages: 3,
             editMaxImages: 5,
             editImages: [],
-            priceTypes: [],
+            priceType: '',
             dailyPrice: 0,
             monthlyPrice: 0,
             thumbnailIndex: null,
@@ -760,25 +757,24 @@
                 this.roomData.monthly_price = this.roomData.monthly_price !== null ?
                     formatRupiah(this.roomData.monthly_price) : '';
 
-                this.priceTypes = [];
+                this.priceType = '';
 
-                // Inisialisasi harga
+                // Inisialisasi harga - determine which price type is set
                 const rawDailyPrice = this.roomData.daily_price !== null ?
                     parseFloat(this.originalRoomData.daily_price) : 0;
+                const rawMonthlyPrice = this.roomData.monthly_price !== null ?
+                    parseFloat(this.originalRoomData.monthly_price) : 0;
+
                 if (rawDailyPrice > 0) {
-                    this.priceTypes.push('daily');
+                    this.priceType = 'daily';
                     this.dailyPrice = rawDailyPrice;
+                } else if (rawMonthlyPrice > 0) {
+                    this.priceType = 'monthly';
+                    this.monthlyPrice = rawMonthlyPrice;
                 }
 
                 // Inisialisasi fasilitas - pastikan format konsisten
                 this.initializeFacilities();
-
-                const rawMonthlyPrice = this.roomData.monthly_price !== null ?
-                    parseFloat(this.originalRoomData.monthly_price) : 0;
-                if (rawMonthlyPrice > 0) {
-                    this.priceTypes.push('monthly');
-                    this.monthlyPrice = rawMonthlyPrice;
-                }
 
                 // Inisialisasi thumbnail
                 const thumbnailIndex = this.roomData.existingImages.findIndex(
@@ -1290,16 +1286,16 @@
                         return false;
                     }
                 } else if (step === 2) {
-                    if (this.priceTypes.includes('daily') && !this.roomData.daily_price) {
+                    if (!this.priceType) {
+                        alert('Pilih jenis harga (harian atau bulanan)');
+                        return false;
+                    }
+                    if (this.priceType === 'daily' && !this.roomData.daily_price) {
                         alert('Harga harian harus diisi');
                         return false;
                     }
-                    if (this.priceTypes.includes('monthly') && !this.roomData.monthly_price) {
+                    if (this.priceType === 'monthly' && !this.roomData.monthly_price) {
                         alert('Harga bulanan harus diisi');
-                        return false;
-                    }
-                    if (this.priceTypes.length === 0) {
-                        alert('Pilih minimal satu jenis harga');
                         return false;
                     }
                 } else if (step === 4) {
@@ -1377,11 +1373,16 @@
 
                     formData.append('thumbnail_index', this.thumbnailIndex);
 
-                    // Add price values
-                    formData.append('daily_price', this.priceTypes.includes('daily') ? this
-                        .dailyPrice : 0);
-                    formData.append('monthly_price', this.priceTypes.includes('monthly') ? this
-                        .monthlyPrice : 0);
+                    // Add price values based on selected price type
+                    formData.append('daily_price', this.priceType === 'daily' ? this.dailyPrice : 0);
+                    formData.append('monthly_price', this.priceType === 'monthly' ? this.monthlyPrice : 0);
+
+                    // Add price type information
+                    const priceObject = {
+                        daily: this.priceType === 'daily',
+                        monthly: this.priceType === 'monthly'
+                    };
+                    formData.append('price_types', JSON.stringify(priceObject));
 
                     // Add CSRF token
                     formData.append('_token', document.querySelector('meta[name="csrf-token"]')
