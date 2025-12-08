@@ -20,6 +20,7 @@ use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\RefundController;
 use App\Http\Controllers\RoomAvailability\RoomAvailabilityController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Reports\BookingReportController;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -188,5 +189,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customers.index');
         Route::get('/filter', [CustomerController::class, 'filter'])->name('customers.filter');
         Route::get('/{identifier}/bookings', [CustomerController::class, 'getBookings'])->name('customers.bookings');
+    });
+
+    Route::prefix('reports')->group(function () {
+        Route::get('/booking-report', [BookingReportController::class, 'index'])->name('reports.booking.index');
+        Route::get('/booking-report/data', [BookingReportController::class, 'getData'])->name('reports.booking.data');
+        Route::get('/booking-report/export', [BookingReportController::class, 'export'])->name('reports.booking.export');
     });
 });
