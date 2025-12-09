@@ -143,6 +143,8 @@ class BookingReportExport implements FromCollection, WithHeadings, WithMapping, 
         $paymentDatetime = '-';
         if ($payment && $payment->created_at) {
             $paymentDatetime = Carbon::parse($payment->created_at)->format('d M Y, H:i');
+        } elseif ($transaction && $transaction->paid_at) {
+            $paymentDatetime = Carbon::parse($transaction->paid_at)->format('d M Y, H:i');
         }
 
         // Payment type

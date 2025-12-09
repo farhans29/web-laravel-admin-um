@@ -118,7 +118,7 @@ class BookingReportController extends Controller
                     })
                     ->orWhereHas('property', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('location', 'like', "%{$search}%");
+                            ->orWhere('address', 'like', "%{$search}%");
                     });
             });
         }
@@ -130,16 +130,38 @@ class BookingReportController extends Controller
             $transaction = $booking->transaction;
             $payment = $booking->payment;
 
+            // Format payment datetime
+            $paymentDatetime = '-';
+            if ($payment && $payment->created_at) {
+                $paymentDatetime = Carbon::parse($payment->created_at)->format('d M Y H:i');
+            } elseif ($transaction && $transaction->paid_at) {
+                $paymentDatetime = Carbon::parse($transaction->paid_at)->format('d M Y H:i');
+            }
+
+            // Determine payment type
+            $paymentType = '-';
+            if ($transaction) {
+                $paymentType = $transaction->transaction_type ?? '-';
+            }
+
+            // Calculate total revenue
+            $totalRevenue = 0;
+            if ($transaction) {
+                $totalRevenue = $transaction->grandtotal_price ?? 0;
+            }
+
             return [
                 'booking_date' => $transaction ? Carbon::parse($transaction->check_in)->format('d M Y') : '-',
                 'booking_number' => $booking->order_id,
                 'name' => $booking->user_name ?? '-',
-                'location' => $booking->property ? ($booking->property->location ?? $booking->property->name) : '-',
+                'property_name' => $booking->property ? $booking->property->name : '-',
+                'address' => $booking->property ? ($booking->property->address ?? '-') : '-',
                 'room' => $booking->room ? $booking->room->name : '-',
                 'check_in' => $transaction ? Carbon::parse($transaction->check_in)->format('d M Y') : '-',
                 'check_out' => $transaction ? Carbon::parse($transaction->check_out)->format('d M Y') : '-',
-                'payment_date' => $payment && $payment->created_at ? Carbon::parse($payment->created_at)->format('d M Y') : '-',
-                'payment_time' => $payment && $payment->created_at ? Carbon::parse($payment->created_at)->format('H:i') : '-',
+                'payment_datetime' => $paymentDatetime,
+                'payment_type' => $paymentType,
+                'total_revenue' => 'Rp ' . number_format($totalRevenue, 0, ',', '.'),
                 'status' => $booking->status ?? 'Unknown',
                 'notes' => $transaction ? $transaction->notes : '',
                 'raw_status' => $transaction ? $transaction->transaction_status : 'unknown',

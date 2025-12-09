@@ -93,89 +93,27 @@
         </div>
     </div>
 
+    <script src="{{ asset('js/date-filter-persistence.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get today's date
             const today = new Date();
-
-            // Calculate one month from today
             const oneMonthLater = new Date();
             oneMonthLater.setMonth(today.getMonth() + 1);
 
-            // Format dates as YYYY-MM-DD
-            function formatDate(date) {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-
-            const defaultStartDate = formatDate(today);
-            const defaultEndDate = formatDate(oneMonthLater);
-
-            // Initialize Flatpickr with today to one month ahead range
-            const datePicker = flatpickr("#date_picker", {
-                mode: "range",
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "j F Y",
-                allowInput: true,
-                static: true,
-                monthSelectorType: 'static',
-                defaultDate: [defaultStartDate, defaultEndDate],
-                minDate: "today",
-                maxDate: new Date().fp_incr(365), // 365 days from now
-                onOpen: function(selectedDates, dateStr, instance) {
-                    instance.set('minDate', null);
-                },
+            // Initialize Flatpickr with persistence
+            const datePicker = DateFilterPersistence.initFlatpickr('allbookings', {
+                defaultStartDate: today,
+                defaultEndDate: oneMonthLater,
+                maxRangeDays: 31,
                 onChange: function(selectedDates, dateStr, instance) {
-                    if (selectedDates.length > 0) {
-                        const startDate = selectedDates[0];
-                        const endDate = selectedDates[1] || selectedDates[0];
-
-                        // Calculate day difference (inclusive)
-                        const diffInDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-
-                        // Limit to maximum 30 days
-                        if (diffInDays > 31) {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'warning',
-                                title: 'Maximum date range is 30 days',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                                }
-                            });
-
-                            instance.clear();
-                            document.getElementById('start_date').value = '';
-                            document.getElementById('end_date').value = '';
-                            return;
-                        }
-
-                        // Format dates to YYYY-MM-DD
-                        document.getElementById('start_date').value = formatDate(startDate);
-                        document.getElementById('end_date').value = formatDate(endDate);
-                        fetchFilteredBookings();
-                    }
+                    fetchFilteredBookings();
                 },
                 onClose: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 0) {
-                        document.getElementById('start_date').value = '';
-                        document.getElementById('end_date').value = '';
                         fetchFilteredBookings();
                     }
                 }
             });
-
-            // Set initial hidden input values to today and one month ahead
-            document.getElementById('start_date').value = defaultStartDate;
-            document.getElementById('end_date').value = defaultEndDate;
 
             // Get all filter elements
             const searchInput = document.getElementById('search');

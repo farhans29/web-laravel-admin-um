@@ -67,27 +67,30 @@
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                         <h3 class="font-medium text-gray-700 mb-3">Informasi Booking</h3>
 
-                                        <form method="GET" action="{{ route('changerooom.index') }}" class="mb-4">
+                                        <!-- Form Pencarian dengan margin bottom yang lebih besar -->
+                                        <div class="mb-8">
                                             <div class="relative">
-                                                <input type="text" name="search" value="{{ request('search') }}"
-                                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                    placeholder="Search booking...">
-                                                <button type="submit">
-                                                    <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
-                                                </button>
+                                                <input type="text" id="searchInput"
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                    placeholder="Cari ID Booking atau Nama Tamu...">
+                                                <div class="absolute right-3 top-3 text-gray-400">
+                                                    <i class="fas fa-search"></i>
+                                                </div>
                                             </div>
-                                        </form>
-
-                                        <div class="space-y-4">
-                                            @include('pages.rooms.changerooms.partials.changeRoom_table',
-                                                [
-                                                    'bookings' => $bookings,
-                                                    'per_page' => request('per_page', 8),
-                                                ]
-                                            )
+                                            <button id="clearSearch" class="mt-3 hidden inline-flex items-center text-sm text-gray-600 hover:text-gray-800">
+                                                <i class="fas fa-times mr-1"></i> Clear search
+                                            </button>
                                         </div>
 
-                                        <div class="mt-4">
+                                        <!-- Konten Tabel dengan margin top -->
+                                        <div class="space-y-4 mt-6" id="bookingResultsContainer">
+                                            @include('pages.rooms.changerooms.partials.changeRoom_table', [
+                                                'bookings' => $bookings,
+                                                'per_page' => request('per_page', 8),
+                                            ])
+                                        </div>
+
+                                        <div class="mt-4" id="paginationContainer">
                                             {{ $bookings->withQueryString()->links() }}
                                         </div>
                                     </div>
@@ -108,6 +111,10 @@
                                                 <div class="flex justify-between">
                                                     <span class="text-gray-600">ID Reservasi:</span>
                                                     <span class="font-medium" id="orderId">-</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <span class="text-gray-600">Status:</span>
+                                                    <span class="font-medium" id="bookingStatus">-</span>
                                                 </div>
                                                 <div class="flex justify-between">
                                                     <span class="text-gray-600">Properti:</span>
@@ -269,9 +276,11 @@
                                                 Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tbody
+                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                         @forelse ($transferHistory as $history)
-                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                            <tr
+                                                class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
                                                         {{ $history['order_id'] }}</div>
@@ -373,52 +382,6 @@
             document.getElementById('initiateTransferContent').classList.add('hidden');
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            function performSearch(query) {
-                const url = new URL('{{ route('changerooom.index') }}');
-                url.searchParams.append('search', query);
-
-                fetch(url, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'text/html'
-                        }
-                    })
-                    .then(response => response.text())
-                    .then(html => {
-                        // Create a temporary DOM element to parse the response
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-
-                        // Extract the bookings and pagination from the response
-                        const newResults = doc.querySelector('#searchResults')?.innerHTML ||
-                            '<div class="text-center py-10 text-gray-500"><p class="text-sm">No bookings found.</p></div>';
-                        const newPagination = doc.querySelector('#paginationLinks')?.innerHTML || '';
-
-                        // Update the DOM
-                        searchResults.innerHTML = newResults;
-                        paginationLinks.innerHTML = newPagination;
-
-                        // Re-attach click handlers to new booking cards
-                        attachBookingCardHandlers();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            }
-
-            function attachBookingCardHandlers() {
-                document.querySelectorAll('.booking-card').forEach(card => {
-                    card.addEventListener('click', function() {
-                        selectBooking(this);
-                    });
-                });
-            }
-
-            // Initial attachment of handlers
-            attachBookingCardHandlers();
-        });
-
         // Tab switching functionality
         document.addEventListener('DOMContentLoaded', function() {
             // Check URL for tab parameter
@@ -466,7 +429,95 @@
             window.history.pushState({}, '', url);
         }
 
+        // Live search functionality
+        let searchTimeout;
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const bookingResultsContainer = document.getElementById('bookingResultsContainer');
+        const paginationContainer = document.getElementById('paginationContainer');
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const searchValue = this.value.trim();
+
+            // Show/hide clear button
+            if (searchValue) {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+
+            // Debounce search - wait 500ms after user stops typing
+            searchTimeout = setTimeout(function() {
+                performSearch(searchValue);
+            }, 500);
+        });
+
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            clearSearchBtn.classList.add('hidden');
+            performSearch('');
+        });
+
+        function performSearch(query, page = 1) {
+            const url = new URL('{{ route('changerooom.index') }}');
+            if (query) {
+                url.searchParams.append('search', query);
+            }
+            if (page > 1) {
+                url.searchParams.append('page', page);
+            }
+            url.searchParams.append('ajax', '1');
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update booking results
+                bookingResultsContainer.innerHTML = data.html;
+                paginationContainer.innerHTML = data.pagination;
+
+                // Re-attach click handlers to new booking cards
+                attachBookingCardHandlers();
+                // Re-attach pagination handlers
+                attachPaginationHandlers();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function attachBookingCardHandlers() {
+            document.querySelectorAll('.booking-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    selectBooking(this);
+                });
+            });
+        }
+
+        function attachPaginationHandlers() {
+            // Handle pagination link clicks
+            paginationContainer.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = new URL(this.href);
+                    const page = url.searchParams.get('page') || 1;
+                    const currentSearch = searchInput.value.trim();
+                    performSearch(currentSearch, page);
+                });
+            });
+        }
+
+        // Initial attachment of handlers
+        attachBookingCardHandlers();
+        attachPaginationHandlers();
+
         document.getElementById('roomTransferForm').addEventListener('submit', function(e) {
+            // Only validate if the submit is from the transfer form button, not search form
             const reasonSelect = document.getElementById('transferReasonSelect');
             const reasonError = document.getElementById('reasonError');
 
@@ -544,6 +595,16 @@
             // Update current room details
             document.getElementById('guestName').textContent = bookingData.guest_name;
             document.getElementById('orderId').textContent = bookingData.order_id;
+
+            // Update booking status with color coding
+            const statusElement = document.getElementById('bookingStatus');
+            statusElement.textContent = bookingData.booking_status;
+            if (bookingData.is_checked_in) {
+                statusElement.className = 'font-medium text-green-600';
+            } else {
+                statusElement.className = 'font-medium text-yellow-600';
+            }
+
             document.getElementById('propertyName').textContent = bookingData.propertyName;
             document.getElementById('propertyId').textContent = bookingData.property_id;
             document.getElementById('roomId').textContent = bookingData.room_id;

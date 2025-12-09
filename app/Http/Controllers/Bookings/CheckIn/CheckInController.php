@@ -14,19 +14,47 @@ use Illuminate\Support\Carbon;
 
 class CheckInController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $perPage = request('per_page', 8);
+        $perPage = $request->input('per_page', 8);
 
-        $checkOuts = Booking::with(['transaction', 'property', 'room', 'user'])
+        $query = Booking::with(['transaction', 'property', 'room', 'user'])
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })
-            ->whereNotNull('check_in_at')
-            ->whereBetween('check_in_at', [
+            ->whereNotNull('check_in_at');
+
+        // Search by order_id or user name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_id', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('username', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // Date range filter - using check_in_at from booking table
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+
+            $query->whereBetween('check_in_at', [
+                $startDate,
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        } else {
+            // Default filter: from today to 1 month ahead
+            $query->whereBetween('check_in_at', [
                 now()->startOfDay(),
                 now()->addMonth()->endOfDay()
-            ])
+            ]);
+        }
+
+        $checkOuts = $query
             ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
             ->orderBy('check_out_at', 'desc') // Then sort by check_out_at
             ->paginate($perPage);

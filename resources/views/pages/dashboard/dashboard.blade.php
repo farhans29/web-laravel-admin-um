@@ -137,47 +137,40 @@
                     </div>
                 </div>
 
-                <!-- Rental Duration Trends Card -->
+                <!-- Room Availability Card -->
                 <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold">Rata-rata Durasi Sewa</h3>
+                        <h3 class="text-lg font-semibold">Ketersediaan Kamar</h3>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-80" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
                     </div>
                     <div class="text-3xl font-bold mb-2">
-                        {{ $rentalDurationTrends['current_month_avg'] }} hari
+                        @php
+                            $totalRooms = 0;
+                            $availableRooms = 0;
+                            if (is_array($roomReports) && count($roomReports) > 0) {
+                                foreach ($roomReports as $report) {
+                                    $totalRooms += $report['room_stats']['total_rooms'];
+                                    $availableRooms += $report['room_stats']['available_rooms'];
+                                }
+                            }
+                            $availabilityPercentage = $totalRooms > 0 ? round(($availableRooms / $totalRooms) * 100, 1) : 0;
+                        @endphp
+                        {{ $availableRooms }}/{{ $totalRooms }} kamar
                     </div>
-                    <div class="flex items-center text-sm">
-                        @if ($rentalDurationTrends['trend_direction'] === 'up')
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-300 mr-1"
-                                viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-green-300">{{ abs($rentalDurationTrends['trend_percentage']) }}%
-                                naik</span>
-                        @elseif($rentalDurationTrends['trend_direction'] === 'down')
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-300 mr-1"
-                                viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586 3.707 5.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-red-300">{{ abs($rentalDurationTrends['trend_percentage']) }}%
-                                turun</span>
-                        @else
-                            <span class="text-purple-200">Stabil</span>
-                        @endif
-                        <span class="text-purple-200 ml-1">vs bulan lalu</span>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-purple-400">
-                        <div class="flex justify-between text-sm">
-                            <span>Booking bulan ini:</span>
-                            <span class="font-semibold">{{ $rentalDurationTrends['current_bookings'] }}</span>
+                    <p class="text-purple-100 text-sm">Kamar tersedia saat ini</p>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Tingkat Ketersediaan</span>
+                            <span>{{ $availabilityPercentage }}%</span>
+                        </div>
+                        <div class="w-full bg-purple-700 rounded-full h-2">
+                            <div class="bg-white h-2 rounded-full transition-all"
+                                style="width: {{ $availabilityPercentage }}%">
+                            </div>
                         </div>
                     </div>
                 </div>
