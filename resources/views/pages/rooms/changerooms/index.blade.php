@@ -225,27 +225,40 @@
                     <div id="historyContent" class="hidden">
                         <div class="bg-white rounded-lg shadow overflow-hidden">
                             <div class="p-4 border-b border-gray-200">
-                                <div class="flex justify-between items-center mb-4">
+                                <div class="mb-4">
                                     <h2 class="text-xl font-semibold text-gray-800">Riwayat Transfer Kamar</h2>
-                                    <form method="GET" action="{{ route('changerooom.index') }}" class="flex">
-                                        <input type="hidden" name="tab" value="history">
+                                </div>
+
+                                <!-- Search Form -->
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <!-- Search by Order ID or Guest Name (Live Search) -->
                                         <div class="relative">
-                                            <input type="text" name="history_search"
-                                                value="{{ request('history_search') }}"
-                                                class="w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                placeholder="ID Pesanan...">
-                                            <button type="submit"
-                                                class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                                            <input type="text" id="historySearchInput"
+                                                value="{{ $historySearch ?? '' }}"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                placeholder="Cari ID Booking atau Nama...">
+                                            <div class="absolute right-3 top-2.5 text-gray-400">
                                                 <i class="fas fa-search"></i>
-                                            </button>
+                                            </div>
                                         </div>
-                                        @if (request('history_search'))
+                                    </div>
+
+                                    @if (request('history_search'))
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm text-gray-600">Filter aktif:</span>
+                                            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
+                                                Pencarian: {{ request('history_search') }}
+                                                <button onclick="clearHistorySearch()" class="ml-2 hover:text-indigo-900">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </span>
                                             <a href="{{ route('changerooom.index') }}?tab=history"
-                                                class="ml-2 px-3 py-2 text-gray-500 hover:text-gray-700">
-                                                <i class="fas fa-times"></i>
+                                                class="text-sm text-red-600 hover:text-red-800">
+                                                <i class="fas fa-times-circle mr-1"></i>Clear semua filter
                                             </a>
-                                        @endif
-                                    </form>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -271,6 +284,9 @@
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                 Alasan</th>
+                                            <th scope="col"
+                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                Deskripsi</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                                 Status</th>
@@ -315,15 +331,20 @@
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
                                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {{ $history['created_at']->format('Y M d') }}
+                                                        {{ $history['transfer_date']->format('d M Y') }}
                                                     </div>
                                                     <div class="text-xs text-gray-400 dark:text-gray-500">
-                                                        {{ $history['created_at']->format('H:i') }}
+                                                        {{ $history['transfer_date']->format('H:i') }}
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
                                                         {{ ucfirst($history['reason']) }}
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 text-sm text-center">
+                                                    <div class="text-sm text-gray-900 dark:text-white max-w-xs">
+                                                        {{ $history['description'] ?? '-' }}
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -335,7 +356,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="px-6 py-10 text-center">
+                                                <td colspan="8" class="px-6 py-10 text-center">
                                                     <div class="text-gray-500 dark:text-gray-400">
                                                         <p class="text-sm">Tidak ada riwayat transfer kamar.</p>
                                                     </div>
@@ -698,6 +719,42 @@
             availabilityElement.textContent = 'Available';
             availabilityElement.classList.remove('text-red-600');
             availabilityElement.classList.add('text-green-600');
+        }
+
+        // History Search functionality
+        let historySearchTimeout;
+
+        // Live search for history
+        const historySearchInput = document.getElementById('historySearchInput');
+        if (historySearchInput) {
+            historySearchInput.addEventListener('input', function() {
+                clearTimeout(historySearchTimeout);
+                const searchValue = this.value.trim();
+
+                // Debounce search - wait 500ms after user stops typing
+                historySearchTimeout = setTimeout(function() {
+                    performHistoryFilter(searchValue);
+                }, 500);
+            });
+        }
+
+        function performHistoryFilter(search) {
+            const url = new URL('{{ route('changerooom.index') }}');
+            url.searchParams.append('tab', 'history');
+
+            if (search) {
+                url.searchParams.append('history_search', search);
+            }
+
+            // Redirect to the filtered URL
+            window.location.href = url.toString();
+        }
+
+        function clearHistorySearch() {
+            if (historySearchInput) {
+                historySearchInput.value = '';
+            }
+            performHistoryFilter('');
         }
     </script>
 </x-app-layout>
