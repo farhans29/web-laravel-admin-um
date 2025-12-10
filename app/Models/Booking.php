@@ -96,6 +96,7 @@ class Booking extends Model
                 }
                 break;
             case 'canceled':
+            case 'cancelled':
                 return 'Canceled';
             case 'expired':
                 return 'Expired';
@@ -121,6 +122,11 @@ class Booking extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class, 'order_id', 'order_id');
+    }
+
+    public function refund()
+    {
+        return $this->hasOne(Refund::class, 'id_booking', 'order_id');
     }
 
     public function getInvoiceData()

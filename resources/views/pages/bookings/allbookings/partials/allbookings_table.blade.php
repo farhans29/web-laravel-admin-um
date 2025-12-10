@@ -120,6 +120,41 @@
                                 class="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClasses['Checked-Out'] }}">
                                 Check-out at: {{ $booking->check_out_at->format('Y-m-d H:i') }}
                             </div>
+                        @elseif ($booking->status === 'Canceled')
+                            <div class="mt-2 w-full px-2 text-center">
+                                @if ($booking->reason)
+                                    <div class="text-xs text-gray-700 font-medium">
+                                        <span class="font-semibold">Reason:</span>
+                                        <span class="inline-block">{{ $booking->reason }}</span>
+                                    </div>
+                                @endif
+
+                                @if ($booking->description)
+                                    <div class="text-xs text-gray-600 mt-1">
+                                        <span class="font-semibold">Description:</span>
+                                        <span class="inline-block">{{ $booking->description }}</span>
+                                    </div>
+                                @endif
+
+                                @if ($booking->refund)
+                                    <div class="text-xs text-gray-600 mt-1">
+                                        <span class="font-semibold">Refund Status:</span>
+                                        <span
+                                            class="px-2 py-0.5 rounded-full inline-block 
+                {{ $booking->refund->status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                            {{ ucfirst($booking->refund->status) }}
+                                        </span>
+                                    </div>
+
+                                    @if ($booking->refund->amount)
+                                        <div class="text-xs text-gray-600 mt-1">
+                                            <span class="font-semibold">Refund Amount:</span>
+                                            <span class="inline-block">Rp
+                                                {{ number_format($booking->refund->amount, 0, ',', '.') }}</span>
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
                         @endif
 
                     </div>

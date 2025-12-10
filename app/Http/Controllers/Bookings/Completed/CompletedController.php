@@ -11,11 +11,11 @@ class CompletedController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Booking::with(['user', 'room', 'property', 'transaction'])
+        $query = Booking::with(['user', 'room', 'property', 'transaction', 'refund'])
             ->whereHas('transaction', function ($q) {
-                $q->whereIn('transaction_status', ['paid', 'expired', 'canceled'])
+                $q->whereIn('transaction_status', ['paid', 'expired', 'canceled', 'cancelled'])
                     ->where(function ($subQuery) {
-                        $subQuery->where('transaction_status', '!=', 'paid')
+                        $subQuery->whereIn('transaction_status', ['expired', 'canceled', 'cancelled'])
                             ->orWhere(function ($paidQuery) {
                                 $paidQuery->where('transaction_status', 'paid')
                                     ->whereNotNull('check_in_at')
@@ -27,7 +27,7 @@ class CompletedController extends Controller
         // ✅ Default: tampilkan data hari ini
         if (!$request->filled('start_date') && !$request->filled('end_date')) {
             $today = now()->toDateString();
-            $query->whereDate('check_in_at', $today);
+            $query->whereDate('created_at', '>=', $today);
         }
 
         // Pencarian berdasarkan order_id atau nama user
@@ -43,7 +43,7 @@ class CompletedController extends Controller
             });
         }
 
-        $bookings = $query->orderByDesc('check_in_at')
+        $bookings = $query->orderByDesc('created_at')
             ->paginate($request->input('per_page', 8));
 
         return view('pages.bookings.completed.index', compact('bookings'));
@@ -51,11 +51,11 @@ class CompletedController extends Controller
 
     public function filter(Request $request)
     {
-        $query = Booking::with(['user', 'room', 'property', 'transaction'])
+        $query = Booking::with(['user', 'room', 'property', 'transaction', 'refund'])
             ->whereHas('transaction', function ($q) {
-                $q->whereIn('transaction_status', ['paid', 'expired', 'canceled'])
+                $q->whereIn('transaction_status', ['paid', 'expired', 'canceled', 'cancelled'])
                     ->where(function ($subQuery) {
-                        $subQuery->where('transaction_status', '!=', 'paid')
+                        $subQuery->whereIn('transaction_status', ['expired', 'canceled', 'cancelled'])
                             ->orWhere(function ($paidQuery) {
                                 $paidQuery->where('transaction_status', 'paid')
                                     ->whereNotNull('check_in_at')
@@ -80,17 +80,17 @@ class CompletedController extends Controller
         // ✅ Filter tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {
             if ($request->start_date === $request->end_date) {
-                $query->whereDate('check_in_at', $request->start_date);
+                $query->whereDate('created_at', $request->start_date);
             } else {
-                $query->whereBetween('check_in_at', [$request->start_date, $request->end_date]);
+                $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
             }
         } else {
             // Jika filter kosong → default ke hari ini
             $today = now()->toDateString();
-            $query->whereDate('check_in_at', $today);
+            $query->whereDate('created_at', '>=', $today);
         }
 
-        $bookings = $query->orderByDesc('check_in_at')
+        $bookings = $query->orderByDesc('created_at')
             ->paginate($request->input('per_page', 8));
 
         return response()->json([
