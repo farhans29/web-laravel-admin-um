@@ -162,54 +162,66 @@ class UserController extends Controller
 
     public function updateUsers(Request $request, $id)
     {
-        
-        // Validasi input
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'role' => 'required|exists:roles,id',
-            'status' => 'required|in:0,1',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'toast' => [
-                    'type' => 'error',
-                    'message' => 'Validation Error',
-                    'details' => $validator->errors()->first()
-                ],
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         // Temukan user
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json([
-                'success' => false,
-                'toast' => [
-                    'type' => 'error',
-                    'message' => 'User Not Found',
-                    'details' => 'The requested user does not exist'
-                ]
-            ], 404);
+            return redirect()->back()->with('error', 'User Not Found');
+        }
+
+        // Validasi input - sesuaikan dengan field yang ada di form
+        $validationRules = [
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'username'   => 'required|string|max:255|unique:users,username,' . $id,
+            'email'      => 'required|email|unique:users,email,' . $id,
+            'phone_number' => 'required|string|max:20',
+        ];
+
+        // Jika ada field role dan status (untuk admin management)
+        if ($request->has('role')) {
+            $validationRules['role'] = 'required|exists:roles,id';
+        }
+        if ($request->has('status')) {
+            $validationRules['status'] = 'required|in:0,1';
+        }
+
+        $validator = Validator::make($request->all(), $validationRules);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('error', 'Validation Error: ' . $validator->errors()->first());
         }
 
         // Prepare update data
         $updateData = [
             'first_name' => $request->first_name,
             'last_name'  => $request->last_name,
-            'name' => $request->name, // kalau mau gabungan first + last bisa di-handle di sini
-            'email' => $request->email,
-            'role_id' => $request->role,
-            'status' => $request->status,
+            'username'   => $request->username,
+            'email'      => $request->email,
+            'phone_number' => $request->phone_number,
             'updated_by' => Auth::id(),
             'updated_at' => now()
         ];
+
+        // Update name jika perlu (gabungan first + last)
+        if ($request->has('name')) {
+            $updateData['name'] = $request->name;
+        } else {
+            $updateData['name'] = $request->first_name . ' ' . $request->last_name;
+        }
+
+        // Update role jika ada (untuk admin management)
+        if ($request->has('role')) {
+            $updateData['role_id'] = $request->role;
+        }
+
+        // Update status jika ada (untuk admin management)
+        if ($request->has('status')) {
+            $updateData['status'] = $request->status;
+        }
 
         // Update password jika ada
         if (!empty($request->password)) {
@@ -219,7 +231,7 @@ class UserController extends Controller
         // Update user
         $user->update($updateData);
 
-        return redirect()->back()->with('success', 'User Update Successfully!');
+        return redirect()->back()->with('success', 'User Updated Successfully!');
     }
 
 

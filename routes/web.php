@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AccountSettings\UserSettingsController;
 use App\Http\Controllers\Bookings\Booking\AllBookingController;
 use App\Http\Controllers\Bookings\CheckIn\CheckInController;
 use App\Http\Controllers\Bookings\CheckOut\CheckOutController;
@@ -17,6 +18,9 @@ use App\Http\Controllers\Properties\ManajementPropertiesController;
 use App\Http\Controllers\Properties\ManajementRoomsController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\RefundController;
+use App\Http\Controllers\RoomAvailability\RoomAvailabilityController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Reports\BookingReportController;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -59,6 +63,8 @@ Route::get('storage/{path}', function ($path) {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/room-report', [DashboardController::class, 'getPropertyRoomReport']);
+    Route::get('/dashboard/room-report/{propertyId}', [DashboardController::class, 'getPropertyRoomReport']);
     Route::get('/progress', [DashboardController::class, 'progress_index'])->name('progress');
 
     Route::get('/account/getData', [UserController::class, 'accountGetData'])->name('account.getData');
@@ -86,6 +92,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user-access/edit', [UserController::class, 'indexUserAccessManagement'])->name('user-access.edit');
     Route::get('/user-access/{userId}/permissions', [UserController::class, 'getUserPermissions']);
     Route::post('/user-access/{userId}/update', [UserController::class, 'update']);
+
+    // User Settings Routes
+    Route::put('/user/password', [UserSettingsController::class, 'updatePassword'])->name('user.password.update');
+    Route::get('/user/activity', [UserSettingsController::class, 'getUserActivity'])->name('user.activity');
 
     Route::prefix('bookings')->group(function () {
         Route::get('/bookings', [AllBookingController::class, 'index'])->name('bookings.index');
@@ -121,6 +131,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/change-room', [ChangeRoomController::class, 'index'])->name('changerooom.index');
         Route::get('/change-room/available-rooms', [ChangeRoomController::class, 'getAvailableRooms']);
         Route::post('/change-room/store', [ChangeRoomController::class, 'store'])->name('changeroom.store');
+
+        // ---------------------------------------------------------------------------------------------------------------------
+
+        Route::get('/room-availability', [RoomAvailabilityController::class, 'index'])->name('room-availability.index');
+        Route::get('/room-availability/data', [RoomAvailabilityController::class, 'getAvailabilityData'])->name('room-availability.data');
+        Route::post('/room-availability/{id}/status', [RoomAvailabilityController::class, 'updateRentalStatus'])->name('room-availability.update-status');
+        Route::get('/room-availability/{room}/bookings', [RoomAvailabilityController::class, 'getRoomBookings'])->name('room-availability.bookings');
     });
 
     Route::prefix('properties')->group(function () {
@@ -166,5 +183,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/refund', [RefundController::class, 'index'])->name('admin.refunds.index');
         Route::post('/refund/store', [RefundController::class, 'store'])->name('admin.refunds.store');
         Route::post('/refund/cancel/{id_booking}', [RefundController::class, 'cancel'])->name('admin.refunds.cancel');
+    });
+
+    Route::prefix('customers')->group(function () {
+        Route::get('/', [CustomerController::class, 'index'])->name('customers.index');
+        Route::get('/filter', [CustomerController::class, 'filter'])->name('customers.filter');
+        Route::get('/{identifier}/bookings', [CustomerController::class, 'getBookings'])->name('customers.bookings');
+    });
+
+    Route::prefix('reports')->group(function () {
+        Route::get('/booking-report', [BookingReportController::class, 'index'])->name('reports.booking.index');
+        Route::get('/booking-report/data', [BookingReportController::class, 'getData'])->name('reports.booking.data');
+        Route::get('/booking-report/export', [BookingReportController::class, 'export'])->name('reports.booking.export');
     });
 });

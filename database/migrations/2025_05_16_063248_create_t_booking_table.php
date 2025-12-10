@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('user_phone_number', 50)->nullable();
             $table->string('room_id', 255);
             $table->dateTime('check_in_at')->nullable();
+            $table->binary('ktp_img')->nullable();
             $table->string('doc_type', 50)->nullable();
             $table->string('doc_path', 255)->nullable();            
             $table->dateTime('check_out_at')->nullable();
@@ -27,6 +28,7 @@ return new class extends Migration
             $table->integer('updated_by')->nullable();
             $table->tinyInteger('status')->nullable();
             $table->text('reason')->nullable();
+            $table->text('description')->nullable();
             $table->integer('is_printed')->default(0);
             $table->timestamps();
         });

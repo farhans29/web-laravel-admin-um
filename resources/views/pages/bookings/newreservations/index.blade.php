@@ -75,19 +75,19 @@
         </div>
     </div>
 
+    <script src="{{ asset('js/date-filter-persistence.js') }}"></script>
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('checkInModal', (initialOrderId) => ({
+            Alpine.data('checkInModal', (initialOrderId, docRequired = true) => ({
                 isOpen: false,
                 isDragging: false,
                 docPreview: null,
                 docPreviewType: null,
                 docFile: null, // Variabel baru untuk menyimpan file
                 profilePhotoUrl: null,
-                profilePhotoUrlDemo: null,
-                profilePhotoUrlWeb: null,
                 selectedDocType: 'ktp',
                 bookingId: initialOrderId,
+                docRequired: docRequired, // Add docRequired property
                 guestContact: {
                     name: '',
                     email: '',
@@ -398,10 +398,7 @@
                             doc_path: data.doc_path
                         };
 
-                        this.profilePhotoUrlDemo = data.user_profile_photo_demo || null;
-                        this.profilePhotoUrlWeb = data.user_profile_photo_web || null;
-                        this.profilePhotoUrl = this.profilePhotoUrlWeb || this
-                            .profilePhotoUrlDemo || null;
+                        this.profilePhotoUrl = data.user_profile_photo_url || null;
 
                     } catch (error) {
                         console.error('Error fetching booking details:', error);
@@ -512,8 +509,8 @@
                         return;
                     }
 
-                    // Validasi dokumen identifikasi
-                    if (!this.profilePhotoUrl && !this.docFile) {
+                    // Validasi dokumen identifikasi (hanya jika docRequired = true)
+                    if (this.docRequired && !this.profilePhotoUrl && !this.docFile) {
                         this.showErrorToast('Harap unggah dokumen identifikasi');
                         return;
                     }
@@ -552,12 +549,18 @@
                         if (data.success) {
                             this.showSuccessToast('Check-in berhasil!');
 
+                            // Jika perlu print agreement, buka di tab baru
+                            if (data.need_print_agreement && data.print_url) {
+                                setTimeout(() => {
+                                    window.open(data.print_url, '_blank');
+                                }, 500);
+                            }
+
                             // Refresh tabel setelah check-in berhasil
                             this.refreshBookingTable();
 
-                            // Buka form registrasi di tab baru setelah check-in berhasil
+                            // Close modal
                             setTimeout(() => {
-                                this.openRegistrationForm(this.bookingId);
                                 this.closeModal();
                             }, 1500);
                         } else {
@@ -686,68 +689,19 @@
             const defaultEndDate = new Date();
             defaultEndDate.setMonth(defaultEndDate.getMonth() + 1);
 
-            // Initialize Flatpickr with default range
-            const datePicker = flatpickr("#date_picker", {
-                mode: "range", // Tetap mode range tapi bisa pilih 1 tanggal
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "j F Y",
-                allowInput: true,
-                static: true,
-                monthSelectorType: 'static',
-                defaultDate: [defaultStartDate, defaultEndDate],
-                minDate: "today",
-                maxDate: new Date().fp_incr(365),
-                onOpen: function(selectedDates, dateStr, instance) {
-                    instance.set('minDate', null);
-                },
+            // Initialize Flatpickr with persistence
+            const datePicker = DateFilterPersistence.initFlatpickr('newreservations', {
+                defaultStartDate: defaultStartDate,
+                defaultEndDate: defaultEndDate,
                 onChange: function(selectedDates, dateStr, instance) {
-                    if (selectedDates.length > 0) {
-                        const startDate = selectedDates[0];
-                        // Jika hanya 1 tanggal yang dipilih, gunakan tanggal itu saja
-                        const endDate = selectedDates[1] || selectedDates[0];
-
-                        // Format tanggal ke YYYY-MM-DD
-                        document.getElementById('start_date').value = formatDate(startDate);
-                        document.getElementById('end_date').value = formatDate(endDate);
-                        fetchFilteredBookings();
-                    }
+                    fetchFilteredBookings();
                 },
                 onClose: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 0) {
-                        document.getElementById('start_date').value = '';
-                        document.getElementById('end_date').value = '';
                         fetchFilteredBookings();
                     }
                 }
             });
-
-            // Set initial hidden input values
-            document.getElementById('start_date').value = formatDate(defaultStartDate);
-            document.getElementById('end_date').value = formatDate(defaultEndDate);
-
-            // Fungsi format tanggal
-            function formatDate(date) {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-
-            // Set initial values if they exist
-            @if (request('start_date') && request('end_date'))
-                const startDate = new Date(
-                    '{{ request('
-                                                                                                                                                                        start_date ') }}'
-                );
-                const endDate = new Date(
-                    '{{ request('
-                                                                                                                                                                        end_date ') }}'
-                );
-
-                // Always set both start and end dates, even if they're the same
-                datePicker.setDate([startDate, endDate], true);
-            @endif
 
             // Get all filter elements
             const searchInput = document.getElementById('search');

@@ -15,7 +15,10 @@ class Booking extends Model
     protected $table = 't_booking';
     protected $primaryKey = 'idrec';
 
-    protected $appends = ['status'];
+    // Note: 'status' is defined as both a database column (boolean: 0=inactive, 1=active)
+    // and a computed accessor that returns transaction-based status text
+    // When accessing $booking->status, you get the computed text (via getStatusAttribute)
+    // When querying, use ->where('status', 1) to filter by the database column
 
     protected $fillable = [
         'order_id',
@@ -33,12 +36,21 @@ class Booking extends Model
         'status',
         'reason',
         'description',
+        'is_printed',
     ];
 
     protected $casts = [
         'check_in_at' => 'datetime',
         'check_out_at' => 'datetime',
-        'status' => 'boolean',
+        // Note: status is NOT cast here to allow the accessor to override it
+    ];
+
+    // In your Booking model
+    protected $dates = [
+        'check_in_at',
+        'check_out_at',
+        'created_at',
+        'updated_at',
     ];
 
     public function room()
@@ -84,6 +96,7 @@ class Booking extends Model
                 }
                 break;
             case 'canceled':
+            case 'cancelled':
                 return 'Canceled';
             case 'expired':
                 return 'Expired';
@@ -109,6 +122,11 @@ class Booking extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class, 'order_id', 'order_id');
+    }
+
+    public function refund()
+    {
+        return $this->hasOne(Refund::class, 'id_booking', 'order_id');
     }
 
     public function getInvoiceData()

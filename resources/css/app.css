@@ -135,3 +135,51 @@
     border-color: var(--color-gray-200, currentColor);
   }
 }
+
+/* Mobile Sidebar Optimizations */
+@layer components {
+  /* Better touch targets for mobile */
+  @media (max-width: 1023px) {
+    #sidebar a,
+    #sidebar button {
+      min-height: 44px; /* iOS recommended touch target size */
+      touch-action: manipulation; /* Prevents double-tap zoom */
+    }
+
+    /* Prevent text selection on tap */
+    #sidebar {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Smooth scrolling on mobile */
+    #sidebar {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+
+    /* Fix for iOS momentum scrolling */
+    #sidebar::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  /* Tablet optimization */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    #sidebar {
+      width: 280px !important;
+    }
+
+    #sidebar.sidebar-expanded {
+      width: 280px !important;
+    }
+  }
+
+  /* Prevent backdrop from interfering with touch events on desktop */
+  @media (min-width: 1024px) {
+    .sidebar-backdrop {
+      display: none !important;
+    }
+  }
+}

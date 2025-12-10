@@ -59,10 +59,10 @@
                                 <!-- Step 1 -->
                                 <div class="flex items-center">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                        :class="step >= 1 ? 'bg-blue-600 border-blue-600 text-white' :
-                                            'border-gray-300 text-gray-500'">
+                                        :class="step > 1 ? 'bg-blue-600 border-blue-600 text-white' : step === 1 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
+                                        <span class="text-sm font-semibold" x-show="step === 1">1</span>
                                         <span class="text-sm font-semibold" x-show="step < 1">1</span>
-                                        <svg x-show="step >= 1" class="w-5 h-5" fill="none" stroke="currentColor"
+                                        <svg x-show="step > 1" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M5 13l4 4L19 7"></path>
@@ -81,10 +81,9 @@
                                 <!-- Step 2 -->
                                 <div class="flex items-center">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                        :class="step >= 2 ? 'bg-blue-600 border-blue-600 text-white' :
-                                            'border-gray-300 text-gray-500'">
-                                        <span class="text-sm font-semibold" x-show="step < 2">2</span>
-                                        <svg x-show="step >= 2" class="w-5 h-5" fill="none" stroke="currentColor"
+                                        :class="step > 2 ? 'bg-blue-600 border-blue-600 text-white' : step === 2 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
+                                        <span class="text-sm font-semibold" x-show="step === 2 || step < 2">2</span>
+                                        <svg x-show="step > 2" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M5 13l4 4L19 7"></path>
@@ -103,10 +102,9 @@
                                 <!-- Step 3 -->
                                 <div class="flex items-center">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                        :class="step >= 3 ? 'bg-blue-600 border-blue-600 text-white' :
-                                            'border-gray-300 text-gray-500'">
-                                        <span class="text-sm font-semibold" x-show="step < 3">3</span>
-                                        <svg x-show="step >= 3" class="w-5 h-5" fill="none" stroke="currentColor"
+                                        :class="step > 3 ? 'bg-blue-600 border-blue-600 text-white' : step === 3 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
+                                        <span class="text-sm font-semibold" x-show="step === 3 || step < 3">3</span>
+                                        <svg x-show="step > 3" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M5 13l4 4L19 7"></path>
@@ -125,14 +123,8 @@
                                 <!-- Step 4 -->
                                 <div class="flex items-center">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                        :class="step >= 4 ? 'bg-blue-600 border-blue-600 text-white' :
-                                            'border-gray-300 text-gray-500'">
-                                        <span class="text-sm font-semibold" x-show="step < 4">4</span>
-                                        <svg x-show="step >= 4" class="w-5 h-5" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 13l4 4L19 7"></path>
-                                        </svg>
+                                        :class="step === 4 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
+                                        <span class="text-sm font-semibold">4</span>
                                     </div>
                                     <div class="ml-3 text-sm">
                                         <p class="font-medium transition-colors duration-300"
@@ -253,22 +245,23 @@
                                     x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                     <div class="space-y-6">
                                         <div class="mb-4">
-                                            <h3 class="text-md font-semibold text-gray-700 mb-2">Jenis Harga</h3>
+                                            <h3 class="text-md font-semibold text-gray-700 mb-2">Jenis Harga <span class="text-red-500">*</span></h3>
+                                            <p class="text-xs text-gray-500 mb-3">Pilih satu jenis periode pembayaran</p>
                                             <div class="flex space-x-6">
-                                                <label class="inline-flex items-center">
-                                                    <input type="checkbox" value="daily" x-model="priceTypes"
-                                                        class="form-checkbox text-blue-600">
-                                                    <span class="ml-2">Harian</span>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="radio" name="price_type" value="daily" x-model="priceType"
+                                                        class="form-radio text-blue-600 h-4 w-4">
+                                                    <span class="ml-2 text-sm font-medium text-gray-700">Harian</span>
                                                 </label>
-                                                <label class="inline-flex items-center">
-                                                    <input type="checkbox" value="monthly" x-model="priceTypes"
-                                                        class="form-checkbox text-blue-600">
-                                                    <span class="ml-2">Bulanan</span>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="radio" name="price_type" value="monthly" x-model="priceType"
+                                                        class="form-radio text-blue-600 h-4 w-4">
+                                                    <span class="ml-2 text-sm font-medium text-gray-700">Bulanan</span>
                                                 </label>
                                             </div>
                                         </div>
 
-                                        <div x-show="priceTypes.includes('daily')" x-transition>
+                                        <div x-show="priceType === 'daily'" x-transition>
                                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                                 Harga Harian <span class="text-red-500">*</span>
                                             </label>
@@ -286,7 +279,7 @@
                                                 x-text="dailyPriceError"></p>
                                         </div>
 
-                                        <div x-show="priceTypes.includes('monthly')" x-transition class="mt-4">
+                                        <div x-show="priceType === 'monthly'" x-transition class="mt-4">
                                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                                 Harga Bulanan <span class="text-red-500">*</span>
                                             </label>
@@ -317,8 +310,7 @@
                                                 </div>
                                                 <div class="ml-3">
                                                     <p class="text-sm text-blue-700">
-                                                        Anda bisa memilih salah satu atau kedua jenis harga. Pastikan
-                                                        mengisi harga yang sesuai dengan jenis yang dipilih.
+                                                        Pilih salah satu jenis periode pembayaran. Isi harga sesuai dengan periode yang dipilih.
                                                     </p>
                                                 </div>
                                             </div>
@@ -395,7 +387,7 @@
                                             <label class="block text-sm font-semibold text-gray-700 mb-3">
                                                 Foto Kamar <span class="text-red-500">*</span>
                                                 <span class="text-sm font-normal text-gray-500">
-                                                    (Wajib 3 foto - <span x-text="remainingSlots"></span> foto lagi)
+                                                    (Minimal 3 foto, maksimal 5 foto - <span x-text="remainingSlots"></span> slot tersisa)
                                                 </span>
                                             </label>
 
@@ -486,9 +478,9 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>
-                                                    <p class="text-sm text-green-600 font-medium">3 foto telah
+                                                    <p class="text-sm text-green-600 font-medium">5 foto telah
                                                         diupload!</p>
-                                                    <p class="text-xs text-green-500">Semua slot foto telah terisi</p>
+                                                    <p class="text-xs text-green-500">Maksimal foto telah tercapai</p>
                                                 </div>
                                             </div>
 
@@ -652,6 +644,18 @@
                         </select>
                     </div>
 
+                    <!-- Per Page Dropdown -->
+                    <div>
+                        <select id="per-page-filter"
+                            class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <option value="8" {{ request('per_page', 8) == 8 ? 'selected' : '' }}>8 per halaman</option>
+                            <option value="16" {{ request('per_page', 8) == 16 ? 'selected' : '' }}>16 per halaman</option>
+                            <option value="32" {{ request('per_page', 8) == 32 ? 'selected' : '' }}>32 per halaman</option>
+                            <option value="64" {{ request('per_page', 8) == 64 ? 'selected' : '' }}>64 per halaman</option>
+                            <option value="100" {{ request('per_page', 8) == 100 ? 'selected' : '' }}>100 per halaman</option>
+                        </select>
+                    </div>
+
                 </div>
             </div>
 
@@ -677,7 +681,7 @@
                 images: [],
                 maxImages: 5,
                 minImages: 3,
-                priceTypes: [],
+                priceType: '',
                 dailyPrice: 0,
                 monthlyPrice: 0,
                 dailyPriceError: '',
@@ -692,36 +696,82 @@
                 init() {
                     console.log('Modal Room initialized');
 
-                    // Initialize price input formatting dengan error handling
-                    try {
-                        if (this.$refs.dailyPriceInput) {
-                            new Cleave(this.$refs.dailyPriceInput, {
-                                numeral: true,
-                                numeralThousandsGroupStyle: 'thousand',
-                                onValueChanged: (e) => {
-                                    this.validatePriceInput(this.$refs.dailyPriceInput,
-                                        'dailyPrice');
-                                }
-                            });
+                    // Watch for modal close to reset form
+                    this.$watch('modalOpen', (value) => {
+                        if (!value) {
+                            this.resetForm();
                         }
+                    });
 
-                        if (this.$refs.monthlyPriceInput) {
-                            new Cleave(this.$refs.monthlyPriceInput, {
-                                numeral: true,
-                                numeralThousandsGroupStyle: 'thousand',
-                                onValueChanged: (e) => {
-                                    this.validatePriceInput(this.$refs.monthlyPriceInput,
-                                        'monthlyPrice');
+                    // Initialize price input formatting dengan error handling
+                    this.$nextTick(() => {
+                        try {
+                            // Wait for Alpine to fully render refs
+                            setTimeout(() => {
+                                if (this.$refs.dailyPriceInput) {
+                                    new Cleave(this.$refs.dailyPriceInput, {
+                                        numeral: true,
+                                        numeralThousandsGroupStyle: 'thousand',
+                                        onValueChanged: (e) => {
+                                            this.validatePriceInput(this.$refs.dailyPriceInput,
+                                                'dailyPrice');
+                                        }
+                                    });
                                 }
-                            });
+
+                                if (this.$refs.monthlyPriceInput) {
+                                    new Cleave(this.$refs.monthlyPriceInput, {
+                                        numeral: true,
+                                        numeralThousandsGroupStyle: 'thousand',
+                                        onValueChanged: (e) => {
+                                            this.validatePriceInput(this.$refs.monthlyPriceInput,
+                                                'monthlyPrice');
+                                        }
+                                    });
+                                }
+                            }, 100);
+                        } catch (error) {
+                            console.error('Cleave.js initialization error:', error);
                         }
-                    } catch (error) {
-                        this.showErrorAlert('Gagal menginisialisasi form input harga: ' + error
-                        .message);
-                    }
+                    });
 
                     // Set up global error handler
                     this.setupGlobalErrorHandling();
+                },
+
+                resetForm() {
+                    // Reset all form data to initial state
+                    this.step = 1;
+                    this.images = [];
+                    this.thumbnailIndex = null;
+                    this.priceType = '';
+                    this.dailyPrice = 0;
+                    this.monthlyPrice = 0;
+                    this.dailyPriceError = '';
+                    this.monthlyPriceError = '';
+                    this.formErrors = {};
+                    this.isLoading = false;
+
+                    // Reset form element
+                    const form = document.getElementById('roomForm');
+                    if (form) {
+                        form.reset();
+                    }
+
+                    // Clear price inputs with Cleave
+                    if (this.$refs.dailyPriceInput) {
+                        this.$refs.dailyPriceInput.value = '';
+                        const cleave = this.$refs.dailyPriceInput._cleave;
+                        if (cleave) cleave.setRawValue('');
+                    }
+                    if (this.$refs.monthlyPriceInput) {
+                        this.$refs.monthlyPriceInput.value = '';
+                        const cleave = this.$refs.monthlyPriceInput._cleave;
+                        if (cleave) cleave.setRawValue('');
+                    }
+
+                    // Clear error borders
+                    this.clearFormErrors();
                 },
 
                 setupGlobalErrorHandling() {
@@ -1281,9 +1331,9 @@
 
                 validateStep2() {
                     try {
-                        if (this.priceTypes.length === 0) {
+                        if (!this.priceType) {
                             this.showErrorAlert(
-                                'Pilih minimal satu jenis harga (harian atau bulanan)',
+                                'Pilih jenis harga (harian atau bulanan)',
                                 'Jenis Harga Belum Dipilih'
                             );
                             return false;
@@ -1291,8 +1341,8 @@
 
                         const errors = [];
 
-                        // Validate the selected price types have valid values
-                        if (this.priceTypes.includes('daily')) {
+                        // Validate the selected price type has valid value
+                        if (this.priceType === 'daily') {
                             if (!this.dailyPrice || this.dailyPrice <= 0) {
                                 errors.push('• Harga harian harus diisi dengan nilai yang valid');
                             } else if (this.dailyPriceError) {
@@ -1300,7 +1350,7 @@
                             }
                         }
 
-                        if (this.priceTypes.includes('monthly')) {
+                        if (this.priceType === 'monthly') {
                             if (!this.monthlyPrice || this.monthlyPrice <= 0) {
                                 errors.push('• Harga bulanan harus diisi dengan nilai yang valid');
                             } else if (this.monthlyPriceError) {
@@ -1424,10 +1474,10 @@
                         // Add image count for backend validation
                         formData.append('image_count', this.images.length);
 
-                        // Add price types
+                        // Add price type
                         const priceObject = {
-                            daily: this.priceTypes.includes('daily'),
-                            monthly: this.priceTypes.includes('monthly')
+                            daily: this.priceType === 'daily',
+                            monthly: this.priceType === 'monthly'
                         };
                         formData.append('price_types', JSON.stringify(priceObject));
 
@@ -1653,6 +1703,7 @@
             const roomFilter = document.getElementById('room-filter');
             const statusFilter = document.getElementById('status-filter');
             const searchInput = document.getElementById('search-input');
+            const perPageFilter = document.getElementById('per-page-filter');
 
             // Timer untuk debounce
             let searchTimer;
@@ -1662,14 +1713,16 @@
                 const propertyId = roomFilter.value;
                 const status = statusFilter.value;
                 const searchQuery = searchInput.value.trim();
+                const perPage = perPageFilter.value;
 
                 // Kirim permintaan AJAX
-                fetchRooms(propertyId, status, searchQuery);
+                fetchRooms(propertyId, status, searchQuery, perPage);
             }
 
             // Event listeners untuk filter real-time
             roomFilter.addEventListener('change', applyFilters);
             statusFilter.addEventListener('change', applyFilters);
+            perPageFilter.addEventListener('change', applyFilters);
 
             // Debounce untuk search input (menunggu 500ms setelah user berhenti mengetik)
             searchInput.addEventListener('input', function() {
@@ -1686,7 +1739,7 @@
             });
 
             // Fungsi AJAX untuk mengambil data
-            function fetchRooms(propertyId, status, searchQuery) {
+            function fetchRooms(propertyId, status, searchQuery, perPage) {
                 const url = new URL(window.location.href);
                 const params = new URLSearchParams(url.search);
 
@@ -1700,9 +1753,9 @@
                 if (searchQuery) params.set('search', searchQuery);
                 else params.delete('search');
 
-                // Simpan per_page value jika ada
-                const perPage = params.get('per_page') || '8';
-                params.set('per_page', perPage);
+                // Set per_page value
+                if (perPage) params.set('per_page', perPage);
+                else params.set('per_page', '8');
 
                 // Update URL tanpa reload halaman
                 window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
@@ -1756,6 +1809,10 @@
 
                 if (urlParams.has('search')) {
                     searchInput.value = urlParams.get('search');
+                }
+
+                if (urlParams.has('per_page')) {
+                    perPageFilter.value = urlParams.get('per_page');
                 }
             }
 

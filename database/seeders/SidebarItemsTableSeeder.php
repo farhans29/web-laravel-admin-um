@@ -162,6 +162,14 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 5
         ]);
 
+        $roomAvailability = SidebarItem::create([
+            'name' => 'Room Availability',
+            'route' => 'room-availability.index',
+            'permission_id' => $permissions['view_room_availability'] ?? null,
+            'parent_id' => $managementSection->id,
+            'order' => 6
+        ]);
+
         // Financial items
         $financialSection = SidebarItem::create([
             'name' => 'Financial',
@@ -179,20 +187,12 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 1
         ]);
 
-        $invoices = SidebarItem::create([
-            'name' => 'Invoices',
-            'route' => 'progress',
-            'permission_id' => $permissions['view_invoices'] ?? null,
-            'parent_id' => $financialSection->id,
-            'order' => 2
-        ]);
-
         $reports = SidebarItem::create([
             'name' => 'Reports',
             'route' => 'progress',
             'permission_id' => $permissions['view_reports'] ?? null,
             'parent_id' => $financialSection->id,
-            'order' => 3
+            'order' => 2
         ]);
 
         // Settings items

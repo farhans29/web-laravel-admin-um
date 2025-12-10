@@ -12,6 +12,7 @@ use App\Models\MRoomImage;
 use App\Models\RoomFacility;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
@@ -310,7 +311,7 @@ class ManajementRoomsController extends Controller
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Room creation error: ' . $e->getMessage(), [
+            Log::error('Room creation error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'request_data' => $request->except(['room_images'])
             ]);
@@ -324,14 +325,15 @@ class ManajementRoomsController extends Controller
 
     public function checkRoomNumber(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'property_id' => 'required|exists:m_properties,idrec',
             'room_no' => 'required|string|max:20'
         ]);
 
+        // Cek exist tapi hanya yang belum di-soft delete (deleted_at = null)
         $exists = Room::where('property_id', $request->property_id)
             ->where('no', $request->room_no)
+            ->whereNull('deleted_at')  // tambahkan ini
             ->exists();
 
         return response()->json([
@@ -341,6 +343,7 @@ class ManajementRoomsController extends Controller
                 : 'Nomor kamar tersedia.'
         ]);
     }
+
 
     public function update(Request $request, $idrec)
     {
@@ -656,9 +659,8 @@ class ManajementRoomsController extends Controller
     {
         try {
             $room = Room::findOrFail($idrec);
-
-            // Soft delete: update status jadi 2
-            $room->status = '2';
+            $room->status = '2';         
+            $room->deleted_at = now();   
             $room->save();
 
             return response()->json(['message' => 'Room deleted successfully.'], 200);
@@ -666,6 +668,7 @@ class ManajementRoomsController extends Controller
             return response()->json(['error' => 'Failed to delete room.'], 500);
         }
     }
+
 
     // `````````````m_Room Facility Management```````````````````````````
 

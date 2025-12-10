@@ -39,6 +39,8 @@ return new class extends Migration
             $table->string('created_by', 100)->nullable();
             $table->string('updated_by', 100)->nullable();
             $table->integer('status')->default(1);
+            $table->integer('rental_status')->default(0);
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();       
         });
     }

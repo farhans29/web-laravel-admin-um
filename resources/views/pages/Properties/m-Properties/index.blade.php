@@ -65,10 +65,9 @@
                                     <!-- Step 1 -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step >= 1 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
-                                            <span class="text-sm font-semibold" x-show="step < 1">1</span>
-                                            <svg x-show="step >= 1" class="w-5 h-5" fill="none" stroke="currentColor"
+                                            :class="step > 1 ? 'bg-blue-600 border-blue-600 text-white' : step === 1 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
+                                            <span class="text-sm font-semibold" x-show="step === 1 || step < 1">1</span>
+                                            <svg x-show="step > 1" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M5 13l4 4L19 7"></path>
@@ -90,10 +89,9 @@
                                     <!-- Step 2 -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step >= 2 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
-                                            <span class="text-sm font-semibold" x-show="step < 2">2</span>
-                                            <svg x-show="step >= 2" class="w-5 h-5" fill="none" stroke="currentColor"
+                                            :class="step > 2 ? 'bg-blue-600 border-blue-600 text-white' : step === 2 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
+                                            <span class="text-sm font-semibold" x-show="step === 2 || step < 2">2</span>
+                                            <svg x-show="step > 2" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M5 13l4 4L19 7"></path>
@@ -114,10 +112,9 @@
                                     <!-- Step 3 (Fasilitas) -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step >= 3 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
-                                            <span class="text-sm font-semibold" x-show="step < 3">3</span>
-                                            <svg x-show="step >= 3" class="w-5 h-5" fill="none" stroke="currentColor"
+                                            :class="step > 3 ? 'bg-blue-600 border-blue-600 text-white' : step === 3 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
+                                            <span class="text-sm font-semibold" x-show="step === 3 || step < 3">3</span>
+                                            <svg x-show="step > 3" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M5 13l4 4L19 7"></path>
@@ -138,14 +135,8 @@
                                     <!-- Step 4 (Foto) -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step >= 4 ? 'bg-blue-600 border-blue-600 text-white' :
-                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
-                                            <span class="text-sm font-semibold" x-show="step < 4">4</span>
-                                            <svg x-show="step >= 4" class="w-5 h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 13l4 4L19 7"></path>
-                                            </svg>
+                                            :class="step === 4 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
+                                            <span class="text-sm font-semibold">4</span>
                                         </div>
                                         <div class="ml-3 text-sm">
                                             <p class="font-medium transition-colors duration-300"
@@ -491,8 +482,7 @@
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                     Foto Properti <span class="text-red-500">*</span>
                                                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                                                        (Wajib 3 foto - <span x-text="remainingSlots"></span> foto
-                                                        lagi)
+                                                        (Minimal 3 foto, maksimal 10 foto - <span x-text="remainingSlots"></span> slot tersisa)
                                                     </span>
                                                 </label>
 
@@ -591,10 +581,9 @@
                                                         </svg>
                                                         <p
                                                             class="text-sm text-green-600 dark:text-green-400 font-medium">
-                                                            3 foto telah
+                                                            10 foto telah
                                                             diupload!</p>
-                                                        <p class="text-xs text-green-500 dark:text-green-400">Semua
-                                                            slot foto telah terisi
+                                                        <p class="text-xs text-green-500 dark:text-green-400">Maksimal foto telah tercapai
                                                         </p>
                                                     </div>
                                                 </div>
@@ -945,6 +934,7 @@
             Alpine.data('modalProperty', () => ({
                 selectedProperty: {},
                 modalOpenDetail: false,
+                step: 1,
                 images: [],
                 maxImages: 10,
                 minImages: 3,
@@ -959,7 +949,6 @@
                     this.selectedProperty = property;
                     this.modalOpenDetail = true;
                 },
-                step: 1,
 
                 setThumbnail(index) {
                     this.thumbnailIndex = index;
@@ -983,6 +972,13 @@
                     const provinceSelect = document.getElementById('province');
                     const citySelect = document.getElementById('city');
 
+                    // Watch for modal close to reset form
+                    this.$watch('modalOpenDetail', (value) => {
+                        if (!value) {
+                            this.resetForm();
+                        }
+                    });
+
                     this.$watch('step', (value) => {
                         if (value === 2 && typeof L === 'undefined') {
                             this.loadLeaflet().then(() => {
@@ -998,6 +994,35 @@
                             }, 100);
                         }
                     });
+                },
+
+                resetForm() {
+                    // Reset all form data to initial state
+                    this.step = 1;
+                    this.images = [];
+                    this.thumbnailIndex = null;
+                    this.searchQuery = '';
+                    this.searchResults = [];
+                    this.isSearching = false;
+
+                    // Reset form element
+                    const form = document.getElementById('propertyForm');
+                    if (form) {
+                        form.reset();
+                    }
+
+                    // Clean up map
+                    if (this.map) {
+                        this.map.remove();
+                        this.map = null;
+                        this.marker = null;
+                    }
+
+                    // Clear coordinates display
+                    const coordsElement = document.getElementById('coordinates');
+                    if (coordsElement) {
+                        coordsElement.textContent = '';
+                    }
                 },
 
                 loadLeaflet() {

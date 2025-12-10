@@ -171,6 +171,7 @@ return [
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
         App\Providers\GlobalTitleServiceProvider::class,
+        App\Providers\ExcelServiceProvider::class,
 
     ])->toArray(),
 
@@ -187,6 +188,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'Excel' => App\Facades\Excel::class,
     ])->toArray(),
 
 ];
