@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Property;
 use App\Exports\BookingReportExport;
+use App\Exports\BookingReportExportNew;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Facades\Excel as MaatwebsiteExcel;
+use App\Facades\Excel;
 use Carbon\Carbon;
 
 class BookingReportController extends Controller
@@ -192,6 +194,16 @@ class BookingReportController extends Controller
 
         $filename = 'booking-report-' . now()->format('Y-m-d-His') . '.xlsx';
 
-        return Excel::download(new BookingReportExport($filters), $filename);
+        // Try using custom Excel library first (fallback to maatwebsite if needed)
+        try {
+            $exporter = new BookingReportExportNew($filters);
+            return $exporter->export($filename);
+        } catch (\Exception $e) {
+            // Fallback to maatwebsite/excel if custom library fails
+            if (class_exists('Maatwebsite\Excel\Facades\Excel')) {
+                return MaatwebsiteExcel::download(new BookingReportExport($filters), $filename);
+            }
+            throw $e;
+        }
     }
 }

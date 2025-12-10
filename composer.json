@@ -13,6 +13,7 @@
         "laravel/tinker": "^2.8",
         "livewire/livewire": "*",
         "maatwebsite/excel": "^3.1",
+        "phpoffice/phpspreadsheet": "^2.0",
         "spatie/laravel-permission": "^6.15",
         "yajra/laravel-datatables-oracle": "^11.1"
     },
