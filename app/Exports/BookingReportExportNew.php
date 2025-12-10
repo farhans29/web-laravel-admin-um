@@ -33,59 +33,40 @@ class BookingReportExportNew
         $excel = new ExcelService();
         $sheet = $excel->getActiveSheet();
 
-        // Insert title rows
-        $sheet->insertNewRowBefore(1, 6);
-
-        // Title
-        $sheet->setCellValue('A1', 'BOOKING REPORT');
-        $sheet->mergeCells('A1:L1');
-        $sheet->getStyle('A1')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'size' => 16,
-                'color' => ['rgb' => '1F2937']
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER,
-            ],
-        ]);
-        $sheet->getRowDimension(1)->setRowHeight(30);
-
-        // Generated Date
-        $sheet->setCellValue('A2', 'Generated: ' . now()->format('d M Y, H:i'));
-        $sheet->mergeCells('A2:L2');
-        $sheet->getStyle('A2')->applyFromArray([
-            'font' => ['size' => 10, 'color' => ['rgb' => '6B7280']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        // Add Company/Organization Info
+        $excel->addCompanyInfo('ULIN MAHONI', [
+            'Sistem Manajemen Booking Kamar',
         ]);
 
-        // Filters Section
-        $filterRow = 4;
-        $sheet->setCellValue('A' . $filterRow, 'FILTERS APPLIED:');
-        $sheet->getStyle('A' . $filterRow)->applyFromArray([
-            'font' => ['bold' => true, 'size' => 11],
+        // Add Main Title with custom styling
+        $excel->addTitleSection('📊 LAPORAN BOOKING KAMAR', [
+            'bgColor' => '1E3A8A', // Dark blue
+            'textColor' => 'FFFFFF',
+            'fontSize' => 20,
+            'height' => 40,
         ]);
 
-        $filterRow++;
+        // Add subtitle with generation info
+        $excel->addInfoRow('Generated on: ' . now()->format('l, d F Y - H:i:s'), [
+            'fontSize' => 10,
+            'textColor' => '6B7280',
+            'italic' => true,
+            'align' => Alignment::HORIZONTAL_CENTER,
+        ]);
+
+        $excel->addEmptyRow();
+
+        // Add filter section
         $filterTexts = $this->getFilterTexts();
+        $excel->addFilterSection($filterTexts);
 
-        if (!empty($filterTexts)) {
-            foreach ($filterTexts as $filterText) {
-                $sheet->setCellValue('A' . $filterRow, $filterText);
-                $sheet->getStyle('A' . $filterRow)->applyFromArray([
-                    'font' => ['size' => 10],
-                ]);
-                $filterRow++;
-            }
-        } else {
-            $sheet->setCellValue('A' . $filterRow, 'No filters applied - showing all bookings');
-            $sheet->getStyle('A' . $filterRow)->applyFromArray([
-                'font' => ['size' => 10, 'italic' => true, 'color' => ['rgb' => '6B7280']],
-            ]);
-        }
+        // Add separator
+        $excel->addInfoRow('', []);
 
-        // Headers
+        // Remember the header row for freeze pane
+        $headerRow = $excel->getCurrentRow();
+
+        // Headers with enhanced styling
         $headers = [
             'Booking Date',
             'Booking Number',
@@ -103,13 +84,38 @@ class BookingReportExportNew
 
         $excel->addHeader($headers);
 
+        // Style header row with custom colors
+        $actualHeaderRow = $excel->getCurrentRow() - 1;
+        $sheet->getStyle('A' . $actualHeaderRow . ':L' . $actualHeaderRow)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 11,
+                'color' => ['rgb' => 'FFFFFF']
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '3730A3'] // Indigo
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_MEDIUM,
+                    'color' => ['rgb' => '1E3A8A']
+                ]
+            ]
+        ]);
+        $sheet->getRowDimension($actualHeaderRow)->setRowHeight(28);
+
         // Column widths
         $columnWidths = [
             'A' => 15,  // Booking Date
             'B' => 20,  // Booking Number
             'C' => 20,  // Name
             'D' => 25,  // Property
-            'E' => 30,  // Address
+            'E' => 35,  // Address
             'F' => 20,  // Room
             'G' => 30,  // Stay Period
             'H' => 20,  // Payment
@@ -123,110 +129,87 @@ class BookingReportExportNew
             $excel->setColumnWidth($col, $width);
         }
 
-        // Style header row (row 7)
-        $headerRow = 7;
-        $sheet->getStyle('A' . $headerRow . ':L' . $headerRow)->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'size' => 11,
-                'color' => ['rgb' => 'FFFFFF']
-            ],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '4F46E5']
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical' => Alignment::VERTICAL_CENTER,
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => '3730A3']
-                ]
-            ]
-        ]);
-        $sheet->getRowDimension($headerRow)->setRowHeight(25);
+        // Add data rows with enhanced styling
+        $dataStartRow = $excel->getCurrentRow();
 
-        // Add data
-        $dataStartRow = 8;
-        $currentRow = $dataStartRow;
-
-        foreach ($bookings as $booking) {
+        foreach ($bookings as $index => $booking) {
             $row = $this->mapBooking($booking);
+            $currentDataRow = $excel->getCurrentRow();
+
             $excel->addRow($row);
 
             // Format as currency for revenue column
-            $sheet->getStyle('J' . $currentRow)->getNumberFormat()->setFormatCode('#,##0');
-            $currentRow++;
+            $sheet->getStyle('J' . $currentDataRow)->getNumberFormat()->setFormatCode('#,##0');
+
+            // Add zebra striping
+            if ($index % 2 == 0) {
+                $sheet->getStyle('A' . $currentDataRow . ':L' . $currentDataRow)->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'F9FAFB']
+                    ]
+                ]);
+            }
         }
 
-        $dataEndRow = $currentRow - 1;
+        $dataEndRow = $excel->getCurrentRow() - 1;
 
-        // Style data rows
+        // Style data rows with borders
         if ($bookings->count() > 0) {
             $sheet->getStyle('A' . $dataStartRow . ':L' . $dataEndRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['rgb' => 'E5E7EB']
+                        'color' => ['rgb' => 'D1D5DB']
                     ]
                 ]
             ]);
-
-            // Alternate row colors
-            for ($row = $dataStartRow; $row <= $dataEndRow; $row++) {
-                if (($row - $dataStartRow) % 2 == 0) {
-                    $sheet->getStyle('A' . $row . ':L' . $row)->applyFromArray([
-                        'fill' => [
-                            'fillType' => Fill::FILL_SOLID,
-                            'startColor' => ['rgb' => 'F9FAFB']
-                        ]
-                    ]);
-                }
-            }
         }
 
-        // Add summary at the bottom
-        $summaryRow = $dataEndRow + 2;
+        // Add spacing before summary
+        $excel->addEmptyRow(2);
 
-        // Total Revenue Row
-        $sheet->setCellValue('A' . $summaryRow, 'TOTAL REVENUE:');
-        $sheet->mergeCells('A' . $summaryRow . ':I' . $summaryRow);
-        $sheet->getStyle('A' . $summaryRow)->applyFromArray([
-            'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => '1F2937']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
+        // Add summary section with enhanced design
+        $excel->addInfoRow('📈 SUMMARY REPORT', [
+            'bold' => true,
+            'bgColor' => 'E0E7FF',
+            'textColor' => '3730A3',
+            'fontSize' => 12,
+            'align' => Alignment::HORIZONTAL_CENTER,
         ]);
 
-        // Total Revenue Value
-        $sheet->setCellValue('J' . $summaryRow, $totalRevenue);
-        $sheet->getStyle('J' . $summaryRow)->applyFromArray([
-            'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => '059669']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => 'D1FAE5']
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_MEDIUM,
-                    'color' => ['rgb' => '059669']
-                ]
-            ]
-        ]);
-        $sheet->getStyle('J' . $summaryRow)->getNumberFormat()->setFormatCode('#,##0');
+        $excel->addEmptyRow();
 
-        // Total Records Row
-        $recordsRow = $summaryRow + 1;
-        $sheet->setCellValue('A' . $recordsRow, 'Total Records: ' . $bookings->count());
-        $sheet->mergeCells('A' . $recordsRow . ':L' . $recordsRow);
-        $sheet->getStyle('A' . $recordsRow)->applyFromArray([
-            'font' => ['bold' => true, 'size' => 10, 'italic' => true, 'color' => ['rgb' => '6B7280']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
+        // Total Revenue using new method
+        $excel->addSummaryRow('TOTAL REVENUE:', $totalRevenue, [
+            'bgColor' => 'D1FAE5',
+            'textColor' => '059669',
+            'borderColor' => '10B981',
         ]);
 
-        // Freeze panes
-        $sheet->freezePane('A8');
+        // Format revenue as currency
+        $summaryRowNum = $excel->getCurrentRow() - 1;
+        $sheet->getStyle('J' . $summaryRowNum)->getNumberFormat()->setFormatCode('Rp #,##0');
+
+        // Total Records
+        $excel->addInfoRow('Total Records: ' . $bookings->count() . ' bookings', [
+            'bold' => true,
+            'fontSize' => 10,
+            'textColor' => '6B7280',
+            'align' => Alignment::HORIZONTAL_RIGHT,
+        ]);
+
+        // Add footer
+        $excel->addEmptyRow();
+        $excel->addInfoRow('Report generated by Booking Management System', [
+            'fontSize' => 9,
+            'italic' => true,
+            'textColor' => '9CA3AF',
+            'align' => Alignment::HORIZONTAL_CENTER,
+        ]);
+
+        // Freeze panes at header row
+        $sheet->freezePane('A' . ($actualHeaderRow + 1));
 
         // Download
         return $excel->download($filename);
@@ -369,35 +352,35 @@ class BookingReportExportNew
         if (!empty($this->filters['start_date']) && !empty($this->filters['end_date'])) {
             $startDate = Carbon::parse($this->filters['start_date'])->format('d M Y');
             $endDate = Carbon::parse($this->filters['end_date'])->format('d M Y');
-            $filters[] = '• Booking Date: ' . $startDate . ' to ' . $endDate;
+            $filters[] = '📅 Booking Period: ' . $startDate . ' - ' . $endDate;
         }
 
         // Status
         if (!empty($this->filters['status'])) {
             $statusLabels = [
-                'pending' => 'Waiting For Payment',
-                'waiting' => 'Waiting Confirmation',
-                'waiting-check-in' => 'Waiting For Check-In',
-                'checked-in' => 'Checked-In',
-                'checked-out' => 'Checked-Out',
-                'canceled' => 'Canceled',
-                'expired' => 'Expired'
+                'pending' => '⏳ Waiting For Payment',
+                'waiting' => '⏰ Waiting Confirmation',
+                'waiting-check-in' => '🕐 Waiting For Check-In',
+                'checked-in' => '✅ Checked-In',
+                'checked-out' => '🏁 Checked-Out',
+                'canceled' => '❌ Canceled',
+                'expired' => '⌛ Expired'
             ];
             $statusLabel = $statusLabels[$this->filters['status']] ?? $this->filters['status'];
-            $filters[] = '• Status: ' . $statusLabel;
+            $filters[] = '📊 Status: ' . $statusLabel;
         }
 
         // Property/Address
         if (!empty($this->filters['property_id'])) {
             $property = Property::find($this->filters['property_id']);
             if ($property) {
-                $filters[] = '• Address: ' . $property->name;
+                $filters[] = '🏢 Property: ' . $property->name;
             }
         }
 
         // Search
         if (!empty($this->filters['search'])) {
-            $filters[] = '• Search: "' . $this->filters['search'] . '"';
+            $filters[] = '🔎 Search Keyword: "' . $this->filters['search'] . '"';
         }
 
         return $filters;

@@ -200,6 +200,229 @@ class ExcelService
     }
 
     /**
+     * Add title section with custom styling
+     */
+    public function addTitleSection(string $title, array $options = []): self
+    {
+        $startColumn = $options['startColumn'] ?? 'A';
+        $endColumn = $options['endColumn'] ?? 'L';
+        $bgColor = $options['bgColor'] ?? '1E3A8A'; // Dark blue
+        $textColor = $options['textColor'] ?? 'FFFFFF';
+        $fontSize = $options['fontSize'] ?? 18;
+        $height = $options['height'] ?? 35;
+
+        $cellRange = $startColumn . $this->currentRow . ':' . $endColumn . $this->currentRow;
+
+        $this->activeSheet->setCellValue($startColumn . $this->currentRow, $title);
+        $this->activeSheet->mergeCells($cellRange);
+        $this->activeSheet->getStyle($cellRange)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => $fontSize,
+                'color' => ['rgb' => $textColor],
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => $bgColor],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+        $this->activeSheet->getRowDimension($this->currentRow)->setRowHeight($height);
+
+        $this->currentRow++;
+        return $this;
+    }
+
+    /**
+     * Add subtitle or info row
+     */
+    public function addInfoRow(string $text, array $options = []): self
+    {
+        $startColumn = $options['startColumn'] ?? 'A';
+        $endColumn = $options['endColumn'] ?? 'L';
+        $bgColor = $options['bgColor'] ?? null;
+        $textColor = $options['textColor'] ?? '374151';
+        $fontSize = $options['fontSize'] ?? 11;
+        $bold = $options['bold'] ?? false;
+        $italic = $options['italic'] ?? false;
+        $align = $options['align'] ?? Alignment::HORIZONTAL_LEFT;
+
+        $cellRange = $startColumn . $this->currentRow . ':' . $endColumn . $this->currentRow;
+
+        $this->activeSheet->setCellValue($startColumn . $this->currentRow, $text);
+        $this->activeSheet->mergeCells($cellRange);
+
+        $styleArray = [
+            'font' => [
+                'bold' => $bold,
+                'italic' => $italic,
+                'size' => $fontSize,
+                'color' => ['rgb' => $textColor],
+            ],
+            'alignment' => [
+                'horizontal' => $align,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        if ($bgColor) {
+            $styleArray['fill'] = [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => $bgColor],
+            ];
+        }
+
+        $this->activeSheet->getStyle($cellRange)->applyFromArray($styleArray);
+
+        $this->currentRow++;
+        return $this;
+    }
+
+    /**
+     * Add filter info section with box styling
+     */
+    public function addFilterSection(array $filters): self
+    {
+        if (empty($filters)) {
+            $this->addInfoRow('📋 No filters applied - showing all data', [
+                'italic' => true,
+                'textColor' => '6B7280',
+                'fontSize' => 10,
+            ]);
+            $this->currentRow++;
+            return $this;
+        }
+
+        // Filter header
+        $this->addInfoRow('🔍 APPLIED FILTERS', [
+            'bold' => true,
+            'bgColor' => 'F3F4F6',
+            'textColor' => '1F2937',
+            'fontSize' => 11,
+        ]);
+
+        // Filter items with indentation
+        foreach ($filters as $filterText) {
+            $this->addInfoRow('   ' . $filterText, [
+                'fontSize' => 10,
+                'textColor' => '4B5563',
+            ]);
+        }
+
+        $this->currentRow++;
+        return $this;
+    }
+
+    /**
+     * Add company/organization info
+     */
+    public function addCompanyInfo(string $companyName, array $additionalInfo = []): self
+    {
+        $this->addInfoRow($companyName, [
+            'bold' => true,
+            'fontSize' => 14,
+            'textColor' => '1F2937',
+            'align' => Alignment::HORIZONTAL_CENTER,
+        ]);
+
+        foreach ($additionalInfo as $info) {
+            $this->addInfoRow($info, [
+                'fontSize' => 10,
+                'textColor' => '6B7280',
+                'align' => Alignment::HORIZONTAL_CENTER,
+            ]);
+        }
+
+        $this->currentRow++;
+        return $this;
+    }
+
+    /**
+     * Add empty row for spacing
+     */
+    public function addEmptyRow(int $count = 1): self
+    {
+        $this->currentRow += $count;
+        return $this;
+    }
+
+    /**
+     * Add summary row at current position
+     */
+    public function addSummaryRow(string $label, $value, array $options = []): self
+    {
+        $labelColumn = $options['labelColumn'] ?? 'A';
+        $valueColumn = $options['valueColumn'] ?? 'J';
+        $labelEndColumn = $options['labelEndColumn'] ?? 'I';
+        $bgColor = $options['bgColor'] ?? 'D1FAE5';
+        $textColor = $options['textColor'] ?? '059669';
+        $borderColor = $options['borderColor'] ?? '059669';
+
+        // Label
+        $labelRange = $labelColumn . $this->currentRow . ':' . $labelEndColumn . $this->currentRow;
+        $this->activeSheet->setCellValue($labelColumn . $this->currentRow, $label);
+        $this->activeSheet->mergeCells($labelRange);
+        $this->activeSheet->getStyle($labelRange)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 11,
+                'color' => ['rgb' => $textColor],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        // Value
+        $this->activeSheet->setCellValue($valueColumn . $this->currentRow, $value);
+        $this->activeSheet->getStyle($valueColumn . $this->currentRow)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+                'color' => ['rgb' => $textColor],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => $bgColor],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_MEDIUM,
+                    'color' => ['rgb' => $borderColor],
+                ],
+            ],
+        ]);
+
+        $this->currentRow++;
+        return $this;
+    }
+
+    /**
+     * Get current row number
+     */
+    public function getCurrentRow(): int
+    {
+        return $this->currentRow;
+    }
+
+    /**
+     * Set current row number
+     */
+    public function setCurrentRow(int $row): self
+    {
+        $this->currentRow = $row;
+        return $this;
+    }
+
+    /**
      * Create new instance (static factory)
      */
     public static function create(): self
