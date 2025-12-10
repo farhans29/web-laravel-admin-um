@@ -644,6 +644,18 @@
                         </select>
                     </div>
 
+                    <!-- Per Page Dropdown -->
+                    <div>
+                        <select id="per-page-filter"
+                            class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <option value="8" {{ request('per_page', 8) == 8 ? 'selected' : '' }}>8 per halaman</option>
+                            <option value="16" {{ request('per_page', 8) == 16 ? 'selected' : '' }}>16 per halaman</option>
+                            <option value="32" {{ request('per_page', 8) == 32 ? 'selected' : '' }}>32 per halaman</option>
+                            <option value="64" {{ request('per_page', 8) == 64 ? 'selected' : '' }}>64 per halaman</option>
+                            <option value="100" {{ request('per_page', 8) == 100 ? 'selected' : '' }}>100 per halaman</option>
+                        </select>
+                    </div>
+
                 </div>
             </div>
 
@@ -1691,6 +1703,7 @@
             const roomFilter = document.getElementById('room-filter');
             const statusFilter = document.getElementById('status-filter');
             const searchInput = document.getElementById('search-input');
+            const perPageFilter = document.getElementById('per-page-filter');
 
             // Timer untuk debounce
             let searchTimer;
@@ -1700,14 +1713,16 @@
                 const propertyId = roomFilter.value;
                 const status = statusFilter.value;
                 const searchQuery = searchInput.value.trim();
+                const perPage = perPageFilter.value;
 
                 // Kirim permintaan AJAX
-                fetchRooms(propertyId, status, searchQuery);
+                fetchRooms(propertyId, status, searchQuery, perPage);
             }
 
             // Event listeners untuk filter real-time
             roomFilter.addEventListener('change', applyFilters);
             statusFilter.addEventListener('change', applyFilters);
+            perPageFilter.addEventListener('change', applyFilters);
 
             // Debounce untuk search input (menunggu 500ms setelah user berhenti mengetik)
             searchInput.addEventListener('input', function() {
@@ -1724,7 +1739,7 @@
             });
 
             // Fungsi AJAX untuk mengambil data
-            function fetchRooms(propertyId, status, searchQuery) {
+            function fetchRooms(propertyId, status, searchQuery, perPage) {
                 const url = new URL(window.location.href);
                 const params = new URLSearchParams(url.search);
 
@@ -1738,9 +1753,9 @@
                 if (searchQuery) params.set('search', searchQuery);
                 else params.delete('search');
 
-                // Simpan per_page value jika ada
-                const perPage = params.get('per_page') || '8';
-                params.set('per_page', perPage);
+                // Set per_page value
+                if (perPage) params.set('per_page', perPage);
+                else params.set('per_page', '8');
 
                 // Update URL tanpa reload halaman
                 window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
@@ -1794,6 +1809,10 @@
 
                 if (urlParams.has('search')) {
                     searchInput.value = urlParams.get('search');
+                }
+
+                if (urlParams.has('per_page')) {
+                    perPageFilter.value = urlParams.get('per_page');
                 }
             }
 

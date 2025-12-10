@@ -118,7 +118,16 @@
                                 @if (!is_null($booking->doc_path) && $booking->is_printed != 1)
                                     {{-- Document exists and not yet printed - Show Print Registration Form button --}}
                                     <a href="{{ route('newReserv.checkin.regist', $booking->order_id) }}"
-                                        onclick="event.preventDefault(); window.open(this.href, 'RegistrationForm', 'width=800,height=600'); setTimeout(() => { document.getElementById('checkin-btn-{{ $booking->order_id }}')?.classList.remove('hidden'); }, 1000);"
+                                        onclick="event.preventDefault();
+                                                 window.open(this.href, 'RegistrationForm', 'width=800,height=600');
+                                                 // Refresh tabel setelah 2 detik untuk update status is_printed
+                                                 setTimeout(() => {
+                                                     if (typeof fetchFilteredBookings === 'function') {
+                                                         fetchFilteredBookings();
+                                                     } else {
+                                                         window.location.reload();
+                                                     }
+                                                 }, 2000);"
                                         class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-amber-600 rounded hover:bg-amber-700 focus:outline-none">
                                         Print Regist Form
                                     </a>
@@ -254,7 +263,7 @@
                                                     </div>
 
                                                     <!-- Bagian 2: Profil Tamu dan Unggah Identifikasi Berdampingan -->
-                                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                    <div class="grid grid-cols-1 gap-8" :class="docRequired ? 'lg:grid-cols-2' : 'lg:grid-cols-1'">
                                                         <!-- Profil Tamu -->
                                                         <div class="bg-white p-6 rounded-lg border border-gray-200">
                                                             <h3
@@ -352,7 +361,7 @@
                                                         </div>
 
                                                         <!-- Unggah Identifikasi -->
-                                                        <div class="bg-white p-6 rounded-lg border border-gray-200">
+                                                        <div class="bg-white p-6 rounded-lg border border-gray-200" x-show="docRequired">
                                                             <h3
                                                                 class="font-semibold text-lg text-gray-800 mb-4 flex items-center">
                                                                 <svg class="w-5 h-5 mr-2 text-green-600"
@@ -365,7 +374,7 @@
                                                                 Unggah Identifikasi
                                                             </h3>
 
-                                                            <div class="space-y-4" x-show="docRequired">
+                                                            <div class="space-y-4">
                                                                 <!-- Pemilihan Jenis Dokumen -->
                                                                 <div>
                                                                     <label for="documentType"
@@ -620,7 +629,7 @@
                                                                 </div>
 
                                                                                 <!-- Pesan Validasi -->
-                                                                <div class="mt-3" x-show="!docPreview && docRequired">
+                                                                <div class="mt-3" x-show="!docPreview">
                                                                     <p class="text-sm text-red-600">
                                                                         <span class="font-medium">Catatan:</span>
                                                                         Dokumen
@@ -628,15 +637,21 @@
                                                                     </p>
                                                                 </div>
                                                             </div>
-                                                            <div class="mt-3" x-show="!docRequired">
-                                                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                                                    <div class="flex items-start">
-                                                                        <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                                        </svg>
+                                                        </div>
+
+                                                        <!-- Informasi Dokumen Sudah Tersimpan -->
+                                                        <div class="bg-white p-6 rounded-lg border border-gray-200" x-show="!docRequired">
+                                                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                                                                <div class="flex items-start">
+                                                                    <svg class="w-6 h-6 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                    </svg>
+                                                                    <div>
+                                                                        <p class="text-base font-semibold text-blue-800 mb-1">
+                                                                            Dokumen Identifikasi Sudah Tersimpan
+                                                                        </p>
                                                                         <p class="text-sm text-blue-700">
-                                                                            <span class="font-semibold">Dokumen Identifikasi Sudah Tersimpan</span><br>
-                                                                            <span class="text-blue-600">Anda dapat langsung melanjutkan proses check-in tanpa mengunggah dokumen baru.</span>
+                                                                            Anda dapat langsung melanjutkan proses check-in tanpa mengunggah dokumen baru.
                                                                         </p>
                                                                     </div>
                                                                 </div>

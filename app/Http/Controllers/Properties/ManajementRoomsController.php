@@ -12,6 +12,7 @@ use App\Models\MRoomImage;
 use App\Models\RoomFacility;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
@@ -310,7 +311,7 @@ class ManajementRoomsController extends Controller
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Room creation error: ' . $e->getMessage(), [
+            Log::error('Room creation error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'request_data' => $request->except(['room_images'])
             ]);

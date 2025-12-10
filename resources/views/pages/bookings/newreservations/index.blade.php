@@ -549,10 +549,17 @@
                         if (data.success) {
                             this.showSuccessToast('Check-in berhasil!');
 
+                            // Jika perlu print agreement, buka di tab baru
+                            if (data.need_print_agreement && data.print_url) {
+                                setTimeout(() => {
+                                    window.open(data.print_url, '_blank');
+                                }, 500);
+                            }
+
                             // Refresh tabel setelah check-in berhasil
                             this.refreshBookingTable();
 
-                            // Close modal tanpa membuka tab baru
+                            // Close modal
                             setTimeout(() => {
                                 this.closeModal();
                             }, 1500);

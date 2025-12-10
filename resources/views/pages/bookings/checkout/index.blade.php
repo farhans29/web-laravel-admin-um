@@ -73,7 +73,6 @@
         </div>
     </div>
 
-    <script src="{{ asset('js/date-filter-persistence.js') }}"></script>
     <script>
         // document.addEventListener('alpine:init', () => {
         //     Alpine.data('checkOutModal', (orderId) => ({
@@ -374,20 +373,91 @@
             const defaultEndDate = new Date();
             defaultEndDate.setMonth(defaultEndDate.getMonth() + 1);
 
-            // Initialize Flatpickr with persistence
-            const datePicker = DateFilterPersistence.initFlatpickr('checkout', {
-                defaultStartDate: defaultStartDate,
-                defaultEndDate: defaultEndDate,
-                maxRangeDays: 31,
+            // Initialize Flatpickr with default range
+            const datePicker = flatpickr("#date_picker", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j F Y",
+                allowInput: true,
+                static: true,
+                monthSelectorType: 'static',
+                defaultDate: [defaultStartDate, defaultEndDate],
+                minDate: "today",
+                maxDate: new Date().fp_incr(365),
+                onOpen: function(selectedDates, dateStr, instance) {
+                    instance.set('minDate', null);
+                },
                 onChange: function(selectedDates, dateStr, instance) {
-                    fetchFilteredBookings();
+                    if (selectedDates.length > 0) {
+                        const startDate = selectedDates[0];
+                        const endDate = selectedDates[1] || selectedDates[0];
+
+                        // Hitung selisih hari (inklusif)
+                        const diffInDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+                        // Batasi maksimal 30 hari
+                        if (diffInDays > 31) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'warning',
+                                title: 'Maximum date range is 30 days',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                            });
+
+                            instance.clear();
+                            document.getElementById('start_date').value = '';
+                            document.getElementById('end_date').value = '';
+                            return;
+                        }
+
+                        // Format tanggal ke YYYY-MM-DD
+                        document.getElementById('start_date').value = formatDate(startDate);
+                        document.getElementById('end_date').value = formatDate(endDate);
+                        fetchFilteredBookings();
+                    }
                 },
                 onClose: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 0) {
+                        document.getElementById('start_date').value = '';
+                        document.getElementById('end_date').value = '';
                         fetchFilteredBookings();
                     }
                 }
             });
+
+            // Set initial hidden input values
+            document.getElementById('start_date').value = formatDate(defaultStartDate);
+            document.getElementById('end_date').value = formatDate(defaultEndDate);
+
+
+            // Fungsi format tanggal
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            // Set initial values if they exist
+            @if (request('start_date') && request('end_date'))
+                const startDate = new Date('{{ request('start_date') }}');
+                const endDate = new Date('{{ request('end_date') }}');
+
+                // Jika start_date dan end_date sama, set hanya 1 tanggal
+                if (formatDate(startDate) === formatDate(endDate)) {
+                    datePicker.setDate(startDate);
+                } else {
+                    datePicker.setDate([startDate, endDate]);
+                }
+            @endif
 
             // Get all filter elements
             const searchInput = document.getElementById('search');

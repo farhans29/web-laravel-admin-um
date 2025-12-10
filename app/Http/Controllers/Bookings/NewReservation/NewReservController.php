@@ -156,10 +156,16 @@ class NewReservController extends Controller
             ]);
 
             if ($updated) {
+                // Tentukan apakah perlu redirect ke print agreement
+                // Hanya redirect jika ini adalah check-in pertama kali (doc_path baru di-upload dan is_printed = 0)
+                $needPrintAgreement = $request->hasFile('doc_image') && $booking->is_printed == 0;
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Check-in successful',
                     'data' => $booking,
+                    'need_print_agreement' => $needPrintAgreement,
+                    'print_url' => $needPrintAgreement ? route('newReserv.checkin.regist', $order_id) : null,
                 ]);
             }
 

@@ -172,9 +172,10 @@
                                             <!-- Body -->
                                             <div class="p-6">
                                                 <form id="userForm" method="POST"
-                                                    action="{{ route('users.store') }}" enctype="multipart/form-data"
+                                                    action="{{ route('users.update', $user->id) }}" enctype="multipart/form-data"
                                                     autocomplete="off">
                                                     @csrf
+                                                    @method('PUT')
 
                                                     <!-- First Name & Last Name -->
                                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
@@ -187,7 +188,7 @@
                                                                 required
                                                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
                                                                 placeholder="First name"
-                                                                value="{{ old('first_name') }}">
+                                                                value="{{ old('first_name', $user->first_name) }}">
                                                             @error('first_name')
                                                                 <p class="text-red-500 text-xs mt-2">{{ $message }}
                                                                 </p>
@@ -202,7 +203,7 @@
                                                                 required
                                                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
                                                                 placeholder="Last name"
-                                                                value="{{ old('last_name') }}">
+                                                                value="{{ old('last_name', $user->last_name) }}">
                                                             @error('last_name')
                                                                 <p class="text-red-500 text-xs mt-2">{{ $message }}
                                                                 </p>
@@ -218,7 +219,7 @@
                                                         </label>
                                                         <input type="text" name="username" id="username" required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                            placeholder="Username" value="{{ old('username') }}">
+                                                            placeholder="Username" value="{{ old('username', $user->username) }}">
                                                         @error('username')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
@@ -232,7 +233,7 @@
                                                         </label>
                                                         <input type="email" name="email" id="email" required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                            placeholder="Email address" value="{{ old('email') }}">
+                                                            placeholder="Email address" value="{{ old('email', $user->email) }}">
                                                         @error('email')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
@@ -248,7 +249,7 @@
                                                             required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
                                                             placeholder="Phone number"
-                                                            value="{{ old('phone_number') }}">
+                                                            value="{{ old('phone_number', $user->phone_number) }}">
                                                         @error('phone_number')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}
                                                             </p>
@@ -295,6 +296,34 @@
                             </svg>
                             Account Details
                         </h2>
+
+                        @if (session('success'))
+                            <div class="mb-4 bg-green-50 border border-green-100 rounded-xl p-4">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-green-600 flex-shrink-0" fill="currentColor"
+                                        viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p class="ml-3 text-sm text-green-800">{{ session('success') }}</p>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="mb-4 bg-red-50 border border-red-100 rounded-xl p-4">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-red-600 flex-shrink-0" fill="currentColor"
+                                        viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <p class="ml-3 text-sm text-red-800">{{ session('error') }}</p>
+                                </div>
+                            </div>
+                        @endif
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="group">
