@@ -145,31 +145,32 @@ class PaymentController extends Controller
 
     public function reject($id)
     {
-        $transaction = Transaction::findOrFail($id);
+        try {
+            // Find payment by idrec (primary key)
+            $payment = Payment::findOrFail($id);
 
-        // Update transaction
-        $transaction->update([
-            'transaction_status' => 'rejected',
-            'paid_at' => now()
-        ]);
-
-        // Create or update payment record
-        Payment::updateOrCreate(
-            ['order_id' => $transaction->order_id],
-            [
-                'property_id' => $transaction->property_id,
-                'room_id' => $transaction->room_id,
-                'user_id' => $transaction->user_id,
-                'grandtotal_price' => $transaction->grandtotal_price,
+            // Update payment record
+            $payment->update([
                 'verified_by' => Auth::id(),
                 'verified_at' => now(),
                 'payment_status' => 'rejected',
-                'notes' => request('rejectNote'), // Add this line to save the note
+                'notes' => request('rejectNote'),
                 'updated_at' => now()
-            ]
-        );
+            ]);
 
-        return redirect()->back()->with('success', 'Payment rejected successfully');
+            // Update related transaction if exists
+            if ($payment->transaction) {
+                $payment->transaction->update([
+                    'transaction_status' => 'rejected',
+                    'paid_at' => now()
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Payment rejected successfully');
+        } catch (\Exception $e) {
+            Log::error('Payment rejection failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Payment rejection failed. Error: ' . $e->getMessage());
+        }
     }
 
     public function cancel(Request $request, $id)

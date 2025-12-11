@@ -10,8 +10,10 @@ class Payment extends Model
     protected $primaryKey = 'idrec';
     public $timestamps = false; 
     
-    protected $fillable = [      
+    protected $fillable = [
         'order_id',
+        'property_id',
+        'room_id',
         'user_id',
         'grandtotal_price',
         'verified_by',
@@ -43,5 +45,10 @@ class Payment extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by', 'id');
     }
 }

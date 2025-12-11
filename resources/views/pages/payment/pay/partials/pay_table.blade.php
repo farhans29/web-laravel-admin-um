@@ -250,78 +250,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Reject Modal untuk setiap payment (DI LUAR modal utama) -->
-                        <div id="rejectModal-{{ $payment->idrec }}"
-                            class="hidden fixed inset-0 backdrop-blur-sm bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-[60]">
-                            <div class="relative mx-auto p-5 w-full max-w-md">
-                                <div class="relative bg-white rounded-lg shadow-xl">
-                                    <!-- Modal header -->
-                                    <div class="px-6 py-4 border-b rounded-t">
-                                        <h3 class="text-xl font-semibold text-gray-900">
-                                            Tolak Pembayaran
-                                        </h3>
-                                        <button type="button" onclick="hideRejectModal({{ $payment->idrec }})"
-                                            class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center">
-                                            <svg class="w-3 h-3" aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                viewBox="0 0 14 14">
-                                                <path stroke="currentColor" stroke-linecap="round"
-                                                    stroke-linejoin="round" stroke-width="2"
-                                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                            </svg>
-                                            <span class="sr-only">Tutup modal</span>
-                                        </button>
-                                    </div>
-
-                                    <!-- Modal body -->
-                                    <form id="reject-form-{{ $payment->idrec }}"
-                                        action="{{ route('admin.payments.reject', $payment->idrec) }}" method="POST"
-                                        onsubmit="return validateRejectForm(event, {{ $payment->idrec }})"
-                                        class="max-w-full overflow-hidden">
-                                        @csrf
-
-                                        <div class="p-6 space-y-4 break-words whitespace-normal">
-                                            <p class="text-gray-600">
-                                                Apakah Anda yakin ingin menolak pembayaran untuk Order ID:
-                                                <strong>{{ $payment->order_id }}</strong>?
-                                            </p>
-
-                                            <div class="w-full">
-                                                <label for="rejectNote-{{ $payment->idrec }}"
-                                                    class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Alasan Penolakan <span class="text-red-500">*</span>
-                                                </label>
-                                                <textarea id="rejectNote-{{ $payment->idrec }}" name="rejectNote" rows="4"
-                                                    class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200 resize-none break-words whitespace-normal"
-                                                    placeholder="Masukkan alasan penolakan secara detail..." required></textarea>
-                                                <p class="mt-1 text-xs text-gray-500">Minimal 10 karakter</p>
-                                            </div>
-                                        </div>
-
-                                        <!-- Modal footer -->
-                                        <div
-                                            class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b">
-                                            <button type="button" onclick="hideRejectModal({{ $payment->idrec }})"
-                                                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors duration-200">
-                                                Batal
-                                            </button>
-                                            <button type="submit"
-                                                class="px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200 flex items-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                                Konfirmasi Penolakan
-                                            </button>
-                                        </div>
-                                    </form>
-
-
-                                </div>
-                            </div>
-                        </div>
                     @elseif ($payment->transaction->transaction_status === 'pending')
                         <span
                             class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -365,28 +293,30 @@
                             </div>
                         </div>
 
-                        <!-- Modal Pembatalan Booking - Diperbaiki -->
+                        <!-- Modal Pembatalan Booking - Improved Design -->
                         <div id="cancelModal-{{ $payment->idrec }}"
-                            class="hidden fixed inset-0 backdrop-blur-sm bg-black/30 overflow-y-auto h-full w-full flex items-center justify-center z-[60] transition-opacity duration-300 ease-out opacity-0">
-                            <div
-                                class="relative mx-auto p-5 w-full max-w-md text-left transform transition-all duration-300 ease-out opacity-0 scale-95">
-                                <div class="relative bg-white rounded-lg shadow-xl">
-                                    <!-- Modal header -->
-                                    <div class="px-6 py-4 border-b rounded-t">
-                                        <h3 class="text-xl font-semibold text-gray-900">
-                                            Batalkan Booking
-                                        </h3>
-                                        <button type="button" onclick="hideCancelModal({{ $payment->idrec }})"
-                                            class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                viewBox="0 0 14 14">
-                                                <path stroke="currentColor" stroke-linecap="round"
-                                                    stroke-linejoin="round" stroke-width="2"
-                                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                            </svg>
-                                            <span class="sr-only">Tutup modal</span>
-                                        </button>
-                                    </div>
+                            class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-[70]"
+                            style="display: none;"
+                            onclick="hideCancelModal({{ $payment->idrec }})">
+                            <div class="flex items-center justify-center min-h-screen px-4 py-8">
+                                <div class="relative mx-auto w-full max-w-2xl" onclick="event.stopPropagation()">
+                                    <div class="relative bg-white rounded-lg shadow-2xl transform transition-all">
+                                        <!-- Modal header -->
+                                        <div class="px-6 py-4 border-b rounded-t bg-gradient-to-r from-orange-50 to-red-50">
+                                            <h3 class="text-xl font-semibold text-gray-900">
+                                                Batalkan Booking
+                                            </h3>
+                                            <button type="button" onclick="hideCancelModal({{ $payment->idrec }})"
+                                                class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
+                                                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                    viewBox="0 0 14 14">
+                                                    <path stroke="currentColor" stroke-linecap="round"
+                                                        stroke-linejoin="round" stroke-width="2"
+                                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                                </svg>
+                                                <span class="sr-only">Tutup modal</span>
+                                            </button>
+                                        </div>
 
                                     <!-- Modal body (dipertahankan dari versi sebelumnya) -->
                                     <form id="cancel-form-{{ $payment->idrec }}"
@@ -511,7 +441,7 @@
 
                                         <!-- Modal footer -->
                                         <div
-                                            class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b">
+                                            class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
                                             <button type="button" onclick="hideCancelModal({{ $payment->idrec }})"
                                                 class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors duration-200">
                                                 Batal
@@ -527,6 +457,7 @@
                                             </button>
                                         </div>
                                     </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -558,3 +489,81 @@
         @endforelse
     </tbody>
 </table>
+
+<!-- Reject Modals - Outside table for proper z-index handling -->
+@foreach ($payments as $payment)
+    @if (in_array($payment->transaction->transaction_status, ['waiting']))
+        <div id="rejectModal-{{ $payment->idrec }}"
+            class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-[70]"
+            style="display: none;"
+            onclick="hideRejectModal({{ $payment->idrec }})">
+            <div class="flex items-center justify-center min-h-screen px-4 py-8">
+                <div class="relative mx-auto w-full max-w-md" onclick="event.stopPropagation()">
+                    <div class="relative bg-white rounded-lg shadow-2xl transform transition-all">
+                        <!-- Modal header -->
+                        <div class="px-6 py-4 border-b rounded-t bg-gradient-to-r from-red-50 to-pink-50">
+                            <h3 class="text-xl font-semibold text-gray-900">
+                                Tolak Pembayaran
+                            </h3>
+                            <button type="button" onclick="hideRejectModal({{ $payment->idrec }})"
+                                class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
+                                <svg class="w-3 h-3" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 14 14">
+                                    <path stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="2"
+                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                </svg>
+                                <span class="sr-only">Tutup modal</span>
+                            </button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <form id="reject-form-{{ $payment->idrec }}"
+                            action="{{ route('admin.payments.reject', $payment->idrec) }}" method="POST"
+                            onsubmit="return validateRejectForm(event, {{ $payment->idrec }})"
+                            class="max-w-full overflow-hidden">
+                            @csrf
+
+                            <div class="p-6 space-y-4 break-words whitespace-normal">
+                                <p class="text-gray-600">
+                                    Apakah Anda yakin ingin menolak pembayaran untuk Order ID:
+                                    <strong class="text-gray-900">{{ $payment->order_id }}</strong>?
+                                </p>
+
+                                <div class="w-full">
+                                    <label for="rejectNote-{{ $payment->idrec }}"
+                                        class="block text-sm font-medium text-gray-700 mb-2">
+                                        Alasan Penolakan <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea id="rejectNote-{{ $payment->idrec }}" name="rejectNote" rows="4"
+                                        class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200 resize-none break-words whitespace-normal"
+                                        placeholder="Masukkan alasan penolakan secara detail..." required></textarea>
+                                    <p class="mt-1 text-xs text-gray-500">Minimal 10 karakter</p>
+                                </div>
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div
+                                class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
+                                <button type="button" onclick="hideRejectModal({{ $payment->idrec }})"
+                                    class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors duration-200">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                    class="px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Konfirmasi Penolakan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+@endforeach
