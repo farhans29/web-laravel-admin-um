@@ -14,10 +14,7 @@ class Property extends Model
     public $incrementing = true;
     protected $keyType = 'int';
     public $timestamps = true;
-
-    /**
-     * Mass assignable attributes.
-     */
+    
     protected $fillable = [
         'slug',
         'tags',

@@ -477,28 +477,6 @@
                             @can('view_refunds')
                             @endcan
 
-                            <!-- Invoices -->
-                            {{-- @can('view_invoices')
-                                <li>
-                                    <a href="{{ route('progress') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
-                                        </svg>
-                                        <span class="transition-opacity duration-200 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">Invoices</span>
-                                        <!-- Tooltip for collapsed state -->
-                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                            Invoices
-                                        </div>
-                                    </a>
-                                </li>
-                            @endcan --}}
-
                             <!-- Reports -->
                             @can('view_reports')
                                 <li>
@@ -520,6 +498,50 @@
                                     </a>
                                 </li>
                             @endcan
+
+                            <!-- Reports Payments -->
+                            @can('view_reports')
+                                <li>
+                                    <a href="{{ route('reports.payment.index') }}"
+                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('reports.payment.*')) bg-indigo-900 @endif">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        <span class="transition-opacity duration-200 whitespace-nowrap"
+                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
+                                            x-show="sidebarExpanded || window.innerWidth < 1024">Payment Report</span>
+                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
+                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                            Payment Report
+                                        </div>
+                                    </a>
+                                </li>
+                            @endcan
+
+                            <!-- Reports Rooms -->
+                            @can('view_reports')
+                                <li>
+                                    <a href="{{ route('reports.rented-rooms.index') }}"
+                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('reports.rented-rooms.*')) bg-indigo-900 @endif">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        </svg>
+                                        <span class="transition-opacity duration-200 whitespace-nowrap"
+                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
+                                            x-show="sidebarExpanded || window.innerWidth < 1024">Rented Rooms</span>
+                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
+                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                            Rented Rooms
+                                        </div>
+                                    </a>
+                                </li>
+                            @endcan
+
+                            
                         </ul>
                     </div>
                 @endcan

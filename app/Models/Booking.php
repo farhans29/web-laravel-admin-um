@@ -15,11 +15,6 @@ class Booking extends Model
     protected $table = 't_booking';
     protected $primaryKey = 'idrec';
 
-    // Note: 'status' is defined as both a database column (boolean: 0=inactive, 1=active)
-    // and a computed accessor that returns transaction-based status text
-    // When accessing $booking->status, you get the computed text (via getStatusAttribute)
-    // When querying, use ->where('status', 1) to filter by the database column
-
     protected $fillable = [
         'order_id',
         'room_id',

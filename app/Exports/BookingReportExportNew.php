@@ -33,11 +33,6 @@ class BookingReportExportNew
         $excel = new ExcelService();
         $sheet = $excel->getActiveSheet();
 
-        // Add Company/Organization Info
-        $excel->addCompanyInfo('ULIN MAHONI', [
-            'Sistem Manajemen Booking Kamar',
-        ]);
-
         // Add Main Title with custom styling
         $excel->addTitleSection('📊 LAPORAN BOOKING KAMAR', [
             'bgColor' => '1E3A8A', // Dark blue
