@@ -98,19 +98,19 @@
                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No.</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Date</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Order ID</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Property & Room</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tenant Info</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Period</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Price</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Service Fee</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Grand Total</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Status</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Verification By</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Verification Date</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Notes</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Transaction Code</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tanggal Bayar</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID Pesanan</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Properti & Kamar</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Info Penyewa</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Periode</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Harga Kamar</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Biaya Layanan</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Total</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status Pembayaran</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Diverifikasi Oleh</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tanggal Verifikasi</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Catatan</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Kode Transaksi</th>
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200">
@@ -121,7 +121,7 @@
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span>Loading payment report data...</span>
+                                    <span>Memuat data laporan pembayaran...</span>
                                 </div>
                             </td>
                         </tr>
@@ -209,7 +209,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Loading data...
+                            Memuat data...
                         </div>
                     </td>
                 </tr>
@@ -228,7 +228,7 @@
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="14" class="px-4 py-8 text-center text-red-500">
-                                Error loading data. Please try again.
+                                Gagal memuat data. Silakan coba lagi.
                             </td>
                         </tr>
                     `;
@@ -246,7 +246,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
-                                <span>No payment records found</span>
+                                <span>Tidak ada data pembayaran</span>
                             </div>
                         </td>
                     </tr>
@@ -297,7 +297,7 @@
             if (pagination.last_page <= 1) {
                 container.innerHTML = `
                     <div class="text-sm text-gray-700">
-                        Showing ${pagination.total} ${pagination.total === 1 ? 'entry' : 'entries'}
+                        Menampilkan ${pagination.total} data
                     </div>
                 `;
                 return;
@@ -306,7 +306,7 @@
             let paginationHTML = `
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Showing page ${pagination.current_page} of ${pagination.last_page} (${pagination.total} total entries)
+                        Menampilkan halaman ${pagination.current_page} dari ${pagination.last_page} (${pagination.total} total data)
                     </div>
                     <div class="flex gap-2">
             `;
@@ -316,7 +316,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page - 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Previous
+                        Sebelumnya
                     </button>
                 `;
             }
@@ -350,7 +350,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page + 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Next
+                        Selanjutnya
                     </button>
                 `;
             }
@@ -513,16 +513,16 @@
                                 <th>No.</th>
                                 <th>Tgl Bayar</th>
                                 <th>Order ID</th>
-                                <th>Property & Room</th>
-                                <th>Tenant Info</th>
-                                <th>Period</th>
-                                <th>Room Price</th>
-                                <th>Service Fee</th>
-                                <th>Grand Total</th>
+                                <th>Properti & Kamar</th>
+                                <th>Info Penyewa</th>
+                                <th>Periode</th>
+                                <th>Harga Kamar</th>
+                                <th>Biaya Layanan</th>
+                                <th>Total</th>
                                 <th>Status</th>
-                                <th>Verified By</th>
-                                <th>Verified At</th>
-                                <th>Notes</th>
+                                <th>Diverifikasi Oleh</th>
+                                <th>Tgl Verifikasi</th>
+                                <th>Catatan</th>
                                 <th>Kode Trx</th>
                             </tr>
                         </thead>
@@ -569,7 +569,7 @@
                 toast: true,
                 position: 'top-end',
                 icon: 'success',
-                title: 'Exporting payment report...',
+                title: 'Mengekspor laporan pembayaran...',
                 showConfirmButton: false,
                 timer: 2000,
                 timerProgressBar: true

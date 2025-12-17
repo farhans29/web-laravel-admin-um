@@ -59,7 +59,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>Checked In</span>
+                        <span>Sudah Check In</span>
                     </div>
                 </button>
 
@@ -72,7 +72,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        <span>Check Out</span>
+                        <span>Sudah Check Out</span>
                     </div>
                 </button>
 
@@ -85,7 +85,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                        <span>Cancel Booking</span>
+                        <span>Booking Dibatalkan</span>
                     </div>
                 </button>
             </div>
@@ -168,17 +168,17 @@
                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No.</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Property & Room</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tenant Name</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Booking Type</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Period</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Duration</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Price</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Service Fee</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Grand Total</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Status</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Date</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Order ID</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Properti & Kamar</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nama Penyewa</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tipe Booking</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Periode</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Durasi</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Harga Kamar</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Biaya Layanan</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Total</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status Pembayaran</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tanggal Bayar</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID Pesanan</th>
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200">
@@ -189,7 +189,7 @@
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span>Loading booking report data...</span>
+                                    <span>Memuat data laporan booking...</span>
                                 </div>
                             </td>
                         </tr>
@@ -308,7 +308,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Loading data...
+                            Memuat data...
                         </div>
                     </td>
                 </tr>
@@ -327,7 +327,7 @@
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="12" class="px-4 py-8 text-center text-red-500">
-                                Error loading data. Please try again.
+                                Gagal memuat data. Silakan coba lagi.
                             </td>
                         </tr>
                     `;
@@ -345,7 +345,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
-                                <span>No booking records found</span>
+                                <span>Tidak ada data booking</span>
                             </div>
                         </td>
                     </tr>
@@ -412,7 +412,7 @@
             if (pagination.last_page <= 1) {
                 container.innerHTML = `
                     <div class="text-sm text-gray-700">
-                        Showing ${pagination.total} ${pagination.total === 1 ? 'entry' : 'entries'}
+                        Menampilkan ${pagination.total} data
                     </div>
                 `;
                 return;
@@ -421,7 +421,7 @@
             let paginationHTML = `
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Showing page ${pagination.current_page} of ${pagination.last_page} (${pagination.total} total entries)
+                        Menampilkan halaman ${pagination.current_page} dari ${pagination.last_page} (${pagination.total} total data)
                     </div>
                     <div class="flex gap-2">
             `;
@@ -431,7 +431,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page - 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Previous
+                        Sebelumnya
                     </button>
                 `;
             }
@@ -465,7 +465,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page + 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Next
+                        Selanjutnya
                     </button>
                 `;
             }
@@ -639,17 +639,17 @@
                         <thead>
                             <tr>
                                 <th>No.</th>
-                                <th>Property & Room</th>
-                                <th>Tenant Name</th>
-                                <th>Booking Type</th>
-                                <th>Period</th>
-                                <th>Duration</th>
-                                <th>Room Price</th>
-                                <th>Service Fee</th>
-                                <th>Grand Total</th>
-                                <th>Payment Status</th>
-                                <th>Payment Date</th>
-                                <th>Order ID</th>
+                                <th>Properti & Kamar</th>
+                                <th>Nama Penyewa</th>
+                                <th>Tipe Booking</th>
+                                <th>Periode</th>
+                                <th>Durasi</th>
+                                <th>Harga Kamar</th>
+                                <th>Biaya Layanan</th>
+                                <th>Total</th>
+                                <th>Status Pembayaran</th>
+                                <th>Tanggal Bayar</th>
+                                <th>ID Pesanan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -702,7 +702,7 @@
                 toast: true,
                 position: 'top-end',
                 icon: 'success',
-                title: 'Exporting booking report...',
+                title: 'Mengekspor laporan booking...',
                 showConfirmButton: false,
                 timer: 2000,
                 timerProgressBar: true

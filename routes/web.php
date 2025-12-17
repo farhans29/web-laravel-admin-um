@@ -23,6 +23,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Reports\BookingReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\RentedRoomsReportController;
+use App\Http\Controllers\VoucherController;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -205,5 +206,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rented-rooms-report', [RentedRoomsReportController::class, 'index'])->name('reports.rented-rooms.index');
         Route::get('/rented-rooms-report/data', [RentedRoomsReportController::class, 'getData'])->name('reports.rented-rooms.data');
         Route::get('/rented-rooms-report/export', [RentedRoomsReportController::class, 'export'])->name('reports.rented-rooms.export');
+    });
+
+    Route::prefix('vouchers')->group(function () {
+        Route::get('/', [VoucherController::class, 'index'])->name('vouchers.index');
+        Route::get('/filter', [VoucherController::class, 'filter'])->name('vouchers.filter');
+        Route::post('/toggle-status', [VoucherController::class, 'toggleStatus'])->name('vouchers.toggle-status');
+        Route::post('/store', [VoucherController::class, 'store'])->name('vouchers.store');
+        Route::get('/{id}', [VoucherController::class, 'show'])->where('id', '[0-9]+')->name('vouchers.show');
+        Route::put('/{id}', [VoucherController::class, 'update'])->where('id', '[0-9]+')->name('vouchers.update');
+        Route::delete('/{id}', [VoucherController::class, 'destroy'])->where('id', '[0-9]+')->name('vouchers.destroy');
     });
 });

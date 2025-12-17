@@ -115,6 +115,7 @@
     @livewireScriptConfig
 
     @yield('js-page')
+    @stack('scripts')
     @vite(['resources/js/app.js'])
 </body>
 

@@ -36,8 +36,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                         </div>
-                        <x-input id="email" type="email" name="email" :value="old('email')" required autofocus
-                            class="pl-10 w-full rounded-lg border-gray-300 focus:border-amber-300 focus:ring-2 focus:ring-amber-200 transition-all" 
+                        <x-input id="email" type="email" name="email" value="" required autofocus
+                            class="pl-10 w-full rounded-lg border-gray-300 focus:border-amber-300 focus:ring-2 focus:ring-amber-200 transition-all"
                             placeholder="Email address" />
                     </div>
                 </div>
@@ -68,19 +68,13 @@
                 </div>
             </div>
 
-            <!-- Remember & Forgot Password -->
-            <div class="flex items-center justify-between">
+            <!-- Remember Me -->
+            <div class="flex items-center">
                 <label class="flex items-center space-x-2 cursor-pointer">
                     <input id="remember" name="remember" type="checkbox"
                         class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded transition">
                     <span class="text-sm text-gray-600 dark:text-gray-300">{{ __('Remember me') }}</span>
                 </label>
-                @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}"
-                        class="text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium">
-                        {{ __('Forgot password?') }}
-                    </a>
-                @endif
             </div>
 
             <!-- Submit Button -->
@@ -104,6 +98,7 @@
     </div>
 
     <script>
+        // Toggle password visibility
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
@@ -119,5 +114,42 @@
                 eyeSlashIcon.classList.add('hidden');
             }
         }
+
+        // Remember me functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const rememberCheckbox = document.getElementById('remember');
+            const loginForm = document.querySelector('form');
+
+            // Load saved credentials on page load
+            const savedEmail = localStorage.getItem('remembered_email');
+            const savedPassword = localStorage.getItem('remembered_password');
+
+            if (savedEmail && savedPassword) {
+                emailInput.value = savedEmail;
+                passwordInput.value = savedPassword;
+                rememberCheckbox.checked = true;
+            }
+
+            // Save or remove credentials on form submit
+            loginForm.addEventListener('submit', function() {
+                if (rememberCheckbox.checked) {
+                    localStorage.setItem('remembered_email', emailInput.value);
+                    localStorage.setItem('remembered_password', passwordInput.value);
+                } else {
+                    localStorage.removeItem('remembered_email');
+                    localStorage.removeItem('remembered_password');
+                }
+            });
+
+            // Clear credentials if checkbox is unchecked
+            rememberCheckbox.addEventListener('change', function() {
+                if (!this.checked) {
+                    localStorage.removeItem('remembered_email');
+                    localStorage.removeItem('remembered_password');
+                }
+            });
+        });
     </script>
 </x-authentication-layout>
