@@ -21,25 +21,25 @@ class RentedRoomsReportController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Set default date (today)
-        $defaultDate = now()->format('Y-m-d');
-
-        // Get filter values
-        $selectedDate = $request->filled('selected_date') ? $request->selected_date : $defaultDate;
+        // Default dates
+        $selectedDate = now()->format('Y-m-d'); // For single date tabs
+        $startDate = now()->subMonth()->format('Y-m-d'); // For cancelled tab (1 month ago)
+        $endDate = now()->format('Y-m-d'); // For cancelled tab (today)
         $propertyId = $request->input('property_id');
-        $bookingType = $request->input('booking_type', 'all');
 
         return view('pages.reports.rented-rooms-report.index', compact(
             'properties',
             'selectedDate',
-            'propertyId',
-            'bookingType'
+            'startDate',
+            'endDate',
+            'propertyId'
         ));
     }
 
     public function getData(Request $request)
     {
         $user = Auth::user();
+        $reportType = $request->input('report_type', 'checked-in');
 
         $query = Booking::with([
                 'transaction',
@@ -47,28 +47,60 @@ class RentedRoomsReportController extends Controller
                 'property',
                 'room'
             ])
-            ->whereHas('transaction', function ($q) {
-                // Exclude rejected/canceled bookings
-                $q->whereNotIn('transaction_status', ['canceled', 'cancelled', 'rejected']);
-            })
             ->orderByDesc('created_at');
 
-        // Date filter (rooms occupied on selected date)
-        if ($request->filled('selected_date')) {
-            $selectedDate = $request->selected_date;
+        // Apply report type filter
+        switch ($reportType) {
+            case 'waiting-check-in':
+                // Bookings that are paid but not yet checked in
+                // Only filter: transaction_status = 'paid' AND check_in_at is NULL
+                $query->whereHas('transaction', function ($q) {
+                    $q->where('transaction_status', 'paid');
+                })->whereNull('check_in_at');
+                break;
 
-            $query->whereHas('transaction', function ($q) use ($selectedDate) {
-                $q->where('check_in', '<=', $selectedDate . ' 23:59:59')
-                  ->where('check_out', '>=', $selectedDate . ' 00:00:00')
-                  ->whereNotIn('transaction_status', ['canceled', 'cancelled', 'rejected']);
-            });
-        }
+            case 'checked-in':
+                // Bookings that are paid and already checked in
+                // Only filter: transaction_status = 'paid' AND check_in_at is NOT NULL
+                $query->whereHas('transaction', function ($q) {
+                    $q->where('transaction_status', 'paid');
+                })->whereNotNull('check_in_at');
+                break;
 
-        // Booking type filter
-        if ($request->filled('booking_type') && $request->booking_type !== 'all') {
-            $query->whereHas('transaction', function ($q) use ($request) {
-                $q->where('booking_type', $request->booking_type);
-            });
+            case 'check-out':
+                // Bookings that are checked in and should check out on selected date
+                // Filter: transaction_status = 'paid' AND check_in_at NOT NULL AND check_out date matches
+                $query->whereHas('transaction', function ($q) use ($request) {
+                    $q->where('transaction_status', 'paid');
+
+                    // Filter by check out date (default to today)
+                    $selectedDate = $request->filled('selected_date')
+                        ? $request->selected_date
+                        : now()->format('Y-m-d');
+                    $q->whereDate('check_out', $selectedDate);
+                })->whereNotNull('check_in_at');
+                break;
+
+            case 'cancelled':
+                // Cancelled bookings only
+                // Only filter: transaction_status = 'cancelled'
+                $query->whereHas('transaction', function ($q) use ($request) {
+                    $q->where('transaction_status', 'cancelled');
+
+                    // Date range filter on transaction created_at (default: 1 month ago to today)
+                    $startDate = $request->filled('start_date')
+                        ? $request->start_date
+                        : now()->subMonth()->format('Y-m-d');
+                    $endDate = $request->filled('end_date')
+                        ? $request->end_date
+                        : now()->format('Y-m-d');
+
+                    $q->whereBetween('created_at', [
+                        $startDate . ' 00:00:00',
+                        $endDate . ' 23:59:59'
+                    ]);
+                });
+                break;
         }
 
         // Property filter
@@ -90,7 +122,7 @@ class RentedRoomsReportController extends Controller
 
         $bookings = $query->paginate($request->input('per_page', 15));
 
-        // Transform data for display (14 columns)
+        // Transform data for display
         $data = $bookings->map(function ($booking, $index) use ($bookings) {
             $transaction = $booking->transaction;
 
@@ -123,7 +155,7 @@ class RentedRoomsReportController extends Controller
                     Carbon::parse($transaction->check_out)->format('d M Y') : '-',
                 'duration' => $duration,
                 'room_price' => 'Rp ' . number_format($transaction->room_price ?? 0, 0, ',', '.'),
-                'admin_fee' => 'Rp ' . number_format($transaction->admin_fees ?? 0, 0, ',', '.'),
+                'service_fee' => 'Rp ' . number_format($transaction->service_fees ?? 0, 0, ',', '.'),
                 'grand_total' => 'Rp ' . number_format($transaction->grandtotal_price ?? 0, 0, ',', '.'),
                 'payment_status' => $transaction ? $transaction->transaction_status : '-',
                 'payment_date' => $transaction && $transaction->paid_at ?
@@ -149,13 +181,24 @@ class RentedRoomsReportController extends Controller
     public function export(Request $request)
     {
         $filters = [
+            'report_type' => $request->input('report_type', 'checked-in'),
             'selected_date' => $request->input('selected_date'),
-            'booking_type' => $request->input('booking_type'),
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
             'property_id' => $request->input('property_id'),
             'search' => $request->input('search'),
         ];
 
-        $filename = 'rented-rooms-report-' . now()->format('Y-m-d-His') . '.xlsx';
+        // Dynamic filename based on report type
+        $reportLabels = [
+            'checked-in' => 'checked-in',
+            'waiting-check-in' => 'waiting-check-in',
+            'check-out' => 'check-out',
+            'cancelled' => 'cancelled',
+        ];
+
+        $reportLabel = $reportLabels[$filters['report_type']] ?? 'booking';
+        $filename = 'laporan-booking-' . $reportLabel . '-' . now()->format('Y-m-d-His') . '.xlsx';
 
         $exporter = new RentedRoomsReportExport($filters);
         return $exporter->export($filename);

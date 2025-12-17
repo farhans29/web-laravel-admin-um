@@ -32,6 +32,7 @@ return new class extends Migration
             $table->dateTime('check_out')->nullable();
             $table->decimal('room_price', 18, 4)->nullable(); 
             $table->decimal('admin_fees', 18, 4)->nullable();
+            $table->decimal('service_fees', 18, 4)->nullable();
             $table->decimal('grandtotal_price', 18, 4)->nullable();
             $table->dateTime('transaction_date');
             $table->string('transaction_type', 100)->nullable();

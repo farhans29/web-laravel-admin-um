@@ -33,6 +33,7 @@ class Transaction extends Model
         'monthly_price',
         'room_price',
         'admin_fees',
+        'service_fees',
         'grandtotal_price',
         'property_type',
         'transaction_type',

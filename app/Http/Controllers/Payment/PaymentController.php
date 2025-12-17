@@ -109,7 +109,7 @@ class PaymentController extends Controller
                         'room_id' => $transaction->room_id,
                         'user_id' => $transaction->user_id,
                         'grandtotal_price' => $transaction->grandtotal_price,
-                        'verified_by' => Auth::id() ?? 1, // Fallback to admin ID 1 if not authenticated
+                        'verified_by' => Auth::check() ? Auth::user()->name : 'Admin', // Save user name instead of ID
                         'verified_at' => now(),
                         'payment_status' => 'paid',
                     ]
@@ -122,7 +122,7 @@ class PaymentController extends Controller
             } else {
                 // Update existing payment
                 $payment->update([
-                    'verified_by' => Auth::id() ?? 1,
+                    'verified_by' => Auth::check() ? Auth::user()->name : 'Admin', // Save user name instead of ID
                     'verified_at' => now(),
                     'payment_status' => 'paid',
                 ]);
@@ -151,7 +151,7 @@ class PaymentController extends Controller
 
             // Update payment record
             $payment->update([
-                'verified_by' => Auth::id(),
+                'verified_by' => Auth::check() ? Auth::user()->name : 'Admin', // Save user name instead of ID
                 'verified_at' => now(),
                 'payment_status' => 'rejected',
                 'notes' => request('rejectNote'),

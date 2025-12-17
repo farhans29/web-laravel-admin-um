@@ -44,7 +44,6 @@ class PaymentReportController extends Controller
 
         $query = Transaction::with([
                 'payment',
-                'payment.verifiedBy',
                 'property',
                 'room',
                 'booking.refund'
@@ -109,10 +108,10 @@ class PaymentReportController extends Controller
                 'check_in' => $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-',
                 'check_out' => $transaction->check_out ? Carbon::parse($transaction->check_out)->format('d M Y') : '-',
                 'room_price' => 'Rp ' . number_format($transaction->room_price ?? 0, 0, ',', '.'),
-                'admin_fee' => 'Rp ' . number_format($transaction->admin_fees ?? 0, 0, ',', '.'),
+                'service_fee' => 'Rp ' . number_format($transaction->service_fees ?? 0, 0, ',', '.'),
                 'grand_total' => 'Rp ' . number_format($transaction->grandtotal_price ?? 0, 0, ',', '.'),
                 'payment_status' => 'Paid',
-                'verified_by' => $payment && $payment->verifiedBy ? $payment->verifiedBy->name : '-',
+                'verified_by' => $payment && $payment->verified_by ? $payment->verified_by : '-', // Direct field access
                 'verified_at' => $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-',
                 'notes' => $this->formatNotes($transaction, $isRefund, $refundInfo),
                 'is_refund' => $isRefund,

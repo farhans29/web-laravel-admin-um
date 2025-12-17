@@ -75,7 +75,7 @@ class PaymentReportExport
             'Check In',
             'Check Out',
             'Room Price',
-            'Admin Fee',
+            'Service Fee',
             'Grand Total',
             'Payment Status',
             'Verification By',
@@ -244,7 +244,6 @@ class PaymentReportExport
     {
         $query = Transaction::with([
                 'payment',
-                'payment.verifiedBy',
                 'property',
                 'room',
                 'booking.refund'
@@ -319,10 +318,10 @@ class PaymentReportExport
             $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-',
             $transaction->check_out ? Carbon::parse($transaction->check_out)->format('d M Y') : '-',
             $transaction->room_price ?? 0,
-            $transaction->admin_fees ?? 0,
+            $transaction->service_fees ?? 0, // Fixed: service_fees (with 's')
             $transaction->grandtotal_price ?? 0,
             'Paid',
-            $payment && $payment->verifiedBy ? $payment->verifiedBy->name : '-',
+            $payment && $payment->verified_by ? $payment->verified_by : '-', // Direct field access
             $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-',
             $notes,
         ];
