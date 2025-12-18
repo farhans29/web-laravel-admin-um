@@ -39,11 +39,12 @@ class Transaction extends Model
         'transaction_type',
         'transaction_code',
         'transaction_status',
-        'booking_type',        
+        'booking_type',
         'notes',
         'attachment',
         'status',
-        'paid_at'
+        'paid_at',
+        'cancel_at'
     ];
 
 
@@ -51,7 +52,8 @@ class Transaction extends Model
         'transaction_date' => 'datetime',
         'check_in' => 'datetime',
         'check_out' => 'datetime',
-        'paid_at' => 'datetime'        
+        'paid_at' => 'datetime',
+        'cancel_at' => 'datetime'
     ];
 
     public function booking()

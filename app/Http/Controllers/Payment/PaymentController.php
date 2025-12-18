@@ -205,6 +205,7 @@ class PaymentController extends Controller
         // Update status transaksi & pembayaran
         $payment->transaction->update([
             'transaction_status' => 'cancelled',
+            'cancel_at' => Carbon::now(),
         ]);
 
         // Update related booking status to 0 (cancelled)

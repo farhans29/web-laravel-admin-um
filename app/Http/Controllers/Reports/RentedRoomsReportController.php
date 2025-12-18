@@ -53,52 +53,82 @@ class RentedRoomsReportController extends Controller
         switch ($reportType) {
             case 'waiting-check-in':
                 // Bookings that are paid but not yet checked in
-                // Only filter: transaction_status = 'paid' AND check_in_at is NULL
-                $query->whereHas('transaction', function ($q) {
-                    $q->where('transaction_status', 'paid');
+                // Filter: transaction_status = 'paid' AND check_in_at is NULL
+                // Date filter: selected date is between check_in and check_out
+                $selectedDate = $request->filled('selected_date')
+                    ? $request->selected_date
+                    : now()->format('Y-m-d');
+
+                $query->whereHas('transaction', function ($q) use ($selectedDate) {
+                    $q->where('transaction_status', 'paid')
+                      ->whereDate('check_in', '<=', $selectedDate)
+                      ->whereDate('check_out', '>=', $selectedDate);
                 })->whereNull('check_in_at');
                 break;
 
             case 'checked-in':
                 // Bookings that are paid and already checked in
-                // Only filter: transaction_status = 'paid' AND check_in_at is NOT NULL
-                $query->whereHas('transaction', function ($q) {
-                    $q->where('transaction_status', 'paid');
-                })->whereNotNull('check_in_at');
+                // Filter: transaction_status = 'paid' AND check_in_at is NOT NULL
+                // Date filter: check_in_at date matches selected date
+                $selectedDate = $request->filled('selected_date')
+                    ? $request->selected_date
+                    : now()->format('Y-m-d');
+
+                $query->whereNotNull('check_in_at')
+                      ->whereDate('check_in_at', $selectedDate)
+                      ->whereHas('transaction', function ($q) {
+                          $q->where('transaction_status', 'paid');
+                      });
+                break;
+
+            case 'rooms-occupied':
+                // Rooms that are currently occupied
+                // Filter: selected date is between booking.check_in_at and transaction.check_out
+                $selectedDate = $request->filled('selected_date')
+                    ? $request->selected_date
+                    : now()->format('Y-m-d');
+
+                $query->whereNotNull('check_in_at')
+                      ->whereDate('check_in_at', '<=', $selectedDate)
+                      ->whereHas('transaction', function ($q) use ($selectedDate) {
+                          $q->where('transaction_status', 'paid')
+                            ->whereDate('check_out', '>=', $selectedDate);
+                      });
                 break;
 
             case 'check-out':
-                // Bookings that are checked in and should check out on selected date
-                // Filter: transaction_status = 'paid' AND check_in_at NOT NULL AND check_out date matches
-                $query->whereHas('transaction', function ($q) use ($request) {
-                    $q->where('transaction_status', 'paid');
+                // Bookings that are checked out
+                // Filter: check_in_at NOT NULL AND check_out_at NOT NULL
+                // Date filter: check_out_at date matches selected date
+                $selectedDate = $request->filled('selected_date')
+                    ? $request->selected_date
+                    : now()->format('Y-m-d');
 
-                    // Filter by check out date (default to today)
-                    $selectedDate = $request->filled('selected_date')
-                        ? $request->selected_date
-                        : now()->format('Y-m-d');
-                    $q->whereDate('check_out', $selectedDate);
-                })->whereNotNull('check_in_at');
+                $query->whereNotNull('check_in_at')
+                      ->whereNotNull('check_out_at')
+                      ->whereDate('check_out_at', $selectedDate)
+                      ->whereHas('transaction', function ($q) {
+                          $q->where('transaction_status', 'paid');
+                      });
                 break;
 
             case 'cancelled':
                 // Cancelled bookings only
-                // Only filter: transaction_status = 'cancelled'
-                $query->whereHas('transaction', function ($q) use ($request) {
-                    $q->where('transaction_status', 'cancelled');
+                // Filter: transaction_status = 'cancelled'
+                // Date range filter on cancel_at
+                $startDate = $request->filled('start_date')
+                    ? $request->start_date
+                    : now()->subMonth()->format('Y-m-d');
+                $endDate = $request->filled('end_date')
+                    ? $request->end_date
+                    : now()->format('Y-m-d');
 
-                    // Date range filter on transaction created_at (default: 1 month ago to today)
-                    $startDate = $request->filled('start_date')
-                        ? $request->start_date
-                        : now()->subMonth()->format('Y-m-d');
-                    $endDate = $request->filled('end_date')
-                        ? $request->end_date
-                        : now()->format('Y-m-d');
-
-                    $q->whereBetween('created_at', [
-                        $startDate . ' 00:00:00',
-                        $endDate . ' 23:59:59'
-                    ]);
+                $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                    $q->where('transaction_status', 'cancelled')
+                      ->whereBetween('cancel_at', [
+                          $startDate . ' 00:00:00',
+                          $endDate . ' 23:59:59'
+                      ]);
                 });
                 break;
         }
@@ -193,6 +223,7 @@ class RentedRoomsReportController extends Controller
         $reportLabels = [
             'checked-in' => 'checked-in',
             'waiting-check-in' => 'waiting-check-in',
+            'rooms-occupied' => 'rooms-occupied',
             'check-out' => 'check-out',
             'cancelled' => 'cancelled',
         ];

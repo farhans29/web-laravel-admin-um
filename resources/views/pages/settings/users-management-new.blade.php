@@ -156,6 +156,26 @@
                                     @enderror
                                 </div>
 
+                                <!-- Property -->
+                                <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Properti
+                                    </label>
+                                    <select name="property_id" id="property_id"
+                                        class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
+                                        <option value="">Pilih Properti</option>
+                                        @foreach ($properties as $property)
+                                            <option value="{{ $property->idrec }}"
+                                                {{ old('property_id') == $property->idrec ? 'selected' : '' }}>
+                                                {{ $property->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('property_id')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
                                 <!-- Footer -->
                                 <div class="mt-6 flex justify-end gap-3">
                                     <button type="button" @click="modalOpenDetail = false"
@@ -220,8 +240,9 @@
                         <tr class="bg-gray-200 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider">
                             <th class="px-4 py-3">Nama</th>
                             <th class="px-4 py-3">Email</th>
-                            <th class="px-4 py-3">Peran</th>
-                            <th class="px-4 py-3">Status</th>
+                            <th class="px-4 py-3 text-center">Peran</th>
+                            <th class="px-4 py-3">Properti</th>
+                            <th class="px-4 py-3 text-center">Status</th>
                             <th class="px-4 py-3">Dibuat Pada</th>
                             <th class="px-4 py-3">Aksi</th>
                         </tr>
@@ -270,7 +291,7 @@
                                     $roleName = optional($user->role)->name ?? 'No Role';
                                 @endphp
                                 <!-- Role -->
-                                <td class="px-4 py-4">
+                                <td class="px-4 py-4 text-center">
                                     <span
                                         class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
 
@@ -319,13 +340,30 @@
                                     </span>
                                 </td>
 
+                                <!-- Property -->
+                                <td class="px-4 py-4 text-sm text-gray-900">
+                                    @if($user->property)
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-building text-indigo-600"></i>
+                                            <span>{{ $user->property->name }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400 italic">Tidak ada</span>
+                                    @endif
+                                </td>
 
                                 <!-- Status -->
-                                <td class="px-4 py-4">
-                                    <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $user->status == 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                        {{ $user->status == 1 ? 'Aktif' : 'Tidak Aktif' }}
-                                    </span>
+                                <td class="px-4 py-4 whitespace-nowrap text-center">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer" data-id="{{ $user->id }}"
+                                            {{ $user->status == 1 ? 'checked' : '' }} onchange="toggleUserStatus(this)">
+                                        <div
+                                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                        </div>
+                                        <span class="ml-3 text-sm font-medium text-gray-900 transition-opacity duration-200">
+                                            {{ $user->status == 1 ? 'Aktif' : 'Tidak Aktif' }}
+                                        </span>
+                                    </label>
                                 </td>
                                 <!-- Created At -->
                                 <td class="px-4 py-4 text-sm text-gray-900">
@@ -453,6 +491,24 @@
                                                                 </div>
                                                             </div>
 
+                                                            <!-- Property -->
+                                                            <div class="mt-4">
+                                                                <label for="property_id_{{ $user->id }}"
+                                                                    class="block text-sm font-medium text-gray-700 mb-1">
+                                                                    Properti
+                                                                </label>
+                                                                <select name="property_id"
+                                                                    id="property_id_{{ $user->id }}"
+                                                                    class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
+                                                                    <option value="">Pilih Properti</option>
+                                                                    @foreach ($properties as $property)
+                                                                        <option value="{{ $property->idrec }}"
+                                                                            {{ $user->property_id == $property->idrec ? 'selected' : '' }}>
+                                                                            {{ $property->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
 
                                                             <!-- Status -->
                                                             <div>
@@ -755,5 +811,71 @@
                 submitSearchForm();
             });
         });
+
+        // Toggle User Status Function
+        function toggleUserStatus(checkbox) {
+            const userId = checkbox.getAttribute('data-id');
+            const newStatus = checkbox.checked ? 1 : 0;
+
+            const statusLabel = checkbox.closest('label').querySelector('span');
+
+            fetch(`/settings/users/${userId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("Gagal update status");
+                    return res.json();
+                })
+                .then(() => {
+                    // Animasi perubahan label status
+                    statusLabel.classList.add('opacity-0');
+
+                    setTimeout(() => {
+                        statusLabel.textContent = newStatus === 1 ? 'Aktif' : 'Tidak Aktif';
+                        statusLabel.classList.remove('opacity-0');
+                        statusLabel.classList.add('opacity-100');
+                    }, 200);
+
+                    // Notifikasi Toastify
+                    Toastify({
+                        text: newStatus === 1 ?
+                            "✓ User berhasil diaktifkan" : "⚠ User berhasil dinonaktifkan",
+                        duration: 3500,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        stopOnFocus: true,
+                        className: "shadow-lg rounded-md",
+                        style: {
+                            background: newStatus === 1 ?
+                                "linear-gradient(to right, #4CAF50, #2E7D32)" :
+                                "linear-gradient(to right, #F44336, #C62828)"
+                        }
+                    }).showToast();
+                })
+                .catch(err => {
+                    // Revert checkbox jika error
+                    checkbox.checked = !checkbox.checked;
+
+                    Toastify({
+                        text: "❌ Gagal mengubah status user",
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                        }
+                    }).showToast();
+
+                    console.error(err);
+                });
+        }
     </script>
 </x-app-layout>

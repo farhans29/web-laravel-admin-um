@@ -32,6 +32,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'property_id',
         'role_id',
         'status',
         'created_by',
@@ -77,6 +78,11 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function property()
+    {
+        return $this->belongsTo(Property::class, 'property_id', 'idrec');
     }
 
     public function permissions()

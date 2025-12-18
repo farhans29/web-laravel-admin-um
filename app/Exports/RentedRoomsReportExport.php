@@ -47,10 +47,11 @@ class RentedRoomsReportExport
 
         // Dynamic title based on report type
         $titles = [
-            'checked-in' => '✓ LAPORAN BOOKING - CHECKED IN',
+            'checked-in' => '✓ LAPORAN BOOKING - MELAKUKAN CHECK IN',
             'waiting-check-in' => '⏳ LAPORAN BOOKING - MENUNGGU CHECK IN',
-            'check-out' => '↗️ LAPORAN BOOKING - CHECK OUT',
-            'cancelled' => '✕ LAPORAN BOOKING - CANCEL BOOKING',
+            'rooms-occupied' => '🏠 LAPORAN BOOKING - KAMAR TERISI',
+            'check-out' => '↗️ LAPORAN BOOKING - MELAKUKAN CHECK OUT',
+            'cancelled' => '✕ LAPORAN BOOKING - BOOKING DIBATALKAN',
         ];
 
         $title = $titles[$this->reportType] ?? '📊 LAPORAN BOOKING';
@@ -265,52 +266,82 @@ class RentedRoomsReportExport
         switch ($this->reportType) {
             case 'waiting-check-in':
                 // Bookings that are paid but not yet checked in
-                // Only filter: transaction_status = 'paid' AND check_in_at is NULL
-                $query->whereHas('transaction', function ($q) {
-                    $q->where('transaction_status', 'paid');
+                // Filter: transaction_status = 'paid' AND check_in_at is NULL
+                // Date filter: selected date is between check_in and check_out
+                $selectedDate = !empty($this->filters['selected_date'])
+                    ? $this->filters['selected_date']
+                    : now()->format('Y-m-d');
+
+                $query->whereHas('transaction', function ($q) use ($selectedDate) {
+                    $q->where('transaction_status', 'paid')
+                      ->whereDate('check_in', '<=', $selectedDate)
+                      ->whereDate('check_out', '>=', $selectedDate);
                 })->whereNull('check_in_at');
                 break;
 
             case 'checked-in':
                 // Bookings that are paid and already checked in
-                // Only filter: transaction_status = 'paid' AND check_in_at is NOT NULL
-                $query->whereHas('transaction', function ($q) {
-                    $q->where('transaction_status', 'paid');
-                })->whereNotNull('check_in_at');
+                // Filter: transaction_status = 'paid' AND check_in_at is NOT NULL
+                // Date filter: check_in_at date matches selected date
+                $selectedDate = !empty($this->filters['selected_date'])
+                    ? $this->filters['selected_date']
+                    : now()->format('Y-m-d');
+
+                $query->whereNotNull('check_in_at')
+                      ->whereDate('check_in_at', $selectedDate)
+                      ->whereHas('transaction', function ($q) {
+                          $q->where('transaction_status', 'paid');
+                      });
+                break;
+
+            case 'rooms-occupied':
+                // Rooms that are currently occupied
+                // Filter: selected date is between booking.check_in_at and transaction.check_out
+                $selectedDate = !empty($this->filters['selected_date'])
+                    ? $this->filters['selected_date']
+                    : now()->format('Y-m-d');
+
+                $query->whereNotNull('check_in_at')
+                      ->whereDate('check_in_at', '<=', $selectedDate)
+                      ->whereHas('transaction', function ($q) use ($selectedDate) {
+                          $q->where('transaction_status', 'paid')
+                            ->whereDate('check_out', '>=', $selectedDate);
+                      });
                 break;
 
             case 'check-out':
-                // Bookings that are checked in and should check out on selected date
-                // Filter: transaction_status = 'paid' AND check_in_at NOT NULL AND check_out date matches
-                $query->whereHas('transaction', function ($q) {
-                    $q->where('transaction_status', 'paid');
+                // Bookings that are checked out
+                // Filter: check_in_at NOT NULL AND check_out_at NOT NULL
+                // Date filter: check_out_at date matches selected date
+                $selectedDate = !empty($this->filters['selected_date'])
+                    ? $this->filters['selected_date']
+                    : now()->format('Y-m-d');
 
-                    // Filter by check out date (default to today)
-                    $selectedDate = !empty($this->filters['selected_date'])
-                        ? $this->filters['selected_date']
-                        : now()->format('Y-m-d');
-                    $q->whereDate('check_out', $selectedDate);
-                })->whereNotNull('check_in_at');
+                $query->whereNotNull('check_in_at')
+                      ->whereNotNull('check_out_at')
+                      ->whereDate('check_out_at', $selectedDate)
+                      ->whereHas('transaction', function ($q) {
+                          $q->where('transaction_status', 'paid');
+                      });
                 break;
 
             case 'cancelled':
                 // Cancelled bookings only
-                // Only filter: transaction_status = 'cancelled'
-                $query->whereHas('transaction', function ($q) {
-                    $q->where('transaction_status', 'cancelled');
+                // Filter: transaction_status = 'cancelled'
+                // Date range filter on cancel_at
+                $startDate = !empty($this->filters['start_date'])
+                    ? $this->filters['start_date']
+                    : now()->subMonth()->format('Y-m-d');
+                $endDate = !empty($this->filters['end_date'])
+                    ? $this->filters['end_date']
+                    : now()->format('Y-m-d');
 
-                    // Date range filter on transaction created_at (default: 1 month ago to today)
-                    $startDate = !empty($this->filters['start_date'])
-                        ? $this->filters['start_date']
-                        : now()->subMonth()->format('Y-m-d');
-                    $endDate = !empty($this->filters['end_date'])
-                        ? $this->filters['end_date']
-                        : now()->format('Y-m-d');
-
-                    $q->whereBetween('created_at', [
-                        $startDate . ' 00:00:00',
-                        $endDate . ' 23:59:59'
-                    ]);
+                $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                    $q->where('transaction_status', 'cancelled')
+                      ->whereBetween('cancel_at', [
+                          $startDate . ' 00:00:00',
+                          $endDate . ' 23:59:59'
+                      ]);
                 });
                 break;
         }
@@ -378,14 +409,15 @@ class RentedRoomsReportExport
 
         // Report Type
         $reportLabels = [
-            'checked-in' => 'Checked In',
+            'checked-in' => 'Melakukan Check In',
             'waiting-check-in' => 'Menunggu Check In',
-            'check-out' => 'Check Out',
-            'cancelled' => 'Cancel Booking',
+            'rooms-occupied' => 'Kamar Terisi',
+            'check-out' => 'Melakukan Check Out',
+            'cancelled' => 'Booking Dibatalkan',
         ];
         $filters[] = '📊 Report Type: ' . ($reportLabels[$this->reportType] ?? '-');
 
-        // Date filters (only for check-out and cancelled)
+        // Date filters
         if ($this->reportType === 'cancelled') {
             // Date range for cancelled bookings
             if (!empty($this->filters['start_date']) && !empty($this->filters['end_date'])) {
@@ -393,14 +425,13 @@ class RentedRoomsReportExport
                     Carbon::parse($this->filters['start_date'])->format('d M Y') . ' - ' .
                     Carbon::parse($this->filters['end_date'])->format('d M Y');
             }
-        } elseif ($this->reportType === 'check-out') {
-            // Single date for check-out only
+        } else {
+            // Single date for all other tabs
             if (!empty($this->filters['selected_date'])) {
                 $filters[] = '📅 Date: ' .
                     Carbon::parse($this->filters['selected_date'])->format('d M Y');
             }
         }
-        // Note: waiting-check-in and checked-in tabs don't use date filters
 
         // Property
         if (!empty($this->filters['property_id'])) {

@@ -86,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/settings/users-management/edit', [UserController::class, 'indexEdit'])->name('users-editManagement');
     Route::put('/settings/users/{user}', [UserController::class, 'updateUsers'])->name('users.update');
+    Route::put('/settings/users/{id}/status', [UserController::class, 'updateStatus'])->name('users.updateStatus');
 
     Route::get('/settings/users-management/delete', [UserController::class, 'indexDelete'])->name('users-deleteManagement');
     Route::post('/settings/users/{user}/deactivate', [UserController::class, 'deactivateUser'])->name('users.deactivate');

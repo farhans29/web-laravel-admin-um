@@ -58,7 +58,7 @@ class UserController extends Controller
         $search = $request->input('search');
         $perPage = $request->input('per_page', 8);
 
-        $users = User::with('role')
+        $users = User::with(['role', 'property'])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('first_name', 'like', '%' . $search . '%')
@@ -77,9 +77,10 @@ class UserController extends Controller
                 'per_page' => $perPage
             ]);
 
-        $roles = Role::where('name', '!=', 'Admin')->get();
+        $roles = Role::where('name', '!=', 'Admin')->where('id', '!=', 165)->get();
+        $properties = \App\Models\Property::all();
 
-        return view('pages.settings.users-management-new', compact('users', 'roles', 'perPage'));
+        return view('pages.settings.users-management-new', compact('users', 'roles', 'perPage', 'properties'));
     }
 
 
@@ -108,6 +109,7 @@ class UserController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/'
             ],
             'role'       => 'required|exists:roles,id',
+            'property_id' => 'nullable|exists:m_properties,idrec',
         ], [
             'password.confirmed' => 'Password and Confirm Password must match.',
             'password.regex'     => 'Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 symbol.',
@@ -121,6 +123,7 @@ class UserController extends Controller
             'email'      => $validatedData['email'],
             'password'   => Hash::make($validatedData['password']),
             'role_id'    => $validatedData['role'],
+            'property_id' => $validatedData['property_id'] ?? null,
             'status'     => 1, // default active
             'created_by' => Auth::id(),
             'created_at' => Carbon::now(),
@@ -216,6 +219,11 @@ class UserController extends Controller
         // Update role jika ada (untuk admin management)
         if ($request->has('role')) {
             $updateData['role_id'] = $request->role;
+        }
+
+        // Update property_id jika ada
+        if ($request->has('property_id')) {
+            $updateData['property_id'] = $request->property_id;
         }
 
         // Update status jika ada (untuk admin management)
@@ -396,5 +404,28 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|boolean'
+            ]);
+
+            $user = User::findOrFail($id);
+            $user->update([
+                'status' => $request->status,
+                'updated_at' => now(),
+                'updated_by' => Auth::id(),
+            ]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status'
+            ], 500);
+        }
     }
 }

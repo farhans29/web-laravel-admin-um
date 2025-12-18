@@ -29,10 +29,9 @@ return new class extends Migration
             $table->binary('profile_picture')->nullable();
             $table->string('profile_photo_path', 255)->nullable();
             $table->unsignedBigInteger('role_id')->nullable()->default(2);
-            $table->string('dep')->nullable();
+            $table->string('property_id')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
-            $table->string('employee_id')->nullable();
             $table->rememberToken();
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
