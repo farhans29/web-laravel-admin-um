@@ -16,16 +16,29 @@ class RentedRoomsReportController extends Controller
     {
         $user = Auth::user();
 
-        // Get properties for filter
-        $properties = Property::where('status', 1)
-            ->orderBy('name')
-            ->get();
+        // Get properties for filter based on user access
+        if ($user->isSuperAdmin()) {
+            $properties = Property::where('status', 1)
+                ->orderBy('name')
+                ->get();
+        } else {
+            $properties = Property::where('status', 1)
+                ->where('idrec', $user->property_id)
+                ->orderBy('name')
+                ->get();
+        }
 
         // Default dates
         $selectedDate = now()->format('Y-m-d'); // For single date tabs
         $startDate = now()->subMonth()->format('Y-m-d'); // For cancelled tab (1 month ago)
         $endDate = now()->format('Y-m-d'); // For cancelled tab (today)
-        $propertyId = $request->input('property_id');
+
+        // Set property_id based on user access
+        if ($user->isSuperAdmin()) {
+            $propertyId = $request->input('property_id');
+        } else {
+            $propertyId = $user->property_id;
+        }
 
         return view('pages.reports.rented-rooms-report.index', compact(
             'properties',
@@ -133,9 +146,16 @@ class RentedRoomsReportController extends Controller
                 break;
         }
 
-        // Property filter
-        if ($request->filled('property_id')) {
-            $query->where('property_id', $request->property_id);
+        // Property filter based on user access
+        if ($user->isSuperAdmin()) {
+            if ($request->filled('property_id')) {
+                $query->where('property_id', $request->property_id);
+            }
+        } else {
+            // Non-super admin: automatically filter by their property
+            if ($user->property_id) {
+                $query->where('property_id', $user->property_id);
+            }
         }
 
         // Search filter (tenant name, room number, order_id)
@@ -210,12 +230,19 @@ class RentedRoomsReportController extends Controller
 
     public function export(Request $request)
     {
+        $user = Auth::user();
+
+        // Set property_id based on user access
+        $propertyId = $user->isSuperAdmin()
+            ? $request->input('property_id')
+            : $user->property_id;
+
         $filters = [
             'report_type' => $request->input('report_type', 'checked-in'),
             'selected_date' => $request->input('selected_date'),
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
-            'property_id' => $request->input('property_id'),
+            'property_id' => $propertyId,
             'search' => $request->input('search'),
         ];
 

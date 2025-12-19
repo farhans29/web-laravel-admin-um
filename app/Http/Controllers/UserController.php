@@ -116,18 +116,38 @@ class UserController extends Controller
         ]);
 
         // Simpan data user baru
-        User::create([
+        $user = User::create([
             'first_name' => $validatedData['first_name'],
             'last_name'  => $validatedData['last_name'],
             'username'   => $validatedData['username'],
             'email'      => $validatedData['email'],
             'password'   => Hash::make($validatedData['password']),
+            'is_admin'   => 1,
             'role_id'    => $validatedData['role'],
             'property_id' => $validatedData['property_id'] ?? null,
             'status'     => 1, // default active
             'created_by' => Auth::id(),
             'created_at' => Carbon::now(),
         ]);
+
+        // Tambahkan permission ID 1 dan 2 untuk user baru
+        $defaultPermissions = [1, 2];
+
+        foreach ($defaultPermissions as $permissionId) {
+            $existingPermission = DB::table('role_permission')
+                ->where('user_id', $user->id)
+                ->where('permission_id', $permissionId)
+                ->exists();
+
+            if (!$existingPermission) {
+                DB::table('role_permission')->insert([
+                    'user_id' => $user->id,
+                    'permission_id' => $permissionId,
+                    'created_at' => Carbon::now(),
+                    'created_by' => Auth::id(),
+                ]);
+            }
+        }
 
         return redirect()->route('users-newManagement')
             ->with('success', 'User successfully created.');
@@ -323,7 +343,7 @@ class UserController extends Controller
     public function getUserPermissions($userId)
     {
         $userPermissions = DB::table('role_permission')
-            ->where('role_id', $userId)
+            ->where('user_id', $userId)
             ->pluck('permission_id')
             ->toArray();
 
@@ -333,13 +353,15 @@ class UserController extends Controller
     public function update(Request $request, $userId)
     {
         // Clear existing permissions
-        DB::table('role_permission')->where('role_id', $userId)->delete();
+        DB::table('role_permission')->where('user_id', $userId)->delete();
 
         // Insert new permissions
         foreach ($request->permissions as $permissionId) {
             DB::table('role_permission')->insert([
-                'role_id' => $userId,
+                'user_id' => $userId,
                 'permission_id' => $permissionId,
+                'created_at' => Carbon::now(),
+                'created_by' => Auth::id(),
             ]);
         }
 

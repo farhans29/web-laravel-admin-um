@@ -645,14 +645,13 @@
                     </div>
 
                     <!-- Per Page Dropdown -->
-                    <div>
+                    <div class="flex items-center gap-2">
+                        <label for="per-page-filter" class="text-sm text-gray-600">Tampilkan:</label>
                         <select id="per-page-filter"
-                            class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                            <option value="8" {{ request('per_page', 8) == 8 ? 'selected' : '' }}>8 per halaman</option>
-                            <option value="16" {{ request('per_page', 8) == 16 ? 'selected' : '' }}>16 per halaman</option>
-                            <option value="32" {{ request('per_page', 8) == 32 ? 'selected' : '' }}>32 per halaman</option>
-                            <option value="64" {{ request('per_page', 8) == 64 ? 'selected' : '' }}>64 per halaman</option>
-                            <option value="100" {{ request('per_page', 8) == 100 ? 'selected' : '' }}>100 per halaman</option>
+                            class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option value="8" {{ request('per_page', 8) == 8 ? 'selected' : '' }}>8</option>
+                            <option value="25" {{ request('per_page', 8) == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page', 8) == 50 ? 'selected' : '' }}>50</option>
                         </select>
                     </div>
 

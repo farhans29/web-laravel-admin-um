@@ -16,6 +16,7 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
         $perPage = $request->input('per_page', 8);
 
         $query = Payment::with([
@@ -25,7 +26,12 @@ class PaymentController extends Controller
                 $query->with(['property', 'room', 'user'])
                     ->where('status', 1);
             }
-        ])->whereHas('transaction') // Hanya ambil payment yang punya transaction
+        ])->whereHas('transaction', function ($q) use ($user) {
+            // Filter by property based on user access
+            if (!$user->isSuperAdmin() && $user->property_id) {
+                $q->where('property_id', $user->property_id);
+            }
+        })
             ->orderBy('idrec', 'desc');
 
         $payments = $perPage === 'all'
@@ -40,11 +46,18 @@ class PaymentController extends Controller
 
     public function filter(Request $request)
     {
+        $user = Auth::user();
         $perPage = $request->input('per_page', 8);
         $search = $request->input('search');
         $status = $request->input('status', 'all');
 
         $query = Payment::with(['booking', 'transaction', 'user'])
+            ->whereHas('transaction', function ($q) use ($user) {
+                // Filter by property based on user access
+                if (!$user->isSuperAdmin() && $user->property_id) {
+                    $q->where('property_id', $user->property_id);
+                }
+            })
             ->orderBy('idrec', 'desc');
 
         // Filter based on search

@@ -17,14 +17,24 @@ class ChangeRoomController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
         $search = $request->input('search');
         $historySearch = $request->input('history_search');
         $currentDate = now()->format('Y-m-d');
-        $propertyId = $request->input('property_id');
+
+        // Set property_id based on user access
+        if ($user->isSuperAdmin()) {
+            $propertyId = $request->input('property_id');
+        } else {
+            $propertyId = $user->property_id;
+        }
 
         // Get all bookings that are eligible for room transfer
         // Includes: 1) Paid bookings that haven't checked in yet, 2) Checked-in guests who haven't checked out, 3) Transferred bookings
         $bookings = Booking::with(['user', 'room', 'property', 'transaction', 'payment'])
+            ->when($propertyId, function ($query, $propertyId) {
+                return $query->where('property_id', $propertyId);
+            })
             ->whereHas('payment', function ($q) {
                 $q->where('payment_status', 'paid'); // Only paid bookings
             })
@@ -86,6 +96,9 @@ class ChangeRoomController extends Controller
         // Modified transfer history query with search
         // Show bookings with status 3 (old/cancelled) as they represent the rooms that were transferred FROM
         $transferHistory = Booking::with(['user', 'room', 'property'])
+            ->when($propertyId, function ($query, $propertyId) {
+                return $query->where('property_id', $propertyId);
+            })
             ->where('status', 3) // Status 3 means old/cancelled room
             ->whereNotNull('reason') // Must have a transfer reason
             ->when($historySearch, function ($query, $historySearch) {

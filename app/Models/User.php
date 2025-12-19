@@ -87,12 +87,17 @@ class User extends Authenticatable
 
     public function permissions()
     {
-        return $this->belongsToMany(Permission::class, 'role_permission', 'role_id', 'permission_id');
+        return $this->belongsToMany(Permission::class, 'role_permission', 'user_id', 'permission_id');
     }
 
     public function hasPermission($permissionName)
     {
         return $this->permissions()->where('name', $permissionName)->exists();
+    }
+
+    public function isSuperAdmin()
+    {
+        return in_array($this->id, [1, 165]);
     }
 
     public function verifiedPayments()

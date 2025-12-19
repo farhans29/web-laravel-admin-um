@@ -82,13 +82,15 @@
                                 </div>
 
                                 <!-- Email -->
-                                <div class="mb-5">
+                                <div class="mb-5 relative">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Email <span
                                             class="text-red-500">*</span></label>
-                                    <input type="email" name="email" id="email" required
-                                        class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm 
+                                    <input type="email" name="email" id="email" required autocomplete="off"
+                                        class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
                                         focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
                                         placeholder="Masukkan alamat email" value="{{ old('email') }}">
+                                    <div id="emailSuggestions" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-48 overflow-y-auto">
+                                    </div>
                                     @error('email')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
@@ -458,15 +460,17 @@
                                                             </div>
 
                                                             <!-- Email -->
-                                                            <div class="mt-4">
+                                                            <div class="mt-4 relative">
                                                                 <label for="email_{{ $user->id }}"
                                                                     class="block text-sm font-medium text-gray-700 mb-1">
                                                                     Email <span class="text-red-500">*</span>
                                                                 </label>
-                                                                <input type="email" name="email"
+                                                                <input type="email" name="email" autocomplete="off"
                                                                     id="email_{{ $user->id }}"
                                                                     value="{{ $user->email }}" required
-                                                                    class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
+                                                                    class="email-input-edit w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
+                                                                <div id="emailSuggestions_{{ $user->id }}" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-48 overflow-y-auto">
+                                                                </div>
                                                             </div>
 
 
@@ -876,6 +880,130 @@
 
                     console.error(err);
                 });
+        }
+
+        // Email Autocomplete Feature
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailDomains = [
+                '@gmail.com',
+                '@yahoo.com',
+                '@outlook.com',
+                '@hotmail.com',
+                '@icloud.com',
+                '@live.com',
+                '@aol.com',
+                '@protonmail.com',
+                '@zoho.com',
+                '@mail.com'
+            ];
+
+            // Setup autocomplete untuk input email utama (create user)
+            const emailInput = document.getElementById('email');
+            const suggestionsBox = document.getElementById('emailSuggestions');
+
+            if (emailInput) {
+                emailInput.addEventListener('input', function() {
+                    setupEmailAutocomplete(emailInput, suggestionsBox, emailDomains);
+                });
+            }
+
+            // Setup autocomplete untuk semua input email edit (menggunakan event delegation)
+            document.addEventListener('input', function(e) {
+                if (e.target && e.target.classList.contains('email-input-edit')) {
+                    const userId = e.target.id.split('_')[1];
+                    const editSuggestionsBox = document.getElementById(`emailSuggestions_${userId}`);
+                    setupEmailAutocomplete(e.target, editSuggestionsBox, emailDomains);
+                }
+            });
+
+            // Function untuk setup email autocomplete
+            function setupEmailAutocomplete(input, suggestionsBox, domains) {
+                const value = input.value.trim();
+                const atIndex = value.indexOf('@');
+
+                // Jika belum ada @ atau sudah ada domain lengkap, sembunyikan suggestions
+                if (atIndex === -1 || (atIndex !== -1 && value.includes('.', atIndex))) {
+                    if (suggestionsBox) suggestionsBox.classList.add('hidden');
+                    return;
+                }
+
+                // Ambil username (sebelum @)
+                const username = value.substring(0, atIndex);
+
+                // Jika username kosong, tidak tampilkan suggestions
+                if (username.length === 0) {
+                    if (suggestionsBox) suggestionsBox.classList.add('hidden');
+                    return;
+                }
+
+                // Buat list suggestions
+                const typedDomain = value.substring(atIndex);
+                const matchedDomains = domains.filter(domain =>
+                    domain.toLowerCase().startsWith(typedDomain.toLowerCase())
+                );
+
+                if (matchedDomains.length > 0 && suggestionsBox) {
+                    suggestionsBox.innerHTML = matchedDomains.map(domain => `
+                        <div class="px-4 py-2 hover:bg-indigo-50 cursor-pointer transition-colors flex items-center justify-between group"
+                             onclick="selectEmailSuggestion('${input.id}', '${username}${domain}')">
+                            <span class="text-gray-700">${username}<span class="font-semibold text-indigo-600">${domain}</span></span>
+                            <svg class="w-4 h-4 text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </div>
+                    `).join('');
+                    suggestionsBox.classList.remove('hidden');
+                } else {
+                    if (suggestionsBox) suggestionsBox.classList.add('hidden');
+                }
+            }
+
+            // Sembunyikan suggestions saat klik di luar
+            document.addEventListener('click', function(e) {
+                // Sembunyikan suggestion box utama
+                if (emailInput && suggestionsBox) {
+                    if (!emailInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                        suggestionsBox.classList.add('hidden');
+                    }
+                }
+
+                // Sembunyikan semua suggestion box edit
+                document.querySelectorAll('[id^="emailSuggestions_"]').forEach(box => {
+                    const userId = box.id.split('_')[1];
+                    const editInput = document.getElementById(`email_${userId}`);
+                    if (editInput && !editInput.contains(e.target) && !box.contains(e.target)) {
+                        box.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Sembunyikan suggestions saat tekan Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('[id^="emailSuggestions"]').forEach(box => {
+                        box.classList.add('hidden');
+                    });
+                }
+            });
+        });
+
+        // Fungsi untuk memilih suggestion
+        function selectEmailSuggestion(inputId, email) {
+            const emailInput = document.getElementById(inputId);
+            let suggestionsBox;
+
+            if (inputId === 'email') {
+                suggestionsBox = document.getElementById('emailSuggestions');
+            } else {
+                const userId = inputId.split('_')[1];
+                suggestionsBox = document.getElementById(`emailSuggestions_${userId}`);
+            }
+
+            if (emailInput) {
+                emailInput.value = email;
+                if (suggestionsBox) suggestionsBox.classList.add('hidden');
+                emailInput.focus();
+            }
         }
     </script>
 </x-app-layout>

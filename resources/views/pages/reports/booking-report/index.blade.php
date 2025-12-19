@@ -47,7 +47,8 @@
                         </div>
                     </div>
 
-                    <!-- Property Filter -->
+                    <!-- Property Filter (only for super admin) -->
+                    @if(auth()->user()->isSuperAdmin())
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
                         <select id="property_id" name="property_id"
@@ -61,6 +62,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
 
                     <!-- Status Filter -->
                     <div>
@@ -87,15 +89,13 @@
                 <!-- Per Page -->
                 <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
                     <div class="flex items-center gap-2">
-                        <label for="per_page" class="text-sm text-gray-600">Show:</label>
+                        <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
                         <select name="per_page" id="per_page"
-                            class="border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
-                            <option value="15">15</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
+                            class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
+                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                         </select>
-                        <span class="text-sm text-gray-600">entries</span>
                     </div>
                 </div>
             </form>

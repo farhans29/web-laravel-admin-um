@@ -47,9 +47,9 @@
                         'bg-orange-500/35',
                     ];
                     $bgColor = $colors[array_rand($colors)];
-                    $initials = strtoupper(substr($customer->name ?? 'U', 0, 1));
-                    if ($customer->name && strpos($customer->name, ' ') !== false) {
-                        $nameParts = explode(' ', $customer->name);
+                    $initials = strtoupper(substr($customer->username ?? 'U', 0, 1));
+                    if ($customer->username && strpos($customer->username, ' ') !== false) {
+                        $nameParts = explode(' ', $customer->username);
                         $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 1));
                     }
                 @endphp
@@ -63,7 +63,7 @@
                             </div>
                             <div class="ml-4">
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ $customer->name ?? 'Unknown' }}
+                                    {{ $customer->username ?? 'Unknown' }}
                                 </div>
                             </div>
                         </div>
@@ -136,7 +136,7 @@
                     <!-- Actions -->
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         <button
-                            onclick="window.dispatchEvent(new CustomEvent('open-customer-modal', { detail: { identifier: '{{ $customer->registration_status === 'registered' ? $customer->id : $customer->email }}', type: '{{ $customer->registration_status }}', name: '{{ $customer->name }}' } }))"
+                            onclick="window.dispatchEvent(new CustomEvent('open-customer-modal', { detail: { identifier: '{{ $customer->registration_status === 'registered' ? $customer->id : $customer->email }}', type: '{{ $customer->registration_status }}', name: '{{ $customer->username }}' } }))"
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">

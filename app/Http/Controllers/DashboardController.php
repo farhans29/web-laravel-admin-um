@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\DataFeed;
 use App\Models\Booking;
 use App\Models\Room;
@@ -16,12 +17,27 @@ class DashboardController extends Controller
     public function getPropertyRoomReportData($propertyId = null)
     {
         try {
-            // Jika tidak ada propertyId, ambil property pertama atau semua property
+            $user = Auth::user();
+
+            // Filter properties based on user access
             if ($propertyId) {
                 $property = Property::findOrFail($propertyId);
+
+                // Non-super admin: verify they have access to this property
+                if (!$user->isSuperAdmin() && $user->property_id != $propertyId) {
+                    $property = Property::where('idrec', $user->property_id)->firstOrFail();
+                }
+
                 $properties = collect([$property]);
             } else {
-                $properties = Property::where('status', 1)->get();
+                // Super admin: get all properties, Non-super admin: only their property
+                if ($user->isSuperAdmin()) {
+                    $properties = Property::where('status', 1)->get();
+                } else {
+                    $properties = Property::where('status', 1)
+                        ->where('idrec', $user->property_id)
+                        ->get();
+                }
             }
 
             $report = [];
@@ -213,9 +229,12 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getOccupiedRoomsDetails()
+    private function getOccupiedRoomsDetails($propertyId = null)
     {
         return Booking::with(['room', 'property', 'transaction', 'user'])
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid')
                     ->whereDate('check_in', '<=', now()->toDateString())
@@ -260,17 +279,24 @@ class DashboardController extends Controller
             });
     }
 
-    private function getOccupancyHistory($days = 30)
+    private function getOccupancyHistory($days = 30, $propertyId = null)
     {
         $history = [];
-        $totalRooms = Room::where('status', 1)->count();
+        $totalRooms = Room::where('status', 1)
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
+            ->count();
 
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i)->toDateString();
 
             // Count rooms occupied on this specific date
             // Only count rooms where guest has actually checked in
-            $occupied = Booking::whereHas('transaction', function ($q) use ($date) {
+            $occupied = Booking::when($propertyId, function ($q) use ($propertyId) {
+                    $q->where('property_id', $propertyId);
+                })
+                ->whereHas('transaction', function ($q) use ($date) {
                     $q->where('transaction_status', 'paid')
                         ->whereDate('check_in', '<=', $date)
                         ->whereDate('check_out', '>=', $date);
@@ -295,7 +321,7 @@ class DashboardController extends Controller
         return $history;
     }
 
-    private function getRentalDurationTrends()
+    private function getRentalDurationTrends($propertyId = null)
     {
         // Compare current month with previous month
         $now = Carbon::now();
@@ -308,6 +334,9 @@ class DashboardController extends Controller
 
         // Current month data - only completed or ongoing bookings
         $currentMonthData = Transaction::where('transaction_status', 'paid')
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
             ->whereYear('check_in', $currentYear)
             ->whereMonth('check_in', $currentMonth)
             ->whereNotNull('check_in')
@@ -320,6 +349,9 @@ class DashboardController extends Controller
 
         // Previous month data
         $previousMonthData = Transaction::where('transaction_status', 'paid')
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
             ->whereYear('check_in', $previousYear)
             ->whereMonth('check_in', $previousMonth)
             ->whereNotNull('check_in')
@@ -352,12 +384,15 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getRevenuePerOccupiedRoom()
+    private function getRevenuePerOccupiedRoom($propertyId = null)
     {
         $today = now()->toDateString();
 
         // Get bookings that are currently occupied (checked in but not checked out)
         $occupiedBookings = Booking::with('transaction')
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
             ->whereHas('transaction', function ($q) use ($today) {
                 $q->where('transaction_status', 'paid')
                     ->whereDate('check_in', '<=', $today)
@@ -385,10 +420,16 @@ class DashboardController extends Controller
 
     public function index()
     {
+        $user = Auth::user();
+        $userPropertyId = $user->isSuperAdmin() ? null : $user->property_id;
+
         $dataFeed = new DataFeed();
 
         // Get today's check-ins (paid bookings with today's check-in date, not checked in yet)
         $checkIns = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->when($userPropertyId, function ($q) use ($userPropertyId) {
+                $q->where('property_id', $userPropertyId);
+            })
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid')
                     ->whereDate('check_in', now()->toDateString());
@@ -405,6 +446,9 @@ class DashboardController extends Controller
 
         // Get today's check-outs (paid bookings with today's check-out date, checked in but not checked out)
         $checkOuts = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->when($userPropertyId, function ($q) use ($userPropertyId) {
+                $q->where('property_id', $userPropertyId);
+            })
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid')
                     ->whereDate('check_out', now()->toDateString());
@@ -420,25 +464,37 @@ class DashboardController extends Controller
             ->get();
 
         $stats = [
-            'upcoming' => Booking::whereHas('transaction', fn($q) =>
-            $q->where('transaction_status', 'paid')
-                ->whereDate('check_in', '>=', now()))
+            'upcoming' => Booking::when($userPropertyId, function ($q) use ($userPropertyId) {
+                    $q->where('property_id', $userPropertyId);
+                })
+                ->whereHas('transaction', fn($q) =>
+                    $q->where('transaction_status', 'paid')
+                        ->whereDate('check_in', '>=', now()))
                 ->whereNull('check_in_at')
                 ->whereNull('check_out_at')
                 ->count(),
 
-            'today' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
+            'today' => Booking::when($userPropertyId, function ($q) use ($userPropertyId) {
+                    $q->where('property_id', $userPropertyId);
+                })
+                ->whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
                 ->whereNull('check_in_at')
                 ->whereNull('check_out_at')
                 ->whereHas('transaction', fn($q) => $q->whereDate('check_in', now()->toDateString()))
                 ->count(),
 
-            'checkin' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
+            'checkin' => Booking::when($userPropertyId, function ($q) use ($userPropertyId) {
+                    $q->where('property_id', $userPropertyId);
+                })
+                ->whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
                 ->whereNotNull('check_in_at')
                 ->whereNull('check_out_at')
                 ->count(),
 
-            'checkout' => Booking::whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
+            'checkout' => Booking::when($userPropertyId, function ($q) use ($userPropertyId) {
+                    $q->where('property_id', $userPropertyId);
+                })
+                ->whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
                 ->whereNotNull('check_in_at')
                 ->whereNull('check_out_at')
                 ->whereHas('transaction', fn($q) => $q->whereDate('check_out', now()->toDateString()))
@@ -446,7 +502,7 @@ class DashboardController extends Controller
         ];
 
         // Sales Report Data (Last 30 days)
-        $salesReport = $this->getSalesReport();
+        $salesReport = $this->getSalesReport($userPropertyId);
 
         // Get room availability for the next 7 days
         $startDate = now();
@@ -454,6 +510,9 @@ class DashboardController extends Controller
 
         // Get all room types with their total count
         $roomTypes = Room::select('type', DB::raw('count(*) as total'))
+            ->when($userPropertyId, function ($q) use ($userPropertyId) {
+                $q->where('property_id', $userPropertyId);
+            })
             ->groupBy('type')
             ->get();
 
@@ -466,6 +525,9 @@ class DashboardController extends Controller
                         ->whereNull('check_out_at');
                 });
         })
+            ->when($userPropertyId, function ($q) use ($userPropertyId) {
+                $q->where('t_booking.property_id', $userPropertyId);
+            })
             ->select('room_id', 'type')
             ->join('m_rooms', 't_booking.room_id', '=', 'm_rooms.idrec')
             ->groupBy('room_id', 'type')
@@ -495,10 +557,10 @@ class DashboardController extends Controller
         $roomReports = $this->getPropertyRoomReportData(); // Langsung panggil method data, bukan API
 
         // Get new dashboard data
-        $occupiedRooms = $this->getOccupiedRoomsDetails();
-        $occupancyHistory = $this->getOccupancyHistory(30);
-        $rentalDurationTrends = $this->getRentalDurationTrends();
-        $revenuePerRoom = $this->getRevenuePerOccupiedRoom();
+        $occupiedRooms = $this->getOccupiedRoomsDetails($userPropertyId);
+        $occupancyHistory = $this->getOccupancyHistory(30, $userPropertyId);
+        $rentalDurationTrends = $this->getRentalDurationTrends($userPropertyId);
+        $revenuePerRoom = $this->getRevenuePerOccupiedRoom($userPropertyId);
 
         $showActions = true;
 
@@ -518,12 +580,15 @@ class DashboardController extends Controller
         ));
     }
 
-    private function getSalesReport()
+    private function getSalesReport($propertyId = null)
     {
         $startDate = now()->subDays(30);
         $endDate = now();
 
         $salesData = Transaction::where('transaction_status', 'paid')
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->select(
                 DB::raw('DATE(transaction_date) as date'),
@@ -545,6 +610,13 @@ class DashboardController extends Controller
 
     public function getPropertyRoomReport($propertyId = null)
     {
+        $user = Auth::user();
+
+        // Non-super admin: enforce their property_id
+        if (!$user->isSuperAdmin()) {
+            $propertyId = $user->property_id;
+        }
+
         $data = $this->getPropertyRoomReportData($propertyId);
 
         return response()->json([

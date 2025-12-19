@@ -10,8 +10,7 @@
                 <button
                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
                     type="button" onclick="openCreateModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
-                        fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd"
                             d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                             clip-rule="evenodd" />
@@ -23,7 +22,8 @@
 
         <!-- Filters Section -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <!-- Search Input -->
                 <div>
                     <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Cari Voucher
@@ -31,6 +31,8 @@
                     <input type="text" id="search" placeholder="Cari kode atau nama voucher..."
                         class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                 </div>
+
+                <!-- Status Filter -->
                 <div>
                     <label for="status_filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Status
@@ -42,17 +44,21 @@
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <div>
-                    <label for="per_page" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Tampilkan
-                    </label>
-                    <select id="per_page"
-                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="10">10 per halaman</option>
-                        <option value="25">25 per halaman</option>
-                        <option value="50">50 per halaman</option>
-                        <option value="all">Semua</option>
-                    </select>
+
+                <!-- Per Page Selector -->
+                <div class="md:col-start-3">
+                    <div class="flex items-center justify-end gap-3">
+                        <label for="per_page"
+                            class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                            Tampilkan :
+                        </label>
+                        <select id="per_page"
+                            class="min-w-[120px] border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                            <option value="8">8</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -118,8 +124,8 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Diskon (%) <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" id="discount_percentage" name="discount_percentage" required min="0"
-                                max="100" step="0.01"
+                            <input type="number" id="discount_percentage" name="discount_percentage" required
+                                min="0" max="100" step="0.01"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 placeholder="10">
                         </div>
@@ -129,8 +135,8 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Maksimal Diskon (Rp) <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" id="max_discount_amount" name="max_discount_amount" required min="0"
-                                step="1000"
+                            <input type="number" id="max_discount_amount" name="max_discount_amount" required
+                                min="0" step="1000"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 placeholder="100000">
                         </div>
@@ -150,7 +156,8 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Maksimal Penggunaan Per User <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" id="max_usage_per_user" name="max_usage_per_user" required min="1"
+                            <input type="number" id="max_usage_per_user" name="max_usage_per_user" required
+                                min="1"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 placeholder="1" value="1">
                         </div>
@@ -172,8 +179,8 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Minimal Transaksi (Rp)
                             </label>
-                            <input type="number" id="min_transaction_amount" name="min_transaction_amount" min="0"
-                                step="1000"
+                            <input type="number" id="min_transaction_amount" name="min_transaction_amount"
+                                min="0" step="1000"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 placeholder="500000" value="0">
                         </div>
@@ -199,9 +206,12 @@
                             <div class="flex items-center space-x-3">
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="status_toggle" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                                    </div>
                                 </label>
-                                <span id="status_label" class="text-sm font-medium text-gray-900 dark:text-white">Active</span>
+                                <span id="status_label"
+                                    class="text-sm font-medium text-gray-900 dark:text-white">Active</span>
                             </div>
                         </div>
 
@@ -214,8 +224,7 @@
                             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                             Batal
                         </button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
                             Simpan
                         </button>
                     </div>
@@ -233,9 +242,9 @@
             // Toast notification helper
             function showToast(message, type = 'success') {
                 const bgColor = type === 'success' ? 'linear-gradient(to right, #00b09b, #96c93d)' :
-                               type === 'error' ? 'linear-gradient(to right, #ff5f6d, #ffc371)' :
-                               type === 'info' ? 'linear-gradient(to right, #4facfe, #00f2fe)' :
-                               'linear-gradient(to right, #f857a6, #ff5858)';
+                    type === 'error' ? 'linear-gradient(to right, #ff5f6d, #ffc371)' :
+                    type === 'info' ? 'linear-gradient(to right, #4facfe, #00f2fe)' :
+                    'linear-gradient(to right, #f857a6, #ff5858)';
 
                 Toastify({
                     text: message,
@@ -297,16 +306,20 @@
                             customRangeLabel: 'Pilih Tanggal',
                             weekLabel: 'M',
                             daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                            monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                            monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
+                                'September', 'Oktober', 'November', 'Desember'
+                            ],
                             firstDay: 1
                         },
                         autoUpdateInput: false
                     }, function(start, end, label) {
-                        console.log('Periode dipilih: ' + start.format('DD/MM/YYYY HH:mm') + ' sampai ' + end.format('DD/MM/YYYY HH:mm'));
+                        console.log('Periode dipilih: ' + start.format('DD/MM/YYYY HH:mm') + ' sampai ' + end.format(
+                            'DD/MM/YYYY HH:mm'));
                     });
 
                     $('#date_range').on('apply.daterangepicker', function(ev, picker) {
-                        $(this).val(picker.startDate.format('DD/MM/YYYY HH:mm') + ' - ' + picker.endDate.format('DD/MM/YYYY HH:mm'));
+                        $(this).val(picker.startDate.format('DD/MM/YYYY HH:mm') + ' - ' + picker.endDate.format(
+                            'DD/MM/YYYY HH:mm'));
                         $('#valid_from').val(picker.startDate.format('YYYY-MM-DD HH:mm:ss'));
                         $('#valid_to').val(picker.endDate.format('YYYY-MM-DD HH:mm:ss'));
                         showToast('Periode berlaku berhasil dipilih', 'info');
@@ -419,7 +432,8 @@
                         const endDate = moment(voucher.valid_to);
                         $('#date_range').data('daterangepicker').setStartDate(startDate);
                         $('#date_range').data('daterangepicker').setEndDate(endDate);
-                        $('#date_range').val(startDate.format('DD/MM/YYYY HH:mm') + ' - ' + endDate.format('DD/MM/YYYY HH:mm'));
+                        $('#date_range').val(startDate.format('DD/MM/YYYY HH:mm') + ' - ' + endDate.format(
+                            'DD/MM/YYYY HH:mm'));
                         $('#valid_from').val(voucher.valid_from);
                         $('#valid_to').val(voucher.valid_to);
 

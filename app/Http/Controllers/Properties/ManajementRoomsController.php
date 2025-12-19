@@ -20,15 +20,24 @@ class ManajementRoomsController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
         $perPage = $request->input('per_page', 8);
 
         $query = Room::where('status', '!=', '2')
             ->with(['property', 'creator'])
             ->orderBy('created_at', 'desc');
 
-        // Filter by property
-        if ($request->has('property_id') && $request->property_id != '') {
-            $query->where('property_id', $request->property_id);
+        // Filter by property based on user access
+        if ($user->isSuperAdmin()) {
+            // Super admin: can filter by any property or see all
+            if ($request->has('property_id') && $request->property_id != '') {
+                $query->where('property_id', $request->property_id);
+            }
+        } else {
+            // Non-super admin: automatically filter by their property
+            if ($user->property_id) {
+                $query->where('property_id', $user->property_id);
+            }
         }
 
         // Filter by status
@@ -52,7 +61,14 @@ class ManajementRoomsController extends Controller
             ? $query->get()
             : $query->paginate((int) $perPage)->withQueryString();
 
-        $properties = Property::orderBy('name', 'asc')->get();
+        // Filter properties based on user access
+        if ($user->isSuperAdmin()) {
+            $properties = Property::orderBy('name', 'asc')->get();
+        } else {
+            $properties = Property::where('idrec', $user->property_id)
+                ->orderBy('name', 'asc')
+                ->get();
+        }
 
         // Pastikan ini mengembalikan Collection, bukan string
         $facilities = RoomFacility::where('status', 1)->get();

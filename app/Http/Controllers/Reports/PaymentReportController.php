@@ -16,10 +16,17 @@ class PaymentReportController extends Controller
     {
         $user = Auth::user();
 
-        // Get properties for filter
-        $properties = Property::where('status', 1)
-            ->orderBy('name')
-            ->get();
+        // Get properties for filter based on user access
+        if ($user->isSuperAdmin()) {
+            $properties = Property::where('status', 1)
+                ->orderBy('name')
+                ->get();
+        } else {
+            $properties = Property::where('status', 1)
+                ->where('idrec', $user->property_id)
+                ->orderBy('name')
+                ->get();
+        }
 
         // Set default date range (current month)
         $defaultStartDate = now()->startOfMonth()->format('Y-m-d');
@@ -28,7 +35,13 @@ class PaymentReportController extends Controller
         // Get filter values
         $startDate = $request->filled('start_date') ? $request->start_date : $defaultStartDate;
         $endDate = $request->filled('end_date') ? $request->end_date : $defaultEndDate;
-        $propertyId = $request->input('property_id');
+
+        // Set property_id based on user access
+        if ($user->isSuperAdmin()) {
+            $propertyId = $request->input('property_id');
+        } else {
+            $propertyId = $user->property_id;
+        }
 
         return view('pages.reports.payment-report.index', compact(
             'properties',
@@ -63,9 +76,16 @@ class PaymentReportController extends Controller
             ]);
         }
 
-        // Property filter
-        if ($request->filled('property_id')) {
-            $query->where('property_id', $request->property_id);
+        // Property filter based on user access
+        if ($user->isSuperAdmin()) {
+            if ($request->filled('property_id')) {
+                $query->where('property_id', $request->property_id);
+            }
+        } else {
+            // Non-super admin: automatically filter by their property
+            if ($user->property_id) {
+                $query->where('property_id', $user->property_id);
+            }
         }
 
         // Search filter (order_id, transaction_code, user_name)
@@ -132,10 +152,17 @@ class PaymentReportController extends Controller
 
     public function export(Request $request)
     {
+        $user = Auth::user();
+
+        // Set property_id based on user access
+        $propertyId = $user->isSuperAdmin()
+            ? $request->input('property_id')
+            : $user->property_id;
+
         $filters = [
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
-            'property_id' => $request->input('property_id'),
+            'property_id' => $propertyId,
             'search' => $request->input('search'),
         ];
 

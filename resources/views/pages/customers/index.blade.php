@@ -55,18 +55,13 @@
                     </div>
 
                     <!-- Per Page -->
-                    <div>
-                        <label for="per_page" class="block text-sm font-medium text-gray-700 mb-1">
-                            Show
-                        </label>
+                    <div class="flex items-center gap-2 justify-end">
+                        <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
                         <select name="per_page" id="per_page"
-                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
-                            focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                            <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8 per page</option>
-                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10 per page</option>
-                            <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15 per page</option>
-                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20 per page</option>
-                            <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50 per page</option>
+                            class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
+                            <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
                         </select>
                     </div>
                 </div>

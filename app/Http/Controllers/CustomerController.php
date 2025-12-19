@@ -49,7 +49,7 @@ class CustomerController extends Controller
         // TAMBAHKAN FILTER WHERE is_admin != 1 ATAU is_admin = 0
         $registeredUsers = User::select([
             'users.id',
-            DB::raw('CAST(users.name AS CHAR) COLLATE utf8mb4_unicode_ci as name'),
+            DB::raw('CAST(users.username AS CHAR) COLLATE utf8mb4_unicode_ci as username'),
             DB::raw('CAST(users.email AS CHAR) COLLATE utf8mb4_unicode_ci as email'),
             DB::raw('CAST(NULL AS CHAR) COLLATE utf8mb4_unicode_ci as phone'),
             DB::raw('CAST("registered" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
@@ -64,12 +64,12 @@ class CustomerController extends Controller
                     ->orWhere('users.is_admin', 0)
                     ->orWhereNull('users.is_admin');
             })
-            ->groupBy('users.id', 'users.name', 'users.email');
+            ->groupBy('users.id', 'users.username', 'users.email');
 
         // Get guest customers (transactions without user_id)
         $guestCustomers = Transaction::select([
             DB::raw('NULL as id'),
-            DB::raw('CAST(user_name AS CHAR) COLLATE utf8mb4_unicode_ci as name'),
+            DB::raw('CAST(user_name AS CHAR) COLLATE utf8mb4_unicode_ci as username'),
             DB::raw('CAST(user_email AS CHAR) COLLATE utf8mb4_unicode_ci as email'),
             DB::raw('CAST(user_phone_number AS CHAR) COLLATE utf8mb4_unicode_ci as phone'),
             DB::raw('CAST("guest" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
@@ -83,7 +83,7 @@ class CustomerController extends Controller
         // Apply search filter to registered users
         if ($search) {
             $registeredUsers->where(function ($query) use ($search) {
-                $query->where('users.name', 'like', '%' . $search . '%')
+                $query->where('users.username', 'like', '%' . $search . '%')
                     ->orWhere('users.email', 'like', '%' . $search . '%');
             });
         }
@@ -139,7 +139,7 @@ class CustomerController extends Controller
                         ->orWhereNull('is_admin');
                 })
                 ->first();
-            $customerName = $customer ? $customer->name : 'Unknown';
+            $customerName = $customer ? $customer->username : 'Unknown';
         } else {
             // Get bookings for guest customers by email
             $bookings = Transaction::with(['booking', 'property', 'room', 'payment'])

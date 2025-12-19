@@ -125,19 +125,13 @@
                         </div>
 
                         <!-- Items per Page -->
-                        <div class="flex items-center">
-                            <span class="text-sm text-gray-600 mr-2">Per halaman:</span>
+                        <div class="flex items-center gap-2">
+                            <label for="perPageSelect" class="text-sm text-gray-600">Tampilkan:</label>
                             <select name="per_page" id="perPageSelect"
-                                class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                                <option value="5" {{ request('per_page', 5) == 5 ? 'selected' : '' }}>5</option>
-                                <option value="10" {{ request('per_page', 5) == 10 ? 'selected' : '' }}>10
-                                </option>
-                                <option value="15" {{ request('per_page', 5) == 15 ? 'selected' : '' }}>15
-                                </option>
-                                <option value="20" {{ request('per_page', 5) == 20 ? 'selected' : '' }}>20
-                                </option>
-                                <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>Semua
-                                </option>
+                                class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                <option value="8" {{ request('per_page', 8) == 8 ? 'selected' : '' }}>8</option>
+                                <option value="25" {{ request('per_page', 8) == 25 ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('per_page', 8) == 50 ? 'selected' : '' }}>50</option>
                             </select>
                         </div>
                     </div>
