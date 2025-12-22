@@ -213,7 +213,7 @@
             formData.append('start_date', document.getElementById('start_date').value);
             formData.append('end_date', document.getElementById('end_date').value);
             formData.append('status', document.getElementById('status').value);
-            formData.append('property_id', document.getElementById('property_id').value);
+            formData.append('property_id', document.getElementById('property_id')?.value || '');
             formData.append('search', document.getElementById('search').value);
             formData.append('per_page', document.getElementById('per_page').value);
             formData.append('page', page);
@@ -392,7 +392,7 @@
                 start_date: document.getElementById('start_date').value,
                 end_date: document.getElementById('end_date').value,
                 status: document.getElementById('status').value,
-                property_id: document.getElementById('property_id').value,
+                property_id: document.getElementById('property_id')?.value || '',
                 search: document.getElementById('search').value
             });
 

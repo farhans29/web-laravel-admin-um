@@ -195,7 +195,7 @@
             const formData = new FormData();
             formData.append('start_date', document.getElementById('start_date').value);
             formData.append('end_date', document.getElementById('end_date').value);
-            formData.append('property_id', document.getElementById('property_id').value);
+            formData.append('property_id', document.getElementById('property_id')?.value || '');
             formData.append('search', document.getElementById('search').value);
             formData.append('per_page', document.getElementById('per_page').value);
             formData.append('page', page);
@@ -378,9 +378,11 @@
 
             // Property filter
             const propertySelect = document.getElementById('property_id');
-            const selectedProperty = propertySelect.options[propertySelect.selectedIndex].text;
-            if (propertySelect.value) {
-                filterInfo += `<p><strong>Properti:</strong> ${selectedProperty}</p>`;
+            if (propertySelect) {
+                const selectedProperty = propertySelect.options[propertySelect.selectedIndex].text;
+                if (propertySelect.value) {
+                    filterInfo += `<p><strong>Properti:</strong> ${selectedProperty}</p>`;
+                }
             }
 
             // Search filter
@@ -558,7 +560,7 @@
             const params = new URLSearchParams({
                 start_date: document.getElementById('start_date').value,
                 end_date: document.getElementById('end_date').value,
-                property_id: document.getElementById('property_id').value,
+                property_id: document.getElementById('property_id')?.value || '',
                 search: document.getElementById('search').value
             });
 

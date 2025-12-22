@@ -299,7 +299,7 @@
 
             const formData = new FormData();
             formData.append('report_type', window.activeTab);
-            formData.append('property_id', document.getElementById('property_id').value);
+            formData.append('property_id', document.getElementById('property_id')?.value || '');
             formData.append('search', document.getElementById('search').value);
             formData.append('per_page', document.getElementById('per_page').value);
             formData.append('page', page);
@@ -505,10 +505,11 @@
             // Get filter info
             let filterInfo = '';
             const propertySelect = document.getElementById('property_id');
-            const selectedProperty = propertySelect.options[propertySelect.selectedIndex].text;
-
-            if (propertySelect.value) {
-                filterInfo += `<p><strong>Properti:</strong> ${selectedProperty}</p>`;
+            if (propertySelect) {
+                const selectedProperty = propertySelect.options[propertySelect.selectedIndex].text;
+                if (propertySelect.value) {
+                    filterInfo += `<p><strong>Properti:</strong> ${selectedProperty}</p>`;
+                }
             }
 
             // Add date info based on tab
@@ -697,7 +698,7 @@
         function exportReport() {
             const params = new URLSearchParams({
                 report_type: window.activeTab,
-                property_id: document.getElementById('property_id').value,
+                property_id: document.getElementById('property_id')?.value || '',
                 search: document.getElementById('search').value
             });
 

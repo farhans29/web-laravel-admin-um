@@ -83,11 +83,13 @@ const DateFilterPersistence = {
         }
 
         // Set hidden input values
-        if (document.getElementById('start_date')) {
-            document.getElementById('start_date').value = this.formatDate(initialStartDate);
+        const startDateEl = document.getElementById('start_date');
+        if (startDateEl) {
+            startDateEl.value = this.formatDate(initialStartDate);
         }
-        if (document.getElementById('end_date')) {
-            document.getElementById('end_date').value = this.formatDate(initialEndDate);
+        const endDateEl = document.getElementById('end_date');
+        if (endDateEl) {
+            endDateEl.value = this.formatDate(initialEndDate);
         }
 
         // Merge default options with user options
@@ -136,8 +138,10 @@ const DateFilterPersistence = {
                             }
 
                             instance.clear();
-                            document.getElementById('start_date').value = '';
-                            document.getElementById('end_date').value = '';
+                            const startDateEl = document.getElementById('start_date');
+                            const endDateEl = document.getElementById('end_date');
+                            if (startDateEl) startDateEl.value = '';
+                            if (endDateEl) endDateEl.value = '';
                             self.clear(pageIdentifier);
                             return;
                         }
@@ -147,8 +151,10 @@ const DateFilterPersistence = {
                     const formattedStart = self.formatDate(startDate);
                     const formattedEnd = self.formatDate(endDate);
 
-                    document.getElementById('start_date').value = formattedStart;
-                    document.getElementById('end_date').value = formattedEnd;
+                    const startDateEl = document.getElementById('start_date');
+                    const endDateEl = document.getElementById('end_date');
+                    if (startDateEl) startDateEl.value = formattedStart;
+                    if (endDateEl) endDateEl.value = formattedEnd;
 
                     // Save to localStorage
                     self.save(pageIdentifier, formattedStart, formattedEnd);
@@ -161,8 +167,10 @@ const DateFilterPersistence = {
             },
             onClose: function(selectedDates, dateStr, instance) {
                 if (selectedDates.length === 0) {
-                    document.getElementById('start_date').value = '';
-                    document.getElementById('end_date').value = '';
+                    const startDateEl = document.getElementById('start_date');
+                    const endDateEl = document.getElementById('end_date');
+                    if (startDateEl) startDateEl.value = '';
+                    if (endDateEl) endDateEl.value = '';
                     self.clear(pageIdentifier);
                 }
 
