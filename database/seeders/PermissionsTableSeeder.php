@@ -49,7 +49,12 @@ class PermissionsTableSeeder extends Seeder
 
             // Payments
             'view_payments',
+
+            // Reports
             'view_reports',
+            'view_booking_report',
+            'view_payment_report',
+            'view_rented_rooms_report',
 
             // Settings
             'Settings',

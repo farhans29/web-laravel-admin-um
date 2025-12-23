@@ -189,10 +189,35 @@ class SidebarItemsTableSeeder extends Seeder
 
         $reports = SidebarItem::create([
             'name' => 'Reports',
-            'route' => 'progress',
+            'route' => null,
             'permission_id' => $permissions['view_reports'] ?? null,
             'parent_id' => $financialSection->id,
             'order' => 2
+        ]);
+
+        // Reports children
+        SidebarItem::create([
+            'name' => 'Booking Report',
+            'route' => 'reports.booking.index',
+            'permission_id' => $permissions['view_booking_report'] ?? null,
+            'parent_id' => $reports->id,
+            'order' => 1
+        ]);
+
+        SidebarItem::create([
+            'name' => 'Payment Report',
+            'route' => 'reports.payment.index',
+            'permission_id' => $permissions['view_payment_report'] ?? null,
+            'parent_id' => $reports->id,
+            'order' => 2
+        ]);
+
+        SidebarItem::create([
+            'name' => 'Rented Rooms Report',
+            'route' => 'reports.rented-rooms.index',
+            'permission_id' => $permissions['view_rented_rooms_report'] ?? null,
+            'parent_id' => $reports->id,
+            'order' => 3
         ]);
 
         // Settings items

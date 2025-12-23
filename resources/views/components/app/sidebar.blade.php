@@ -497,67 +497,94 @@
                             @can('view_refunds')
                             @endcan
 
-                            <!-- Reports -->
+                            <!-- Reports Menu Item -->
                             @can('view_reports')
-                                <li>
-                                    <a href="{{ route('reports.booking.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('reports.booking.index')) bg-indigo-900 @endif">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                                <li x-data="{ open: false }" x-init="open = window.location.href.includes('reports/booking') ||
+                                    window.location.href.includes('reports/payment') ||
+                                    window.location.href.includes('reports/rented-rooms')">
+
+                                    <!-- Main Menu Button -->
+                                    <a @click="open = !open"
+                                        class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('reports.booking.*', 'reports.payment.*', 'reports.rented-rooms.*')) bg-indigo-900 @endif">
+
+                                        <div class="flex items-center gap-3">
+                                            <!-- Chart/Report Icon -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+
+                                            <!-- Menu Text -->
+                                            <span class="transition-all duration-300 whitespace-nowrap"
+                                                :class="sidebarExpanded ? 'opacity-100 ml-0' : 'lg:opacity-0 lg:ml-[-0.5rem]'"
+                                                x-show="sidebarExpanded || window.innerWidth < 1024">
+                                                Reports
+                                            </span>
+                                        </div>
+
+                                        <!-- Chevron Icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 transition-all duration-300 flex-shrink-0"
+                                            :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                d="M19 9l-7 7-7-7" />
                                         </svg>
-                                        <span class="transition-opacity duration-200 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">Reports</span>
-                                        <!-- Tooltip for collapsed state -->
+
+                                        <!-- Tooltip for Collapsed State -->
                                         <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                            x-transition:enter="transition ease-out duration-200"
+                                            x-transition:enter-start="opacity-0 translate-x-1"
+                                            x-transition:enter-end="opacity-100 translate-x-0"
+                                            x-transition:leave="transition ease-in duration-150"
+                                            x-transition:leave-start="opacity-100 translate-x-0"
+                                            x-transition:leave-end="opacity-0 translate-x-1"
+                                            class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
                                             Reports
                                         </div>
                                     </a>
-                                </li>
-                            @endcan
 
-                            <!-- Reports Payments -->
-                            @can('view_reports')
-                                <li>
-                                    <a href="{{ route('reports.payment.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('reports.payment.*')) bg-indigo-900 @endif">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                        <span class="transition-opacity duration-200 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">Payment Report</span>
-                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                            Payment Report
-                                        </div>
-                                    </a>
-                                </li>
-                            @endcan
+                                    <!-- Submenu Items -->
+                                    <div x-show="open && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
+                                        x-transition:enter="transition-[height] ease-out duration-300"
+                                        x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
-                            <!-- Reports Rooms -->
-                            @can('view_reports')
-                                <li>
-                                    <a href="{{ route('reports.rented-rooms.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('reports.rented-rooms.*')) bg-indigo-900 @endif">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                        </svg>
-                                        <span class="transition-opacity duration-200 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">Rented Rooms</span>
-                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                            Rented Rooms
-                                        </div>
-                                    </a>
+                                        <ul class="pl-8 mt-1 space-y-1">
+                                            <!-- Booking Report -->
+                                            @can('view_booking_report')
+                                                <li>
+                                                    <a href="{{ route('reports.booking.index') }}"
+                                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.booking.*')) bg-indigo-900 @endif">
+                                                        <span
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Booking Report</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+
+                                            <!-- Payment Report -->
+                                            @can('view_payment_report')
+                                                <li>
+                                                    <a href="{{ route('reports.payment.index') }}"
+                                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.payment.*')) bg-indigo-900 @endif">
+                                                        <span
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Payment Report</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+
+                                            <!-- Rented Rooms Report -->
+                                            @can('view_rented_rooms_report')
+                                                <li>
+                                                    <a href="{{ route('reports.rented-rooms.index') }}"
+                                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.rented-rooms.*')) bg-indigo-900 @endif">
+                                                        <span
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Rented Rooms Report</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+                                        </ul>
+                                    </div>
                                 </li>
                             @endcan
 
