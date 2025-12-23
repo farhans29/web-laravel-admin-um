@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('role_permission', function (Blueprint $table) {
-            $table->unsignedBigInteger('role_id');
+            $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('permission_id');
-            $table->primary(['role_id', 'permission_id']);
+            $table->primary(['user_id', 'permission_id']);
             $table->timestamps();
 
             // Tambahan kolom created_by dan updated_by
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
 
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('roles')->onDelete('cascade');
             $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
 
             // Optional: tambahkan foreign key untuk created_by dan updated_by jika dibutuhkan

@@ -43,6 +43,8 @@ class RolesAndPermissionsSeeder extends Seeder
             [1, 23],
             [1, 24],
             [1, 25],
+            [1, 26],
+            [1, 27],
 
             
             [2, 1],  
@@ -105,7 +107,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $data = array_map(function ($rolePermission) use ($now) {
             return [
-                'role_id' => $rolePermission[0],
+                'user_id' => $rolePermission[0],
                 'permission_id' => $rolePermission[1],
                 'created_at' => $now,
                 'updated_at' => $now,
