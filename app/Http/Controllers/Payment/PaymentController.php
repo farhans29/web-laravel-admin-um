@@ -23,8 +23,7 @@ class PaymentController extends Controller
             'booking',
             'user',
             'transaction' => function ($query) {
-                $query->with(['property', 'room', 'user'])
-                    ->where('status', 1);
+                $query->with(['property', 'room', 'user']);
             }
         ])->whereHas('transaction', function ($q) use ($user) {
             // Filter by property based on user access
@@ -51,13 +50,18 @@ class PaymentController extends Controller
         $search = $request->input('search');
         $status = $request->input('status', 'all');
 
-        $query = Payment::with(['booking', 'transaction', 'user'])
-            ->whereHas('transaction', function ($q) use ($user) {
-                // Filter by property based on user access
-                if (!$user->isSuperAdmin() && $user->property_id) {
-                    $q->where('property_id', $user->property_id);
-                }
-            })
+        $query = Payment::with([
+            'booking',
+            'user',
+            'transaction' => function ($query) {
+                $query->with(['property', 'room', 'user']);
+            }
+        ])->whereHas('transaction', function ($q) use ($user) {
+            // Filter by property based on user access
+            if (!$user->isSuperAdmin() && $user->property_id) {
+                $q->where('property_id', $user->property_id);
+            }
+        })
             ->orderBy('idrec', 'desc');
 
         // Filter based on search

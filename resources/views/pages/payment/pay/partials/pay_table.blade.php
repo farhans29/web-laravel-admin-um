@@ -23,10 +23,13 @@
     </thead>
     <tbody class="bg-white divide-y divide-gray-200" id="transactionTableBody">
         @forelse ($payments as $payment)
+            @if(!$payment->transaction)
+                @continue
+            @endif
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div class="text-sm font-medium text-indigo-600">{{ $payment->order_id }}</div>
-                    <div class="text-sm text-gray-500">{{ $payment->transaction->check_in ?? '-' }}
+                    <div class="text-sm text-gray-500">{{ $payment->transaction?->check_in ?? '-' }}
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -40,8 +43,8 @@
                         </div>
                         <div class="ml-4">
                             <div class="text-sm font-medium text-gray-900">
-                                {{ $payment->transaction->user->username ?? '-' }}</div>
-                            <div class="text-sm text-gray-500">{{ $payment->transaction->user->email ?? '-' }}
+                                {{ $payment->transaction?->user?->username ?? '-' }}</div>
+                            <div class="text-sm text-gray-500">{{ $payment->transaction?->user?->email ?? '-' }}
                             </div>
                         </div>
                     </div>
@@ -49,14 +52,14 @@
 
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div class="text-sm font-medium text-gray-900">
-                        {{ $payment->transaction->property->name ?? 'N/A' }}</div>
-                    <span class="text-xs text-gray-400">{{ $payment->transaction->room->name ?? '-' }}</span>
+                        {{ $payment->transaction?->property?->name ?? 'N/A' }}</div>
+                    <span class="text-xs text-gray-400">{{ $payment->transaction?->room?->name ?? '-' }}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     Rp{{ number_format($payment->grandtotal_price, 0, ',', '.') }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ $payment->transaction->transaction_type ?? '-' }}
+                    {{ $payment->transaction?->transaction_type ?? '-' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     @if ($payment?->transaction?->paid_at)
@@ -75,16 +78,17 @@
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($payment->transaction->check_in)
+                    @if ($payment->transaction?->check_in)
                         <div>{{ $payment->transaction->check_in->format('d M Y') }}</div>
                         <div class="text-xs text-gray-400">
                             {{ $payment->transaction->check_in->format('H:i') }}</div>
                     @else
                         -
                     @endif
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     @php
-                        $status = $payment->transaction->transaction_status;
+                        $status = $payment->transaction?->transaction_status ?? 'unknown';
                         $statusStyles = [
                             'pending' => 'bg-yellow-100 text-yellow-800',
                             'waiting' => 'bg-orange-100 text-orange-800',
@@ -115,7 +119,7 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-                    @if (in_array($payment->transaction->transaction_status, ['waiting']))
+                    @if ($payment->transaction && in_array($payment->transaction->transaction_status, ['waiting']))
                         <div x-data="attachmentModal()" class="relative group">
                             <button type="button"
                                 class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
@@ -250,7 +254,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif ($payment->transaction->transaction_status === 'pending')
+                    @elseif ($payment->transaction && $payment->transaction->transaction_status === 'pending')
                         <span
                             class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
@@ -261,8 +265,8 @@
                             Menunggu
                         </span>
                         <!-- Tambahkan di bagian aksi untuk status terverifikasi -->
-                    @elseif (in_array($payment->transaction->transaction_status, ['paid', 'completed']) &&
-                            empty($payment->booking->check_out_at))
+                    @elseif ($payment->transaction && in_array($payment->transaction->transaction_status, ['paid', 'completed']) &&
+                            empty($payment->booking?->check_out_at))
                         <div class="flex flex-col items-center text-center space-y-2">
                             <!-- Tombol Batalkan Booking -->
                             <button type="button" onclick="showCancelModal({{ $payment->idrec }})"
@@ -358,11 +362,11 @@
 
                                                     <div>Pelanggan:</div>
                                                     <div class="font-medium">
-                                                        {{ $payment->transaction->user->username ?? '-' }}</div>
+                                                        {{ $payment->transaction?->user?->username ?? '-' }}</div>
 
                                                     <div>Properti:</div>
                                                     <div class="font-medium">
-                                                        {{ $payment->transaction->property->name ?? 'N/A' }}</div>
+                                                        {{ $payment->transaction?->property?->name ?? 'N/A' }}</div>
 
                                                     <div>Total:</div>
                                                     <div class="font-medium">
@@ -371,7 +375,7 @@
 
                                                     <div>Check-in:</div>
                                                     <div class="font-medium">
-                                                        {{ $payment->transaction->check_in->format('d M Y') ?? '-' }}
+                                                        {{ $payment->transaction?->check_in?->format('d M Y') ?? '-' }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -492,7 +496,7 @@
 
 <!-- Reject Modals - Outside table for proper z-index handling -->
 @foreach ($payments as $payment)
-    @if (in_array($payment->transaction->transaction_status, ['waiting']))
+    @if ($payment->transaction && in_array($payment->transaction->transaction_status, ['waiting']))
         <div id="rejectModal-{{ $payment->idrec }}"
             class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-[70]"
             style="display: none;"
