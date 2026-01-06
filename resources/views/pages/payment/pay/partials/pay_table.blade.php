@@ -26,7 +26,7 @@
             <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div class="text-sm font-medium text-indigo-600">{{ $payment->order_id }}</div>
-                    <div class="text-sm text-gray-500">{{ $payment->transaction->check_in->format('Y-m-d') ?? '-' }}
+                    <div class="text-sm text-gray-500">{{ $payment->transaction->check_in ?? '-' }}
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

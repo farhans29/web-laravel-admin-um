@@ -82,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/settings/users-management/new', [UserController::class, 'indexNew'])->name('users-newManagement');
     Route::post('/check-email', [UserController::class, 'checkEmail'])->name('check.email');
-    Route::post('/settings/users-management/users', [UserController::class, 'store'])->name('users.store');
+    Route::post('/settings/users-management/new', [UserController::class, 'store'])->name('users.store');
 
     Route::get('/settings/users-management/edit', [UserController::class, 'indexEdit'])->name('users-editManagement');
     Route::put('/settings/users/{user}', [UserController::class, 'updateUsers'])->name('users.update');
@@ -96,6 +96,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user-access/edit', [UserController::class, 'indexUserAccessManagement'])->name('user-access.edit');
     Route::get('/user-access/{userId}/permissions', [UserController::class, 'getUserPermissions']);
     Route::post('/user-access/{userId}/update', [UserController::class, 'update']);
+
+    // Master Role Management Routes
+    Route::get('/settings/master-role-management', [UserController::class, 'indexMasterRole'])->name('master-role-management');
+    Route::post('/master-role/create', [UserController::class, 'createRole'])->name('master-role.create');
+    Route::post('/master-role/update/{userId}', [UserController::class, 'updateMasterRole'])->name('master-role.update');
+    Route::get('/master-role/permissions/{userId}', [UserController::class, 'getMasterRolePermissions'])->name('master-role.permissions');
+    Route::post('/master-role/update-permissions/{userId}', [UserController::class, 'updateMasterRolePermissions'])->name('master-role.update-permissions');
 
     // User Settings Routes
     Route::put('/user/password', [UserSettingsController::class, 'updatePassword'])->name('user.password.update');

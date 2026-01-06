@@ -112,6 +112,318 @@
         </div>
 
         @if (Auth::user()->isSuperAdmin())
+            <!-- Finance Information Section -->
+            <div class="mt-8">
+                <div class="flex items-center space-x-3 mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-emerald-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h2 class="text-2xl font-bold text-gray-800">Informasi Keuangan</h2>
+                </div>
+
+                <!-- Financial Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Today's Revenue -->
+                    <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-white/20 p-3 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Hari Ini</span>
+                            </div>
+                        </div>
+                        <h3 class="text-sm font-medium text-emerald-100 mb-1">Pendapatan Hari Ini</h3>
+                        <div class="text-3xl font-bold mb-2">
+                            Rp {{ number_format($financeStats['today_revenue'] ?? 0, 0, ',', '.') }}
+                        </div>
+                        <div class="flex items-center text-sm text-emerald-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                            <span>{{ $financeStats['today_transactions'] ?? 0 }} transaksi</span>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Revenue -->
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-white/20 p-3 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Bulan Ini</span>
+                            </div>
+                        </div>
+                        <h3 class="text-sm font-medium text-blue-100 mb-1">Pendapatan Bulan Ini</h3>
+                        <div class="text-3xl font-bold mb-2">
+                            Rp {{ number_format($financeStats['monthly_revenue'] ?? 0, 0, ',', '.') }}
+                        </div>
+                        <div class="flex items-center text-sm text-blue-100">
+                            <span>Target: Rp {{ number_format($financeStats['monthly_target'] ?? 150000000, 0, ',', '.') }} ({{ $financeStats['monthly_percentage'] ?? 0 }}%)</span>
+                        </div>
+                    </div>
+
+                    <!-- Pending Payments -->
+                    <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-white/20 p-3 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs bg-white/20 px-2 py-1 rounded-full flex items-center">
+                                    <span class="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></span>
+                                    Pending
+                                </span>
+                            </div>
+                        </div>
+                        <h3 class="text-sm font-medium text-amber-100 mb-1">Pembayaran Tertunda</h3>
+                        <div class="text-3xl font-bold mb-2">
+                            Rp {{ number_format($financeStats['pending_payments'] ?? 0, 0, ',', '.') }}
+                        </div>
+                        <div class="flex items-center text-sm text-amber-100">
+                            <span>{{ $financeStats['pending_count'] ?? 0 }} invoice menunggu pembayaran</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Success Rate -->
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-white/20 p-3 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Status</span>
+                            </div>
+                        </div>
+                        <h3 class="text-sm font-medium text-purple-100 mb-1">Tingkat Pembayaran</h3>
+                        <div class="text-3xl font-bold mb-2">
+                            {{ $financeStats['payment_success_rate'] ?? 0 }}%
+                        </div>
+                        <div class="w-full bg-purple-700 rounded-full h-2 mt-3">
+                            <div class="bg-white h-2 rounded-full transition-all" style="width: {{ $financeStats['payment_success_rate'] ?? 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Details Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Payment Method Breakdown -->
+                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                    </svg>
+                                    <h3 class="font-semibold text-gray-800 text-lg">Metode Pembayaran</h3>
+                                </div>
+                                <span class="text-xs text-gray-500">Bulan Ini</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- Payment Method Items -->
+                            @php
+                                $methodColors = [
+                                    'Tunai' => ['bg' => 'green', 'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
+                                    'Transfer Bank' => ['bg' => 'blue', 'icon' => 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4'],
+                                    'Kartu Kredit' => ['bg' => 'purple', 'icon' => 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z'],
+                                    'E-Wallet' => ['bg' => 'orange', 'icon' => 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z'],
+                                    'Kartu Debit' => ['bg' => 'indigo', 'icon' => 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z'],
+                                ];
+                            @endphp
+
+                            <div class="space-y-4">
+                                @forelse(($financeStats['payment_methods'] ?? []) as $method)
+                                    @php
+                                        $color = $methodColors[$method['method']]['bg'] ?? 'gray';
+                                        $icon = $methodColors[$method['method']]['icon'] ?? 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+                                    @endphp
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="bg-{{ $color }}-100 p-2 rounded-lg">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-{{ $color }}-600" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold text-gray-800">{{ $method['method'] }}</p>
+                                                <p class="text-sm text-gray-500">{{ $method['count'] }} transaksi</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-gray-800">Rp {{ number_format($method['amount'], 0, ',', '.') }}</p>
+                                            <p class="text-sm text-gray-500">{{ $method['percentage'] }}%</p>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="text-center py-8 text-gray-500">
+                                        <p>Belum ada data pembayaran bulan ini</p>
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <!-- Total -->
+                            @if(!empty($financeStats['payment_methods']))
+                                <div class="mt-6 pt-4 border-t-2 border-gray-200">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-lg font-bold text-gray-800">Total Pendapatan</p>
+                                        <p class="text-2xl font-bold text-blue-600">Rp {{ number_format($financeStats['payment_methods_total'] ?? 0, 0, ',', '.') }}</p>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Cash Flow Summary -->
+                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-cyan-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-teal-600" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                    </svg>
+                                    <h3 class="font-semibold text-gray-800 text-lg">Ringkasan Arus Kas</h3>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    @php
+                                        $trend = $financeStats['cash_flow_trend'] ?? 'stable';
+                                        $trendIcon = match($trend) {
+                                            'up' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+                                            'down' => 'M19 14l-7 7m0 0l-7-7m7 7V3',
+                                            default => 'M5 12h14'
+                                        };
+                                        $trendColor = match($trend) {
+                                            'up' => 'text-green-600',
+                                            'down' => 'text-red-600',
+                                            default => 'text-gray-600'
+                                        };
+                                    @endphp
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 {{ $trendColor }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $trendIcon }}" />
+                                    </svg>
+                                    <span class="text-xs font-medium {{ $trendColor }}">
+                                        {{ $financeStats['cash_flow_trend_percentage'] ?? 0 }}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- Cash Flow Summary Cards -->
+                            <div class="grid grid-cols-3 gap-3 mb-6">
+                                <div class="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <p class="text-xs text-green-600 font-medium mb-1">Cash In</p>
+                                    <p class="text-lg font-bold text-green-700">Rp {{ number_format($financeStats['total_cash_in'] ?? 0, 0, ',', '.') }}</p>
+                                </div>
+                                <div class="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+                                    <p class="text-xs text-red-600 font-medium mb-1">Cash Out</p>
+                                    <p class="text-lg font-bold text-red-700">Rp {{ number_format($financeStats['total_cash_out'] ?? 0, 0, ',', '.') }}</p>
+                                </div>
+                                <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <p class="text-xs text-blue-600 font-medium mb-1">Net Flow</p>
+                                    <p class="text-lg font-bold text-blue-700">Rp {{ number_format($financeStats['net_cash_flow'] ?? 0, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
+
+                            <!-- 7 Days Chart -->
+                            <div class="mb-6">
+                                <p class="text-sm font-medium text-gray-700 mb-3">7 Hari Terakhir</p>
+                                <div class="flex items-end justify-between h-32 gap-1">
+                                    @php
+                                        $maxFlow = collect($financeStats['cash_flow'] ?? [])->max('cash_in');
+                                        $maxFlow = $maxFlow > 0 ? $maxFlow : 1;
+                                    @endphp
+                                    @foreach(($financeStats['cash_flow'] ?? []) as $day)
+                                        @php
+                                            $heightPercentage = $maxFlow > 0 ? ($day['cash_in'] / $maxFlow) * 100 : 0;
+                                        @endphp
+                                        <div class="flex-1 flex flex-col items-center group cursor-pointer">
+                                            <div class="w-full bg-teal-500 rounded-t hover:bg-teal-600 transition-all relative"
+                                                style="height: {{ max($heightPercentage, 3) }}%"
+                                                title="Rp {{ number_format($day['cash_in'], 0, ',', '.') }}">
+                                                <!-- Tooltip -->
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                                                    <div class="bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                                                        Rp {{ number_format($day['cash_in'], 0, ',', '.') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-gray-600 mt-2">{{ $day['day_name'] }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Recent Transactions -->
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <p class="text-sm font-medium text-gray-700">Transaksi Terbaru</p>
+                                    <span class="text-xs text-gray-500">{{ count($financeStats['recent_transactions'] ?? []) }} transaksi</span>
+                                </div>
+                                <div class="space-y-2 max-h-64 overflow-y-auto">
+                                    @forelse(($financeStats['recent_transactions'] ?? []) as $transaction)
+                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors
+                                            {{ $transaction['is_today'] ? 'border-l-4 border-teal-500' : '' }}">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-800 text-sm">{{ $transaction['guest_name'] }}</p>
+                                                <p class="text-xs text-gray-600">{{ $transaction['room_name'] }}</p>
+                                                <div class="flex items-center space-x-2 mt-1">
+                                                    <span class="text-xs text-gray-500">{{ $transaction['paid_date'] }}</span>
+                                                    <span class="text-xs text-gray-400">•</span>
+                                                    <span class="text-xs text-gray-500">{{ $transaction['paid_time'] }}</span>
+                                                    @if($transaction['is_today'])
+                                                        <span class="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded">Hari Ini</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="text-right ml-3">
+                                                <p class="font-bold text-gray-800">Rp {{ number_format($transaction['amount'], 0, ',', '.') }}</p>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="text-center py-8 text-gray-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                            </svg>
+                                            <p>Belum ada transaksi</p>
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <!-- Average Info -->
+                            @if(!empty($financeStats['recent_transactions']))
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-600">Rata-rata Harian (7 hari)</span>
+                                        <span class="font-semibold text-teal-600">Rp {{ number_format($financeStats['avg_daily_revenue'] ?? 0, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Occupied Rooms & Analytics Section -->
             <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                 <!-- Revenue Per Room Card -->
@@ -540,8 +852,7 @@
         </div>
 
         @if (Auth::user()->isSuperAdmin())
-            <!-- Room Reports Section -->
-            <div class="mt-8 grid grid-cols-2 lg:grid-cols-2 gap-8">
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Room Availability Report -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -572,77 +883,94 @@
                     </div>
                     <div class="p-6">
                         @if (is_array($roomReports) && count($roomReports) > 0)
-                            @foreach ($roomReports as $propertyId => $report)
-                                <div class="mb-6 last:mb-0 p-4 border border-gray-200 rounded-lg">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <h3 class="font-semibold text-gray-700">{{ $report['property']['name'] }}
-                                        </h3>
-                                        <a href="{{ route('room-availability.index') }}"
-                                            class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
-                                            Lihat Semua
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        </a>
-                                    </div>
+                            <div id="roomAvailabilityContainer">
+                                @foreach ($roomReports as $propertyId => $report)
+                                    <div class="mb-6 last:mb-0 p-4 border border-gray-200 rounded-lg room-availability-item {{ $loop->first ? '' : 'hidden' }}" data-property-id="{{ $propertyId }}">
+                                        <div class="flex justify-between items-start mb-4">
+                                            <h3 class="font-semibold text-gray-700">{{ $report['property']['name'] }}
+                                            </h3>
+                                            <a href="{{ route('room-availability.index') }}"
+                                                class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
+                                                Lihat Semua
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </a>
+                                        </div>
 
-                                    <!-- Room Stats -->
-                                    <div class="grid grid-cols-3 gap-4 mb-4">
-                                        <div class="text-center">
-                                            <div class="text-2xl font-bold text-gray-800">
-                                                {{ $report['room_stats']['total_rooms'] }}</div>
-                                            <div class="text-sm text-gray-600">Total Kamar</div>
-                                        </div>
-                                        <div class="text-center">
-                                            <div class="text-2xl font-bold text-green-600">
-                                                {{ $report['room_stats']['available_rooms'] }}</div>
-                                            <div class="text-sm text-gray-600">Tersedia</div>
-                                        </div>
-                                        <div class="text-center">
-                                            <div class="text-2xl font-bold text-orange-600">
-                                                {{ $report['room_stats']['booked_rooms'] }}</div>
-                                            <div class="text-sm text-gray-600">Terisi</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Occupancy Rate -->
-                                    <div class="mb-4">
-                                        <div class="flex justify-between text-sm text-gray-600 mb-1">
-                                            <span>Tingkat Okupansi</span>
-                                            <span>{{ $report['room_stats']['occupancy_rate'] }}%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-blue-600 h-2 rounded-full"
-                                                style="width: {{ $report['room_stats']['occupancy_rate'] }}%">
+                                        <!-- Room Stats -->
+                                        <div class="grid grid-cols-3 gap-4 mb-4">
+                                            <div class="text-center">
+                                                <div class="text-2xl font-bold text-gray-800">
+                                                    {{ $report['room_stats']['total_rooms'] }}</div>
+                                                <div class="text-sm text-gray-600">Total Kamar</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-2xl font-bold text-green-600">
+                                                    {{ $report['room_stats']['available_rooms'] }}</div>
+                                                <div class="text-sm text-gray-600">Tersedia</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-2xl font-bold text-orange-600">
+                                                    {{ $report['room_stats']['booked_rooms'] }}</div>
+                                                <div class="text-sm text-gray-600">Terisi</div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Room Types Breakdown -->
-                                    @if (count($report['room_types_breakdown']) > 0)
-                                        <div class="mt-4">
-                                            <h4 class="font-medium text-gray-700 mb-2">Breakdown Tipe Kamar</h4>
-                                            <div class="space-y-2">
-                                                @foreach ($report['room_types_breakdown'] as $roomType)
-                                                    <div class="flex justify-between items-center text-sm">
-                                                        <span class="text-gray-600">{{ $roomType->type }}</span>
-                                                        <div class="flex items-center space-x-2">
-                                                            <span
-                                                                class="text-gray-500">{{ $roomType->available_rooms }}/{{ $roomType->total_rooms }}</span>
-                                                            <span
-                                                                class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                                                {{ $roomType->total_rooms > 0 ? round(($roomType->available_rooms / $roomType->total_rooms) * 100) : 0 }}%
-                                                            </span>
+                                        <!-- Occupancy Rate -->
+                                        <div class="mb-4">
+                                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                                <span>Tingkat Okupansi</span>
+                                                <span>{{ $report['room_stats']['occupancy_rate'] }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-blue-600 h-2 rounded-full"
+                                                    style="width: {{ $report['room_stats']['occupancy_rate'] }}%">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Room Types Breakdown -->
+                                        @if (count($report['room_types_breakdown']) > 0)
+                                            <div class="mt-4">
+                                                <h4 class="font-medium text-gray-700 mb-2">Breakdown Tipe Kamar</h4>
+                                                <div class="space-y-2">
+                                                    @foreach ($report['room_types_breakdown'] as $roomType)
+                                                        <div class="flex justify-between items-center text-sm">
+                                                            <span class="text-gray-600">{{ $roomType->type }}</span>
+                                                            <div class="flex items-center space-x-2">
+                                                                <span
+                                                                    class="text-gray-500">{{ $roomType->available_rooms }}/{{ $roomType->total_rooms }}</span>
+                                                                <span
+                                                                    class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                                                    {{ $roomType->total_rooms > 0 ? round(($roomType->available_rooms / $roomType->total_rooms) * 100) : 0 }}%
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
+                                                    @endforeach
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endif
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            @if (count($roomReports) > 1)
+                                <div class="mt-4 text-center">
+                                    <button id="toggleRoomAvailability"
+                                        class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center justify-center mx-auto bg-blue-50 px-4 py-2 rounded-lg transition-all hover:bg-blue-100">
+                                        <span id="toggleRoomAvailabilityText">Lihat Selengkapnya</span>
+                                        <svg id="toggleRoomAvailabilityIcon" xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 ml-1 transition-transform" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
                                 </div>
-                            @endforeach
+                            @endif
                         @else
                             <div class="text-center py-8 text-gray-500">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400"
@@ -685,79 +1013,96 @@
                     </div>
                     <div class="p-6">
                         @if (is_array($roomReports) && count($roomReports) > 0)
-                            @foreach ($roomReports as $propertyId => $report)
-                                <div class="mb-6 last:mb-0 duration-sales-item">
-                                    <h3 class="font-semibold text-gray-700 mb-3 property-name-sales">
-                                        {{ $report['property']['name'] }}
-                                    </h3>
+                            <div id="durationSalesContainer">
+                                @foreach ($roomReports as $propertyId => $report)
+                                    <div class="mb-6 last:mb-0 duration-sales-item {{ $loop->first ? '' : 'hidden' }}" data-property-id="{{ $propertyId }}">
+                                        <h3 class="font-semibold text-gray-700 mb-3 property-name-sales">
+                                            {{ $report['property']['name'] }}
+                                        </h3>
 
-                                    <!-- Durasi Sewa -->
-                                    <div class="mb-4">
-                                        <h4 class="font-medium text-gray-700 mb-2">Statistik Durasi Sewa</h4>
-                                        <div class="grid grid-cols-3 gap-4 text-sm">
-                                            <div class="text-center p-2 bg-blue-50 rounded-lg">
-                                                <div class="font-bold text-blue-600">
-                                                    {{ $report['booking_durations']['average_duration'] }} hari
-                                                </div>
-                                                <div class="text-blue-500 text-xs">Rata-rata</div>
-                                            </div>
-                                            <div class="text-center p-2 bg-green-50 rounded-lg">
-                                                <div class="font-bold text-green-600">
-                                                    {{ $report['booking_durations']['min_duration'] }} hari</div>
-                                                <div class="text-green-500 text-xs">Terpendek</div>
-                                            </div>
-                                            <div class="text-center p-2 bg-purple-50 rounded-lg">
-                                                <div class="font-bold text-purple-600">
-                                                    {{ $report['booking_durations']['max_duration'] }} hari</div>
-                                                <div class="text-purple-500 text-xs">Terlama</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Breakdown Durasi -->
-                                    @if (count($report['booking_durations']['duration_ranges']) > 0)
+                                        <!-- Durasi Sewa -->
                                         <div class="mb-4">
-                                            <h4 class="font-medium text-gray-700 mb-2">Distribusi Durasi</h4>
-                                            <div class="space-y-2">
-                                                @foreach ($report['booking_durations']['duration_ranges'] as $duration)
-                                                    <div
-                                                        class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                                                        <span
-                                                            class="text-sm font-medium text-gray-700">{{ $duration->duration_range }}</span>
-                                                        <div class="flex items-center space-x-2">
-                                                            <span
-                                                                class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
-                                                                {{ $duration->count }} booking
-                                                            </span>
-                                                            <span class="text-xs text-gray-500">
-                                                                {{ $report['booking_durations']['total_bookings'] > 0 ? round(($duration->count / $report['booking_durations']['total_bookings']) * 100, 1) : 0 }}%
-                                                            </span>
-                                                        </div>
+                                            <h4 class="font-medium text-gray-700 mb-2">Statistik Durasi Sewa</h4>
+                                            <div class="grid grid-cols-3 gap-4 text-sm">
+                                                <div class="text-center p-2 bg-blue-50 rounded-lg">
+                                                    <div class="font-bold text-blue-600">
+                                                        {{ $report['booking_durations']['average_duration'] }} hari
                                                     </div>
-                                                @endforeach
+                                                    <div class="text-blue-500 text-xs">Rata-rata</div>
+                                                </div>
+                                                <div class="text-center p-2 bg-green-50 rounded-lg">
+                                                    <div class="font-bold text-green-600">
+                                                        {{ $report['booking_durations']['min_duration'] }} hari</div>
+                                                    <div class="text-green-500 text-xs">Terpendek</div>
+                                                </div>
+                                                <div class="text-center p-2 bg-purple-50 rounded-lg">
+                                                    <div class="font-bold text-purple-600">
+                                                        {{ $report['booking_durations']['max_duration'] }} hari</div>
+                                                    <div class="text-purple-500 text-xs">Terlama</div>
+                                                </div>
                                             </div>
                                         </div>
-                                    @endif
 
-                                    <!-- Monthly Sales -->
-                                    <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                        <h4 class="font-medium text-yellow-800 mb-2">Penjualan Bulan Ini</h4>
-                                        <div class="grid grid-cols-2 gap-4 text-sm">
-                                            <div class="text-center">
-                                                <div class="text-xl font-bold text-yellow-700">
-                                                    {{ $report['monthly_sales']['total_bookings'] }}</div>
-                                                <div class="text-yellow-600 text-xs">Total Booking</div>
-                                            </div>
-                                            <div class="text-center">
-                                                <div class="text-xl font-bold text-yellow-700">Rp
-                                                    {{ number_format($report['monthly_sales']['total_revenue'], 0, ',', '.') }}
+                                        <!-- Breakdown Durasi -->
+                                        @if (count($report['booking_durations']['duration_ranges']) > 0)
+                                            <div class="mb-4">
+                                                <h4 class="font-medium text-gray-700 mb-2">Distribusi Durasi</h4>
+                                                <div class="space-y-2">
+                                                    @foreach ($report['booking_durations']['duration_ranges'] as $duration)
+                                                        <div
+                                                            class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                                            <span
+                                                                class="text-sm font-medium text-gray-700">{{ $duration->duration_range }}</span>
+                                                            <div class="flex items-center space-x-2">
+                                                                <span
+                                                                    class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+                                                                    {{ $duration->count }} booking
+                                                                </span>
+                                                                <span class="text-xs text-gray-500">
+                                                                    {{ $report['booking_durations']['total_bookings'] > 0 ? round(($duration->count / $report['booking_durations']['total_bookings']) * 100, 1) : 0 }}%
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
-                                                <div class="text-yellow-600 text-xs">Total Pendapatan</div>
+                                            </div>
+                                        @endif
+
+                                        <!-- Monthly Sales -->
+                                        <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                            <h4 class="font-medium text-yellow-800 mb-2">Penjualan Bulan Ini</h4>
+                                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                                <div class="text-center">
+                                                    <div class="text-xl font-bold text-yellow-700">
+                                                        {{ $report['monthly_sales']['total_bookings'] }}</div>
+                                                    <div class="text-yellow-600 text-xs">Total Booking</div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-xl font-bold text-yellow-700">Rp
+                                                        {{ number_format($report['monthly_sales']['total_revenue'], 0, ',', '.') }}
+                                                    </div>
+                                                    <div class="text-yellow-600 text-xs">Total Pendapatan</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                @endforeach
+                            </div>
+
+                            @if (count($roomReports) > 1)
+                                <div class="mt-4 text-center">
+                                    <button id="toggleDurationSales"
+                                        class="text-sm font-medium text-green-600 hover:text-green-800 flex items-center justify-center mx-auto bg-green-50 px-4 py-2 rounded-lg transition-all hover:bg-green-100">
+                                        <span id="toggleDurationSalesText">Lihat Selengkapnya</span>
+                                        <svg id="toggleDurationSalesIcon" xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 ml-1 transition-transform" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
                                 </div>
-                            @endforeach
+                            @endif
                         @else
                             <div class="text-center py-8 text-gray-500">
                                 <p>Tidak ada data laporan</p>
@@ -920,7 +1265,7 @@
 
                         setupSearch(
                             'searchKamar',
-                            '.mb-6.last\\:mb-0.p-4.border.border-gray-200.rounded-lg',
+                            '.room-availability-item',
                             'no-results-message-kamar'
                         );
 
@@ -929,6 +1274,68 @@
                             '.duration-sales-item',
                             'no-results-message-durasi'
                         );
+
+                        // Toggle Room Availability Report
+                        const toggleRoomBtn = document.getElementById('toggleRoomAvailability');
+                        if (toggleRoomBtn) {
+                            toggleRoomBtn.addEventListener('click', function() {
+                                const items = document.querySelectorAll('.room-availability-item');
+                                const icon = document.getElementById('toggleRoomAvailabilityIcon');
+                                const text = document.getElementById('toggleRoomAvailabilityText');
+                                let isExpanded = false;
+
+                                items.forEach((item, index) => {
+                                    if (index > 0) {
+                                        if (item.classList.contains('hidden')) {
+                                            item.classList.remove('hidden');
+                                            isExpanded = true;
+                                        } else {
+                                            item.classList.add('hidden');
+                                            isExpanded = false;
+                                        }
+                                    }
+                                });
+
+                                if (isExpanded) {
+                                    text.textContent = 'Sembunyikan';
+                                    icon.style.transform = 'rotate(180deg)';
+                                } else {
+                                    text.textContent = 'Lihat Selengkapnya';
+                                    icon.style.transform = 'rotate(0deg)';
+                                }
+                            });
+                        }
+
+                        // Toggle Duration & Sales Report
+                        const toggleDurationBtn = document.getElementById('toggleDurationSales');
+                        if (toggleDurationBtn) {
+                            toggleDurationBtn.addEventListener('click', function() {
+                                const items = document.querySelectorAll('.duration-sales-item');
+                                const icon = document.getElementById('toggleDurationSalesIcon');
+                                const text = document.getElementById('toggleDurationSalesText');
+                                let isExpanded = false;
+
+                                items.forEach((item, index) => {
+                                    if (index > 0) {
+                                        if (item.classList.contains('hidden')) {
+                                            item.classList.remove('hidden');
+                                            isExpanded = true;
+                                        } else {
+                                            item.classList.add('hidden');
+                                            isExpanded = false;
+                                        }
+                                    }
+                                });
+
+                                if (isExpanded) {
+                                    text.textContent = 'Sembunyikan';
+                                    icon.style.transform = 'rotate(180deg)';
+                                } else {
+                                    text.textContent = 'Lihat Selengkapnya';
+                                    icon.style.transform = 'rotate(0deg)';
+                                }
+                            });
+                        }
                     });
     </script>
     @endif
