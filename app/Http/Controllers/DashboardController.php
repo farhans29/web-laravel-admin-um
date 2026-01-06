@@ -10,6 +10,7 @@ use App\Models\Room;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
 use App\Models\Property;
+use App\Models\Payment;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -418,6 +419,290 @@ class DashboardController extends Controller
         ];
     }
 
+    // Finance Statistics Methods
+    private function getTodayRevenue($propertyId = null)
+    {
+        $today = now()->toDateString();
+
+        $data = Transaction::where('transaction_status', 'paid')
+            ->whereDate('paid_at', $today)
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
+            ->select(
+                DB::raw('SUM(grandtotal_price) as total_revenue'),
+                DB::raw('COUNT(*) as total_transactions')
+            )
+            ->first();
+
+        return [
+            'revenue' => $data->total_revenue ?? 0,
+            'transactions' => $data->total_transactions ?? 0
+        ];
+    }
+
+    private function getMonthlyRevenue($propertyId = null)
+    {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        $data = Transaction::where('transaction_status', 'paid')
+            ->whereYear('paid_at', $currentYear)
+            ->whereMonth('paid_at', $currentMonth)
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
+            ->select(
+                DB::raw('SUM(grandtotal_price) as total_revenue'),
+                DB::raw('COUNT(*) as total_transactions')
+            )
+            ->first();
+
+        return [
+            'revenue' => $data->total_revenue ?? 0,
+            'transactions' => $data->total_transactions ?? 0,
+            'target' => 150000000, // Target bisa disesuaikan atau diambil dari setting
+            'percentage' => ($data->total_revenue ?? 0) > 0
+                ? round((($data->total_revenue ?? 0) / 150000000) * 100, 1)
+                : 0
+        ];
+    }
+
+    private function getPendingPayments($propertyId = null)
+    {
+        $data = Transaction::whereIn('transaction_status', ['pending', 'waiting'])
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
+            ->select(
+                DB::raw('SUM(grandtotal_price) as total_pending'),
+                DB::raw('COUNT(*) as total_invoices')
+            )
+            ->first();
+
+        return [
+            'amount' => $data->total_pending ?? 0,
+            'count' => $data->total_invoices ?? 0
+        ];
+    }
+
+    private function getPaymentSuccessRate($propertyId = null)
+    {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        $totalTransactions = Transaction::whereYear('transaction_date', $currentYear)
+            ->whereMonth('transaction_date', $currentMonth)
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
+            ->count();
+
+        $paidTransactions = Transaction::where('transaction_status', 'paid')
+            ->whereYear('transaction_date', $currentYear)
+            ->whereMonth('transaction_date', $currentMonth)
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
+            ->count();
+
+        $successRate = $totalTransactions > 0
+            ? round(($paidTransactions / $totalTransactions) * 100, 1)
+            : 0;
+
+        return $successRate;
+    }
+
+    private function getPaymentMethodBreakdown($propertyId = null)
+    {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        // Get payment data grouped by payment method
+        $paymentData = Payment::join('t_transactions', 't_payment.order_id', '=', 't_transactions.order_id')
+            ->where('t_transactions.transaction_status', 'paid')
+            ->whereYear('t_transactions.paid_at', $currentYear)
+            ->whereMonth('t_transactions.paid_at', $currentMonth)
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('t_transactions.property_id', $propertyId);
+            })
+            ->select(
+                't_payment.payment_status as method',
+                DB::raw('COUNT(*) as count'),
+                DB::raw('SUM(t_payment.grandtotal_price) as total')
+            )
+            ->groupBy('t_payment.payment_status')
+            ->get();
+
+        // Calculate total for percentage
+        $grandTotal = $paymentData->sum('total');
+
+        // Map payment methods to friendly names
+        $methodMapping = [
+            'cash' => 'Tunai',
+            'transfer' => 'Transfer Bank',
+            'credit_card' => 'Kartu Kredit',
+            'e-wallet' => 'E-Wallet',
+            'debit_card' => 'Kartu Debit',
+        ];
+
+        $breakdown = [];
+        foreach ($paymentData as $payment) {
+            $methodName = $methodMapping[$payment->method] ?? ucfirst(str_replace('_', ' ', $payment->method));
+            $percentage = $grandTotal > 0 ? round(($payment->total / $grandTotal) * 100) : 0;
+
+            $breakdown[] = [
+                'method' => $methodName,
+                'count' => $payment->count,
+                'amount' => $payment->total,
+                'percentage' => $percentage
+            ];
+        }
+
+        // Sort by amount descending
+        usort($breakdown, function($a, $b) {
+            return $b['amount'] <=> $a['amount'];
+        });
+
+        return [
+            'breakdown' => $breakdown,
+            'total' => $grandTotal
+        ];
+    }
+
+    private function getCashFlowSummary($propertyId = null)
+    {
+        // Get last 7 days cash flow
+        $dailyCashFlow = [];
+        $totalCashIn = 0;
+        $totalCashOut = 0;
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i)->startOfDay();
+
+            // Cash In - Paid transactions (handle null paid_at)
+            $cashIn = Transaction::where('transaction_status', 'paid')
+                ->whereNotNull('paid_at')
+                ->whereDate('paid_at', $date->toDateString())
+                ->when($propertyId, function ($q) use ($propertyId) {
+                    $q->where('property_id', $propertyId);
+                })
+                ->sum('grandtotal_price') ?? 0;
+
+            // Cash Out - Refunds (if you have refund table)
+            $cashOut = 0;
+            // If you have refund table, uncomment and adjust:
+            // $cashOut = Refund::whereDate('refund_date', $date)
+            //     ->when($propertyId, fn($q) => $q->where('property_id', $propertyId))
+            //     ->sum('amount') ?? 0;
+
+            $netFlow = $cashIn - $cashOut;
+            $totalCashIn += $cashIn;
+            $totalCashOut += $cashOut;
+
+            $dailyCashFlow[] = [
+                'date' => $date->format('d M'),
+                'date_full' => $date->format('Y-m-d'),
+                'day_name' => $date->format('D'),
+                'cash_in' => (float) $cashIn,
+                'cash_out' => (float) $cashOut,
+                'net_flow' => (float) $netFlow,
+                'is_today' => $date->isToday(),
+            ];
+        }
+
+        // Recent transactions (last 8 paid transactions with eager loading)
+        $recentTransactions = Transaction::with(['booking.room', 'user', 'property', 'payment'])
+            ->where('transaction_status', 'paid')
+            ->whereNotNull('paid_at')
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
+            ->orderBy('paid_at', 'desc')
+            ->limit(8)
+            ->get()
+            ->map(function ($transaction) {
+                $paidAt = $transaction->paid_at ? Carbon::parse($transaction->paid_at) : now();
+
+                // Map payment method to friendly names
+                $methodMapping = [
+                    'cash' => 'Tunai',
+                    'transfer' => 'Transfer',
+                    'credit_card' => 'Kartu Kredit',
+                    'e-wallet' => 'E-Wallet',
+                    'debit_card' => 'Debit',
+                ];
+
+                $rawMethod = $transaction->payment->payment_status ?? 'N/A';
+                $paymentMethod = $methodMapping[$rawMethod] ?? ucfirst(str_replace('_', ' ', $rawMethod));
+
+                return [
+                    'transaction_code' => $transaction->transaction_code ?? 'N/A',
+                    'guest_name' => $transaction->user_name ?? 'Guest',
+                    'room_name' => $transaction->room_name ?? 'N/A',
+                    'property_name' => $transaction->property->property_name ?? $transaction->property->name ?? 'N/A',
+                    'paid_date' => $paidAt->format('d M Y'),
+                    'paid_time' => $paidAt->format('H:i'),
+                    'amount' => (float) ($transaction->grandtotal_price ?? 0),
+                    'payment_method' => $paymentMethod,
+                    'is_today' => $paidAt->isToday(),
+                ];
+            });
+
+        // Calculate average daily revenue
+        $daysCount = count($dailyCashFlow);
+        $avgDailyRevenue = $daysCount > 0 ? round($totalCashIn / $daysCount, 2) : 0;
+
+        // Calculate trend (compare last 3 days vs previous 4 days for 7-day period)
+        $cashFlowCollection = collect($dailyCashFlow);
+        $recentDays = $cashFlowCollection->slice(-3); // Last 3 days
+        $previousDays = $cashFlowCollection->slice(0, 4); // First 4 days
+
+        $recentTotal = $recentDays->sum('cash_in');
+        $previousTotal = $previousDays->sum('cash_in');
+
+        // Calculate average for fair comparison
+        $recentAvg = $recentDays->count() > 0 ? $recentTotal / $recentDays->count() : 0;
+        $previousAvg = $previousDays->count() > 0 ? $previousTotal / $previousDays->count() : 0;
+
+        $trend = 'stable';
+        $trendPercentage = 0;
+
+        if ($previousAvg > 0) {
+            $trendPercentage = round((($recentAvg - $previousAvg) / $previousAvg) * 100, 1);
+            if ($trendPercentage > 5) {
+                $trend = 'up';
+            } elseif ($trendPercentage < -5) {
+                $trend = 'down';
+            }
+        } elseif ($recentAvg > 0) {
+            // If previous avg is 0 but recent has value, it's trending up
+            $trend = 'up';
+            $trendPercentage = 100;
+        }
+
+        // Calculate peak day
+        $peakDay = $cashFlowCollection->sortByDesc('cash_in')->first();
+        $peakDayInfo = $peakDay ? [
+            'day' => $peakDay['day_name'],
+            'amount' => $peakDay['cash_in'],
+            'date' => $peakDay['date']
+        ] : null;
+
+        return [
+            'daily_cash_flow' => $dailyCashFlow,
+            'total_cash_in' => (float) $totalCashIn,
+            'total_cash_out' => (float) $totalCashOut,
+            'net_cash_flow' => (float) ($totalCashIn - $totalCashOut),
+            'recent_transactions' => $recentTransactions,
+            'avg_daily_revenue' => (float) $avgDailyRevenue,
+            'trend' => $trend,
+            'trend_percentage' => abs($trendPercentage),
+            'peak_day' => $peakDayInfo,
+            'total_transactions_count' => $recentTransactions->count(),
+        ];
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -562,6 +847,39 @@ class DashboardController extends Controller
         $rentalDurationTrends = $this->getRentalDurationTrends($userPropertyId);
         $revenuePerRoom = $this->getRevenuePerOccupiedRoom($userPropertyId);
 
+        // Get finance data
+        $financeStats = [];
+        if ($user->isSuperAdmin()) {
+            $todayRevenue = $this->getTodayRevenue($userPropertyId);
+            $monthlyRevenue = $this->getMonthlyRevenue($userPropertyId);
+            $pendingPayments = $this->getPendingPayments($userPropertyId);
+            $paymentSuccessRate = $this->getPaymentSuccessRate($userPropertyId);
+            $paymentMethodBreakdown = $this->getPaymentMethodBreakdown($userPropertyId);
+            $cashFlowSummary = $this->getCashFlowSummary($userPropertyId);
+
+            $financeStats = [
+                'today_revenue' => $todayRevenue['revenue'],
+                'today_transactions' => $todayRevenue['transactions'],
+                'monthly_revenue' => $monthlyRevenue['revenue'],
+                'monthly_transactions' => $monthlyRevenue['transactions'],
+                'monthly_target' => $monthlyRevenue['target'],
+                'monthly_percentage' => $monthlyRevenue['percentage'],
+                'pending_payments' => $pendingPayments['amount'],
+                'pending_count' => $pendingPayments['count'],
+                'payment_success_rate' => $paymentSuccessRate,
+                'payment_methods' => $paymentMethodBreakdown['breakdown'],
+                'payment_methods_total' => $paymentMethodBreakdown['total'],
+                'cash_flow' => $cashFlowSummary['daily_cash_flow'],
+                'total_cash_in' => $cashFlowSummary['total_cash_in'],
+                'total_cash_out' => $cashFlowSummary['total_cash_out'],
+                'net_cash_flow' => $cashFlowSummary['net_cash_flow'],
+                'recent_transactions' => $cashFlowSummary['recent_transactions'],
+                'avg_daily_revenue' => $cashFlowSummary['avg_daily_revenue'],
+                'cash_flow_trend' => $cashFlowSummary['trend'],
+                'cash_flow_trend_percentage' => $cashFlowSummary['trend_percentage'],
+            ];
+        }
+
         $showActions = true;
 
         return view('pages/dashboard/dashboard', compact(
@@ -576,7 +894,8 @@ class DashboardController extends Controller
             'occupiedRooms',
             'occupancyHistory',
             'rentalDurationTrends',
-            'revenuePerRoom'
+            'revenuePerRoom',
+            'financeStats'
         ));
     }
 

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Role;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Laravel\Jetstream\OwnerRole;
 
 class RolesTableSeeder extends Seeder
 {
@@ -18,12 +19,13 @@ class RolesTableSeeder extends Seeder
         // Roles normal (tanpa ID khusus)
         $defaultRoles = [
             'Super Admin',
-            'Finance HO',
+            'Owner site',
+            'Manager site',
+            'Finance site',
+            'Front Office', 
+            'Owner HO',
             'Manager HO',
-            'Site Admin',
-            'Receptionist',
-            'Housekeeping',
-            'Manager Hotel',
+            'Finance HO',
         ];
 
         foreach ($defaultRoles as $role) {

@@ -196,9 +196,8 @@ class UserController extends Controller
         $validationRules = [
             'first_name' => 'required|string|max:255',
             'last_name'  => 'required|string|max:255',
-            'username'   => 'required|string|max:255|unique:users,username,' . $id,
+            'name'       => 'required|string|max:255|unique:users,username,' . $id,
             'email'      => 'required|email|unique:users,email,' . $id,
-            'phone_number' => 'required|string|max:20',
         ];
 
         // Jika ada field role dan status (untuk admin management)
@@ -207,6 +206,9 @@ class UserController extends Controller
         }
         if ($request->has('status')) {
             $validationRules['status'] = 'required|in:0,1';
+        }
+        if ($request->has('property_id')) {
+            $validationRules['property_id'] = 'nullable|exists:m_properties,idrec';
         }
 
         $validator = Validator::make($request->all(), $validationRules);
@@ -222,19 +224,11 @@ class UserController extends Controller
         $updateData = [
             'first_name' => $request->first_name,
             'last_name'  => $request->last_name,
-            'username'   => $request->username,
+            'username'   => $request->name,
             'email'      => $request->email,
-            'phone_number' => $request->phone_number,
             'updated_by' => Auth::id(),
             'updated_at' => now()
         ];
-
-        // Update name jika perlu (gabungan first + last)
-        if ($request->has('name')) {
-            $updateData['name'] = $request->name;
-        } else {
-            $updateData['name'] = $request->first_name . ' ' . $request->last_name;
-        }
 
         // Update role jika ada (untuk admin management)
         if ($request->has('role')) {
@@ -243,7 +237,7 @@ class UserController extends Controller
 
         // Update property_id jika ada
         if ($request->has('property_id')) {
-            $updateData['property_id'] = $request->property_id;
+            $updateData['property_id'] = $request->property_id ?: null;
         }
 
         // Update status jika ada (untuk admin management)
@@ -259,7 +253,7 @@ class UserController extends Controller
         // Update user
         $user->update($updateData);
 
-        return redirect()->back()->with('success', 'User Updated Successfully!');
+        return redirect()->route('users-newManagement')->with('success', 'User Updated Successfully!');
     }
 
 
@@ -447,6 +441,190 @@ class UserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update status'
+            ], 500);
+        }
+    }
+
+    /**
+     * Display master role management page
+     */
+    public function indexMasterRole(Request $request)
+    {
+        $perPage = $request->input('per_page', 8);
+
+        // Get only users with is_admin = 1
+        if ($perPage === 'all') {
+            $adminUsers = User::with('role')
+                ->where('is_admin', 1)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $adminUsers = User::with('role')
+                ->where('is_admin', 1)
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage)
+                ->appends(['per_page' => $perPage]);
+        }
+
+        $roles = Role::all();
+
+        // Get sidebar items for permissions
+        $sidebarItems = DB::table('sidebar_items')
+            ->select('id', 'name', 'parent_id', 'route')
+            ->get();
+
+        return view('pages.settings.master-role-management', compact('adminUsers', 'roles', 'sidebarItems', 'perPage'));
+    }
+
+    /**
+     * Update user role
+     */
+    public function updateMasterRole(Request $request, $userId)
+    {
+        try {
+            $request->validate([
+                'role_id' => 'required|exists:roles,id'
+            ]);
+
+            $user = User::findOrFail($userId);
+
+            // Check if user is admin
+            if ($user->is_admin != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User is not an admin user'
+                ], 403);
+            }
+
+            $user->update([
+                'role_id' => $request->role_id,
+                'updated_by' => Auth::id(),
+                'updated_at' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Role updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update role: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user permissions for master role management
+     */
+    public function getMasterRolePermissions($userId)
+    {
+        try {
+            $user = User::findOrFail($userId);
+
+            // Check if user is admin
+            if ($user->is_admin != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User is not an admin user',
+                    'permissions' => []
+                ], 403);
+            }
+
+            $userPermissions = DB::table('role_permission')
+                ->where('user_id', $userId)
+                ->pluck('permission_id')
+                ->toArray();
+
+            return response()->json([
+                'success' => true,
+                'permissions' => $userPermissions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch permissions',
+                'permissions' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * Update user permissions for master role management
+     */
+    public function updateMasterRolePermissions(Request $request, $userId)
+    {
+        try {
+            $user = User::findOrFail($userId);
+
+            // Check if user is admin
+            if ($user->is_admin != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User is not an admin user'
+                ], 403);
+            }
+
+            // Clear existing permissions
+            DB::table('role_permission')->where('user_id', $userId)->delete();
+
+            // Insert new permissions
+            if ($request->has('permissions') && is_array($request->permissions)) {
+                foreach ($request->permissions as $permissionId) {
+                    DB::table('role_permission')->insert([
+                        'user_id' => $userId,
+                        'permission_id' => $permissionId,
+                        'created_at' => Carbon::now(),
+                        'created_by' => Auth::id(),
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Access rights updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update permissions: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Create a new role
+     */
+    public function createRole(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255|unique:m_roles,name'
+            ], [
+                'name.required' => 'Role name is required',
+                'name.unique' => 'Role name already exists'
+            ]);
+
+            $role = Role::create([
+                'name' => $request->name,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Role created successfully!',
+                'role' => $role
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->validator->errors()->first()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create role: ' . $e->getMessage()
             ], 500);
         }
     }

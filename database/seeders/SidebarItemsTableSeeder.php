@@ -156,7 +156,7 @@ class SidebarItemsTableSeeder extends Seeder
 
         $customers = SidebarItem::create([
             'name' => 'Customers',
-            'route' => 'progress',
+            'route' => 'customers.index',
             'permission_id' => $permissions['view_customers'] ?? null,
             'parent_id' => $managementSection->id,
             'order' => 5
@@ -239,7 +239,7 @@ class SidebarItemsTableSeeder extends Seeder
 
         $rolePermission = SidebarItem::create([
             'name' => 'Role & Permission',
-            'route' => 'progress',
+            'route' => 'master-role-management',
             'permission_id' => $permissions['manage_roles'] ?? null,
             'parent_id' => $settingsSection->id,
             'order' => 2
@@ -247,7 +247,7 @@ class SidebarItemsTableSeeder extends Seeder
 
         $settings = SidebarItem::create([
             'name' => 'Settings',
-            'route' => 'progress',
+            'route' => 'users.show',
             'permission_id' => $permissions['manage_settings'] ?? null,
             'parent_id' => $settingsSection->id,
             'order' => 3
