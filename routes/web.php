@@ -68,6 +68,10 @@ Route::middleware(['auth', 'permission'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/room-report', [DashboardController::class, 'getPropertyRoomReport']);
     Route::get('/dashboard/room-report/{propertyId}', [DashboardController::class, 'getPropertyRoomReport']);
+    Route::get('/dashboard/property-revenue', [DashboardController::class, 'getPropertyRevenue']);
+    Route::get('/dashboard/property-revenue/{propertyId}', [DashboardController::class, 'getPropertyRevenue']);
+    Route::get('/dashboard/revenue-trend', [DashboardController::class, 'getRevenueTrend']);
+    Route::get('/dashboard/revenue-trend/{propertyId}', [DashboardController::class, 'getRevenueTrend']);
     Route::get('/progress', [DashboardController::class, 'progress_index'])->name('progress');
 
     Route::get('/account/getData', [UserController::class, 'accountGetData'])->name('account.getData');

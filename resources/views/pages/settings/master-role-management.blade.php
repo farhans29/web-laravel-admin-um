@@ -54,8 +54,6 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Current Role</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Assign Role</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Access Rights</th>
                         </tr>
                     </thead>
@@ -99,24 +97,7 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <select name="role_id" data-user-id="{{ $user->id }}"
-                                        class="role-select block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                                        <option value="">-- Select Role --</option>
-                                        @foreach ($roles as $role)
-                                            <option value="{{ $role->id }}"
-                                                {{ $user->role_id == $role->id ? 'selected' : '' }}>
-                                                {{ $role->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="updateUserRole({{ $user->id }})"
-                                        class="btn-update-role inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150 mr-2">
-                                        <i class="fas fa-save mr-2"></i>
-                                        Update Role
-                                    </button>
                                     <button
                                         onclick="manageAccessRights({{ $user->id }}, '{{ $user->first_name ?? $user->name }}')"
                                         class="btn-access-rights inline-flex items-center px-3 py-2 border border-blue-600 text-sm leading-4 font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
@@ -127,7 +108,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                                     <i class="fas fa-users text-4xl mb-4 block text-gray-300"></i>
                                     <p class="text-lg font-medium">No Admin Users Found</p>
                                     <p class="text-sm">Users with is_admin = 1 will appear here</p>
@@ -155,8 +136,6 @@
                 <div>
                     <h4 class="text-sm font-semibold text-blue-800 mb-1">Information</h4>
                     <ul class="text-sm text-blue-700 space-y-1">
-                        <li>Pilih peran dari menu <i>dropdown</i> dan klik <b>"<i>Update Role</i>"</b> untuk
-                            menetapkannya</b></li>
                         <li>Klik <b>"<i>Access Rights</i>"</b> untuk mengelola izin menu untuk setiap pengguna</li>
                         <li>Setiap pengguna hanya dapat memiliki satu peran yang ditetapkan</li>
                     </ul>
@@ -358,14 +337,6 @@
     </div>
 
     <style>
-        .role-select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 16px;
-            padding-right: 2.5rem;
-        }
-
         .select-custom {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
@@ -373,7 +344,6 @@
             background-size: 16px;
         }
 
-        .btn-update-role:hover,
         .btn-access-rights:hover {
             transform: translateY(-1px);
         }
@@ -534,88 +504,6 @@
                     submitButton.innerHTML = originalContent;
                 });
         });
-
-        function updateUserRole(userId) {
-            const selectElement = document.querySelector(`select[data-user-id="${userId}"]`);
-            const roleId = selectElement.value;
-
-            if (!roleId) {
-                Toastify({
-                    text: "Please select a role first!",
-                    duration: 3000,
-                    close: true,
-                    gravity: "bottom",
-                    position: "left",
-                    style: {
-                        background: "#FF5733",
-                    },
-                }).showToast();
-                return;
-            }
-
-            const button = event.target.closest('button');
-            const originalContent = button.innerHTML;
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
-
-            fetch(`/master-role/update/${userId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        role_id: roleId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Toastify({
-                            text: data.message,
-                            duration: 3000,
-                            close: true,
-                            gravity: "bottom",
-                            position: "left",
-                            style: {
-                                background: "#4CAF50",
-                            },
-                        }).showToast();
-
-                        // Update the Current Role badge
-                        const row = button.closest('tr');
-                        const currentRoleBadge = row.querySelector('td:nth-child(4) span');
-                        const selectedOption = selectElement.options[selectElement.selectedIndex];
-                        const roleName = selectedOption.text;
-
-                        if (currentRoleBadge) {
-                            currentRoleBadge.textContent = roleName;
-                            currentRoleBadge.className = 'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
-                        }
-
-                        button.disabled = false;
-                        button.innerHTML = originalContent;
-                    } else {
-                        throw new Error(data.message || 'Failed to update role');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Toastify({
-                        text: error.message || "Failed to update role!",
-                        duration: 3000,
-                        close: true,
-                        gravity: "bottom",
-                        position: "left",
-                        style: {
-                            background: "#FF5733",
-                        },
-                    }).showToast();
-
-                    button.disabled = false;
-                    button.innerHTML = originalContent;
-                });
-        }
 
         function manageAccessRights(userId, userName) {
             currentUserId = userId;

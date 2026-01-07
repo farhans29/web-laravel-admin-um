@@ -141,6 +141,20 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is a Finance-only role
+     * Finance-only roles can only view financial information
+     */
+    public function isFinanceOnlyRole()
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        $financeOnlyRoles = ['Finance', 'Finance HO', 'Finance site'];
+        return in_array($this->role->name, $financeOnlyRoles);
+    }
+
+    /**
      * Check if user can view all properties
      * Super Admin and HO roles can view all properties
      */

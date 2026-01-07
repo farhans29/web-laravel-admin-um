@@ -45,7 +45,7 @@
                         </div>
                     </div>
                 </div>
-
+                @if (!$isFinanceOnly)
                 <!-- Quick Stats -->
                 <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Confirm Booking (Upcoming) -->
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                     </div>
-
+        
                     <!-- Confirm Booking (Today) -->
                     <div
                         class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-purple-300 hover:bg-white/15 transition-all duration-200">
@@ -85,7 +85,7 @@
                             </div>
                         </div>
                     </div>
-
+        
                     <!-- Check-In -->
                     <div
                         class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-green-300 hover:bg-white/15 transition-all duration-200">
@@ -104,7 +104,7 @@
                             </div>
                         </div>
                     </div>
-
+        
                     <!-- Check-Out -->
                     <div
                         class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-yellow-300 hover:bg-white/15 transition-all duration-200">
@@ -124,6 +124,8 @@
                         </div>
                     </div>
                 </div>
+                @endif
+                
             </div>
         </div>
 
@@ -314,138 +316,71 @@
                         </div>
                     </div>
 
-                    <!-- Cash Flow Summary -->
+                    <!-- Revenue Per Property -->
                     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-cyan-50">
+                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-teal-600" fill="none"
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
-                                    <h3 class="font-semibold text-gray-800 text-lg">Ringkasan Arus Kas</h3>
+                                    <h3 class="font-semibold text-gray-800 text-lg">Pendapatan Per Property</h3>
                                 </div>
-                                <div class="flex items-center space-x-2">
-                                    @php
-                                        $trend = $financeStats['cash_flow_trend'] ?? 'stable';
-                                        $trendIcon = match($trend) {
-                                            'up' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-                                            'down' => 'M19 14l-7 7m0 0l-7-7m7 7V3',
-                                            default => 'M5 12h14'
-                                        };
-                                        $trendColor = match($trend) {
-                                            'up' => 'text-green-600',
-                                            'down' => 'text-red-600',
-                                            default => 'text-gray-600'
-                                        };
-                                    @endphp
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 {{ $trendColor }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $trendIcon }}" />
-                                    </svg>
-                                    <span class="text-xs font-medium {{ $trendColor }}">
-                                        {{ $financeStats['cash_flow_trend_percentage'] ?? 0 }}%
-                                    </span>
-                                </div>
+                                @if(Auth::user()->canViewAllProperties())
+                                    <select id="propertySelect" class="text-xs px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option value="">Semua Property</option>
+                                        @foreach($roomReports ?? [] as $propertyId => $report)
+                                            <option value="{{ $propertyId }}">{{ $report['property']['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
                             </div>
                         </div>
                         <div class="p-6">
-                            <!-- Cash Flow Summary Cards -->
-                            <div class="grid grid-cols-3 gap-3 mb-6">
-                                <div class="text-center p-3 bg-green-50 rounded-lg border border-green-200">
-                                    <p class="text-xs text-green-600 font-medium mb-1">Cash In</p>
-                                    <p class="text-lg font-bold text-green-700">Rp {{ number_format($financeStats['total_cash_in'] ?? 0, 0, ',', '.') }}</p>
-                                </div>
-                                <div class="text-center p-3 bg-red-50 rounded-lg border border-red-200">
-                                    <p class="text-xs text-red-600 font-medium mb-1">Cash Out</p>
-                                    <p class="text-lg font-bold text-red-700">Rp {{ number_format($financeStats['total_cash_out'] ?? 0, 0, ',', '.') }}</p>
-                                </div>
-                                <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                    <p class="text-xs text-blue-600 font-medium mb-1">Net Flow</p>
-                                    <p class="text-lg font-bold text-blue-700">Rp {{ number_format($financeStats['net_cash_flow'] ?? 0, 0, ',', '.') }}</p>
-                                </div>
-                            </div>
-
-                            <!-- 7 Days Chart -->
-                            <div class="mb-6">
-                                <p class="text-sm font-medium text-gray-700 mb-3">7 Hari Terakhir</p>
-                                <div class="flex items-end justify-between h-32 gap-1">
-                                    @php
-                                        $maxFlow = collect($financeStats['cash_flow'] ?? [])->max('cash_in');
-                                        $maxFlow = $maxFlow > 0 ? $maxFlow : 1;
-                                    @endphp
-                                    @foreach(($financeStats['cash_flow'] ?? []) as $day)
-                                        @php
-                                            $heightPercentage = $maxFlow > 0 ? ($day['cash_in'] / $maxFlow) * 100 : 0;
-                                        @endphp
-                                        <div class="flex-1 flex flex-col items-center group cursor-pointer">
-                                            <div class="w-full bg-teal-500 rounded-t hover:bg-teal-600 transition-all relative"
-                                                style="height: {{ max($heightPercentage, 3) }}%"
-                                                title="Rp {{ number_format($day['cash_in'], 0, ',', '.') }}">
-                                                <!-- Tooltip -->
-                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                                                    <div class="bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                                                        Rp {{ number_format($day['cash_in'], 0, ',', '.') }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <p class="text-xs text-gray-600 mt-2">{{ $day['day_name'] }}</p>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <!-- Recent Transactions -->
-                            <div>
-                                <div class="flex items-center justify-between mb-3">
-                                    <p class="text-sm font-medium text-gray-700">Transaksi Terbaru</p>
-                                    <span class="text-xs text-gray-500">{{ count($financeStats['recent_transactions'] ?? []) }} transaksi</span>
-                                </div>
-                                <div class="space-y-2 max-h-64 overflow-y-auto">
-                                    @forelse(($financeStats['recent_transactions'] ?? []) as $transaction)
-                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors
-                                            {{ $transaction['is_today'] ? 'border-l-4 border-teal-500' : '' }}">
-                                            <div class="flex-1">
-                                                <p class="font-semibold text-gray-800 text-sm">{{ $transaction['guest_name'] }}</p>
-                                                <p class="text-xs text-gray-600">{{ $transaction['room_name'] }}</p>
-                                                <div class="flex items-center space-x-2 mt-1">
-                                                    <span class="text-xs text-gray-500">{{ $transaction['paid_date'] }}</span>
-                                                    <span class="text-xs text-gray-400">•</span>
-                                                    <span class="text-xs text-gray-500">{{ $transaction['paid_time'] }}</span>
-                                                    @if($transaction['is_today'])
-                                                        <span class="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded">Hari Ini</span>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            <div class="text-right ml-3">
-                                                <p class="font-bold text-gray-800">Rp {{ number_format($transaction['amount'], 0, ',', '.') }}</p>
-                                            </div>
-                                        </div>
-                                    @empty
-                                        <div class="text-center py-8 text-gray-500">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                            </svg>
-                                            <p>Belum ada transaksi</p>
-                                        </div>
-                                    @endforelse
-                                </div>
-                            </div>
-
-                            <!-- Average Info -->
-                            @if(!empty($financeStats['recent_transactions']))
-                                <div class="mt-4 pt-4 border-t border-gray-200">
-                                    <div class="flex items-center justify-between text-sm">
-                                        <span class="text-gray-600">Rata-rata Harian (7 hari)</span>
-                                        <span class="font-semibold text-teal-600">Rp {{ number_format($financeStats['avg_daily_revenue'] ?? 0, 0, ',', '.') }}</span>
+                            <div id="propertyRevenueContent">
+                                <!-- Content will be loaded here -->
+                                <div class="text-center py-8">
+                                    <div class="animate-pulse flex flex-col items-center">
+                                        <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                                        <div class="h-3 bg-gray-200 rounded w-1/3"></div>
                                     </div>
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
+                <!-- Revenue Trend Chart - Full Width -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-green-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                </svg>
+                                <h3 class="font-semibold text-gray-800 text-lg">Tren Pendapatan (<span id="revenueTrendPeriodLabel">7</span> Hari)</h3>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <select id="revenueTrendPeriod" class="text-xs px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <option value="7" selected>7 Hari</option>
+                                    <option value="30">30 Hari</option>
+                                </select>
+                                <span class="text-xs text-gray-500">Cash In</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="revenueTrendChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if (!$isFinanceOnly)
             <!-- Occupied Rooms & Analytics Section -->
             <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                 <!-- Revenue Per Room Card -->
@@ -775,7 +710,6 @@
                 </div>
             </div>
         @endif
-            @endif
         @endif
 
         <!-- Occupied Rooms Details (Visible to all roles) -->
@@ -1256,6 +1190,7 @@
                 </div>
             </div>
         @endif
+        @endif
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1480,7 +1415,402 @@
                                 }
                             });
                         }
-                    });
+                    @endif
+
+                    // Financial Charts
+                    @if ($canViewFinance && !empty($financeStats))
+                        // Revenue Trend Chart - with dynamic period selection
+                        let revenueTrendChart = null;
+                        const revenueTrendCtx = document.getElementById('revenueTrendChart');
+
+                        function loadRevenueTrendChart(days) {
+                            if (!revenueTrendCtx) return;
+
+                            // Show loading state
+                            const chartContainer = revenueTrendCtx.parentElement;
+                            const originalHTML = chartContainer.innerHTML;
+
+                            // Determine URL based on user property access
+                            @if(Auth::user()->canViewAllProperties())
+                                const url = `/dashboard/revenue-trend?days=${days}`;
+                            @else
+                                const userPropertyId = '{{ Auth::user()->property_id ?? "" }}';
+                                const url = userPropertyId
+                                    ? `/dashboard/revenue-trend/${userPropertyId}?days=${days}`
+                                    : `/dashboard/revenue-trend?days=${days}`;
+                            @endif
+
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(result => {
+                                    if (result.success) {
+                                        const cashFlowData = result.data;
+
+                                        // Destroy existing chart if exists
+                                        if (revenueTrendChart) {
+                                            revenueTrendChart.destroy();
+                                        }
+
+                                        // Update period label
+                                        const periodLabel = document.getElementById('revenueTrendPeriodLabel');
+                                        if (periodLabel) {
+                                            periodLabel.textContent = days;
+                                        }
+
+                                        // Create new chart
+                                        revenueTrendChart = new Chart(revenueTrendCtx, {
+                                            type: 'line',
+                                            data: {
+                                                labels: cashFlowData.map(d => d.date),
+                                                datasets: [{
+                                                    label: 'Pendapatan (Cash In)',
+                                                    data: cashFlowData.map(d => d.cash_in),
+                                                    borderColor: 'rgb(16, 185, 129)',
+                                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                                    tension: 0.4,
+                                                    fill: true,
+                                                    pointRadius: 5,
+                                                    pointHoverRadius: 7,
+                                                    pointBackgroundColor: 'rgb(16, 185, 129)',
+                                                    pointBorderColor: '#fff',
+                                                    pointBorderWidth: 2,
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                interaction: {
+                                                    mode: 'index',
+                                                    intersect: false,
+                                                },
+                                                plugins: {
+                                                    legend: {
+                                                        display: true,
+                                                        position: 'top',
+                                                        labels: {
+                                                            font: {
+                                                                size: 12,
+                                                                family: "'Inter', sans-serif"
+                                                            },
+                                                            padding: 15
+                                                        }
+                                                    },
+                                                    tooltip: {
+                                                        callbacks: {
+                                                            label: function(context) {
+                                                                let label = context.dataset.label || '';
+                                                                if (label) {
+                                                                    label += ': ';
+                                                                }
+                                                                label += 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+                                                                return label;
+                                                            }
+                                                        },
+                                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                                        padding: 12,
+                                                        titleFont: {
+                                                            size: 13
+                                                        },
+                                                        bodyFont: {
+                                                            size: 12
+                                                        }
+                                                    }
+                                                },
+                                                scales: {
+                                                    y: {
+                                                        beginAtZero: true,
+                                                        ticks: {
+                                                            callback: function(value) {
+                                                                return 'Rp ' + (value / 1000000).toFixed(1) + 'jt';
+                                                            },
+                                                            font: {
+                                                                size: 11
+                                                            }
+                                                        },
+                                                        grid: {
+                                                            color: 'rgba(0, 0, 0, 0.05)'
+                                                        }
+                                                    },
+                                                    x: {
+                                                        grid: {
+                                                            display: false
+                                                        },
+                                                        ticks: {
+                                                            font: {
+                                                                size: 11
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error loading revenue trend:', error);
+                                });
+                        }
+
+                        // Initialize with default period (7 days)
+                        if (revenueTrendCtx) {
+                            loadRevenueTrendChart(7);
+                        }
+
+                        // Period selector event listener
+                        const periodSelector = document.getElementById('revenueTrendPeriod');
+                        if (periodSelector) {
+                            periodSelector.addEventListener('change', function() {
+                                loadRevenueTrendChart(this.value);
+                            });
+                        }
+
+                        // Payment Methods Chart (Doughnut)
+                        const paymentMethodsCtx = document.getElementById('paymentMethodsChart');
+                        if (paymentMethodsCtx) {
+                            const paymentMethods = @json($financeStats['payment_methods'] ?? []);
+
+                            const chartColors = [
+                                'rgb(16, 185, 129)',   // Green - Tunai
+                                'rgb(59, 130, 246)',   // Blue - Transfer
+                                'rgb(168, 85, 247)',   // Purple - Kartu Kredit
+                                'rgb(249, 115, 22)',   // Orange - E-Wallet
+                                'rgb(99, 102, 241)',   // Indigo - Kartu Debit
+                                'rgb(236, 72, 153)',   // Pink
+                                'rgb(234, 179, 8)',    // Yellow
+                            ];
+
+                            new Chart(paymentMethodsCtx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: paymentMethods.map(m => m.method),
+                                    datasets: [{
+                                        data: paymentMethods.map(m => m.amount),
+                                        backgroundColor: chartColors.slice(0, paymentMethods.length),
+                                        borderWidth: 2,
+                                        borderColor: '#fff',
+                                        hoverOffset: 10
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'bottom',
+                                            labels: {
+                                                font: {
+                                                    size: 12,
+                                                    family: "'Inter', sans-serif"
+                                                },
+                                                padding: 15,
+                                                generateLabels: function(chart) {
+                                                    const data = chart.data;
+                                                    if (data.labels.length && data.datasets.length) {
+                                                        return data.labels.map((label, i) => {
+                                                            const dataset = data.datasets[0];
+                                                            const value = dataset.data[i];
+                                                            const total = dataset.data.reduce((a, b) => a + b, 0);
+                                                            const percentage = ((value / total) * 100).toFixed(1);
+
+                                                            return {
+                                                                text: `${label} (${percentage}%)`,
+                                                                fillStyle: dataset.backgroundColor[i],
+                                                                hidden: false,
+                                                                index: i
+                                                            };
+                                                        });
+                                                    }
+                                                    return [];
+                                                }
+                                            }
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    const label = context.label || '';
+                                                    const value = context.parsed || 0;
+                                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                    const percentage = ((value / total) * 100).toFixed(1);
+
+                                                    return [
+                                                        label,
+                                                        'Jumlah: Rp ' + value.toLocaleString('id-ID'),
+                                                        'Persentase: ' + percentage + '%'
+                                                    ];
+                                                }
+                                            },
+                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                            padding: 12,
+                                            titleFont: {
+                                                size: 13
+                                            },
+                                            bodyFont: {
+                                                size: 12
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        // Property Revenue Selector
+                        const propertySelect = document.getElementById('propertySelect');
+                        if (propertySelect) {
+                            // Load initial data
+                            loadPropertyRevenue(propertySelect.value);
+
+                            // Handle property change
+                            propertySelect.addEventListener('change', function() {
+                                loadPropertyRevenue(this.value);
+                            });
+                        } else {
+                            // For site users, load their property
+                            const userPropertyId = '{{ Auth::user()->property_id ?? "" }}';
+                            if (userPropertyId) {
+                                loadPropertyRevenue(userPropertyId);
+                            }
+                        }
+
+                        function loadPropertyRevenue(propertyId) {
+                            const contentDiv = document.getElementById('propertyRevenueContent');
+                            if (!contentDiv) return;
+
+                            // Show loading
+                            contentDiv.innerHTML = `
+                                <div class="text-center py-8">
+                                    <div class="animate-pulse flex flex-col items-center">
+                                        <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                                        <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Fetch data
+                            const url = propertyId
+                                ? `/dashboard/property-revenue/${propertyId}`
+                                : '/dashboard/property-revenue';
+
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        renderPropertyRevenue(data.data);
+                                    } else {
+                                        contentDiv.innerHTML = `
+                                            <div class="text-center py-8 text-gray-500">
+                                                <p>Gagal memuat data</p>
+                                            </div>
+                                        `;
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    contentDiv.innerHTML = `
+                                        <div class="text-center py-8 text-gray-500">
+                                            <p>Terjadi kesalahan saat memuat data</p>
+                                        </div>
+                                    `;
+                                });
+                        }
+
+                        function renderPropertyRevenue(data) {
+                            const contentDiv = document.getElementById('propertyRevenueContent');
+                            if (!contentDiv) return;
+
+                            let html = '';
+
+                            if (Array.isArray(data) && data.length > 0) {
+                                // Multiple properties - show first one and collapse the rest
+                                html += renderPropertyCard(data[0]);
+
+                                if (data.length > 1) {
+                                    // Add "Lihat Selengkapnya" dropdown button
+                                    html += `
+                                        <div class="mt-4">
+                                            <button
+                                                onclick="togglePropertyDropdown()"
+                                                id="propertyDropdownBtn"
+                                                class="w-full flex items-center justify-between px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition-colors duration-200 border border-indigo-200">
+                                                <span class="text-sm font-medium">Lihat Selengkapnya (${data.length - 1} property lainnya)</span>
+                                                <svg id="dropdownIcon" class="w-5 h-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </button>
+                                            <div id="propertyDropdownContent" class="hidden mt-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg bg-white shadow-sm">
+                                                <div class="p-4">
+                                    `;
+
+                                    // Add remaining properties to dropdown
+                                    for (let i = 1; i < data.length; i++) {
+                                        html += renderPropertyCard(data[i]);
+                                    }
+
+                                    html += `
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            } else if (typeof data === 'object') {
+                                // Single property
+                                html = renderPropertyCard(data);
+                            } else {
+                                html = `
+                                    <div class="text-center py-8 text-gray-500">
+                                        <p>Tidak ada data pendapatan</p>
+                                    </div>
+                                `;
+                            }
+
+                            contentDiv.innerHTML = html;
+                        }
+
+                        window.togglePropertyDropdown = function() {
+                            const dropdown = document.getElementById('propertyDropdownContent');
+                            const icon = document.getElementById('dropdownIcon');
+
+                            if (dropdown.classList.contains('hidden')) {
+                                dropdown.classList.remove('hidden');
+                                icon.style.transform = 'rotate(180deg)';
+                            } else {
+                                dropdown.classList.add('hidden');
+                                icon.style.transform = 'rotate(0deg)';
+                            }
+                        }
+
+                        function renderPropertyCard(property) {
+                            const propertyName = property.property_name || property.name || 'N/A';
+                            const todayRevenue = property.today_revenue || 0;
+                            const monthlyRevenue = property.monthly_revenue || 0;
+                            const totalBookings = property.total_bookings || 0;
+
+                            return `
+                                <div class="mb-6 pb-6 border-b border-gray-200 last:border-0">
+                                    <h4 class="font-semibold text-gray-800 mb-4">${propertyName}</h4>
+
+                                    <div class="grid grid-cols-3 gap-4 mb-4">
+                                        <div class="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                                            <p class="text-xs text-emerald-600 font-medium mb-1">Hari Ini</p>
+                                            <p class="text-lg font-bold text-emerald-700">Rp ${formatNumber(todayRevenue)}</p>
+                                        </div>
+                                        <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                            <p class="text-xs text-blue-600 font-medium mb-1">Bulan Ini</p>
+                                            <p class="text-lg font-bold text-blue-700">Rp ${formatNumber(monthlyRevenue)}</p>
+                                        </div>
+                                        <div class="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                                            <p class="text-xs text-purple-600 font-medium mb-1">Total Booking</p>
+                                            <p class="text-lg font-bold text-purple-700">${totalBookings}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        function formatNumber(num) {
+                            return new Intl.NumberFormat('id-ID').format(num);
+                        }
+                    @endif
+                });
     </script>
-    @endif
 </x-app-layout>

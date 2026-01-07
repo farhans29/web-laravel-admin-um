@@ -35,6 +35,10 @@ class Transaction extends Model
         'admin_fees',
         'service_fees',
         'grandtotal_price',
+        'voucher_id',
+        'voucher_code',
+        'virtual_account_no',
+        'payment_bank',
         'property_type',
         'transaction_type',
         'transaction_code',
@@ -53,7 +57,8 @@ class Transaction extends Model
         'check_in' => 'datetime',
         'check_out' => 'datetime',
         'paid_at' => 'datetime',
-        'cancel_at' => 'datetime'
+        'cancel_at' => 'datetime',
+        'expired_at' => 'datetime'
     ];
 
     public function booking()

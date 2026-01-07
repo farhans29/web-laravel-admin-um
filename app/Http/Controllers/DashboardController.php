@@ -574,14 +574,14 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getCashFlowSummary($propertyId = null)
+    private function getCashFlowSummary($propertyId = null, $days = 7)
     {
-        // Get last 7 days cash flow
+        // Get last X days cash flow
         $dailyCashFlow = [];
         $totalCashIn = 0;
         $totalCashOut = 0;
 
-        for ($i = 6; $i >= 0; $i--) {
+        for ($i = $days - 1; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i)->startOfDay();
 
             // Cash In - Paid transactions (handle null paid_at)
@@ -657,10 +657,11 @@ class DashboardController extends Controller
         $daysCount = count($dailyCashFlow);
         $avgDailyRevenue = $daysCount > 0 ? round($totalCashIn / $daysCount, 2) : 0;
 
-        // Calculate trend (compare last 3 days vs previous 4 days for 7-day period)
+        // Calculate trend - dynamically adjust based on period length
         $cashFlowCollection = collect($dailyCashFlow);
-        $recentDays = $cashFlowCollection->slice(-3); // Last 3 days
-        $previousDays = $cashFlowCollection->slice(0, 4); // First 4 days
+        $recentDaysCount = $days <= 7 ? 3 : 7; // Last 3 days for 7-day period, last 7 days for 30-day period
+        $recentDays = $cashFlowCollection->slice(-$recentDaysCount);
+        $previousDays = $cashFlowCollection->slice(0, $days - $recentDaysCount);
 
         $recentTotal = $recentDays->sum('cash_in');
         $previousTotal = $previousDays->sum('cash_in');
@@ -858,6 +859,9 @@ class DashboardController extends Controller
                          $user->isHORole() ||
                          $user->hasRole('Finance site');
 
+        // Check if user is Finance-only role (should only see financial sections)
+        $isFinanceOnly = $user->isFinanceOnlyRole();
+
         if ($canViewFinance) {
             $todayRevenue = $this->getTodayRevenue($userPropertyId);
             $monthlyRevenue = $this->getMonthlyRevenue($userPropertyId);
@@ -904,7 +908,9 @@ class DashboardController extends Controller
             'occupancyHistory',
             'rentalDurationTrends',
             'revenuePerRoom',
-            'financeStats'
+            'financeStats',
+            'canViewFinance',
+            'isFinanceOnly'
         ));
     }
 
@@ -952,6 +958,134 @@ class DashboardController extends Controller
             'data' => $data,
             'message' => 'Room report retrieved successfully'
         ]);
+    }
+
+    public function getPropertyRevenue($propertyId = null)
+    {
+        $user = Auth::user();
+
+        // Check if user has permission to view finance data
+        $canViewFinance = $user->isSuperAdmin() ||
+                         $user->isHORole() ||
+                         $user->hasRole('Finance site');
+
+        if (!$canViewFinance) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        // If user cannot view all properties, enforce their property_id
+        if (!$user->canViewAllProperties()) {
+            $propertyId = $user->property_id;
+        }
+
+        try {
+            if ($propertyId) {
+                // Get single property revenue
+                $property = Property::findOrFail($propertyId);
+                $data = $this->getPropertyRevenueData($propertyId, $property);
+            } else {
+                // Get all properties revenue (HO users only)
+                $properties = Property::where('status', 1)->get();
+                $data = [];
+
+                foreach ($properties as $property) {
+                    $data[] = $this->getPropertyRevenueData($property->idrec, $property);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching revenue data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function getPropertyRevenueData($propertyId, $property)
+    {
+        $today = now()->toDateString();
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        // Today's revenue
+        $todayRevenue = Transaction::where('property_id', $propertyId)
+            ->where('transaction_status', 'paid')
+            ->whereDate('paid_at', $today)
+            ->sum('grandtotal_price') ?? 0;
+
+        // Monthly revenue
+        $monthlyRevenue = Transaction::where('property_id', $propertyId)
+            ->where('transaction_status', 'paid')
+            ->whereYear('paid_at', $currentYear)
+            ->whereMonth('paid_at', $currentMonth)
+            ->sum('grandtotal_price') ?? 0;
+
+        // Total bookings this month
+        $totalBookings = Transaction::where('property_id', $propertyId)
+            ->where('transaction_status', 'paid')
+            ->whereYear('transaction_date', $currentYear)
+            ->whereMonth('transaction_date', $currentMonth)
+            ->count();
+
+        return [
+            'property_id' => $propertyId,
+            'property_name' => $property->property_name ?? $property->name ?? 'N/A',
+            'today_revenue' => $todayRevenue,
+            'monthly_revenue' => $monthlyRevenue,
+            'total_bookings' => $totalBookings,
+        ];
+    }
+
+    public function getRevenueTrend(Request $request, $propertyId = null)
+    {
+        $user = Auth::user();
+
+        // Check if user has permission to view finance data
+        $canViewFinance = $user->isSuperAdmin() ||
+                         $user->isHORole() ||
+                         $user->hasRole('Finance site');
+
+        if (!$canViewFinance) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        // If user cannot view all properties, enforce their property_id
+        if (!$user->canViewAllProperties()) {
+            $propertyId = $user->property_id;
+        }
+
+        // Get days parameter from request (default to 7)
+        $days = $request->input('days', 7);
+
+        // Validate days parameter (only allow 7 or 30)
+        if (!in_array($days, [7, 30])) {
+            $days = 7;
+        }
+
+        try {
+            $cashFlowSummary = $this->getCashFlowSummary($propertyId, $days);
+
+            return response()->json([
+                'success' => true,
+                'data' => $cashFlowSummary['daily_cash_flow'],
+                'days' => $days
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching revenue trend: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function analytics()
