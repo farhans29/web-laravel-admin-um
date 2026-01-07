@@ -30,6 +30,7 @@ class Payment extends Model
         'created_by' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
     public function transaction()
@@ -45,5 +46,10 @@ class Payment extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by', 'id');
     }
 }

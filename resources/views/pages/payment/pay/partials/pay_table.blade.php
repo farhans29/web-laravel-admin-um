@@ -293,7 +293,7 @@
                             <!-- Informasi Verifikasi -->
                             <div class="text-xs text-gray-500">
                                 Oleh:
-                                {{ $payment->payment && $payment->payment->verified_by ? $payment->payment->verifiedBy->name ?? 'Admin' : 'Sistem' }}
+                                {{ $payment->verifiedBy->name ?? 'Sistem' }}
                             </div>
                         </div>
 
@@ -478,7 +478,7 @@
                             </span>
                             <div class="text-xs text-gray-500 mt-1">
                                 Oleh:
-                                {{ $payment->payment && $payment->payment->verified_by ? $payment->payment->verifiedBy->name ?? 'Admin' : 'Sistem' }}
+                                {{ $payment->verifiedBy->name ?? 'Sistem' }}
                             </div>
                         </div>
                     @endif

@@ -22,6 +22,7 @@ class PaymentController extends Controller
         $query = Payment::with([
             'booking',
             'user',
+            'verifiedBy',
             'transaction' => function ($query) {
                 $query->with(['property', 'room', 'user']);
             }
@@ -53,6 +54,7 @@ class PaymentController extends Controller
         $query = Payment::with([
             'booking',
             'user',
+            'verifiedBy',
             'transaction' => function ($query) {
                 $query->with(['property', 'room', 'user']);
             }
@@ -109,7 +111,7 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function approve($id)
+    public function approve(Request $request, $id)
     {
         try {
             // First try to find the payment record
@@ -126,7 +128,7 @@ class PaymentController extends Controller
                         'room_id' => $transaction->room_id,
                         'user_id' => $transaction->user_id,
                         'grandtotal_price' => $transaction->grandtotal_price,
-                        'verified_by' => Auth::check() ? Auth::user()->name : 'Admin', // Save user name instead of ID
+                        'verified_by' => Auth::id(),
                         'verified_at' => now(),
                         'payment_status' => 'paid',
                     ]
@@ -139,28 +141,28 @@ class PaymentController extends Controller
             } else {
                 // Update existing payment
                 $payment->update([
-                    'verified_by' => Auth::check() ? Auth::user()->name : 'Admin', // Save user name instead of ID
+                    'verified_by' => Auth::id(),
                     'verified_at' => now(),
                     'payment_status' => 'paid',
                 ]);
 
                 // Update related transaction
-                if ($payment->order_id) {
-                    Transaction::where('order_id', $payment->order_id)->update([
+                if ($payment->transaction) {
+                    $payment->transaction->update([
                         'transaction_status' => 'paid',
                         'paid_at' => now()
                     ]);
                 }
             }
 
-            return redirect()->back()->with('success', 'Payment approved successfully');
+            return redirect()->back()->with('success', 'Pembayaran berhasil disetujui');
         } catch (\Exception $e) {
             Log::error('Payment approval failed: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Payment approval failed. Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menyetujui pembayaran. Error: ' . $e->getMessage());
         }
     }
 
-    public function reject($id)
+    public function reject(Request $request, $id)
     {
         try {
             // Find payment by idrec (primary key)
@@ -168,10 +170,10 @@ class PaymentController extends Controller
 
             // Update payment record
             $payment->update([
-                'verified_by' => Auth::check() ? Auth::user()->name : 'Admin', // Save user name instead of ID
+                'verified_by' => Auth::id(),
                 'verified_at' => now(),
                 'payment_status' => 'rejected',
-                'notes' => request('rejectNote'),
+                'notes' => $request->input('rejectNote'),
                 'updated_at' => now()
             ]);
 
@@ -183,10 +185,10 @@ class PaymentController extends Controller
                 ]);
             }
 
-            return redirect()->back()->with('success', 'Payment rejected successfully');
+            return redirect()->back()->with('success', 'Pembayaran berhasil ditolak');
         } catch (\Exception $e) {
             Log::error('Payment rejection failed: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Payment rejection failed. Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menolak pembayaran. Error: ' . $e->getMessage());
         }
     }
 
