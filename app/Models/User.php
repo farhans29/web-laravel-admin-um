@@ -100,6 +100,70 @@ class User extends Authenticatable
         return in_array($this->id, [1, 165]);
     }
 
+    /**
+     * Check if user has a Head Office (HO) role
+     * HO roles can view all properties
+     */
+    public function isHORole()
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        $hoRoles = ['Owner HO', 'Manager HO', 'Finance HO'];
+        return in_array($this->role->name, $hoRoles);
+    }
+
+    /**
+     * Check if user has a Site role
+     * Site roles can only view their assigned property
+     */
+    public function isSiteRole()
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        $siteRoles = ['Owner site', 'Manager site', 'Finance site', 'Front Office'];
+        return in_array($this->role->name, $siteRoles);
+    }
+
+    /**
+     * Check if user has specific role
+     */
+    public function hasRole($roleName)
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        return $this->role->name === $roleName;
+    }
+
+    /**
+     * Check if user can view all properties
+     * Super Admin and HO roles can view all properties
+     */
+    public function canViewAllProperties()
+    {
+        return $this->isSuperAdmin() || $this->isHORole();
+    }
+
+    /**
+     * Get the property ID(s) this user can access
+     * Returns null for users who can access all properties
+     */
+    public function getAccessiblePropertyId()
+    {
+        // Super Admin and HO roles can access all properties
+        if ($this->canViewAllProperties()) {
+            return null;
+        }
+
+        // Site roles only access their assigned property
+        return $this->property_id;
+    }
+
     public function verifiedPayments()
     {
         return $this->hasMany(Payment::class, 'verified_by');

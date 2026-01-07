@@ -12,21 +12,37 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                     <div>
                         <h1 class="text-2xl md:text-3xl text-white font-bold mb-1">
-                            DASHBOARD FRONT DESK
+                            DASHBOARD
+                            @if(Auth::user()->isSiteRole() && Auth::user()->property)
+                                - {{ Auth::user()->property->property_name ?? Auth::user()->property->name }}
+                            @else
+                                FRONT DESK
+                            @endif
                         </h1>
                         <p class="text-blue-100 font-medium">Selamat datang kembali, {{ Auth::user()->first_name }}
-                            {{ Auth::user()->last_name }}</p>
+                            {{ Auth::user()->last_name }}
+                            @if(Auth::user()->role)
+                                <span class="text-yellow-200">• {{ Auth::user()->role->name }}</span>
+                            @endif
+                        </p>
                     </div>
 
-                    <div class="mt-4 md:mt-0 flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300 mr-2" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-white text-sm font-medium">Terakhir diperbarui:
-                            {{ now()->format('d M, Y H:i') }}</span>
+                    <div class="mt-4 md:mt-0 flex items-center space-x-3">
+                        @if(Auth::user()->role)
+                            <span class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium">
+                                {{ Auth::user()->role->name }}
+                            </span>
+                        @endif
+                        <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300 mr-2" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-white text-sm font-medium">Terakhir diperbarui:
+                                {{ now()->format('d M, Y H:i') }}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -111,7 +127,13 @@
             </div>
         </div>
 
-        @if (Auth::user()->isSuperAdmin())
+        @php
+            $canViewFinance = Auth::user()->isSuperAdmin() ||
+                             Auth::user()->isHORole() ||
+                             Auth::user()->hasRole('Finance site');
+        @endphp
+
+        @if ($canViewFinance && !empty($financeStats))
             <!-- Finance Information Section -->
             <div class="mt-8">
                 <div class="flex items-center space-x-3 mb-6">
@@ -510,10 +532,13 @@
                     </div>
                 </div>
             </div>
-        @endif
 
+            @php
+                $canViewAnalytics = Auth::user()->canViewAllProperties();
+            @endphp
 
-        <!-- Occupied Rooms Details -->
+            @if ($canViewAnalytics)
+                <!-- Occupied Rooms & Analytics Section (Only for Super Admin and HO roles) -->
         @if (count($occupiedRooms) > 0)
             <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
@@ -750,9 +775,127 @@
                 </div>
             </div>
         @endif
+            @endif
+        @endif
 
-        @if (Auth::user()->isSuperAdmin())
-            <!-- Occupancy History Chart -->
+        <!-- Occupied Rooms Details (Visible to all roles) -->
+        @if (count($occupiedRooms) > 0 && !Auth::user()->canViewAllProperties())
+            <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <h2 class="font-semibold text-gray-800 text-lg">Kamar Terisi Saat Ini</h2>
+                            <span
+                                class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($occupiedRooms) }}
+                                Aktif</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <!-- Grid layout untuk Site users -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        @foreach ($occupiedRooms as $occupied)
+                            <div
+                                class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow {{ $occupied['is_overdue'] ? 'border-red-300 bg-red-50' : ($occupied['is_checkout_today'] ? 'border-yellow-300 bg-yellow-50' : '') }}">
+                                <!-- Header -->
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">{{ $occupied['guest_name'] }}</h4>
+                                        <p class="text-sm text-gray-600">{{ $occupied['room_name'] }} •
+                                            {{ $occupied['room_type'] }}</p>
+                                        <p class="text-xs text-gray-500">{{ $occupied['property_name'] }}</p>
+                                    </div>
+                                    @if ($occupied['is_overdue'])
+                                        <span
+                                            class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            Terlambat
+                                        </span>
+                                    @elseif($occupied['is_checkout_today'])
+                                        <span
+                                            class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Check-Out Hari Ini
+                                        </span>
+                                    @else
+                                        <span
+                                            class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                                            Aktif
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <!-- Stay Details -->
+                                <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
+                                    <div class="flex items-center text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 mr-1 text-green-500" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        {{ $occupied['check_in_date'] }}
+                                    </div>
+                                    <div class="flex items-center text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-red-500"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        {{ $occupied['check_out_date'] }}
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="mb-3">
+                                    <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                        <span>Hari {{ $occupied['days_stayed'] }} dari
+                                            {{ $occupied['total_days'] }}</span>
+                                        <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-indigo-600 h-2 rounded-full transition-all"
+                                            style="width: {{ $occupied['progress_percentage'] }}%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Revenue Info -->
+                                <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                                    <div>
+                                        <p class="text-xs text-gray-500">Tarif Harian</p>
+                                        <p class="text-sm font-semibold text-gray-800">Rp
+                                            {{ number_format($occupied['daily_rate'], 0, ',', '.') }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs text-gray-500">Total</p>
+                                        <p class="text-sm font-semibold text-indigo-600">Rp
+                                            {{ number_format($occupied['total_price'], 0, ',', '.') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if (Auth::user()->canViewAllProperties())
+            <!-- Occupancy History Chart (Only for Super Admin and HO roles) -->
             <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
                     <div class="flex items-center space-x-3">
@@ -851,7 +994,8 @@
             </div>
         </div>
 
-        @if (Auth::user()->isSuperAdmin())
+        @if (Auth::user()->canViewAllProperties())
+            <!-- Multi-Property Reports (Only for Super Admin and HO roles) -->
             <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Room Availability Report -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -1118,7 +1262,7 @@
     <script>
         // Occupancy History Chart
         document.addEventListener('DOMContentLoaded', function() {
-                    @if (Auth::user()->isSuperAdmin())
+                    @if (Auth::user()->canViewAllProperties())
                         const ctx = document.getElementById('occupancyChart');
                         if (ctx) {
                             const occupancyData = @json($occupancyHistory);

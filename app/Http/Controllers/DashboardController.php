@@ -24,19 +24,23 @@ class DashboardController extends Controller
             if ($propertyId) {
                 $property = Property::findOrFail($propertyId);
 
-                // Non-super admin: verify they have access to this property
-                if (!$user->isSuperAdmin() && $user->property_id != $propertyId) {
+                // Check if user has access to this property
+                if (!$user->canViewAllProperties() && $user->property_id != $propertyId) {
                     $property = Property::where('idrec', $user->property_id)->firstOrFail();
                 }
 
                 $properties = collect([$property]);
             } else {
-                // Super admin: get all properties, Non-super admin: only their property
-                if ($user->isSuperAdmin()) {
+                // Get properties based on user role
+                $accessiblePropertyId = $user->getAccessiblePropertyId();
+
+                if ($accessiblePropertyId === null) {
+                    // Super Admin or HO roles: get all properties
                     $properties = Property::where('status', 1)->get();
                 } else {
+                    // Site roles: only their assigned property
                     $properties = Property::where('status', 1)
-                        ->where('idrec', $user->property_id)
+                        ->where('idrec', $accessiblePropertyId)
                         ->get();
                 }
             }
@@ -706,7 +710,8 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $userPropertyId = $user->isSuperAdmin() ? null : $user->property_id;
+        // Use the new helper method to get accessible property ID
+        $userPropertyId = $user->getAccessiblePropertyId();
 
         $dataFeed = new DataFeed();
 
@@ -847,9 +852,13 @@ class DashboardController extends Controller
         $rentalDurationTrends = $this->getRentalDurationTrends($userPropertyId);
         $revenuePerRoom = $this->getRevenuePerOccupiedRoom($userPropertyId);
 
-        // Get finance data
+        // Get finance data - accessible to Super Admin, all HO roles, and Finance site
         $financeStats = [];
-        if ($user->isSuperAdmin()) {
+        $canViewFinance = $user->isSuperAdmin() ||
+                         $user->isHORole() ||
+                         $user->hasRole('Finance site');
+
+        if ($canViewFinance) {
             $todayRevenue = $this->getTodayRevenue($userPropertyId);
             $monthlyRevenue = $this->getMonthlyRevenue($userPropertyId);
             $pendingPayments = $this->getPendingPayments($userPropertyId);
@@ -931,8 +940,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Non-super admin: enforce their property_id
-        if (!$user->isSuperAdmin()) {
+        // If user cannot view all properties, enforce their property_id
+        if (!$user->canViewAllProperties()) {
             $propertyId = $user->property_id;
         }
 

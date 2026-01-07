@@ -64,7 +64,7 @@ Route::get('storage/{path}', function ($path) {
     }
 })->where('path', '.*');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'permission'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/room-report', [DashboardController::class, 'getPropertyRoomReport']);
     Route::get('/dashboard/room-report/{propertyId}', [DashboardController::class, 'getPropertyRoomReport']);
