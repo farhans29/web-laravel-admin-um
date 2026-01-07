@@ -618,7 +618,117 @@
                     const paymentId = modal.id.replace('cancelModal-', '');
                     hideCancelModal(paymentId);
                 });
+
+                // Tutup modal edit payment date
+                const editPaymentModals = document.querySelectorAll('[id^="editPaymentDateModal-"]:not(.hidden)');
+                editPaymentModals.forEach(modal => {
+                    const paymentId = modal.id.replace('editPaymentDateModal-', '');
+                    hideEditPaymentDateModal(paymentId);
+                });
+
+                // Tutup modal edit check-in/out
+                const editCheckInOutModals = document.querySelectorAll('[id^="editCheckInOutModal-"]:not(.hidden)');
+                editCheckInOutModals.forEach(modal => {
+                    const paymentId = modal.id.replace('editCheckInOutModal-', '');
+                    hideEditCheckInOutModal(paymentId);
+                });
             }
+        });
+
+        // Fungsi untuk menampilkan modal edit payment date
+        function showEditPaymentDateModal(paymentId, currentDate, checkInDate) {
+            const modal = document.getElementById(`editPaymentDateModal-${paymentId}`);
+            const input = document.getElementById(`payment_date-${paymentId}`);
+
+            if (modal && input) {
+                // Set current value
+                input.value = currentDate;
+
+                // Set max to check-in date (backdate from check-in)
+                if (checkInDate) {
+                    input.max = checkInDate;
+                }
+
+                // Show modal
+                modal.classList.remove('hidden');
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+
+                // Focus input
+                setTimeout(() => input.focus(), 150);
+            }
+        }
+
+        // Fungsi untuk menyembunyikan modal edit payment date
+        function hideEditPaymentDateModal(paymentId) {
+            const modal = document.getElementById(`editPaymentDateModal-${paymentId}`);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Fungsi untuk menampilkan modal edit check-in/check-out
+        function showEditCheckInOutModal(paymentId, checkIn, checkOut) {
+            const modal = document.getElementById(`editCheckInOutModal-${paymentId}`);
+            const checkInInput = document.getElementById(`check_in-${paymentId}`);
+            const checkOutInput = document.getElementById(`check_out-${paymentId}`);
+
+            if (modal && checkInInput) {
+                // Set current values
+                checkInInput.value = checkIn;
+                if (checkOut && checkOutInput) {
+                    checkOutInput.value = checkOut;
+                }
+
+                // Set max to current check-in/check-out dates (backdate from current dates)
+                if (checkIn) {
+                    checkInInput.max = checkIn;
+                }
+                if (checkOut && checkOutInput) {
+                    checkOutInput.max = checkOut;
+                }
+
+                // Show modal
+                modal.classList.remove('hidden');
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+
+                // Focus input
+                setTimeout(() => checkInInput.focus(), 150);
+            }
+        }
+
+        // Fungsi untuk menyembunyikan modal edit check-in/out
+        function hideEditCheckInOutModal(paymentId) {
+            const modal = document.getElementById(`editCheckInOutModal-${paymentId}`);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Event listener untuk klik di luar modal
+        document.addEventListener('click', function(event) {
+            // Edit payment date modals
+            const editPaymentModals = document.querySelectorAll('[id^="editPaymentDateModal-"]:not(.hidden)');
+            editPaymentModals.forEach(modal => {
+                if (event.target === modal) {
+                    const paymentId = modal.id.replace('editPaymentDateModal-', '');
+                    hideEditPaymentDateModal(paymentId);
+                }
+            });
+
+            // Edit check-in/out modals
+            const editCheckInOutModals = document.querySelectorAll('[id^="editCheckInOutModal-"]:not(.hidden)');
+            editCheckInOutModals.forEach(modal => {
+                if (event.target === modal) {
+                    const paymentId = modal.id.replace('editCheckInOutModal-', '');
+                    hideEditCheckInOutModal(paymentId);
+                }
+            });
         });
     </script>
 </x-app-layout>

@@ -62,29 +62,57 @@
                     {{ $payment->transaction?->transaction_type ?? '-' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($payment?->transaction?->paid_at)
-                        <div>{{ $payment->transaction->paid_at->format('d M Y') }}</div>
-                        <div class="text-xs text-gray-400">
-                            {{ $payment->transaction->paid_at->format('H:i') }}
+                    <div class="flex items-center gap-2">
+                        <div>
+                            @if ($payment?->transaction?->paid_at)
+                                <div>{{ $payment->transaction->paid_at->format('d M Y') }}</div>
+                                <div class="text-xs text-gray-400">
+                                    {{ $payment->transaction->paid_at->format('H:i') }}
+                                </div>
+                            @elseif ($payment?->verified_at)
+                                <div>{{ $payment->verified_at->format('d M Y') }}</div>
+                                <div class="text-xs text-gray-400">
+                                    {{ $payment->verified_at->format('H:i') }}
+                                </div>
+                            @else
+                                -
+                            @endif
                         </div>
-                    @elseif ($payment?->verified_at)
-                        <div>{{ $payment->verified_at->format('d M Y') }}</div>
-                        <div class="text-xs text-gray-400">
-                            {{ $payment->verified_at->format('H:i') }}
-                        </div>
-                    @else
-                        -
-                    @endif
+                        @if ($payment?->transaction?->paid_at || $payment?->verified_at)
+                            <button type="button"
+                                onclick="showEditPaymentDateModal({{ $payment->idrec }}, '{{ ($payment->transaction?->paid_at ?? $payment->verified_at)->format('Y-m-d\TH:i') }}', '{{ $payment->transaction?->check_in ? $payment->transaction->check_in->format('Y-m-d\TH:i') : '' }}')"
+                                class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                                title="Edit Tanggal Pembayaran">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
-                    @if ($payment->transaction?->check_in)
-                        <div>{{ $payment->transaction->check_in->format('d M Y') }}</div>
-                        <div class="text-xs text-gray-400">
-                            {{ $payment->transaction->check_in->format('H:i') }}</div>
-                    @else
-                        -
-                    @endif
+                    <div class="flex items-center gap-2">
+                        <div>
+                            @if ($payment->transaction?->check_in)
+                                <div>{{ $payment->transaction->check_in->format('d M Y') }}</div>
+                                <div class="text-xs text-gray-400">
+                                    {{ $payment->transaction->check_in->format('H:i') }}</div>
+                            @else
+                                -
+                            @endif
+                        </div>
+                        @if ($payment->transaction?->check_in)
+                            <button type="button"
+                                onclick="showEditCheckInOutModal({{ $payment->idrec }}, '{{ $payment->transaction->check_in->format('Y-m-d\TH:i') }}', '{{ $payment->transaction->check_out ? $payment->transaction->check_out->format('Y-m-d\TH:i') : '' }}')"
+                                class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                                title="Edit Tanggal Check-in/Check-out">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     @php
@@ -570,4 +598,151 @@
             </div>
         </div>
     @endif
+@endforeach
+
+<!-- Modal Edit Payment Date -->
+@foreach ($payments as $payment)
+    <div id="editPaymentDateModal-{{ $payment->idrec }}"
+        class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-[70]"
+        style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div class="relative mx-auto w-full max-w-md" onclick="event.stopPropagation()">
+                <div class="relative bg-white rounded-lg shadow-2xl transform transition-all">
+                    <!-- Modal header -->
+                    <div class="px-6 py-4 border-b rounded-t bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <h3 class="text-xl font-semibold text-gray-900">
+                            Edit Tanggal Pembayaran
+                        </h3>
+                        <button type="button" onclick="hideEditPaymentDateModal({{ $payment->idrec }})"
+                            class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
+                            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <form id="edit-payment-date-form-{{ $payment->idrec }}"
+                        action="{{ route('admin.payments.update-payment-date', $payment->idrec) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="p-6 space-y-4">
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
+                                <svg class="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                <p class="text-sm text-yellow-800">Tanggal pembayaran harus sebelum atau sama dengan tanggal check-in</p>
+                            </div>
+
+                            <div>
+                                <label for="payment_date-{{ $payment->idrec }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tanggal Pembayaran <span class="text-red-500">*</span>
+                                </label>
+                                <input type="datetime-local"
+                                    id="payment_date-{{ $payment->idrec }}"
+                                    name="payment_date"
+                                    class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required>
+                                @if ($payment->transaction?->check_in)
+                                    <p class="mt-1 text-xs text-gray-500">Maksimal: {{ $payment->transaction->check_in->format('d M Y H:i') }}</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
+                            <button type="button" onclick="hideEditPaymentDateModal({{ $payment->idrec }})"
+                                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Check-in/Check-out -->
+    <div id="editCheckInOutModal-{{ $payment->idrec }}"
+        class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-[70]"
+        style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div class="relative mx-auto w-full max-w-md" onclick="event.stopPropagation()">
+                <div class="relative bg-white rounded-lg shadow-2xl transform transition-all">
+                    <!-- Modal header -->
+                    <div class="px-6 py-4 border-b rounded-t bg-gradient-to-r from-green-50 to-teal-50">
+                        <h3 class="text-xl font-semibold text-gray-900">
+                            Edit Tanggal Check-in & Check-out
+                        </h3>
+                        <button type="button" onclick="hideEditCheckInOutModal({{ $payment->idrec }})"
+                            class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
+                            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <form id="edit-checkinout-form-{{ $payment->idrec }}"
+                        action="{{ route('admin.payments.update-checkinout', $payment->idrec) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="p-6 space-y-4">
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
+                                <svg class="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                <p class="text-sm text-yellow-800">Tanggal harus sebelum atau sama dengan tanggal yang ada saat ini</p>
+                            </div>
+
+                            <div>
+                                <label for="check_in-{{ $payment->idrec }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tanggal Check-in <span class="text-red-500">*</span>
+                                </label>
+                                <input type="datetime-local"
+                                    id="check_in-{{ $payment->idrec }}"
+                                    name="check_in"
+                                    class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required>
+                                @if ($payment->transaction?->check_in)
+                                    <p class="mt-1 text-xs text-gray-500">Maksimal: {{ $payment->transaction->check_in->format('d M Y H:i') }}</p>
+                                @endif
+                            </div>
+
+                            <div>
+                                <label for="check_out-{{ $payment->idrec }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tanggal Check-out
+                                </label>
+                                <input type="datetime-local"
+                                    id="check_out-{{ $payment->idrec }}"
+                                    name="check_out"
+                                    class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                @if ($payment->transaction?->check_out)
+                                    <p class="mt-1 text-xs text-gray-500">Maksimal: {{ $payment->transaction->check_out->format('d M Y H:i') }}</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
+                            <button type="button" onclick="hideEditCheckInOutModal({{ $payment->idrec }})"
+                                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700">
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endforeach

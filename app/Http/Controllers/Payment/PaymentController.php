@@ -284,4 +284,121 @@ class PaymentController extends Controller
         // Default ke JPEG jika tidak bisa dideteksi
         return 'image/jpeg';
     }
+
+    public function updatePaymentDate(Request $request, $id)
+    {
+        try {
+            $payment = Payment::findOrFail($id);
+
+            // Get check-in date
+            $checkInDate = $payment->transaction?->check_in;
+
+            if (!$checkInDate) {
+                return redirect()->back()->with('error', 'Tanggal check-in tidak ditemukan');
+            }
+
+            $request->validate([
+                'payment_date' => [
+                    'required',
+                    'date',
+                    'before_or_equal:' . $checkInDate->format('Y-m-d H:i:s'),
+                ],
+            ], [
+                'payment_date.required' => 'Tanggal pembayaran wajib diisi',
+                'payment_date.date' => 'Format tanggal tidak valid',
+                'payment_date.before_or_equal' => 'Tanggal pembayaran harus sebelum atau sama dengan tanggal check-in (' . $checkInDate->format('d M Y H:i') . ')',
+            ]);
+
+            $newPaymentDate = Carbon::parse($request->payment_date);
+
+            // Update payment date
+            if ($payment->transaction && $payment->transaction->paid_at) {
+                $payment->transaction->update([
+                    'paid_at' => $newPaymentDate
+                ]);
+            } elseif ($payment->verified_at) {
+                $payment->update([
+                    'verified_at' => $newPaymentDate
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Tanggal pembayaran berhasil diperbarui');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            Log::error('Update payment date failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memperbarui tanggal pembayaran. Error: ' . $e->getMessage());
+        }
+    }
+
+    public function updateCheckInOut(Request $request, $id)
+    {
+        try {
+            $payment = Payment::findOrFail($id);
+
+            // Get current check-in and check-out dates
+            $currentCheckIn = $payment->transaction?->check_in;
+            $currentCheckOut = $payment->transaction?->check_out;
+
+            if (!$currentCheckIn) {
+                return redirect()->back()->with('error', 'Tanggal check-in tidak ditemukan');
+            }
+
+            $validationRules = [
+                'check_in' => [
+                    'required',
+                    'date',
+                    'before_or_equal:' . $currentCheckIn->format('Y-m-d H:i:s'),
+                ],
+            ];
+
+            $validationMessages = [
+                'check_in.required' => 'Tanggal check-in wajib diisi',
+                'check_in.date' => 'Format tanggal check-in tidak valid',
+                'check_in.before_or_equal' => 'Tanggal check-in harus sebelum atau sama dengan tanggal check-in saat ini (' . $currentCheckIn->format('d M Y H:i') . ')',
+                'check_out.date' => 'Format tanggal check-out tidak valid',
+                'check_out.after' => 'Tanggal check-out harus setelah tanggal check-in',
+            ];
+
+            // Add check-out validation if current check-out exists
+            if ($currentCheckOut) {
+                $validationRules['check_out'] = [
+                    'nullable',
+                    'date',
+                    'before_or_equal:' . $currentCheckOut->format('Y-m-d H:i:s'),
+                    'after:check_in',
+                ];
+                $validationMessages['check_out.before_or_equal'] = 'Tanggal check-out harus sebelum atau sama dengan tanggal check-out saat ini (' . $currentCheckOut->format('d M Y H:i') . ')';
+            } else {
+                $validationRules['check_out'] = [
+                    'nullable',
+                    'date',
+                    'after:check_in',
+                ];
+            }
+
+            $request->validate($validationRules, $validationMessages);
+
+            $newCheckIn = Carbon::parse($request->check_in);
+            $newCheckOut = $request->check_out ? Carbon::parse($request->check_out) : null;
+
+            // Update check-in and check-out dates
+            if ($payment->transaction) {
+                $updateData = ['check_in' => $newCheckIn];
+
+                if ($newCheckOut) {
+                    $updateData['check_out'] = $newCheckOut;
+                }
+
+                $payment->transaction->update($updateData);
+            }
+
+            return redirect()->back()->with('success', 'Tanggal check-in/check-out berhasil diperbarui');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            Log::error('Update check-in/out failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memperbarui tanggal check-in/check-out. Error: ' . $e->getMessage());
+        }
+    }
 }

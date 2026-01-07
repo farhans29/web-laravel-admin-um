@@ -194,6 +194,8 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::post('/approve/{id}', [PaymentController::class, 'approve'])->name('admin.payments.approve');
         Route::post('/reject/{id}', [PaymentController::class, 'reject'])->name('admin.payments.reject');
         Route::put('/cancel/{id}', [PaymentController::class, 'cancel'])->name('admin.bookings.cancel');
+        Route::put('/update-payment-date/{id}', [PaymentController::class, 'updatePaymentDate'])->name('admin.payments.update-payment-date');
+        Route::put('/update-checkinout/{id}', [PaymentController::class, 'updateCheckInOut'])->name('admin.payments.update-checkinout');
 
         Route::get('/refund', [RefundController::class, 'index'])->name('admin.refunds.index');
         Route::post('/refund/store', [RefundController::class, 'store'])->name('admin.refunds.store');
