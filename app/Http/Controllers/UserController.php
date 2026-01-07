@@ -108,7 +108,7 @@ class UserController extends Controller
                 // Updated regex to allow any symbol, not just specific ones
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/'
             ],
-            'role'       => 'required|exists:roles,id',
+            'role'       => 'required|exists:m_roles,id',
             'property_id' => 'nullable|exists:m_properties,idrec',
         ], [
             'password.confirmed' => 'Password and Confirm Password must match.',
@@ -202,7 +202,7 @@ class UserController extends Controller
 
         // Jika ada field role dan status (untuk admin management)
         if ($request->has('role')) {
-            $validationRules['role'] = 'required|exists:roles,id';
+            $validationRules['role'] = 'required|exists:m_roles,id';
         }
         if ($request->has('status')) {
             $validationRules['status'] = 'required|in:0,1';
@@ -483,7 +483,7 @@ class UserController extends Controller
     {
         try {
             $request->validate([
-                'role_id' => 'required|exists:roles,id'
+                'role_id' => 'required|exists:m_roles,id'
             ]);
 
             $user = User::findOrFail($userId);

@@ -501,12 +501,18 @@
                             },
                         }).showToast();
 
-                        closeNewRoleModal();
+                        // Add new role to all dropdowns
+                        const roleSelects = document.querySelectorAll('.role-select');
+                        roleSelects.forEach(select => {
+                            const option = document.createElement('option');
+                            option.value = data.role.id;
+                            option.textContent = data.role.name;
+                            select.appendChild(option);
+                        });
 
-                        // Reload page to show new role
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        closeNewRoleModal();
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalContent;
                     } else {
                         throw new Error(data.message || 'Failed to create role');
                     }
@@ -576,9 +582,19 @@
                             },
                         }).showToast();
 
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        // Update the Current Role badge
+                        const row = button.closest('tr');
+                        const currentRoleBadge = row.querySelector('td:nth-child(4) span');
+                        const selectedOption = selectElement.options[selectElement.selectedIndex];
+                        const roleName = selectedOption.text;
+
+                        if (currentRoleBadge) {
+                            currentRoleBadge.textContent = roleName;
+                            currentRoleBadge.className = 'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
+                        }
+
+                        button.disabled = false;
+                        button.innerHTML = originalContent;
                     } else {
                         throw new Error(data.message || 'Failed to update role');
                     }
