@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 
 class CheckOutController extends Controller
@@ -20,6 +21,12 @@ class CheckOutController extends Controller
             })
             ->whereNotNull('check_in_at')
             ->whereNotNull('check_out_at');
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('property_id', $user->property_id);
+        }
 
         // Search by order_id or user name
         if ($request->filled('search')) {
@@ -69,6 +76,12 @@ class CheckOutController extends Controller
             ->whereNotNull('check_out_at')
             ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
             ->orderBy('check_out_at', 'desc'); // Then sort by check_out_at
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('property_id', $user->property_id);
+        }
 
         // Search by order_id or user name
         if ($request->filled('search')) {

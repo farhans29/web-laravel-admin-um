@@ -326,7 +326,7 @@ class UserController extends Controller
         $users = User::all();
         $permissions = Permission::all();
         $sidebarItems = DB::table('sidebar_items')
-            ->select('id', 'name', 'parent_id', 'route')
+            ->select('id', 'name', 'parent_id', 'route', 'permission_id')
             ->get();
 
         return view(
@@ -471,7 +471,7 @@ class UserController extends Controller
 
         // Get sidebar items for permissions
         $sidebarItems = DB::table('sidebar_items')
-            ->select('id', 'name', 'parent_id', 'route')
+            ->select('id', 'name', 'parent_id', 'route', 'permission_id')
             ->get();
 
         // Get dashboard widgets for role-based widget management

@@ -301,8 +301,12 @@
                                     data-is-sub="{{ $isSubMenu ? 'true' : 'false' }}"
                                     data-is-list="{{ $isListMenu ? 'true' : 'false' }}">
                                     <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <input type="checkbox" class="modal-checkbox-round"
-                                            value="{{ $item->id }}">
+                                        @if($item->permission_id)
+                                            <input type="checkbox" class="modal-checkbox-round"
+                                                value="{{ $item->permission_id }}">
+                                        @else
+                                            <span class="text-xs text-gray-400 italic">N/A</span>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap">
                                         <div class="flex items-center {{ $indentClass }}">

@@ -139,6 +139,12 @@
                         name: 'Toilet',
                         missingOrDamaged: false,
                         condition: ''
+                    },
+                    {
+                        name: 'Lain-lain',
+                        missingOrDamaged: false,
+                        condition: '',
+                        customText: ''
                     }
                 ],
                 additionalNotes: '',
@@ -199,6 +205,9 @@
                     this.roomInventory.forEach(item => {
                         item.missingOrDamaged = false;
                         item.condition = '';
+                        if (item.customText !== undefined) {
+                            item.customText = '';
+                        }
                     });
                     this.additionalNotes = '';
                     this.damageCharges = 0;
@@ -288,16 +297,17 @@
                                 .filter(item => item.missingOrDamaged)
                                 .map(item => ({
                                     name: item.name,
-                                    condition: item.condition
+                                    condition: item.condition,
+                                    customText: item.customText || ''
                                 }));
 
                             // Prepare payload
                             const payload = {
                                 check_out_time: new Date().toISOString(),
-                                // damaged_items: damagedItems,
-                                // additional_notes: this.additionalNotes,
-                                // damage_charges: this.damageCharges,
-                                // is_late_checkout: this.isLateCheckout
+                                damaged_items: damagedItems,
+                                additional_notes: this.additionalNotes,
+                                damage_charges: this.damageCharges,
+                                is_late_checkout: this.isLateCheckout
                             };
 
                             // Show loading state

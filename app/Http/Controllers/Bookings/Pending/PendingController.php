@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Bookings\Pending;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Booking;
 
 class PendingController extends Controller
@@ -15,6 +16,12 @@ class PendingController extends Controller
                 $q->whereIn('transaction_status', ['pending', 'waiting']);
             })
             ->orderByDesc('check_in_at');
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('property_id', $user->property_id);
+        }
 
         // Pencarian berdasarkan order_id atau nama user
         if ($request->filled('search')) {
@@ -60,6 +67,12 @@ class PendingController extends Controller
                 $q->whereIn('transaction_status', ['pending', 'waiting']);
             })
             ->orderByDesc('check_in_at');
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('property_id', $user->property_id);
+        }
 
         // Search by order_id or user name
         if ($request->filled('search')) {

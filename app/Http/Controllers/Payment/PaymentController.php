@@ -360,22 +360,12 @@ class PaymentController extends Controller
                 'check_out.after' => 'Tanggal check-out harus setelah tanggal check-in',
             ];
 
-            // Add check-out validation if current check-out exists
-            if ($currentCheckOut) {
-                $validationRules['check_out'] = [
-                    'nullable',
-                    'date',
-                    'before_or_equal:' . $currentCheckOut->format('Y-m-d H:i:s'),
-                    'after:check_in',
-                ];
-                $validationMessages['check_out.before_or_equal'] = 'Tanggal check-out harus sebelum atau sama dengan tanggal check-out saat ini (' . $currentCheckOut->format('d M Y H:i') . ')';
-            } else {
-                $validationRules['check_out'] = [
-                    'nullable',
-                    'date',
-                    'after:check_in',
-                ];
-            }
+            // Add check-out validation - allow free date selection for check-out
+            $validationRules['check_out'] = [
+                'nullable',
+                'date',
+                'after:check_in',
+            ];
 
             $request->validate($validationRules, $validationMessages);
 

@@ -831,7 +831,7 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Step 3 - Facilities (Versi Edit) -->
+                                            <!-- Step 3 - Facilities -->
                                             <div x-show="editStep === 3"
                                                 x-transition:enter="transition ease-out duration-300"
                                                 x-transition:enter-start="opacity-0 translate-x-4"
@@ -864,12 +864,12 @@
                                                                     <label
                                                                         for="general-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
                                                                         class="flex items-start p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
-                                                                        <div class="flex-1">
+                                                                        <div class="flex-1 overflow-hidden">
                                                                             <span
-                                                                                class="block">{{ $facility->facility }}</span>
+                                                                                class="block break-words">{{ $facility->facility }}</span>
                                                                             @if (!empty($facility->description))
                                                                                 <span
-                                                                                    class="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                                    class="block text-xs text-gray-500 dark:text-gray-400 mt-1 break-words">
                                                                                     {{ $facility->description }}
                                                                                 </span>
                                                                             @endif
@@ -924,12 +924,12 @@
                                                                     <label
                                                                         for="security-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
                                                                         class="flex items-start p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-green-600 peer-checked:bg-green-50 dark:peer-checked:bg-green-900/30 peer-checked:text-green-600 dark:peer-checked:text-green-400 transition-all duration-200">
-                                                                        <div class="flex-1">
+                                                                        <div class="flex-1 overflow-hidden">
                                                                             <span
-                                                                                class="block">{{ $facility->facility }}</span>
+                                                                                class="block break-words">{{ $facility->facility }}</span>
                                                                             @if (!empty($facility->description))
                                                                                 <span
-                                                                                    class="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                                    class="block text-xs text-gray-500 dark:text-gray-400 mt-1 break-words">
                                                                                     {{ $facility->description }}
                                                                                 </span>
                                                                             @endif
@@ -984,12 +984,12 @@
                                                                     <label
                                                                         for="amenities-edit-{{ $facility->idrec }}-{{ $property->idrec }}"
                                                                         class="flex items-start p-4 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-purple-600 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/30 peer-checked:text-purple-600 dark:peer-checked:text-purple-400 transition-all duration-200">
-                                                                        <div class="flex-1">
+                                                                        <div class="flex-1 overflow-hidden">
                                                                             <span
-                                                                                class="block">{{ $facility->facility }}</span>
+                                                                                class="block break-words">{{ $facility->facility }}</span>
                                                                             @if (!empty($facility->description))
                                                                                 <span
-                                                                                    class="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                                    class="block text-xs text-gray-500 dark:text-gray-400 mt-1 break-words">
                                                                                     {{ $facility->description }}
                                                                                 </span>
                                                                             @endif

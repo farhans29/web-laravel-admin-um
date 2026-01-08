@@ -28,7 +28,7 @@ class CheckPermission
         // Get current route name
         $currentRoute = $request->route()->getName();
 
-        // Skip permission check for certain routes
+        // Routes that are always allowed without permission check
         $allowedRoutes = [
             'dashboard',
             'login',
@@ -41,12 +41,83 @@ class CheckPermission
             return $next($request);
         }
 
+        // Routes that are API/data endpoints - check parent page permission
+        $apiRoutesPatterns = [
+            '/\.getData$/',           // e.g., menus.getData
+            '/\.getList$/',           // e.g., users.getList
+            '/\.getMainMenus$/',      // e.g., menus.getMainMenus
+            '/\.getUserAccess$/',     // e.g., menus.getUserAccess
+            '/\.filter$/',            // e.g., bookings.filter
+            '/\.store$/',             // e.g., properties.store
+            '/\.update$/',            // e.g., properties.update
+            '/\.show$/',              // e.g., users.show
+            '/\.destroy$/',           // e.g., rooms.destroy
+            '/\.destoy$/',            // e.g., rooms.destoy (typo in routes)
+            '/\.data$/',              // e.g., room-availability.data
+            '/\.export$/',            // e.g., reports.booking.export
+            '/\.edit$/',              // e.g., user-access.edit
+            '/\.create$/',            // e.g., master-role.create
+            '/\.approve$/',           // e.g., admin.payments.approve
+            '/\.reject$/',            // e.g., admin.payments.reject
+            '/\.cancel$/',            // e.g., admin.bookings.cancel
+            '/\.deactivate$/',        // e.g., users.deactivate
+            '/\.details$/',           // e.g., bookings.checkin.details
+            '/\.regist$/',            // e.g., newReserv.checkin.regist
+            '/\.invoice$/',           // e.g., newReserv.checkin.invoice
+            '/\.table$/',             // e.g., properties.table
+            '/\.bookings$/',          // e.g., customers.bookings, room-availability.bookings
+            '/\.toggle-status$/',     // e.g., properties.toggle-status
+            '/\.updateStatus$/',      // e.g., properties.updateStatus, users.updateStatus
+            '/\.update-status$/',     // e.g., room-availability.update-status
+            '/\.update-payment-date$/',     // e.g., admin.payments.update-payment-date
+            '/\.update-checkinout$/',       // e.g., admin.payments.update-checkinout
+            '/\.check-room-number$/',       // e.g., rooms.check-room-number
+            '/\.prices/',             // e.g., rooms.prices.* (any price-related routes)
+            '/\.change-price-index$/',      // e.g., rooms.prices.change-price-index
+            '/\.date$/',              // e.g., rooms.prices.date
+            '/check\.email$/',        // e.g., check.email
+        ];
+
+        // Check if current route matches any API pattern
+        $isApiRoute = false;
+        foreach ($apiRoutesPatterns as $pattern) {
+            if (preg_match($pattern, $currentRoute)) {
+                $isApiRoute = true;
+                break;
+            }
+        }
+
+        // If it's an API route, check the parent page permission
+        if ($isApiRoute) {
+            // Extract parent route (e.g., 'bookings.filter' -> 'bookings.index')
+            $parentRoute = $this->getParentRoute($currentRoute);
+
+            if ($parentRoute) {
+                $sidebarItem = SidebarItem::where('route', $parentRoute)->first();
+
+                if ($sidebarItem) {
+                    $permissionId = $sidebarItem->id;
+
+                    $hasPermission = DB::table('role_permission')
+                        ->where('user_id', $user->id)
+                        ->where('permission_id', $permissionId)
+                        ->exists();
+
+                    if (!$hasPermission) {
+                        abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+                    }
+
+                    return $next($request);
+                }
+            }
+        }
+
         // Find sidebar item by route name
         $sidebarItem = SidebarItem::where('route', $currentRoute)->first();
 
-        // If route not found in sidebar_items, allow access (for non-menu routes)
+        // SECURITY: Block access if route not found in sidebar_items
         if (!$sidebarItem) {
-            return $next($request);
+            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 
         // Get the permission_id from sidebar_item (this is actually sidebar_item.id)
@@ -64,5 +135,55 @@ class CheckPermission
         }
 
         return $next($request);
+    }
+
+    /**
+     * Get parent route from API route
+     *
+     * @param string $route
+     * @return string|null
+     */
+    private function getParentRoute(string $route): ?string
+    {
+        // Map of route prefixes to their index routes
+        $routeMap = [
+            'bookings.' => 'bookings.index',
+            'pendings.' => 'pendings.index',
+            'newReserv.' => 'newReserv.index',
+            'completed.' => 'completed.index',
+            'checkin.' => 'checkin.index',
+            'checkout.' => 'checkout.index',
+            'changerooom.' => 'changerooom.index',
+            'changeroom.' => 'changerooom.index',
+            'room-availability.' => 'room-availability.index',
+            'properties.' => 'properties.index',
+            'rooms.' => 'rooms.index',
+            'facilityProperty.' => 'facilityProperty.index',
+            'facilityRooms.' => 'facilityRooms.index',
+            'admin.payments.' => 'admin.payments.index',
+            'admin.refunds.' => 'admin.refunds.index',
+            'admin.bookings.' => 'bookings.index',
+            'customers.' => 'customers.index',
+            'reports.booking.' => 'reports.booking.index',
+            'reports.payment.' => 'reports.payment.index',
+            'reports.rented-rooms.' => 'reports.rented-rooms.index',
+            'vouchers.' => 'vouchers.index',
+            'users.' => 'users-management',
+            'menus.' => 'users-management',
+            'account.' => 'dashboard',
+            'user-access.' => 'users-access-management',
+            'master-role.' => 'master-role-management',
+            'role.' => 'master-role-management',
+            'dashboard-widgets.' => 'dashboard',
+        ];
+
+        // Check each prefix
+        foreach ($routeMap as $prefix => $indexRoute) {
+            if (str_starts_with($route, $prefix)) {
+                return $indexRoute;
+            }
+        }
+
+        return null;
     }
 }

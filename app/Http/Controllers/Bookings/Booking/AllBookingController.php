@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bookings\Booking;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AllBookingController extends Controller
@@ -13,6 +14,12 @@ class AllBookingController extends Controller
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
             ->orderByDesc('check_in_at');
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('property_id', $user->property_id);
+        }
 
         // Set default date range (1 month back to 1 month ahead)
         $defaultStartDate = now()->subMonth()->format('Y-m-d');
@@ -98,6 +105,12 @@ class AllBookingController extends Controller
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
             ->orderByDesc('check_in_at');
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('property_id', $user->property_id);
+        }
 
         // Set default date range if not provided - menggunakan jarak 1 bulan
         $startDate = $request->filled('start_date') ? $request->start_date : now()->subMonth()->format('Y-m-d');

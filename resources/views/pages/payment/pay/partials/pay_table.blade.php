@@ -694,11 +694,11 @@
                         @method('PUT')
 
                         <div class="p-6 space-y-4">
-                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
-                                <svg class="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
-                                <p class="text-sm text-yellow-800">Tanggal harus sebelum atau sama dengan tanggal yang ada saat ini</p>
+                                <p class="text-sm text-blue-800">Tanggal check-in harus sebelum atau sama dengan tanggal check-in saat ini. Tanggal check-out dapat dipilih bebas.</p>
                             </div>
 
                             <div>
@@ -723,9 +723,7 @@
                                     id="check_out-{{ $payment->idrec }}"
                                     name="check_out"
                                     class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                @if ($payment->transaction?->check_out)
-                                    <p class="mt-1 text-xs text-gray-500">Maksimal: {{ $payment->transaction->check_out->format('d M Y H:i') }}</p>
-                                @endif
+                                <p class="mt-1 text-xs text-gray-500">Dapat memilih tanggal kapan saja</p>
                             </div>
                         </div>
 

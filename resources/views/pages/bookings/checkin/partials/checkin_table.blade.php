@@ -92,7 +92,7 @@
                         @else
                             <span
                                 class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Menunggu Check-Out
+                                Terisi
                             </span>
                         @endif
                     </td>
@@ -276,20 +276,37 @@
                                                         <div class="space-y-2">
                                                             <template x-for="(item, index) in roomInventory"
                                                                 :key="index">
-                                                                <div class="flex items-center">
-                                                                    <input :id="'item-' + index" type="checkbox"
-                                                                        x-model="item.missingOrDamaged"
-                                                                        class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                                                                    <label :for="'item-' + index"
-                                                                        class="ml-2 block text-sm text-gray-700"
-                                                                        x-text="item.name"></label>
-                                                                    <template x-if="item.missingOrDamaged">
-                                                                        <div class="ml-4 flex-1">
+                                                                <div class="flex flex-col space-y-2">
+                                                                    <div class="flex items-center">
+                                                                        <input :id="'item-' + index" type="checkbox"
+                                                                            x-model="item.missingOrDamaged"
+                                                                            class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                                                        <label :for="'item-' + index"
+                                                                            class="ml-2 block text-sm text-gray-700"
+                                                                            x-text="item.name"></label>
+                                                                        <template x-if="item.missingOrDamaged && item.name !== 'Lain-lain'">
+                                                                            <div class="ml-4 flex-1">
+                                                                                <select x-model="item.condition"
+                                                                                    class="block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
+                                                                                    <option value="missing">Hilang</option>
+                                                                                    <option value="damaged">Rusak</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </template>
+                                                                    </div>
+
+                                                                    <!-- Show textbox for Lain-lain when checked -->
+                                                                    <template x-if="item.missingOrDamaged && item.name === 'Lain-lain'">
+                                                                        <div class="ml-6 space-y-2">
                                                                             <select x-model="item.condition"
                                                                                 class="block w-full pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
                                                                                 <option value="missing">Hilang</option>
                                                                                 <option value="damaged">Rusak</option>
                                                                             </select>
+                                                                            <input type="text"
+                                                                                x-model="item.customText"
+                                                                                placeholder="Sebutkan barang lain-lain..."
+                                                                                class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
                                                                         </div>
                                                                     </template>
                                                                 </div>

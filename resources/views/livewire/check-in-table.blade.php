@@ -6,6 +6,7 @@
     <!-- Filters -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @if(auth()->user() && (auth()->user()->isSuperAdmin() || auth()->user()->isHORole()))
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
                 <select wire:model.lazy="propertyType" class="w-full border-gray-200 rounded-lg">
@@ -17,6 +18,7 @@
                 </select>
                 <div class="text-xs mt-1 text-gray-500">Selected Property: {{ $propertyType }}</div>
             </div>
+            @endif
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select wire:model.lazy="status" class="w-full border-gray-200 rounded-lg">

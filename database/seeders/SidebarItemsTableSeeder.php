@@ -170,6 +170,14 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 6
         ]);
 
+        $vouchers = SidebarItem::create([
+            'name' => 'Vouchers',
+            'route' => 'vouchers.index',
+            'permission_id' => $permissions['view_vouchers'] ?? null,
+            'parent_id' => $managementSection->id,
+            'order' => 7
+        ]);
+
         // Financial items
         $financialSection = SidebarItem::create([
             'name' => 'Financial',

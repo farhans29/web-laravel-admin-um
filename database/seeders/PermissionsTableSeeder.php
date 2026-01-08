@@ -44,6 +44,9 @@ class PermissionsTableSeeder extends Seeder
             // Rentals
             'view_room_availability',
 
+            // Vouchers
+            'view_vouchers',
+
             // Financial
             'financial',
 

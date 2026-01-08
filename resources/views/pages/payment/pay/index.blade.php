@@ -682,12 +682,10 @@
                     checkOutInput.value = checkOut;
                 }
 
-                // Set max to current check-in/check-out dates (backdate from current dates)
+                // Set max to current check-in date (backdate from current date)
+                // Check-out can be freely selected without restriction
                 if (checkIn) {
                     checkInInput.max = checkIn;
-                }
-                if (checkOut && checkOutInput) {
-                    checkOutInput.max = checkOut;
                 }
 
                 // Show modal

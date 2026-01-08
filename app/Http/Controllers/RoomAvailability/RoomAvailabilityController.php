@@ -4,6 +4,7 @@ namespace App\Http\Controllers\RoomAvailability;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Room;
 use App\Models\Booking;
 
@@ -38,8 +39,15 @@ class RoomAvailabilityController extends Controller
                     });
                 });
             }
-        }])
-            ->when($search, function ($query, $search) {
+        }]);
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $rooms->where('property_id', $user->property_id);
+        }
+
+        $rooms = $rooms->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('no', 'like', "%{$search}%")
@@ -219,7 +227,15 @@ class RoomAvailabilityController extends Controller
         $status = $request->get('status', 'all');
 
         // Query yang sama dengan index untuk konsistensi data
-        $roomsQuery = Room::when($search, function ($query, $search) {
+        $roomsQuery = Room::query();
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $roomsQuery->where('property_id', $user->property_id);
+        }
+
+        $roomsQuery = $roomsQuery->when($search, function ($query, $search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('no', 'like', "%{$search}%")

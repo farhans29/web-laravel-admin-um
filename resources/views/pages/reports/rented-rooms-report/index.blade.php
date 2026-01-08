@@ -141,8 +141,8 @@
                         </div>
                     </div>
 
-                    <!-- Property Filter (only for super admin) -->
-                    @if(auth()->user()->isSuperAdmin())
+                    <!-- Property Filter (only for super admin and HO roles) -->
+                    @if(auth()->user()->isSuperAdmin() || auth()->user()->isHORole())
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Properti</label>
                         <select id="property_id" name="property_id"

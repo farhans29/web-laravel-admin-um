@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Bookings\Completed;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Booking;
 use Illuminate\Support\Carbon;
 
@@ -23,6 +24,12 @@ class CompletedController extends Controller
                             });
                     });
             });
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('property_id', $user->property_id);
+        }
 
         // ✅ Default: tampilkan data hari ini
         if (!$request->filled('start_date') && !$request->filled('end_date')) {
@@ -63,6 +70,12 @@ class CompletedController extends Controller
                             });
                     });
             });
+
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('property_id', $user->property_id);
+        }
 
         // ✅ Filter pencarian
         if ($request->filled('search')) {
