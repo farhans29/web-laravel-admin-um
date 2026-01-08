@@ -24,8 +24,8 @@ class DashboardController extends Controller
             if ($propertyId) {
                 $property = Property::findOrFail($propertyId);
 
-                // Check if user has access to this property
-                if (!$user->canViewAllProperties() && $user->property_id != $propertyId) {
+                // Check if user has access to this property (enforce property scope)
+                if ($user->property_id && $user->property_id != $propertyId) {
                     $property = Property::where('idrec', $user->property_id)->firstOrFail();
                 }
 
@@ -853,16 +853,19 @@ class DashboardController extends Controller
         $rentalDurationTrends = $this->getRentalDurationTrends($userPropertyId);
         $revenuePerRoom = $this->getRevenuePerOccupiedRoom($userPropertyId);
 
-        // Get finance data - accessible to Super Admin, all HO roles, and Finance site
+        // Get finance data - check if user has any finance widget access
         $financeStats = [];
-        $canViewFinance = $user->isSuperAdmin() ||
-                         $user->isHORole() ||
-                         $user->hasRole('Finance site');
+        $hasFinanceAccess = $user->isSuperAdmin() ||
+                           ($user->role && (
+                               $user->role->hasWidgetAccess('finance_today_revenue') ||
+                               $user->role->hasWidgetAccess('finance_monthly_revenue') ||
+                               $user->role->hasWidgetAccess('finance_pending_payments') ||
+                               $user->role->hasWidgetAccess('finance_payment_success_rate') ||
+                               $user->role->hasWidgetAccess('finance_payment_methods') ||
+                               $user->role->hasWidgetAccess('finance_cash_flow')
+                           ));
 
-        // Check if user is Finance-only role (should only see financial sections)
-        $isFinanceOnly = $user->isFinanceOnlyRole();
-
-        if ($canViewFinance) {
+        if ($hasFinanceAccess) {
             $todayRevenue = $this->getTodayRevenue($userPropertyId);
             $monthlyRevenue = $this->getMonthlyRevenue($userPropertyId);
             $pendingPayments = $this->getPendingPayments($userPropertyId);
@@ -908,9 +911,7 @@ class DashboardController extends Controller
             'occupancyHistory',
             'rentalDurationTrends',
             'revenuePerRoom',
-            'financeStats',
-            'canViewFinance',
-            'isFinanceOnly'
+            'financeStats'
         ));
     }
 
@@ -946,8 +947,16 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // If user cannot view all properties, enforce their property_id
-        if (!$user->canViewAllProperties()) {
+        // Check if user has widget permission to view rooms availability
+        if (!$user->isSuperAdmin() && $user->role && !$user->role->hasWidgetAccess('rooms_availability')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized - No access to room availability widget'
+            ], 403);
+        }
+
+        // If user has property_id, enforce their property scope
+        if ($user->property_id) {
             $propertyId = $user->property_id;
         }
 
@@ -964,20 +973,16 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user has permission to view finance data
-        $canViewFinance = $user->isSuperAdmin() ||
-                         $user->isHORole() ||
-                         $user->hasRole('Finance site');
-
-        if (!$canViewFinance) {
+        // Check if user has widget permission to view property revenue report
+        if (!$user->isSuperAdmin() && $user->role && !$user->role->hasWidgetAccess('rooms_property_report')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized - No access to property revenue widget'
             ], 403);
         }
 
-        // If user cannot view all properties, enforce their property_id
-        if (!$user->canViewAllProperties()) {
+        // If user has property_id, enforce their property scope
+        if ($user->property_id) {
             $propertyId = $user->property_id;
         }
 
@@ -1047,20 +1052,16 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user has permission to view finance data
-        $canViewFinance = $user->isSuperAdmin() ||
-                         $user->isHORole() ||
-                         $user->hasRole('Finance site');
-
-        if (!$canViewFinance) {
+        // Check if user has widget permission to view revenue trend chart
+        if (!$user->isSuperAdmin() && $user->role && !$user->role->hasWidgetAccess('report_sales_chart')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized - No access to revenue trend widget'
             ], 403);
         }
 
-        // If user cannot view all properties, enforce their property_id
-        if (!$user->canViewAllProperties()) {
+        // If user has property_id, enforce their property scope
+        if ($user->property_id) {
             $propertyId = $user->property_id;
         }
 
