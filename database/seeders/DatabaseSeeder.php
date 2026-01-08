@@ -22,10 +22,12 @@ class DatabaseSeeder extends Seeder
             RolesTableSeeder::class,
             SidebarItemsTableSeeder::class,
             RolesAndPermissionsSeeder::class,
-            PropertySystemSeeder::class,            
+            PropertySystemSeeder::class,
             MPromoBannerSeeder::class,
             PropertyFacilitySeeder::class,
             RoomFacilitySeeder::class,
+            DashboardWidgetsSeeder::class,
+            RoleDashboardWidgetsSeeder::class,
         ]);
     }
 }
