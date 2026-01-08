@@ -1,128 +1,171 @@
 <x-app-layout>
+    @php
+        // Helper function untuk check widget access
+        $userRole = Auth::user()->role;
+        $canViewWidget = function($widgetSlug) use ($userRole) {
+            // Super Admin bisa lihat semua
+            if (Auth::user()->isSuperAdmin()) {
+                return true;
+            }
+
+            // Jika user tidak punya role, tidak bisa lihat widget apapun
+            if (!$userRole) {
+                return false;
+            }
+
+            // Check apakah role punya akses ke widget ini
+            return $userRole->hasWidgetAccess($widgetSlug);
+        };
+    @endphp
+
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
 
         <!-- Dashboard Banner -->
         <div class="relative bg-cover bg-center p-4 sm:p-6 rounded-xl overflow-hidden mb-8 shadow-lg"
             style="background-image: url('{{ asset('images/0fd3416c.jpeg') }}')">
-            <!-- Overlay -->
-            <div class="absolute inset-0 bg-gray-900/70"></div>
 
             <!-- Content -->
             <div class="relative">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-                    <div>
-                        <h1 class="text-2xl md:text-3xl text-white font-bold mb-1">
-                            DASHBOARD
-                            @if (Auth::user()->isSiteRole() && Auth::user()->property)
-                                - {{ Auth::user()->property->property_name ?? Auth::user()->property->name }}
-                            @else
-                                {{ Auth::user()->role->name ?? 'Ulin Mahoni' }}
-                            @endif
-                        </h1>
-                        <p class="text-blue-100 font-medium">Selamat datang kembali, {{ Auth::user()->first_name }}
-                            {{ Auth::user()->last_name }}
-                            @if (Auth::user()->role)
-                                <span class="text-yellow-200">• {{ Auth::user()->role->name }}</span>
-                            @endif
-                        </p>
-                    </div>
+                <!-- Header Section (No Overlay) -->
+                <div class="relative bg-gradient-to-r from-gray-900/60 to-gray-900/40 backdrop-blur-sm rounded-lg p-4 mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl text-white font-bold mb-1 drop-shadow-lg">
+                                DASHBOARD
+                                @if (Auth::user()->isSiteRole() && Auth::user()->property)
+                                    - {{ Auth::user()->property->property_name ?? Auth::user()->property->name }}
+                                @else
+                                    {{ Auth::user()->role->name ?? 'Ulin Mahoni' }}
+                                @endif
+                            </h1>
+                            <p class="text-blue-100 font-medium drop-shadow">Selamat datang kembali, {{ Auth::user()->first_name }}
+                                {{ Auth::user()->last_name }}
+                                @if (Auth::user()->role)
+                                    <span class="text-yellow-300">• {{ Auth::user()->role->name }}</span>
+                                @endif
+                            </p>
+                        </div>
 
-                    <div class="mt-4 md:mt-0 flex items-center space-x-3">
-                        @if (Auth::user()->role)
-                            <span
-                                class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium">
-                                {{ Auth::user()->role->name }}
-                            </span>
-                        @endif
-                        <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300 mr-2"
-                                viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-white text-sm font-medium">Terakhir diperbarui:
-                                {{ now()->format('d M, Y H:i') }}</span>
+                        <div class="mt-4 md:mt-0 flex items-center space-x-3">
+                            @if (Auth::user()->role)
+                                <span
+                                    class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-sm font-medium border border-white/20">
+                                    {{ Auth::user()->role->name }}
+                                </span>
+                            @endif
+                            <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300 mr-2"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-white text-sm font-medium">Terakhir diperbarui:
+                                    {{ now()->format('d M, Y H:i') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                @if (!$isFinanceOnly)
-                    <!-- Quick Stats -->
-                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <!-- Confirm Booking (Upcoming) -->
-                        <div
-                            class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-blue-300 hover:bg-white/15 transition-all duration-200">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-blue-100 text-sm font-medium">Konfirmasi Booking (Mendatang)</p>
-                                    <h3 class="text-white text-2xl font-bold mt-1">{{ $stats['upcoming'] }}</h3>
-                                    <p class="text-blue-200 text-xs mt-1">Segera check-in</p>
-                                </div>
-                                <div class="bg-blue-500/20 p-2 rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-200" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Confirm Booking (Today) -->
-                        <div
-                            class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-purple-300 hover:bg-white/15 transition-all duration-200">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-blue-100 text-sm font-medium">Konfirmasi Booking (Hari Ini)</p>
-                                    <h3 class="text-white text-2xl font-bold mt-1">{{ $stats['today'] }}</h3>
-                                    <p class="text-purple-200 text-xs mt-1">Kedatangan hari ini</p>
-                                </div>
-                                <div class="bg-purple-500/20 p-2 rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-200"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+                @php
+                    // Check if user has access to any booking stats widgets
+                    $hasBookingStats = $canViewWidget('booking_upcoming') ||
+                                      $canViewWidget('booking_today') ||
+                                      $canViewWidget('booking_checkin') ||
+                                      $canViewWidget('booking_checkout');
+                @endphp
 
-                        <!-- Check-In -->
-                        <div
-                            class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-green-300 hover:bg-white/15 transition-all duration-200">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-blue-100 text-sm font-medium">Check-In</p>
-                                    <h3 class="text-white text-2xl font-bold mt-1">{{ $stats['checkin'] }}</h3>
-                                    <p class="text-green-200 text-xs mt-1">Sedang menginap</p>
+                @if ($hasBookingStats)
+                    <!-- Quick Stats Section with Overlay -->
+                    <div class="relative bg-gradient-to-br from-gray-900/70 to-gray-900/50 backdrop-blur-md rounded-xl p-6 border border-white/10 shadow-2xl">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            @if ($canViewWidget('booking_upcoming'))
+                                <!-- Confirm Booking (Upcoming) -->
+                                <div class="group relative bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-sm rounded-xl p-5 border border-blue-400/30 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
+                                    <div class="flex flex-col h-full">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div class="bg-blue-500/30 p-3 rounded-lg border border-blue-400/30 group-hover:bg-blue-500/40 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-100" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-blue-100 text-xs font-semibold uppercase tracking-wide mb-2">Konfirmasi Booking</p>
+                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">{{ $stats['upcoming'] }}</h3>
+                                            <p class="text-blue-200 text-sm">Mendatang</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="bg-green-500/20 p-2 rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-200"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+                            @endif
 
-                        <!-- Check-Out -->
-                        <div
-                            class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border-l-4 border-yellow-300 hover:bg-white/15 transition-all duration-200">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-blue-100 text-sm font-medium">Check-Out</p>
-                                    <h3 class="text-white text-2xl font-bold mt-1">{{ $stats['checkout'] }}</h3>
-                                    <p class="text-yellow-200 text-xs mt-1">Jadwal Check-Out Hari Ini</p>
+                            @if ($canViewWidget('booking_today'))
+                                <!-- Confirm Booking (Today) -->
+                                <div class="group relative bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-sm rounded-xl p-5 border border-purple-400/30 hover:border-purple-400/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1">
+                                    <div class="flex flex-col h-full">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div class="bg-purple-500/30 p-3 rounded-lg border border-purple-400/30 group-hover:bg-purple-500/40 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-purple-100"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-purple-100 text-xs font-semibold uppercase tracking-wide mb-2">Booking Hari Ini</p>
+                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">{{ $stats['today'] }}</h3>
+                                            <p class="text-purple-200 text-sm">Kedatangan</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="bg-yellow-500/20 p-2 rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-200"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                    </svg>
+                            @endif
+
+                            @if ($canViewWidget('booking_checkin'))
+                                <!-- Check-In -->
+                                <div class="group relative bg-gradient-to-br from-green-500/20 to-green-600/10 backdrop-blur-sm rounded-xl p-5 border border-green-400/30 hover:border-green-400/50 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 hover:-translate-y-1">
+                                    <div class="flex flex-col h-full">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div class="bg-green-500/30 p-3 rounded-lg border border-green-400/30 group-hover:bg-green-500/40 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-green-100"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-green-100 text-xs font-semibold uppercase tracking-wide mb-2">Check-In</p>
+                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">{{ $stats['checkin'] }}</h3>
+                                            <p class="text-green-200 text-sm">Sedang Menginap</p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
+
+                            @if ($canViewWidget('booking_checkout'))
+                                <!-- Check-Out -->
+                                <div class="group relative bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 backdrop-blur-sm rounded-xl p-5 border border-yellow-400/30 hover:border-yellow-400/50 hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 hover:-translate-y-1">
+                                    <div class="flex flex-col h-full">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div class="bg-yellow-500/30 p-3 rounded-lg border border-yellow-400/30 group-hover:bg-yellow-500/40 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-yellow-100"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-yellow-100 text-xs font-semibold uppercase tracking-wide mb-2">Check-Out</p>
+                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">{{ $stats['checkout'] }}</h3>
+                                            <p class="text-yellow-200 text-sm">Hari Ini</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -131,11 +174,17 @@
         </div>
 
         @php
-            $canViewFinance =
-                Auth::user()->isSuperAdmin() || Auth::user()->isHORole() || Auth::user()->hasRole('Finance site');
+            // Check if user has access to any finance widgets
+            $hasFinanceWidgets = $canViewWidget('finance_today_revenue') ||
+                                $canViewWidget('finance_monthly_revenue') ||
+                                $canViewWidget('finance_pending_payments') ||
+                                $canViewWidget('finance_payment_success_rate') ||
+                                $canViewWidget('finance_payment_methods') ||
+                                $canViewWidget('finance_cash_flow') ||
+                                $canViewWidget('finance_recent_transactions');
         @endphp
 
-        @if ($canViewFinance && !empty($financeStats))
+        @if ($hasFinanceWidgets && !empty($financeStats))
             <!-- Finance Information Section -->
             <div class="mt-8">
                 <div class="flex items-center space-x-3 mb-6">
@@ -149,36 +198,39 @@
 
                 <!-- Financial Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Today's Revenue -->
-                    <div
-                        class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="bg-white/20 p-3 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                    @if ($canViewWidget('finance_today_revenue'))
+                        <!-- Today's Revenue -->
+                        <div
+                            class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-white/20 p-3 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Hari Ini</span>
+                                </div>
+                            </div>
+                            <h3 class="text-sm font-medium text-emerald-100 mb-1">Pendapatan Hari Ini</h3>
+                            <div class="text-3xl font-bold mb-2">
+                                Rp {{ number_format($financeStats['today_revenue'] ?? 0, 0, ',', '.') }}
+                            </div>
+                            <div class="flex items-center text-sm text-emerald-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                 </svg>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Hari Ini</span>
+                                <span>{{ $financeStats['today_transactions'] ?? 0 }} transaksi</span>
                             </div>
                         </div>
-                        <h3 class="text-sm font-medium text-emerald-100 mb-1">Pendapatan Hari Ini</h3>
-                        <div class="text-3xl font-bold mb-2">
-                            Rp {{ number_format($financeStats['today_revenue'] ?? 0, 0, ',', '.') }}
-                        </div>
-                        <div class="flex items-center text-sm text-emerald-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                            </svg>
-                            <span>{{ $financeStats['today_transactions'] ?? 0 }} transaksi</span>
-                        </div>
-                    </div>
+                    @endif
 
-                    <!-- Monthly Revenue -->
+                    @if ($canViewWidget('finance_monthly_revenue'))
+                        <!-- Monthly Revenue -->
                     <div
                         class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
                         <div class="flex items-center justify-between mb-4">
@@ -203,64 +255,70 @@
                                 ({{ $financeStats['monthly_percentage'] ?? 0 }}%)</span>
                         </div>
                     </div>
+                    @endif
 
-                    <!-- Pending Payments -->
-                    <div
-                        class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="bg-white/20 p-3 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                    @if ($canViewWidget('finance_pending_payments'))
+                        <!-- Pending Payments -->
+                        <div
+                            class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-white/20 p-3 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs bg-white/20 px-2 py-1 rounded-full flex items-center">
+                                        <span class="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></span>
+                                        Pending
+                                    </span>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <span class="text-xs bg-white/20 px-2 py-1 rounded-full flex items-center">
-                                    <span class="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></span>
-                                    Pending
-                                </span>
+                            <h3 class="text-sm font-medium text-amber-100 mb-1">Pembayaran Tertunda</h3>
+                            <div class="text-3xl font-bold mb-2">
+                                Rp {{ number_format($financeStats['pending_payments'] ?? 0, 0, ',', '.') }}
+                            </div>
+                            <div class="flex items-center text-sm text-amber-100">
+                                <span>{{ $financeStats['pending_count'] ?? 0 }} invoice menunggu pembayaran</span>
                             </div>
                         </div>
-                        <h3 class="text-sm font-medium text-amber-100 mb-1">Pembayaran Tertunda</h3>
-                        <div class="text-3xl font-bold mb-2">
-                            Rp {{ number_format($financeStats['pending_payments'] ?? 0, 0, ',', '.') }}
-                        </div>
-                        <div class="flex items-center text-sm text-amber-100">
-                            <span>{{ $financeStats['pending_count'] ?? 0 }} invoice menunggu pembayaran</span>
-                        </div>
-                    </div>
+                    @endif
 
-                    <!-- Payment Success Rate -->
-                    <div
-                        class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="bg-white/20 p-3 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                    @if ($canViewWidget('finance_payment_success_rate'))
+                        <!-- Payment Success Rate -->
+                        <div
+                            class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-white/20 p-3 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Status</span>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Status</span>
+                            <h3 class="text-sm font-medium text-purple-100 mb-1">Tingkat Pembayaran</h3>
+                            <div class="text-3xl font-bold mb-2">
+                                {{ $financeStats['payment_success_rate'] ?? 0 }}%
+                            </div>
+                            <div class="w-full bg-purple-700 rounded-full h-2 mt-3">
+                                <div class="bg-white h-2 rounded-full transition-all"
+                                    style="width: {{ $financeStats['payment_success_rate'] ?? 0 }}%"></div>
                             </div>
                         </div>
-                        <h3 class="text-sm font-medium text-purple-100 mb-1">Tingkat Pembayaran</h3>
-                        <div class="text-3xl font-bold mb-2">
-                            {{ $financeStats['payment_success_rate'] ?? 0 }}%
-                        </div>
-                        <div class="w-full bg-purple-700 rounded-full h-2 mt-3">
-                            <div class="bg-white h-2 rounded-full transition-all"
-                                style="width: {{ $financeStats['payment_success_rate'] ?? 0 }}%"></div>
-                        </div>
-                    </div>
+                    @endif
                 </div>
 
                 <!-- Payment Details Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <!-- Payment Method Breakdown -->
-                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    @if ($canViewWidget('finance_payment_methods'))
+                        <!-- Payment Method Breakdown -->
+                        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
@@ -355,8 +413,10 @@
                             @endif
                         </div>
                     </div>
+                    @endif
 
-                    <!-- Revenue Per Property -->
+                    @if ($canViewWidget('rooms_property_report'))
+                        <!-- Revenue Per Property -->
                     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
                             <div class="flex items-center justify-between">
@@ -393,130 +453,56 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
-                <!-- Revenue Trend Chart - Full Width -->
-                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-green-50">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                                </svg>
-                                <h3 class="font-semibold text-gray-800 text-lg">Tren Pendapatan (<span
-                                        id="revenueTrendPeriodLabel">7</span> Hari)</h3>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <select id="revenueTrendPeriod"
-                                    class="text-xs px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                                    <option value="7" selected>7 Hari</option>
-                                    <option value="30">30 Hari</option>
-                                </select>
-                                <span class="text-xs text-gray-500">Cash In</span>
+                @if ($canViewWidget('report_sales_chart'))
+                    <!-- Revenue Trend Chart - Full Width -->
+                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
+                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-green-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                    </svg>
+                                    <h3 class="font-semibold text-gray-800 text-lg">Tren Pendapatan (<span
+                                            id="revenueTrendPeriodLabel">7</span> Hari)</h3>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <select id="revenueTrendPeriod"
+        class="text-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-36">
+    <option value="7" selected>7 Hari</option>
+    <option value="30">30 Hari</option>
+</select>
+                                    <span class="text-xs text-gray-500">Cash In</span>
+                                </div>
                             </div>
                         </div>
+                        <div class="p-6">
+                            <canvas id="revenueTrendChart" height="100"></canvas>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <canvas id="revenueTrendChart" height="100"></canvas>
-                    </div>
-                </div>
+                @endif
             </div>
         @endif
 
-        @if (!$isFinanceOnly)
-            <!-- Occupied Rooms & Analytics Section -->
-            <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                <!-- Revenue Per Room Card -->
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold">Pendapatan Per Kamar</h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-80" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="text-3xl font-bold mb-2">
-                        Rp {{ number_format($revenuePerRoom['average_per_room'], 0, ',', '.') }}
-                    </div>
-                    <p class="text-blue-100 text-sm">Rata-rata per kamar terisi</p>
-                    <div class="mt-4 pt-4 border-t border-blue-400">
-                        <div class="flex justify-between text-sm">
-                            <span>Total Pendapatan:</span>
-                            <span class="font-semibold">Rp
-                                {{ number_format($revenuePerRoom['total_revenue'], 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-                </div>
+        @php
+            // Check if user has access to any rooms or check-in/out list widgets
+            $hasRoomsWidgets = $canViewWidget('rooms_availability') ||
+                              $canViewWidget('rooms_occupied_details') ||
+                              $canViewWidget('rooms_occupancy_history') ||
+                              $canViewWidget('rooms_type_breakdown') ||
+                              $canViewWidget('checkin_list') ||
+                              $canViewWidget('checkout_list');
+        @endphp
 
-                <!-- Room Availability Card -->
-                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold">Ketersediaan Kamar</h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-80" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                    </div>
-                    <div class="text-3xl font-bold mb-2">
-                        @php
-                            $totalRooms = 0;
-                            $availableRooms = 0;
-                            if (is_array($roomReports) && count($roomReports) > 0) {
-                                foreach ($roomReports as $report) {
-                                    $totalRooms += $report['room_stats']['total_rooms'];
-                                    $availableRooms += $report['room_stats']['available_rooms'];
-                                }
-                            }
-                            $availabilityPercentage =
-                                $totalRooms > 0 ? round(($availableRooms / $totalRooms) * 100, 1) : 0;
-                        @endphp
-                        {{ $availableRooms }}/{{ $totalRooms }} kamar
-                    </div>
-                    <p class="text-purple-100 text-sm">Kamar tersedia saat ini</p>
-                    <div class="mt-4">
-                        <div class="flex justify-between text-sm mb-2">
-                            <span>Tingkat Ketersediaan</span>
-                            <span>{{ $availabilityPercentage }}%</span>
-                        </div>
-                        <div class="w-full bg-purple-700 rounded-full h-2">
-                            <div class="bg-white h-2 rounded-full transition-all"
-                                style="width: {{ $availabilityPercentage }}%">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Current Occupancy Card -->
-                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold">Kamar Terisi Saat Ini</h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-80" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                    </div>
-                    <div class="text-3xl font-bold mb-2">
-                        {{ $revenuePerRoom['occupied_rooms'] }} kamar
-                    </div>
-                    <p class="text-green-100 text-sm">Tamu sedang menginap</p>
-                    <div class="mt-4 pt-4 border-t border-green-400">
-                        <div class="flex justify-between text-sm">
-                            <span>Check-Out Hari Ini:</span>
-                            <span class="font-semibold">{{ $stats['checkout'] }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        @if ($hasRoomsWidgets)
             @php
                 $canViewAnalytics = Auth::user()->canViewAllProperties();
             @endphp
 
-            @if ($canViewAnalytics)
+            @if ($canViewAnalytics && $canViewWidget('rooms_occupied_details'))
                 <!-- Occupied Rooms & Analytics Section (Only for Super Admin and HO roles) -->
                 @if (count($occupiedRooms) > 0)
                     <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -881,7 +867,7 @@
                 </div>
             @endif
 
-            @if (Auth::user()->canViewAllProperties())
+            @if (Auth::user()->canViewAllProperties() && $canViewWidget('rooms_occupancy_history'))
                 <!-- Occupancy History Chart (Only for Super Admin and HO roles) -->
                 <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
@@ -904,9 +890,10 @@
             <div class="mt-8 grid grid-cols-1 lg:grid-cols-1 gap-8">
                 <!-- Left Column -->
                 <div class="lg:col-span-2 space-y-8">
-                    <!-- Check-out Section -->
-                    <div
-                        class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
+                    @if ($canViewWidget('checkout_list'))
+                        <!-- Check-out Section -->
+                        <div
+                            class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
                         <div
                             class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
                             <div class="flex items-center space-x-3">
@@ -941,10 +928,12 @@
                             mendatang
                         </div>
                     </div>
+                    @endif
 
-                    <!-- Check-in Section -->
-                    <div
-                        class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
+                    @if ($canViewWidget('checkin_list'))
+                        <!-- Check-in Section -->
+                        <div
+                            class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
                         <div
                             class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-green-50 to-teal-50">
                             <div class="flex items-center space-x-3">
@@ -978,10 +967,11 @@
                             Menampilkan {{ min(4, count($checkIns)) }} dari {{ count($checkIns) }} check-in mendatang
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
 
-            @if (Auth::user()->canViewAllProperties())
+            @if (Auth::user()->canViewAllProperties() && $canViewWidget('rooms_availability'))
                 <!-- Multi-Property Reports (Only for Super Admin and HO roles) -->
                 <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Room Availability Report -->
@@ -1066,7 +1056,7 @@
                                             </div>
 
                                             <!-- Room Types Breakdown -->
-                                            @if (count($report['room_types_breakdown']) > 0)
+                                            @if (count($report['room_types_breakdown']) > 0 && $canViewWidget('rooms_type_breakdown'))
                                                 <div class="mt-4">
                                                     <h4 class="font-medium text-gray-700 mb-2">Breakdown Tipe Kamar
                                                     </h4>
@@ -1119,19 +1109,20 @@
                         </div>
                     </div>
 
-                    <!-- Detailed Duration & Sales Report -->
-                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-teal-50">
-                            <div class="flex justify-between items-center mb-6">
-                                <!-- Left Section -->
-                                <div class="flex items-center space-x-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <h2 class="font-semibold text-gray-800 text-lg">Detail Durasi Sewa & Penjualan</h2>
-                                </div>
+                    @if ($canViewWidget('report_rental_duration'))
+                        <!-- Detailed Duration & Sales Report -->
+                        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-teal-50">
+                                <div class="flex justify-between items-center mb-6">
+                                    <!-- Left Section -->
+                                    <div class="flex items-center space-x-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <h2 class="font-semibold text-gray-800 text-lg">Detail Durasi Sewa & Penjualan</h2>
+                                    </div>
 
                                 <!-- Search Input -->
                                 <div class="relative w-full max-w-xs hidden sm:block">
@@ -1249,6 +1240,7 @@
                             @endif
                         </div>
                     </div>
+                    @endif
                 </div>
             @endif
         @endif
@@ -1479,7 +1471,7 @@
             @endif
 
             // Financial Charts
-            @if ($canViewFinance && !empty($financeStats))
+            @if ($hasFinanceWidgets && !empty($financeStats) && $canViewWidget('report_sales_chart'))
                 // Revenue Trend Chart - with dynamic period selection
                 let revenueTrendChart = null;
                 const revenueTrendCtx = document.getElementById('revenueTrendChart');
