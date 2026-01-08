@@ -2,7 +2,7 @@
     @php
         // Helper function untuk check widget access
         $userRole = Auth::user()->role;
-        $canViewWidget = function($widgetSlug) use ($userRole) {
+        $canViewWidget = function ($widgetSlug) use ($userRole) {
             // Super Admin bisa lihat semua
             if (Auth::user()->isSuperAdmin()) {
                 return true;
@@ -27,7 +27,8 @@
             <!-- Content -->
             <div class="relative">
                 <!-- Header Section (No Overlay) -->
-                <div class="relative bg-gradient-to-r from-gray-900/60 to-gray-900/40 backdrop-blur-sm rounded-lg p-4 mb-6">
+                <div
+                    class="relative bg-gradient-to-r from-gray-900/60 to-gray-900/40 backdrop-blur-sm rounded-lg p-4 mb-6">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
                             <h1 class="text-2xl md:text-3xl text-white font-bold mb-1 drop-shadow-lg">
@@ -38,7 +39,8 @@
                                     {{ Auth::user()->role->name ?? 'Ulin Mahoni' }}
                                 @endif
                             </h1>
-                            <p class="text-blue-100 font-medium drop-shadow">Selamat datang kembali, {{ Auth::user()->first_name }}
+                            <p class="text-blue-100 font-medium drop-shadow">Selamat datang kembali,
+                                {{ Auth::user()->first_name }}
                                 {{ Auth::user()->last_name }}
                                 @if (Auth::user()->role)
                                     <span class="text-yellow-300">• {{ Auth::user()->role->name }}</span>
@@ -53,7 +55,8 @@
                                     {{ Auth::user()->role->name }}
                                 </span>
                             @endif
-                            <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
+                            <div
+                                class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300 mr-2"
                                     viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd"
@@ -69,32 +72,39 @@
 
                 @php
                     // Check if user has access to any booking stats widgets
-                    $hasBookingStats = $canViewWidget('booking_upcoming') ||
-                                      $canViewWidget('booking_today') ||
-                                      $canViewWidget('booking_checkin') ||
-                                      $canViewWidget('booking_checkout');
+                    $hasBookingStats =
+                        $canViewWidget('booking_upcoming') ||
+                        $canViewWidget('booking_today') ||
+                        $canViewWidget('booking_checkin') ||
+                        $canViewWidget('booking_checkout');
                 @endphp
 
                 @if ($hasBookingStats)
                     <!-- Quick Stats Section with Overlay -->
-                    <div class="relative bg-gradient-to-br from-gray-900/70 to-gray-900/50 backdrop-blur-md rounded-xl p-6 border border-white/10 shadow-2xl">
+                    <div
+                        class="relative bg-gradient-to-br from-gray-900/70 to-gray-900/50 backdrop-blur-md rounded-xl p-6 border border-white/10 shadow-2xl">
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             @if ($canViewWidget('booking_upcoming'))
                                 <!-- Confirm Booking (Upcoming) -->
-                                <div class="group relative bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-sm rounded-xl p-5 border border-blue-400/30 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
+                                <div
+                                    class="group relative bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-sm rounded-xl p-5 border border-blue-400/30 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
                                     <div class="flex flex-col h-full">
                                         <div class="flex justify-between items-start mb-3">
-                                            <div class="bg-blue-500/30 p-3 rounded-lg border border-blue-400/30 group-hover:bg-blue-500/40 transition-colors">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-100" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            <div
+                                                class="bg-blue-500/30 p-3 rounded-lg border border-blue-400/30 group-hover:bg-blue-500/40 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-100"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
                                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                             </div>
                                         </div>
                                         <div class="flex-1">
-                                            <p class="text-blue-100 text-xs font-semibold uppercase tracking-wide mb-2">Konfirmasi Booking</p>
-                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">{{ $stats['upcoming'] }}</h3>
+                                            <p class="text-blue-100 text-xs font-semibold uppercase tracking-wide mb-2">
+                                                Konfirmasi Booking</p>
+                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
+                                                {{ $stats['upcoming'] }}</h3>
                                             <p class="text-blue-200 text-sm">Mendatang</p>
                                         </div>
                                     </div>
@@ -103,20 +113,26 @@
 
                             @if ($canViewWidget('booking_today'))
                                 <!-- Confirm Booking (Today) -->
-                                <div class="group relative bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-sm rounded-xl p-5 border border-purple-400/30 hover:border-purple-400/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1">
+                                <div
+                                    class="group relative bg-gradient-to-br from-purple-500/20 to-purple-600/10 backdrop-blur-sm rounded-xl p-5 border border-purple-400/30 hover:border-purple-400/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1">
                                     <div class="flex flex-col h-full">
                                         <div class="flex justify-between items-start mb-3">
-                                            <div class="bg-purple-500/30 p-3 rounded-lg border border-purple-400/30 group-hover:bg-purple-500/40 transition-colors">
+                                            <div
+                                                class="bg-purple-500/30 p-3 rounded-lg border border-purple-400/30 group-hover:bg-purple-500/40 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-purple-100"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
                                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
                                             </div>
                                         </div>
                                         <div class="flex-1">
-                                            <p class="text-purple-100 text-xs font-semibold uppercase tracking-wide mb-2">Booking Hari Ini</p>
-                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">{{ $stats['today'] }}</h3>
+                                            <p
+                                                class="text-purple-100 text-xs font-semibold uppercase tracking-wide mb-2">
+                                                Booking Hari Ini</p>
+                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
+                                                {{ $stats['today'] }}</h3>
                                             <p class="text-purple-200 text-sm">Kedatangan</p>
                                         </div>
                                     </div>
@@ -125,20 +141,25 @@
 
                             @if ($canViewWidget('booking_checkin'))
                                 <!-- Check-In -->
-                                <div class="group relative bg-gradient-to-br from-green-500/20 to-green-600/10 backdrop-blur-sm rounded-xl p-5 border border-green-400/30 hover:border-green-400/50 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 hover:-translate-y-1">
+                                <div
+                                    class="group relative bg-gradient-to-br from-green-500/20 to-green-600/10 backdrop-blur-sm rounded-xl p-5 border border-green-400/30 hover:border-green-400/50 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 hover:-translate-y-1">
                                     <div class="flex flex-col h-full">
                                         <div class="flex justify-between items-start mb-3">
-                                            <div class="bg-green-500/30 p-3 rounded-lg border border-green-400/30 group-hover:bg-green-500/40 transition-colors">
+                                            <div
+                                                class="bg-green-500/30 p-3 rounded-lg border border-green-400/30 group-hover:bg-green-500/40 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-green-100"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                                                 </svg>
                                             </div>
                                         </div>
                                         <div class="flex-1">
-                                            <p class="text-green-100 text-xs font-semibold uppercase tracking-wide mb-2">Check-In</p>
-                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">{{ $stats['checkin'] }}</h3>
+                                            <p
+                                                class="text-green-100 text-xs font-semibold uppercase tracking-wide mb-2">
+                                                Check-In</p>
+                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
+                                                {{ $stats['checkin'] }}</h3>
                                             <p class="text-green-200 text-sm">Sedang Menginap</p>
                                         </div>
                                     </div>
@@ -147,20 +168,25 @@
 
                             @if ($canViewWidget('booking_checkout'))
                                 <!-- Check-Out -->
-                                <div class="group relative bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 backdrop-blur-sm rounded-xl p-5 border border-yellow-400/30 hover:border-yellow-400/50 hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 hover:-translate-y-1">
+                                <div
+                                    class="group relative bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 backdrop-blur-sm rounded-xl p-5 border border-yellow-400/30 hover:border-yellow-400/50 hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 hover:-translate-y-1">
                                     <div class="flex flex-col h-full">
                                         <div class="flex justify-between items-start mb-3">
-                                            <div class="bg-yellow-500/30 p-3 rounded-lg border border-yellow-400/30 group-hover:bg-yellow-500/40 transition-colors">
+                                            <div
+                                                class="bg-yellow-500/30 p-3 rounded-lg border border-yellow-400/30 group-hover:bg-yellow-500/40 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-yellow-100"
                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                                 </svg>
                                             </div>
                                         </div>
                                         <div class="flex-1">
-                                            <p class="text-yellow-100 text-xs font-semibold uppercase tracking-wide mb-2">Check-Out</p>
-                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">{{ $stats['checkout'] }}</h3>
+                                            <p
+                                                class="text-yellow-100 text-xs font-semibold uppercase tracking-wide mb-2">
+                                                Check-Out</p>
+                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
+                                                {{ $stats['checkout'] }}</h3>
                                             <p class="text-yellow-200 text-sm">Hari Ini</p>
                                         </div>
                                     </div>
@@ -175,13 +201,14 @@
 
         @php
             // Check if user has access to any finance widgets
-            $hasFinanceWidgets = $canViewWidget('finance_today_revenue') ||
-                                $canViewWidget('finance_monthly_revenue') ||
-                                $canViewWidget('finance_pending_payments') ||
-                                $canViewWidget('finance_payment_success_rate') ||
-                                $canViewWidget('finance_payment_methods') ||
-                                $canViewWidget('finance_cash_flow') ||
-                                $canViewWidget('finance_recent_transactions');
+            $hasFinanceWidgets =
+                $canViewWidget('finance_today_revenue') ||
+                $canViewWidget('finance_monthly_revenue') ||
+                $canViewWidget('finance_pending_payments') ||
+                $canViewWidget('finance_payment_success_rate') ||
+                $canViewWidget('finance_payment_methods') ||
+                $canViewWidget('finance_cash_flow') ||
+                $canViewWidget('finance_recent_transactions');
         @endphp
 
         @if ($hasFinanceWidgets && !empty($financeStats))
@@ -231,30 +258,30 @@
 
                     @if ($canViewWidget('finance_monthly_revenue'))
                         <!-- Monthly Revenue -->
-                    <div
-                        class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="bg-white/20 p-3 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
+                        <div
+                            class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-white/20 p-3 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Bulan Ini</span>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Bulan Ini</span>
+                            <h3 class="text-sm font-medium text-blue-100 mb-1">Pendapatan Bulan Ini</h3>
+                            <div class="text-3xl font-bold mb-2">
+                                Rp {{ number_format($financeStats['monthly_revenue'] ?? 0, 0, ',', '.') }}
+                            </div>
+                            <div class="flex items-center text-sm text-blue-100">
+                                <span>Target: Rp
+                                    {{ number_format($financeStats['monthly_target'] ?? 150000000, 0, ',', '.') }}
+                                    ({{ $financeStats['monthly_percentage'] ?? 0 }}%)</span>
                             </div>
                         </div>
-                        <h3 class="text-sm font-medium text-blue-100 mb-1">Pendapatan Bulan Ini</h3>
-                        <div class="text-3xl font-bold mb-2">
-                            Rp {{ number_format($financeStats['monthly_revenue'] ?? 0, 0, ',', '.') }}
-                        </div>
-                        <div class="flex items-center text-sm text-blue-100">
-                            <span>Target: Rp
-                                {{ number_format($financeStats['monthly_target'] ?? 150000000, 0, ',', '.') }}
-                                ({{ $financeStats['monthly_percentage'] ?? 0 }}%)</span>
-                        </div>
-                    </div>
                     @endif
 
                     @if ($canViewWidget('finance_pending_payments'))
@@ -319,116 +346,117 @@
                     @if ($canViewWidget('finance_payment_methods'))
                         <!-- Payment Method Breakdown -->
                         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                    </svg>
-                                    <h3 class="font-semibold text-gray-800 text-lg">Metode Pembayaran</h3>
+                            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                        </svg>
+                                        <h3 class="font-semibold text-gray-800 text-lg">Metode Pembayaran</h3>
+                                    </div>
+                                    <span class="text-xs text-gray-500">Bulan Ini</span>
                                 </div>
-                                <span class="text-xs text-gray-500">Bulan Ini</span>
                             </div>
-                        </div>
-                        <div class="p-6">
-                            <!-- Payment Method Items -->
-                            @php
-                                $methodColors = [
-                                    'Tunai' => [
-                                        'bg' => 'green',
-                                        'icon' =>
-                                            'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
-                                    ],
-                                    'Transfer Bank' => [
-                                        'bg' => 'blue',
-                                        'icon' => 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
-                                    ],
-                                    'Kartu Kredit' => [
-                                        'bg' => 'purple',
-                                        'icon' =>
-                                            'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
-                                    ],
-                                    'E-Wallet' => [
-                                        'bg' => 'orange',
-                                        'icon' =>
-                                            'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
-                                    ],
-                                    'Kartu Debit' => [
-                                        'bg' => 'indigo',
-                                        'icon' =>
-                                            'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
-                                    ],
-                                ];
-                            @endphp
+                            <div class="p-6">
+                                <!-- Payment Method Items -->
+                                @php
+                                    $methodColors = [
+                                        'Tunai' => [
+                                            'bg' => 'green',
+                                            'icon' =>
+                                                'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+                                        ],
+                                        'Transfer Bank' => [
+                                            'bg' => 'blue',
+                                            'icon' => 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+                                        ],
+                                        'Kartu Kredit' => [
+                                            'bg' => 'purple',
+                                            'icon' =>
+                                                'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+                                        ],
+                                        'E-Wallet' => [
+                                            'bg' => 'orange',
+                                            'icon' =>
+                                                'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
+                                        ],
+                                        'Kartu Debit' => [
+                                            'bg' => 'indigo',
+                                            'icon' =>
+                                                'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+                                        ],
+                                    ];
+                                @endphp
 
-                            <div class="space-y-4">
-                                @forelse(($financeStats['payment_methods'] ?? []) as $method)
-                                    @php
-                                        $color = $methodColors[$method['method']]['bg'] ?? 'gray';
-                                        $icon =
-                                            $methodColors[$method['method']]['icon'] ??
-                                            'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
-                                    @endphp
-                                    <div
-                                        class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="bg-{{ $color }}-100 p-2 rounded-lg">
-                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                    class="h-6 w-6 text-{{ $color }}-600" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="{{ $icon }}" />
-                                                </svg>
+                                <div class="space-y-4">
+                                    @forelse(($financeStats['payment_methods'] ?? []) as $method)
+                                        @php
+                                            $color = $methodColors[$method['method']]['bg'] ?? 'gray';
+                                            $icon =
+                                                $methodColors[$method['method']]['icon'] ??
+                                                'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+                                        @endphp
+                                        <div
+                                            class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="bg-{{ $color }}-100 p-2 rounded-lg">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-6 w-6 text-{{ $color }}-600" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="{{ $icon }}" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-gray-800">{{ $method['method'] }}</p>
+                                                    <p class="text-sm text-gray-500">{{ $method['count'] }} transaksi
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p class="font-semibold text-gray-800">{{ $method['method'] }}</p>
-                                                <p class="text-sm text-gray-500">{{ $method['count'] }} transaksi</p>
+                                            <div class="text-right">
+                                                <p class="font-bold text-gray-800">Rp
+                                                    {{ number_format($method['amount'], 0, ',', '.') }}</p>
+                                                <p class="text-sm text-gray-500">{{ $method['percentage'] }}%</p>
                                             </div>
                                         </div>
-                                        <div class="text-right">
-                                            <p class="font-bold text-gray-800">Rp
-                                                {{ number_format($method['amount'], 0, ',', '.') }}</p>
-                                            <p class="text-sm text-gray-500">{{ $method['percentage'] }}%</p>
+                                    @empty
+                                        <div class="text-center py-8 text-gray-500">
+                                            <p>Belum ada data pembayaran bulan ini</p>
+                                        </div>
+                                    @endforelse
+                                </div>
+
+                                <!-- Total -->
+                                @if (!empty($financeStats['payment_methods']))
+                                    <div class="mt-6 pt-4 border-t-2 border-gray-200">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-lg font-bold text-gray-800">Total Pendapatan</p>
+                                            <p class="text-2xl font-bold text-blue-600">Rp
+                                                {{ number_format($financeStats['payment_methods_total'] ?? 0, 0, ',', '.') }}
+                                            </p>
                                         </div>
                                     </div>
-                                @empty
-                                    <div class="text-center py-8 text-gray-500">
-                                        <p>Belum ada data pembayaran bulan ini</p>
-                                    </div>
-                                @endforelse
+                                @endif
                             </div>
-
-                            <!-- Total -->
-                            @if (!empty($financeStats['payment_methods']))
-                                <div class="mt-6 pt-4 border-t-2 border-gray-200">
-                                    <div class="flex items-center justify-between">
-                                        <p class="text-lg font-bold text-gray-800">Total Pendapatan</p>
-                                        <p class="text-2xl font-bold text-blue-600">Rp
-                                            {{ number_format($financeStats['payment_methods_total'] ?? 0, 0, ',', '.') }}
-                                        </p>
-                                    </div>
-                                </div>
-                            @endif
                         </div>
-                    </div>
                     @endif
 
                     @if ($canViewWidget('rooms_property_report'))
                         <!-- Revenue Per Property -->
-                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                    </svg>
-                                    <h3 class="font-semibold text-gray-800 text-lg">Pendapatan Per Property</h3>
-                                </div>
-                                @if (Auth::user()->canViewAllProperties())
+                        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        <h3 class="font-semibold text-gray-800 text-lg">Pendapatan Per Property</h3>
+                                    </div>
                                     <select id="propertySelect"
                                         class="text-xs px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                         <option value="">Semua Property</option>
@@ -437,322 +465,70 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                @endif
+                                </div>
                             </div>
-                        </div>
-                        <div class="p-6">
-                            <div id="propertyRevenueContent">
-                                <!-- Content will be loaded here -->
-                                <div class="text-center py-8">
-                                    <div class="animate-pulse flex flex-col items-center">
-                                        <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                                        <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+                            <div class="p-6">
+                                <div id="propertyRevenueContent">
+                                    <!-- Content will be loaded here -->
+                                    <div class="text-center py-8">
+                                        <div class="animate-pulse flex flex-col items-center">
+                                            <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                                            <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                </div>
+        @endif
+
+        @if ($canViewWidget('report_sales_chart'))
+            <!-- Revenue Trend Chart - Full Width -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-green-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                            </svg>
+                            <h3 class="font-semibold text-gray-800 text-lg">Tren Pendapatan (<span
+                                    id="revenueTrendPeriodLabel">7</span> Hari)</h3>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <select id="revenueTrendPeriod"
+                                class="text-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-36">
+                                <option value="7" selected>7 Hari</option>
+                                <option value="30">30 Hari</option>
+                            </select>
+                            <span class="text-xs text-gray-500">Cash In</span>
                         </div>
                     </div>
                 </div>
-                @endif
-
-                @if ($canViewWidget('report_sales_chart'))
-                    <!-- Revenue Trend Chart - Full Width -->
-                    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-green-50">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                                    </svg>
-                                    <h3 class="font-semibold text-gray-800 text-lg">Tren Pendapatan (<span
-                                            id="revenueTrendPeriodLabel">7</span> Hari)</h3>
-                                </div>
-                                <div class="flex items-center space-x-3">
-                                    <select id="revenueTrendPeriod"
-        class="text-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 w-36">
-    <option value="7" selected>7 Hari</option>
-    <option value="30">30 Hari</option>
-</select>
-                                    <span class="text-xs text-gray-500">Cash In</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <canvas id="revenueTrendChart" height="100"></canvas>
-                        </div>
-                    </div>
-                @endif
+                <div class="p-6">
+                    <canvas id="revenueTrendChart" height="100"></canvas>
+                </div>
             </div>
         @endif
+    </div>
+    @endif
 
-        @php
-            // Check if user has access to any rooms or check-in/out list widgets
-            $hasRoomsWidgets = $canViewWidget('rooms_availability') ||
-                              $canViewWidget('rooms_occupied_details') ||
-                              $canViewWidget('rooms_occupancy_history') ||
-                              $canViewWidget('rooms_type_breakdown') ||
-                              $canViewWidget('checkin_list') ||
-                              $canViewWidget('checkout_list');
-        @endphp
+    @php
+        // Check if user has access to any rooms or check-in/out list widgets
+        $hasRoomsWidgets =
+            $canViewWidget('rooms_availability') ||
+            $canViewWidget('rooms_occupied_details') ||
+            $canViewWidget('rooms_occupancy_history') ||
+            $canViewWidget('rooms_type_breakdown') ||
+            $canViewWidget('checkin_list') ||
+            $canViewWidget('checkout_list');
+    @endphp
 
-        @if ($hasRoomsWidgets)
-            @php
-                $canViewAnalytics = Auth::user()->canViewAllProperties();
-            @endphp
-
-            @if ($canViewAnalytics && $canViewWidget('rooms_occupied_details'))
-                <!-- Occupied Rooms & Analytics Section (Only for Super Admin and HO roles) -->
-                @if (count($occupiedRooms) > 0)
-                    <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center space-x-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                    <h2 class="font-semibold text-gray-800 text-lg">Kamar Terisi Saat Ini</h2>
-                                    <span
-                                        class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($occupiedRooms) }}
-                                        Aktif</span>
-                                </div>
-                                @if (count($occupiedRooms) > 4)
-                                    <div class="flex items-center text-sm text-indigo-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-                                        </svg>
-                                        Geser untuk melihat lebih banyak
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            @if (count($occupiedRooms) > 4)
-                                <!-- Horizontal scroll untuk lebih dari 4 card -->
-                                <div class="overflow-x-auto pb-4">
-                                    <div class="flex space-x-4 min-w-min"
-                                        style="min-width: {{ count($occupiedRooms) > 4 ? 'min-content' : 'auto' }}">
-                                        @foreach ($occupiedRooms as $occupied)
-                                            <div class="w-80 flex-shrink-0">
-                                                <div
-                                                    class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow h-full {{ $occupied['is_overdue'] ? 'border-red-300 bg-red-50' : ($occupied['is_checkout_today'] ? 'border-yellow-300 bg-yellow-50' : '') }}">
-                                                    <!-- Header -->
-                                                    <div class="flex justify-between items-start mb-3">
-                                                        <div>
-                                                            <h4 class="font-semibold text-gray-800">
-                                                                {{ $occupied['guest_name'] }}</h4>
-                                                            <p class="text-sm text-gray-600">
-                                                                {{ $occupied['room_name'] }}
-                                                                •
-                                                                {{ $occupied['room_type'] }}</p>
-                                                            <p class="text-xs text-gray-500">
-                                                                {{ $occupied['property_name'] }}</p>
-                                                        </div>
-                                                        @if ($occupied['is_overdue'])
-                                                            <span
-                                                                class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                    class="h-3 w-3 mr-1" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                                </svg>
-                                                                Terlambat
-                                                            </span>
-                                                        @elseif($occupied['is_checkout_today'])
-                                                            <span
-                                                                class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                    class="h-3 w-3 mr-1" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round" stroke-width="2"
-                                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                </svg>
-                                                                Check-Out Hari Ini
-                                                            </span>
-                                                        @else
-                                                            <span
-                                                                class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                                                                Aktif
-                                                            </span>
-                                                        @endif
-                                                    </div>
-
-                                                    <!-- Stay Details -->
-                                                    <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
-                                                        <div class="flex items-center text-gray-600">
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                class="h-4 w-4 mr-1 text-green-500" fill="none"
-                                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                            </svg>
-                                                            {{ $occupied['check_in_date'] }}
-                                                        </div>
-                                                        <div class="flex items-center text-gray-600">
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                class="h-4 w-4 mr-1 text-red-500" fill="none"
-                                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                            </svg>
-                                                            {{ $occupied['check_out_date'] }}
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Progress Bar -->
-                                                    <div class="mb-3">
-                                                        <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                                            <span>Hari {{ $occupied['days_stayed'] }} dari
-                                                                {{ $occupied['total_days'] }}</span>
-                                                            <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
-                                                        </div>
-                                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                                            <div class="bg-indigo-600 h-2 rounded-full transition-all"
-                                                                style="width: {{ $occupied['progress_percentage'] }}%">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Revenue Info -->
-                                                    <div
-                                                        class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                                        <div>
-                                                            <p class="text-xs text-gray-500">Tarif Harian</p>
-                                                            <p class="text-sm font-semibold text-gray-800">Rp
-                                                                {{ number_format($occupied['daily_rate'], 0, ',', '.') }}
-                                                            </p>
-                                                        </div>
-                                                        <div class="text-right">
-                                                            <p class="text-xs text-gray-500">Total</p>
-                                                            <p class="text-sm font-semibold text-indigo-600">Rp
-                                                                {{ number_format($occupied['total_price'], 0, ',', '.') }}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @else
-                                <!-- Grid layout untuk 4 card atau kurang -->
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                    @foreach ($occupiedRooms as $occupied)
-                                        <div
-                                            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow {{ $occupied['is_overdue'] ? 'border-red-300 bg-red-50' : ($occupied['is_checkout_today'] ? 'border-yellow-300 bg-yellow-50' : '') }}">
-                                            <!-- Header -->
-                                            <div class="flex justify-between items-start mb-3">
-                                                <div>
-                                                    <h4 class="font-semibold text-gray-800">
-                                                        {{ $occupied['guest_name'] }}
-                                                    </h4>
-                                                    <p class="text-sm text-gray-600">{{ $occupied['room_name'] }} •
-                                                        {{ $occupied['room_type'] }}</p>
-                                                    <p class="text-xs text-gray-500">{{ $occupied['property_name'] }}
-                                                    </p>
-                                                </div>
-                                                @if ($occupied['is_overdue'])
-                                                    <span
-                                                        class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
-                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                        </svg>
-                                                        Terlambat
-                                                    </span>
-                                                @elseif($occupied['is_checkout_today'])
-                                                    <span
-                                                        class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
-                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                        Check-Out Hari Ini
-                                                    </span>
-                                                @else
-                                                    <span
-                                                        class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                                                        Aktif
-                                                    </span>
-                                                @endif
-                                            </div>
-
-                                            <!-- Stay Details -->
-                                            <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
-                                                <div class="flex items-center text-gray-600">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="h-4 w-4 mr-1 text-green-500" fill="none"
-                                                        viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                    {{ $occupied['check_in_date'] }}
-                                                </div>
-                                                <div class="flex items-center text-gray-600">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="h-4 w-4 mr-1 text-red-500" fill="none"
-                                                        viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                    {{ $occupied['check_out_date'] }}
-                                                </div>
-                                            </div>
-
-                                            <!-- Progress Bar -->
-                                            <div class="mb-3">
-                                                <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                                    <span>Hari {{ $occupied['days_stayed'] }} dari
-                                                        {{ $occupied['total_days'] }}</span>
-                                                    <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
-                                                </div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                                    <div class="bg-indigo-600 h-2 rounded-full transition-all"
-                                                        style="width: {{ $occupied['progress_percentage'] }}%"></div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Revenue Info -->
-                                            <div
-                                                class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                                <div>
-                                                    <p class="text-xs text-gray-500">Tarif Harian</p>
-                                                    <p class="text-sm font-semibold text-gray-800">Rp
-                                                        {{ number_format($occupied['daily_rate'], 0, ',', '.') }}</p>
-                                                </div>
-                                                <div class="text-right">
-                                                    <p class="text-xs text-gray-500">Total</p>
-                                                    <p class="text-sm font-semibold text-indigo-600">Rp
-                                                        {{ number_format($occupied['total_price'], 0, ',', '.') }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-            @endif
-
-            <!-- Occupied Rooms Details (Visible to all roles) -->
-            @if (count($occupiedRooms) > 0 && !Auth::user()->canViewAllProperties())
+    @if ($hasRoomsWidgets)
+        @if ($canViewWidget('rooms_occupied_details'))
+            <!-- Occupied Rooms & Analytics Section (Only for Super Admin and HO roles) -->
+            @if (count($occupiedRooms) > 0)
                 <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
                         <div class="flex justify-between items-center">
@@ -767,133 +543,264 @@
                                     class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($occupiedRooms) }}
                                     Aktif</span>
                             </div>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <!-- Grid layout untuk Site users -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            @foreach ($occupiedRooms as $occupied)
-                                <div
-                                    class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow {{ $occupied['is_overdue'] ? 'border-red-300 bg-red-50' : ($occupied['is_checkout_today'] ? 'border-yellow-300 bg-yellow-50' : '') }}">
-                                    <!-- Header -->
-                                    <div class="flex justify-between items-start mb-3">
-                                        <div>
-                                            <h4 class="font-semibold text-gray-800">{{ $occupied['guest_name'] }}</h4>
-                                            <p class="text-sm text-gray-600">{{ $occupied['room_name'] }} •
-                                                {{ $occupied['room_type'] }}</p>
-                                            <p class="text-xs text-gray-500">{{ $occupied['property_name'] }}</p>
-                                        </div>
-                                        @if ($occupied['is_overdue'])
-                                            <span
-                                                class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                </svg>
-                                                Terlambat
-                                            </span>
-                                        @elseif($occupied['is_checkout_today'])
-                                            <span
-                                                class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                Check-Out Hari Ini
-                                            </span>
-                                        @else
-                                            <span
-                                                class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                                                Aktif
-                                            </span>
-                                        @endif
-                                    </div>
-
-                                    <!-- Stay Details -->
-                                    <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
-                                        <div class="flex items-center text-gray-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                class="h-4 w-4 mr-1 text-green-500" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                            {{ $occupied['check_in_date'] }}
-                                        </div>
-                                        <div class="flex items-center text-gray-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-red-500"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                            {{ $occupied['check_out_date'] }}
-                                        </div>
-                                    </div>
-
-                                    <!-- Progress Bar -->
-                                    <div class="mb-3">
-                                        <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                            <span>Hari {{ $occupied['days_stayed'] }} dari
-                                                {{ $occupied['total_days'] }}</span>
-                                            <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-indigo-600 h-2 rounded-full transition-all"
-                                                style="width: {{ $occupied['progress_percentage'] }}%"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Revenue Info -->
-                                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                        <div>
-                                            <p class="text-xs text-gray-500">Tarif Harian</p>
-                                            <p class="text-sm font-semibold text-gray-800">Rp
-                                                {{ number_format($occupied['daily_rate'], 0, ',', '.') }}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-xs text-gray-500">Total</p>
-                                            <p class="text-sm font-semibold text-indigo-600">Rp
-                                                {{ number_format($occupied['total_price'], 0, ',', '.') }}</p>
-                                        </div>
-                                    </div>
+                            @if (count($occupiedRooms) > 4)
+                                <div class="flex items-center text-sm text-indigo-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                                    </svg>
+                                    Geser untuk melihat lebih banyak
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            @if (Auth::user()->canViewAllProperties() && $canViewWidget('rooms_occupancy_history'))
-                <!-- Occupancy History Chart (Only for Super Admin and HO roles) -->
-                <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-                        <div class="flex items-center space-x-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            <h2 class="font-semibold text-gray-800 text-lg">Tren Okupansi 30 Hari</h2>
+                            @endif
                         </div>
                     </div>
                     <div class="p-6">
-                        <canvas id="occupancyChart" height="80"></canvas>
+                        @if (count($occupiedRooms) > 4)
+                            <!-- Horizontal scroll untuk lebih dari 4 card -->
+                            <div class="overflow-x-auto pb-4">
+                                <div class="flex space-x-4 min-w-min"
+                                    style="min-width: {{ count($occupiedRooms) > 4 ? 'min-content' : 'auto' }}">
+                                    @foreach ($occupiedRooms as $occupied)
+                                        <div class="w-80 flex-shrink-0">
+                                            <div
+                                                class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow h-full {{ $occupied['is_overdue'] ? 'border-red-300 bg-red-50' : ($occupied['is_checkout_today'] ? 'border-yellow-300 bg-yellow-50' : '') }}">
+                                                <!-- Header -->
+                                                <div class="flex justify-between items-start mb-3">
+                                                    <div>
+                                                        <h4 class="font-semibold text-gray-800">
+                                                            {{ $occupied['guest_name'] }}</h4>
+                                                        <p class="text-sm text-gray-600">
+                                                            {{ $occupied['room_name'] }}
+                                                            •
+                                                            {{ $occupied['room_type'] }}</p>
+                                                        <p class="text-xs text-gray-500">
+                                                            {{ $occupied['property_name'] }}</p>
+                                                    </div>
+                                                    @if ($occupied['is_overdue'])
+                                                        <span
+                                                            class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                class="h-3 w-3 mr-1" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                            </svg>
+                                                            Terlambat
+                                                        </span>
+                                                    @elseif($occupied['is_checkout_today'])
+                                                        <span
+                                                            class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                class="h-3 w-3 mr-1" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            Check-Out Hari Ini
+                                                        </span>
+                                                    @else
+                                                        <span
+                                                            class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                                                            Aktif
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                <!-- Stay Details -->
+                                                <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
+                                                    <div class="flex items-center text-gray-600">
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="h-4 w-4 mr-1 text-green-500" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        {{ $occupied['check_in_date'] }}
+                                                    </div>
+                                                    <div class="flex items-center text-gray-600">
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="h-4 w-4 mr-1 text-red-500" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        {{ $occupied['check_out_date'] }}
+                                                    </div>
+                                                </div>
+
+                                                <!-- Progress Bar -->
+                                                <div class="mb-3">
+                                                    <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                                        <span>Hari {{ $occupied['days_stayed'] }} dari
+                                                            {{ $occupied['total_days'] }}</span>
+                                                        <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
+                                                    </div>
+                                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                                        <div class="bg-indigo-600 h-2 rounded-full transition-all"
+                                                            style="width: {{ $occupied['progress_percentage'] }}%">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Revenue Info -->
+                                                <div
+                                                    class="flex justify-between items-center pt-3 border-t border-gray-200">
+                                                    <div>
+                                                        <p class="text-xs text-gray-500">Tarif Harian</p>
+                                                        <p class="text-sm font-semibold text-gray-800">Rp
+                                                            {{ number_format($occupied['daily_rate'], 0, ',', '.') }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <p class="text-xs text-gray-500">Total</p>
+                                                        <p class="text-sm font-semibold text-indigo-600">Rp
+                                                            {{ number_format($occupied['total_price'], 0, ',', '.') }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @else
+                            <!-- Grid layout untuk 4 card atau kurang -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                @foreach ($occupiedRooms as $occupied)
+                                    <div
+                                        class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow {{ $occupied['is_overdue'] ? 'border-red-300 bg-red-50' : ($occupied['is_checkout_today'] ? 'border-yellow-300 bg-yellow-50' : '') }}">
+                                        <!-- Header -->
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h4 class="font-semibold text-gray-800">
+                                                    {{ $occupied['guest_name'] }}
+                                                </h4>
+                                                <p class="text-sm text-gray-600">{{ $occupied['room_name'] }} •
+                                                    {{ $occupied['room_type'] }}</p>
+                                                <p class="text-xs text-gray-500">{{ $occupied['property_name'] }}
+                                                </p>
+                                            </div>
+                                            @if ($occupied['is_overdue'])
+                                                <span
+                                                    class="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                    Terlambat
+                                                </span>
+                                            @elseif($occupied['is_checkout_today'])
+                                                <span
+                                                    class="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    Check-Out Hari Ini
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                                                    Aktif
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <!-- Stay Details -->
+                                        <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
+                                            <div class="flex items-center text-gray-600">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-4 w-4 mr-1 text-green-500" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                {{ $occupied['check_in_date'] }}
+                                            </div>
+                                            <div class="flex items-center text-gray-600">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-4 w-4 mr-1 text-red-500" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                {{ $occupied['check_out_date'] }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Progress Bar -->
+                                        <div class="mb-3">
+                                            <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                                <span>Hari {{ $occupied['days_stayed'] }} dari
+                                                    {{ $occupied['total_days'] }}</span>
+                                                <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-indigo-600 h-2 rounded-full transition-all"
+                                                    style="width: {{ $occupied['progress_percentage'] }}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Revenue Info -->
+                                        <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                                            <div>
+                                                <p class="text-xs text-gray-500">Tarif Harian</p>
+                                                <p class="text-sm font-semibold text-gray-800">Rp
+                                                    {{ number_format($occupied['daily_rate'], 0, ',', '.') }}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-xs text-gray-500">Total</p>
+                                                <p class="text-sm font-semibold text-indigo-600">Rp
+                                                    {{ number_format($occupied['total_price'], 0, ',', '.') }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endif
+        @endif
 
-            <!-- Main Content -->
-            <div class="mt-8 grid grid-cols-1 lg:grid-cols-1 gap-8">
-                <!-- Left Column -->
-                <div class="lg:col-span-2 space-y-8">
-                    @if ($canViewWidget('checkout_list'))
-                        <!-- Check-out Section -->
-                        <div
-                            class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
+        @if ($canViewWidget('rooms_occupancy_history'))
+            <!-- Occupancy History Chart (Only for Super Admin and HO roles) -->
+            <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+                    <div class="flex items-center space-x-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <h2 class="font-semibold text-gray-800 text-lg">Tren Okupansi 30 Hari</h2>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <canvas id="occupancyChart" height="80"></canvas>
+                </div>
+            </div>
+        @endif
+
+        <!-- Main Content -->
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-1 gap-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-8">
+                @if ($canViewWidget('checkout_list'))
+                    <!-- Check-out Section -->
+                    <div
+                        class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
                         <div
                             class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
                             <div class="flex items-center space-x-3">
@@ -928,12 +835,12 @@
                             mendatang
                         </div>
                     </div>
-                    @endif
+                @endif
 
-                    @if ($canViewWidget('checkin_list'))
-                        <!-- Check-in Section -->
-                        <div
-                            class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
+                @if ($canViewWidget('checkin_list'))
+                    <!-- Check-in Section -->
+                    <div
+                        class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
                         <div
                             class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-green-50 to-teal-50">
                             <div class="flex items-center space-x-3">
@@ -967,162 +874,161 @@
                             Menampilkan {{ min(4, count($checkIns)) }} dari {{ count($checkIns) }} check-in mendatang
                         </div>
                     </div>
-                    @endif
-                </div>
+                @endif
             </div>
+        </div>
 
-            @if (Auth::user()->canViewAllProperties() && $canViewWidget('rooms_availability'))
-                <!-- Multi-Property Reports (Only for Super Admin and HO roles) -->
-                <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Room Availability Report -->
+        @if ($canViewWidget('rooms_availability'))
+            <!-- Multi-Property Reports -->
+            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Room Availability Report -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div class="flex justify-between items-center mb-6">
+                            <!-- Left Section -->
+                            <div class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                <h2 class="font-semibold text-gray-800 text-lg">Laporan Ketersediaan Kamar</h2>
+                            </div>
+
+                            <!-- Search Input -->
+                            <div class="relative w-full max-w-xs hidden sm:block">
+                                <input id="searchKamar" type="text" placeholder="Cari Properti..."
+                                    class="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="p-6">
+                        @if (is_array($roomReports) && count($roomReports) > 0)
+                            <div id="roomAvailabilityContainer">
+                                @foreach ($roomReports as $propertyId => $report)
+                                    <div class="mb-6 last:mb-0 p-4 border border-gray-200 rounded-lg room-availability-item {{ $loop->first ? '' : 'hidden' }}"
+                                        data-property-id="{{ $propertyId }}">
+                                        <div class="flex justify-between items-start mb-4">
+                                            <h3 class="font-semibold text-gray-700">
+                                                {{ $report['property']['name'] }}
+                                            </h3>
+                                            <a href="{{ route('room-availability.index') }}"
+                                                class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
+                                                Lihat Semua
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </a>
+                                        </div>
+
+                                        <!-- Room Stats -->
+                                        <div class="grid grid-cols-3 gap-4 mb-4">
+                                            <div class="text-center">
+                                                <div class="text-2xl font-bold text-gray-800">
+                                                    {{ $report['room_stats']['total_rooms'] }}</div>
+                                                <div class="text-sm text-gray-600">Total Kamar</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-2xl font-bold text-green-600">
+                                                    {{ $report['room_stats']['available_rooms'] }}</div>
+                                                <div class="text-sm text-gray-600">Tersedia</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-2xl font-bold text-orange-600">
+                                                    {{ $report['room_stats']['booked_rooms'] }}</div>
+                                                <div class="text-sm text-gray-600">Terisi</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Occupancy Rate -->
+                                        <div class="mb-4">
+                                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                                <span>Tingkat Okupansi</span>
+                                                <span>{{ $report['room_stats']['occupancy_rate'] }}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-blue-600 h-2 rounded-full"
+                                                    style="width: {{ $report['room_stats']['occupancy_rate'] }}%">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Room Types Breakdown -->
+                                        @if (count($report['room_types_breakdown']) > 0 && $canViewWidget('rooms_type_breakdown'))
+                                            <div class="mt-4">
+                                                <h4 class="font-medium text-gray-700 mb-2">Breakdown Tipe Kamar
+                                                </h4>
+                                                <div class="space-y-2">
+                                                    @foreach ($report['room_types_breakdown'] as $roomType)
+                                                        <div class="flex justify-between items-center text-sm">
+                                                            <span class="text-gray-600">{{ $roomType->type }}</span>
+                                                            <div class="flex items-center space-x-2">
+                                                                <span
+                                                                    class="text-gray-500">{{ $roomType->available_rooms }}/{{ $roomType->total_rooms }}</span>
+                                                                <span
+                                                                    class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                                                    {{ $roomType->total_rooms > 0 ? round(($roomType->available_rooms / $roomType->total_rooms) * 100) : 0 }}%
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            @if (count($roomReports) > 1)
+                                <div class="mt-4 text-center">
+                                    <button id="toggleRoomAvailability"
+                                        class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center justify-center mx-auto bg-blue-50 px-4 py-2 rounded-lg transition-all hover:bg-blue-100">
+                                        <span id="toggleRoomAvailabilityText">Lihat Selengkapnya</span>
+                                        <svg id="toggleRoomAvailabilityIcon" xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 ml-1 transition-transform" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            @endif
+                        @else
+                            <div class="text-center py-8 text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p class="mt-2">Tidak ada data laporan kamar</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                @if ($canViewWidget('report_rental_duration'))
+                    <!-- Detailed Duration & Sales Report -->
                     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-teal-50">
                             <div class="flex justify-between items-center mb-6">
                                 <!-- Left Section -->
                                 <div class="flex items-center space-x-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600"
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <h2 class="font-semibold text-gray-800 text-lg">Laporan Ketersediaan Kamar</h2>
+                                    <h2 class="font-semibold text-gray-800 text-lg">Detail Durasi Sewa & Penjualan</h2>
                                 </div>
-
-                                <!-- Search Input -->
-                                <div class="relative w-full max-w-xs hidden sm:block">
-                                    <input id="searchKamar" type="text" placeholder="Cari Properti..."
-                                        class="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
-                                    </svg>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="p-6">
-                            @if (is_array($roomReports) && count($roomReports) > 0)
-                                <div id="roomAvailabilityContainer">
-                                    @foreach ($roomReports as $propertyId => $report)
-                                        <div class="mb-6 last:mb-0 p-4 border border-gray-200 rounded-lg room-availability-item {{ $loop->first ? '' : 'hidden' }}"
-                                            data-property-id="{{ $propertyId }}">
-                                            <div class="flex justify-between items-start mb-4">
-                                                <h3 class="font-semibold text-gray-700">
-                                                    {{ $report['property']['name'] }}
-                                                </h3>
-                                                <a href="{{ route('room-availability.index') }}"
-                                                    class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
-                                                    Lihat Semua
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1"
-                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M9 5l7 7-7 7" />
-                                                    </svg>
-                                                </a>
-                                            </div>
-
-                                            <!-- Room Stats -->
-                                            <div class="grid grid-cols-3 gap-4 mb-4">
-                                                <div class="text-center">
-                                                    <div class="text-2xl font-bold text-gray-800">
-                                                        {{ $report['room_stats']['total_rooms'] }}</div>
-                                                    <div class="text-sm text-gray-600">Total Kamar</div>
-                                                </div>
-                                                <div class="text-center">
-                                                    <div class="text-2xl font-bold text-green-600">
-                                                        {{ $report['room_stats']['available_rooms'] }}</div>
-                                                    <div class="text-sm text-gray-600">Tersedia</div>
-                                                </div>
-                                                <div class="text-center">
-                                                    <div class="text-2xl font-bold text-orange-600">
-                                                        {{ $report['room_stats']['booked_rooms'] }}</div>
-                                                    <div class="text-sm text-gray-600">Terisi</div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Occupancy Rate -->
-                                            <div class="mb-4">
-                                                <div class="flex justify-between text-sm text-gray-600 mb-1">
-                                                    <span>Tingkat Okupansi</span>
-                                                    <span>{{ $report['room_stats']['occupancy_rate'] }}%</span>
-                                                </div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                                    <div class="bg-blue-600 h-2 rounded-full"
-                                                        style="width: {{ $report['room_stats']['occupancy_rate'] }}%">
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Room Types Breakdown -->
-                                            @if (count($report['room_types_breakdown']) > 0 && $canViewWidget('rooms_type_breakdown'))
-                                                <div class="mt-4">
-                                                    <h4 class="font-medium text-gray-700 mb-2">Breakdown Tipe Kamar
-                                                    </h4>
-                                                    <div class="space-y-2">
-                                                        @foreach ($report['room_types_breakdown'] as $roomType)
-                                                            <div class="flex justify-between items-center text-sm">
-                                                                <span
-                                                                    class="text-gray-600">{{ $roomType->type }}</span>
-                                                                <div class="flex items-center space-x-2">
-                                                                    <span
-                                                                        class="text-gray-500">{{ $roomType->available_rooms }}/{{ $roomType->total_rooms }}</span>
-                                                                    <span
-                                                                        class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                                                        {{ $roomType->total_rooms > 0 ? round(($roomType->available_rooms / $roomType->total_rooms) * 100) : 0 }}%
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                @if (count($roomReports) > 1)
-                                    <div class="mt-4 text-center">
-                                        <button id="toggleRoomAvailability"
-                                            class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center justify-center mx-auto bg-blue-50 px-4 py-2 rounded-lg transition-all hover:bg-blue-100">
-                                            <span id="toggleRoomAvailabilityText">Lihat Selengkapnya</span>
-                                            <svg id="toggleRoomAvailabilityIcon" xmlns="http://www.w3.org/2000/svg"
-                                                class="h-4 w-4 ml-1 transition-transform" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                @endif
-                            @else
-                                <div class="text-center py-8 text-gray-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <p class="mt-2">Tidak ada data laporan kamar</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    @if ($canViewWidget('report_rental_duration'))
-                        <!-- Detailed Duration & Sales Report -->
-                        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-teal-50">
-                                <div class="flex justify-between items-center mb-6">
-                                    <!-- Left Section -->
-                                    <div class="flex items-center space-x-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <h2 class="font-semibold text-gray-800 text-lg">Detail Durasi Sewa & Penjualan</h2>
-                                    </div>
 
                                 <!-- Search Input -->
                                 <div class="relative w-full max-w-xs hidden sm:block">
@@ -1240,17 +1146,17 @@
                             @endif
                         </div>
                     </div>
-                    @endif
-                </div>
-            @endif
+                @endif
+            </div>
         @endif
+    @endif
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Occupancy History Chart
         document.addEventListener('DOMContentLoaded', function() {
-            @if (Auth::user()->canViewAllProperties())
+            @if ($canViewWidget('rooms_occupancy_history'))
                 const ctx = document.getElementById('occupancyChart');
                 if (ctx) {
                     const occupancyData = @json($occupancyHistory);
@@ -1483,15 +1389,11 @@
                     const chartContainer = revenueTrendCtx.parentElement;
                     const originalHTML = chartContainer.innerHTML;
 
-                    // Determine URL based on user property access
-                    @if (Auth::user()->canViewAllProperties())
-                        const url = `/dashboard/revenue-trend?days=${days}`;
-                    @else
-                        const userPropertyId = '{{ Auth::user()->property_id ?? '' }}';
-                        const url = userPropertyId ?
-                            `/dashboard/revenue-trend/${userPropertyId}?days=${days}` :
-                            `/dashboard/revenue-trend?days=${days}`;
-                    @endif
+                    // Determine URL based on user property
+                    const userPropertyId = '{{ Auth::user()->property_id ?? '' }}';
+                    const url = userPropertyId ?
+                        `/dashboard/revenue-trend/${userPropertyId}?days=${days}` :
+                        `/dashboard/revenue-trend?days=${days}`;
 
                     fetch(url)
                         .then(response => response.json())
