@@ -211,7 +211,7 @@
                 $canViewWidget('finance_recent_transactions');
         @endphp
 
-        @if ($hasFinanceWidgets && !empty($financeStats))
+        @if ($hasFinanceWidgets)
             <!-- Finance Information Section -->
             <div class="mt-8">
                 <div class="flex items-center space-x-3 mb-6">
@@ -1377,7 +1377,7 @@
             @endif
 
             // Financial Charts
-            @if ($hasFinanceWidgets && !empty($financeStats) && $canViewWidget('report_sales_chart'))
+            @if ($canViewWidget('report_sales_chart'))
                 // Revenue Trend Chart - with dynamic period selection
                 let revenueTrendChart = null;
                 const revenueTrendCtx = document.getElementById('revenueTrendChart');
