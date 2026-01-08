@@ -108,6 +108,11 @@ Route::middleware(['auth', 'permission'])->group(function () {
     Route::get('/master-role/permissions/{userId}', [UserController::class, 'getMasterRolePermissions'])->name('master-role.permissions');
     Route::post('/master-role/update-permissions/{userId}', [UserController::class, 'updateMasterRolePermissions'])->name('master-role.update-permissions');
 
+    // Dashboard Widget Management Routes
+    Route::get('/dashboard-widgets', [UserController::class, 'getDashboardWidgets'])->name('dashboard-widgets.get');
+    Route::get('/role/{roleId}/dashboard-widgets', [UserController::class, 'getRoleDashboardWidgets'])->name('role.dashboard-widgets.get');
+    Route::post('/role/{roleId}/dashboard-widgets', [UserController::class, 'updateRoleDashboardWidgets'])->name('role.dashboard-widgets.update');
+
     // User Settings Routes
     Route::put('/user/password', [UserSettingsController::class, 'updatePassword'])->name('user.password.update');
     Route::get('/user/activity', [UserSettingsController::class, 'getUserActivity'])->name('user.activity');

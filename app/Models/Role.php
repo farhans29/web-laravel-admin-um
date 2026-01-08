@@ -18,4 +18,16 @@ class Role extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function dashboardWidgets()
+    {
+        return $this->belongsToMany(DashboardWidget::class, 'role_dashboard_widgets', 'role_id', 'widget_id')
+            ->withTimestamps()
+            ->withPivot(['created_by', 'updated_by']);
+    }
+
+    public function hasWidgetAccess($widgetSlug)
+    {
+        return $this->dashboardWidgets()->where('slug', $widgetSlug)->where('is_active', 1)->exists();
+    }
 }

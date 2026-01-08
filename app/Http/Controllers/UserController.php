@@ -7,6 +7,7 @@ use App\Models\Menu;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\UserAccessLevel;
+use App\Models\DashboardWidget;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -473,7 +474,13 @@ class UserController extends Controller
             ->select('id', 'name', 'parent_id', 'route')
             ->get();
 
-        return view('pages.settings.master-role-management', compact('adminUsers', 'roles', 'sidebarItems', 'perPage'));
+        // Get dashboard widgets for role-based widget management
+        $dashboardWidgets = DashboardWidget::where('is_active', 1)
+            ->orderBy('category')
+            ->orderBy('order')
+            ->get();
+
+        return view('pages.settings.master-role-management', compact('adminUsers', 'roles', 'sidebarItems', 'dashboardWidgets', 'perPage'));
     }
 
     /**
@@ -625,6 +632,92 @@ class UserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create role: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get all dashboard widgets grouped by category
+     */
+    public function getDashboardWidgets()
+    {
+        try {
+            $widgets = DashboardWidget::where('is_active', 1)
+                ->orderBy('category')
+                ->orderBy('order')
+                ->get()
+                ->groupBy('category');
+
+            return response()->json([
+                'success' => true,
+                'widgets' => $widgets
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch widgets: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get dashboard widgets assigned to a specific role
+     */
+    public function getRoleDashboardWidgets($roleId)
+    {
+        try {
+            $role = Role::findOrFail($roleId);
+
+            $assignedWidgetIds = DB::table('role_dashboard_widgets')
+                ->where('role_id', $roleId)
+                ->pluck('widget_id')
+                ->toArray();
+
+            return response()->json([
+                'success' => true,
+                'role' => $role,
+                'widget_ids' => $assignedWidgetIds
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch role widgets: ' . $e->getMessage(),
+                'widget_ids' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * Update dashboard widgets for a specific role
+     */
+    public function updateRoleDashboardWidgets(Request $request, $roleId)
+    {
+        try {
+            $role = Role::findOrFail($roleId);
+
+            // Clear existing widget assignments for this role
+            DB::table('role_dashboard_widgets')->where('role_id', $roleId)->delete();
+
+            // Insert new widget assignments
+            if ($request->has('widget_ids') && is_array($request->widget_ids)) {
+                foreach ($request->widget_ids as $widgetId) {
+                    DB::table('role_dashboard_widgets')->insert([
+                        'role_id' => $roleId,
+                        'widget_id' => $widgetId,
+                        'created_at' => Carbon::now(),
+                        'created_by' => Auth::id(),
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dashboard widgets updated successfully for role: ' . $role->name
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update widgets: ' . $e->getMessage()
             ], 500);
         }
     }

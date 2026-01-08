@@ -54,7 +54,9 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Current Role</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Access Rights</th>
+                                Sidebar Access</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Dashboard Widgets</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -102,13 +104,25 @@
                                         onclick="manageAccessRights({{ $user->id }}, '{{ $user->first_name ?? $user->name }}')"
                                         class="btn-access-rights inline-flex items-center px-3 py-2 border border-blue-600 text-sm leading-4 font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
                                         <i class="fas fa-key mr-2"></i>
-                                        Access Rights
+                                        Sidebar Menu
                                     </button>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    @if ($user->role)
+                                        <button
+                                            onclick="manageDashboardWidgets({{ $user->role->id }}, '{{ $user->role->name }}')"
+                                            class="btn-widgets inline-flex items-center px-3 py-2 border border-purple-600 text-sm leading-4 font-medium rounded-md text-purple-600 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150">
+                                            <i class="fas fa-th-large mr-2"></i>
+                                            Widgets
+                                        </button>
+                                    @else
+                                        <span class="text-xs text-gray-500 italic">No Role Assigned</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                                     <i class="fas fa-users text-4xl mb-4 block text-gray-300"></i>
                                     <p class="text-lg font-medium">No Admin Users Found</p>
                                     <p class="text-sm">Users with is_admin = 1 will appear here</p>
@@ -336,6 +350,129 @@
         </div>
     </div>
 
+    <!-- Dashboard Widgets Modal -->
+    <div id="dashboardWidgetsModal"
+        class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center pb-3 border-b">
+                <h3 class="text-xl font-semibold text-gray-900">
+                    Dashboard Widgets - Role: <span id="modalRoleName"></span>
+                </h3>
+                <button onclick="closeDashboardWidgetsModal()"
+                    class="text-gray-400 hover:text-gray-500 transition duration-150">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="mt-4">
+                <!-- Filter Section -->
+                <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 p-4 bg-purple-50 rounded-lg">
+                    <div class="flex items-center mb-3 sm:mb-0">
+                        <i class="fas fa-filter text-purple-500 mr-2"></i>
+                        <label for="widgetCategoryFilter" class="text-sm font-medium text-gray-700 mr-2">Filter by Category:</label>
+                        <select id="widgetCategoryFilter"
+                            class="select-custom border border-gray-300 rounded-lg text-sm px-3 py-2 w-full sm:w-64">
+                            <option value="">Show All Categories</option>
+                            <option value="stats">Stats (Booking)</option>
+                            <option value="finance">Finance (Keuangan)</option>
+                            <option value="rooms">Rooms (Kamar)</option>
+                            <option value="reports">Reports (Laporan)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-xs text-gray-500 mr-2">Quick Actions:</span>
+                        <button id="widgetSelectAll" class="text-xs text-purple-600 hover:text-purple-800 mr-3">Select
+                            All</button>
+                        <button id="widgetDeselectAll" class="text-xs text-gray-600 hover:text-gray-800">Deselect
+                            All</button>
+                    </div>
+                </div>
+
+                <!-- Widgets Table -->
+                <div class="overflow-x-auto rounded-lg border border-gray-200 max-h-96">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0 z-10">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                                    Access</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Widget Name</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="widgetsTableBody">
+                            @foreach ($dashboardWidgets as $widget)
+                                @php
+                                    $categoryColors = [
+                                        'stats' => ['bg' => 'bg-blue-100', 'text' => 'text-blue-800', 'icon' => 'text-blue-500'],
+                                        'finance' => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-800', 'icon' => 'text-emerald-500'],
+                                        'rooms' => ['bg' => 'bg-purple-100', 'text' => 'text-purple-800', 'icon' => 'text-purple-500'],
+                                        'reports' => ['bg' => 'bg-orange-100', 'text' => 'text-orange-800', 'icon' => 'text-orange-500'],
+                                    ];
+
+                                    $colors = $categoryColors[$widget->category] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-800', 'icon' => 'text-gray-500'];
+                                @endphp
+
+                                <tr class="widget-item group hover:bg-gray-50 transition-colors duration-150"
+                                    data-category="{{ $widget->category }}">
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <input type="checkbox" class="widget-checkbox"
+                                            value="{{ $widget->id }}">
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <i class="{{ $widget->icon }} {{ $colors['icon'] }} mr-3"></i>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">{{ $widget->name }}
+                                                </div>
+                                                <div class="text-xs text-gray-500">{{ $widget->description }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 py-1 text-xs font-medium {{ $colors['bg'] }} {{ $colors['text'] }} rounded-full">
+                                            {{ ucfirst($widget->category) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="widget-status-badge badge-inactive">No Access</span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 flex items-center text-sm text-gray-500">
+                    <i class="fas fa-info-circle text-purple-400 mr-2"></i>
+                    <span>Widgets ini akan diterapkan untuk semua user dengan role yang dipilih</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end items-center gap-3 pt-4 border-t mt-4">
+                <button onclick="closeDashboardWidgetsModal()"
+                    class="px-4 py-2 bg-gray-200 text-gray-800 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors duration-150">
+                    Cancel
+                </button>
+                <button onclick="saveDashboardWidgets()"
+                    class="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors duration-150">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Dashboard Widgets
+                </button>
+            </div>
+        </div>
+    </div>
+
     <style>
         .select-custom {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -398,6 +535,53 @@
         .badge-inactive {
             background-color: #f3f4f6;
             color: #6b7280;
+        }
+
+        /* Dashboard Widgets Styles */
+        .btn-widgets:hover {
+            transform: translateY(-1px);
+        }
+
+        .widget-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid #d1d5db;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+        .widget-checkbox:hover {
+            border-color: #a855f7;
+        }
+
+        .widget-checkbox:checked {
+            background-color: #a855f7;
+            border-color: #a855f7;
+        }
+
+        .widget-checkbox:checked:after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .widget-status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
         }
     </style>
 
@@ -711,6 +895,159 @@
                 mainMenuCheckbox.checked = checkedCount > 0;
 
                 updateModalBadgeStatus(mainMenuCheckbox);
+            }
+        }
+
+        // ========================================
+        // Dashboard Widgets Management Functions
+        // ========================================
+        let currentRoleId = null;
+
+        function manageDashboardWidgets(roleId, roleName) {
+            currentRoleId = roleId;
+            document.getElementById('modalRoleName').textContent = roleName;
+            document.getElementById('dashboardWidgetsModal').classList.remove('hidden');
+
+            // Fetch role's assigned widgets
+            fetch(`/role/${roleId}/dashboard-widgets`)
+                .then(response => response.json())
+                .then(data => {
+                    const assignedWidgetIds = data.widget_ids || [];
+
+                    // Update checkboxes based on assigned widgets
+                    document.querySelectorAll('.widget-checkbox').forEach(checkbox => {
+                        checkbox.checked = assignedWidgetIds.includes(parseInt(checkbox.value));
+                        updateWidgetBadgeStatus(checkbox);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching role widgets:', error);
+                    Toastify({
+                        text: "Failed to load dashboard widgets!",
+                        duration: 3000,
+                        close: true,
+                        gravity: "bottom",
+                        position: "left",
+                        style: {
+                            background: "#FF5733",
+                        },
+                    }).showToast();
+                });
+        }
+
+        function closeDashboardWidgetsModal() {
+            document.getElementById('dashboardWidgetsModal').classList.add('hidden');
+            currentRoleId = null;
+        }
+
+        function saveDashboardWidgets() {
+            if (!currentRoleId) return;
+
+            const checkboxes = document.querySelectorAll('.widget-checkbox');
+            const selectedWidgetIds = [];
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedWidgetIds.push(parseInt(checkbox.value));
+                }
+            });
+
+            fetch(`/role/${currentRoleId}/dashboard-widgets`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        widget_ids: selectedWidgetIds
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "bottom",
+                        position: "left",
+                        style: {
+                            background: "#4CAF50",
+                        },
+                    }).showToast();
+
+                    closeDashboardWidgetsModal();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Toastify({
+                        text: "Failed to update dashboard widgets!",
+                        duration: 3000,
+                        close: true,
+                        gravity: "bottom",
+                        position: "left",
+                        style: {
+                            background: "#FF5733",
+                        },
+                    }).showToast();
+                });
+        }
+
+        // Widget category filter
+        document.getElementById('widgetCategoryFilter').addEventListener('change', function() {
+            const selectedCategory = this.value;
+            document.querySelectorAll('#widgetsTableBody .widget-item').forEach(row => {
+                const category = row.getAttribute('data-category');
+                row.style.display = (selectedCategory === "" || category === selectedCategory) ? "" : "none";
+            });
+        });
+
+        // Widget select all
+        document.getElementById('widgetSelectAll').addEventListener('click', function() {
+            const visibleRows = Array.from(document.querySelectorAll('#widgetsTableBody .widget-item'))
+                .filter(row => row.style.display !== 'none');
+
+            visibleRows.forEach(row => {
+                const checkbox = row.querySelector('.widget-checkbox');
+                if (checkbox) {
+                    checkbox.checked = true;
+                    updateWidgetBadgeStatus(checkbox);
+                }
+            });
+        });
+
+        // Widget deselect all
+        document.getElementById('widgetDeselectAll').addEventListener('click', function() {
+            const visibleRows = Array.from(document.querySelectorAll('#widgetsTableBody .widget-item'))
+                .filter(row => row.style.display !== 'none');
+
+            visibleRows.forEach(row => {
+                const checkbox = row.querySelector('.widget-checkbox');
+                if (checkbox) {
+                    checkbox.checked = false;
+                    updateWidgetBadgeStatus(checkbox);
+                }
+            });
+        });
+
+        // Widget checkbox change handler
+        document.querySelectorAll('.widget-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateWidgetBadgeStatus(this);
+            });
+        });
+
+        function updateWidgetBadgeStatus(checkbox) {
+            const row = checkbox.closest('tr');
+            const badge = row.querySelector('.widget-status-badge');
+
+            if (checkbox.checked) {
+                badge.textContent = 'Access Granted';
+                badge.classList.remove('badge-inactive');
+                badge.classList.add('badge-active');
+            } else {
+                badge.textContent = 'No Access';
+                badge.classList.remove('badge-active');
+                badge.classList.add('badge-inactive');
             }
         }
     </script>
