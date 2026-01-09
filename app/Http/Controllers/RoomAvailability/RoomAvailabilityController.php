@@ -20,23 +20,18 @@ class RoomAvailabilityController extends Controller
 
         // Query untuk room availability
         $rooms = Room::with(['property', 'thumbnail', 'bookings' => function ($query) use ($startDate, $endDate) {
-            // Hanya ambil booking dengan status aktif (1)
-            $query->where('status', 1)
-                ->with(['user', 'transaction', 'payment']);
+            // Hanya ambil booking dengan status paid yang aktif
+            $query->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid');
+            })
+            ->with(['user', 'transaction', 'payment']);
 
             // Filter berdasarkan tanggal menggunakan transaction dates untuk konsistensi
+            // Logika overlap: booking overlap jika check_in < endDate DAN check_out > startDate
             if ($startDate && $endDate) {
                 $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-                    $q->where(function ($q2) use ($startDate, $endDate) {
-                        // Check if booking overlaps with the selected date range
-                        $q2->whereBetween('check_in', [$startDate, $endDate])
-                            ->orWhereBetween('check_out', [$startDate, $endDate])
-                            ->orWhere(function ($q3) use ($startDate, $endDate) {
-                                // Booking spans the entire date range
-                                $q3->where('check_in', '<=', $startDate)
-                                    ->where('check_out', '>=', $endDate);
-                            });
-                    });
+                    $q->where('check_in', '<', $endDate)
+                      ->where('check_out', '>', $startDate);
                 });
             }
         }]);
@@ -85,23 +80,20 @@ class RoomAvailabilityController extends Controller
 
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+
+        // Query untuk booking dengan status paid
         $bookingsQuery = Booking::where('room_id', $roomId)
-            ->where('status', 1)
+            ->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid');
+            })
             ->with(['user', 'transaction', 'payment']);
 
-
+        // Filter berdasarkan overlap tanggal
+        // Logika overlap: booking overlap jika check_in < endDate DAN check_out > startDate
         if ($startDate && $endDate) {
             $bookingsQuery->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-                $q->where(function ($q2) use ($startDate, $endDate) {
-
-                    $q2->whereBetween('check_in', [$startDate, $endDate])
-                        ->orWhereBetween('check_out', [$startDate, $endDate])
-                        ->orWhere(function ($q3) use ($startDate, $endDate) {
-
-                            $q3->where('check_in', '<=', $startDate)
-                                ->where('check_out', '>=', $endDate);
-                        });
-                });
+                $q->where('check_in', '<', $endDate)
+                  ->where('check_out', '>', $startDate);
             });
         }
 
