@@ -35,7 +35,7 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                             <div class="text-sm font-medium text-gray-900">
-                                {{ $room->property_name ?? '-' }}
+                                {{ $room->property->name ?? '-' }}
                             </div>
                             <div class="text-xs text-gray-400">
                                 {{ $room->property->subdistrict ?? '-' }}

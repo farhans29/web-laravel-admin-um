@@ -187,8 +187,45 @@
             `;
                     approveBtn.disabled = true;
 
-                    // Submit form
-                    document.getElementById(`approve-form-${paymentId}`).submit();
+                    // Submit via AJAX
+                    const form = document.getElementById(`approve-form-${paymentId}`);
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: data.message,
+                                icon: 'success',
+                                confirmButtonColor: '#16a34a'
+                            }).then(() => {
+                                // Reload hanya tabel
+                                fetchFilteredBookings();
+                            });
+                        } else {
+                            throw new Error(data.message || 'Terjadi kesalahan');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: error.message || 'Terjadi kesalahan saat menyetujui pembayaran',
+                            icon: 'error',
+                            confirmButtonColor: '#dc2626'
+                        });
+                        // Restore button
+                        approveBtn.innerHTML = originalText;
+                        approveBtn.disabled = false;
+                    });
                 }
             });
         }
@@ -291,8 +328,48 @@
                         Memproses...
                     `;
 
-                    // Submit form
-                    document.getElementById(`reject-form-${paymentId}`).submit();
+                    // Submit via AJAX
+                    const form = document.getElementById(`reject-form-${paymentId}`);
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Hide modal
+                            hideRejectModal(paymentId);
+
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: data.message,
+                                icon: 'success',
+                                confirmButtonColor: '#16a34a'
+                            }).then(() => {
+                                // Reload hanya tabel
+                                fetchFilteredBookings();
+                            });
+                        } else {
+                            throw new Error(data.message || 'Terjadi kesalahan');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: error.message || 'Terjadi kesalahan saat menolak pembayaran',
+                            icon: 'error',
+                            confirmButtonColor: '#dc2626'
+                        });
+                        // Restore button
+                        submitBtn.innerHTML = originalHTML;
+                        submitBtn.disabled = false;
+                    });
                 }
             });
 
@@ -588,8 +665,48 @@
                         Memproses...
                     `;
 
-                    // Submit form
-                    document.getElementById(`cancel-form-${paymentId}`).submit();
+                    // Submit via AJAX
+                    const form = document.getElementById(`cancel-form-${paymentId}`);
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Hide modal
+                            hideCancelModal(paymentId);
+
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: data.message,
+                                icon: 'success',
+                                confirmButtonColor: '#16a34a'
+                            }).then(() => {
+                                // Reload hanya tabel
+                                fetchFilteredBookings();
+                            });
+                        } else {
+                            throw new Error(data.message || 'Terjadi kesalahan');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: error.message || 'Terjadi kesalahan saat membatalkan booking',
+                            icon: 'error',
+                            confirmButtonColor: '#dc2626'
+                        });
+                        // Restore button
+                        submitBtn.innerHTML = originalHTML;
+                        submitBtn.disabled = false;
+                    });
                 }
             });
 

@@ -541,7 +541,7 @@ class PropertySystemSeeder extends Seeder
                 'property_type' => 'Hotel',
                 'transaction_type' => 'cash',
                 'transaction_code' => 'TRX-' . strtoupper(Str::random(8)),
-                'transaction_status' => 'paid',
+                'transaction_status' => 'waiting',
                 'status' => '1',
                 'paid_at' => $paidAt,
                 'notes' => 'Booking belum dibayar',

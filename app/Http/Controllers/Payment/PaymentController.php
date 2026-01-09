@@ -155,9 +155,24 @@ class PaymentController extends Controller
                 }
             }
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pembayaran berhasil disetujui'
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Pembayaran berhasil disetujui');
         } catch (\Exception $e) {
             Log::error('Payment approval failed: ' . $e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyetujui pembayaran. Error: ' . $e->getMessage()
+                ], 500);
+            }
+
             return redirect()->back()->with('error', 'Gagal menyetujui pembayaran. Error: ' . $e->getMessage());
         }
     }
@@ -185,71 +200,112 @@ class PaymentController extends Controller
                 ]);
             }
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pembayaran berhasil ditolak'
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Pembayaran berhasil ditolak');
         } catch (\Exception $e) {
             Log::error('Payment rejection failed: ' . $e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menolak pembayaran. Error: ' . $e->getMessage()
+                ], 500);
+            }
+
             return redirect()->back()->with('error', 'Gagal menolak pembayaran. Error: ' . $e->getMessage());
         }
     }
 
     public function cancel(Request $request, $id)
     {
-        $payment = Payment::findOrFail($id);
+        try {
+            $payment = Payment::findOrFail($id);
 
-        // Validasi status transaksi
-        if (!in_array($payment->transaction->transaction_status, ['paid', 'completed'])) {
-            return redirect()->back()->with('error', 'Hanya booking dengan status terverifikasi yang dapat dibatalkan.');
-        }
+            // Validasi status transaksi
+            if (!in_array($payment->transaction->transaction_status, ['paid', 'completed'])) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hanya booking dengan status terverifikasi yang dapat dibatalkan.'
+                    ], 400);
+                }
+                return redirect()->back()->with('error', 'Hanya booking dengan status terverifikasi yang dapat dibatalkan.');
+            }
 
-        // Tentukan alasan pembatalan
-        $cancelReason = $request->cancelReason === 'other'
-            ? $request->customCancelReason
-            : $request->cancelReason;
+            // Tentukan alasan pembatalan
+            $cancelReason = $request->cancelReason === 'other'
+                ? $request->customCancelReason
+                : $request->cancelReason;
 
-        // Bersihkan nilai refundAmount dari format rupiah (misal: "1.000.000" → 1000000)
-        $refundAmount = (int) str_replace(['Rp', '.', ' '], '', $request->refundAmount);
+            // Bersihkan nilai refundAmount dari format rupiah (misal: "1.000.000" → 1000000)
+            $refundAmount = (int) str_replace(['Rp', '.', ' '], '', $request->refundAmount);
 
-        // Simpan data refund ke tabel t_refund
-        Refund::create([
-            'id_booking'    => $payment->order_id,
-            'status'        => 'pending',
-            'reason'        => $cancelReason,
-            'amount'        => $refundAmount,
-            'img'           => null,
-            'image_caption' => null,
-            'image_path'    => null,
-            'refund_date'   => Carbon::now(),
-        ]);
-
-        // Update status transaksi & pembayaran
-        $payment->transaction->update([
-            'transaction_status' => 'cancelled',
-            'cancel_at' => Carbon::now(),
-        ]);
-
-        // Update related booking status to 0 (cancelled)
-        if ($payment->booking) {
-            $payment->booking->update([
-                'status' => '0',
-                'reason' => $cancelReason,
+            // Simpan data refund ke tabel t_refund
+            Refund::create([
+                'id_booking'    => $payment->order_id,
+                'status'        => 'pending',
+                'reason'        => $cancelReason,
+                'amount'        => $refundAmount,
+                'img'           => null,
+                'image_caption' => null,
+                'image_path'    => null,
+                'refund_date'   => Carbon::now(),
             ]);
-        } else {
-            Booking::where('order_id', $payment->order_id)->update([
-                'status' => '0',
-                'reason' => $cancelReason,
+
+            // Update status transaksi & pembayaran
+            $payment->transaction->update([
+                'transaction_status' => 'cancelled',
+                'cancel_at' => Carbon::now(),
             ]);
+
+            // Update related booking status to 0 (cancelled)
+            if ($payment->booking) {
+                $payment->booking->update([
+                    'status' => '0',
+                    'reason' => $cancelReason,
+                ]);
+            } else {
+                Booking::where('order_id', $payment->order_id)->update([
+                    'status' => '0',
+                    'reason' => $cancelReason,
+                ]);
+            }
+
+            $payment->update([
+                'payment_status' => 'refunded',
+            ]);
+
+            // Kirim notifikasi (opsional)
+            if ($request->has('sendNotification')) {
+                // logika kirim notifikasi ke pelanggan (jika diperlukan)
+            }
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Booking berhasil dibatalkan dan data refund telah disimpan.'
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Booking berhasil dibatalkan dan data refund telah disimpan.');
+        } catch (\Exception $e) {
+            Log::error('Booking cancellation failed: ' . $e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membatalkan booking. Error: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal membatalkan booking. Error: ' . $e->getMessage());
         }
-
-        $payment->update([
-            'payment_status' => 'refunded',
-        ]);
-
-        // Kirim notifikasi (opsional)
-        if ($request->has('sendNotification')) {
-            // logika kirim notifikasi ke pelanggan (jika diperlukan)
-        }
-
-        return redirect()->back()->with('success', 'Booking berhasil dibatalkan dan data refund telah disimpan.');
     }
 
 

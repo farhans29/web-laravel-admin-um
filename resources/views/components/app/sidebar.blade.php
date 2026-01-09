@@ -1,65 +1,91 @@
-<div x-data="{ sidebarOpen: false, sidebarExpanded: false, sidebarPersistent: false }" class="flex">
+<div x-data="{ sidebarPersistent: false, activeMenu: '' }" class="flex">
     <div class="min-w-fit">
+        <!-- Mobile Menu Button -->
+        <button
+            @click="sidebarOpen = true"
+            x-show="!sidebarOpen"
+            class="fixed top-4 left-4 z-[60] lg:hidden p-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all shadow-lg"
+            aria-label="Open sidebar"
+            type="button">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
         <!-- Sidebar backdrop (mobile only) -->
-        <div class="fixed inset-0 bg-gray-900/30 z-40 lg:hidden lg:z-auto transition-opacity duration-200"
-            :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'" aria-hidden="true" x-cloak></div>
+        <div class="fixed inset-0 bg-gray-900/50 z-40 lg:hidden lg:z-auto transition-opacity duration-200"
+            :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'"
+            @click="sidebarOpen = false"
+            aria-hidden="true"
+            x-cloak></div>
 
         <!-- Sidebar -->
         <div id="sidebar"
-            class="flex lg:flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 h-screen overflow-y-scroll lg:overflow-y-auto no-scrollbar shrink-0 bg-gray-800 dark:bg-gray-900 p-4 transition-all duration-200 ease-in-out border-r border-gray-200 dark:border-gray-700/60"
-            :class="sidebarExpanded ? 'w-64' : 'w-20'" x-init="$el.classList.toggle('sidebar-expanded', sidebarExpanded)"
+            class="flex lg:flex flex-col fixed lg:sticky z-50 lg:z-40 left-0 top-0 h-screen overflow-y-scroll lg:overflow-y-auto no-scrollbar shrink-0 bg-gray-800 dark:bg-gray-900 p-4 border-r border-gray-200 dark:border-gray-700/60 shadow-2xl lg:shadow-none"
+            style="transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); will-change: width, transform;"
+            :class="[
+                sidebarExpanded || window.innerWidth < 1024 ? 'w-64' : 'w-20',
+                sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            ]"
+            x-init="$el.classList.toggle('sidebar-expanded', sidebarExpanded)"
             x-effect="$el.classList.toggle('sidebar-expanded', sidebarExpanded)"
-            @mouseenter="if (!sidebarPersistent) sidebarExpanded = true"
-            @mouseleave="if (!sidebarPersistent) sidebarExpanded = false">
+            @mouseenter="if (!sidebarPersistent && window.innerWidth >= 1024) sidebarExpanded = true"
+            @mouseleave="if (!sidebarPersistent && window.innerWidth >= 1024) sidebarExpanded = false"
+            @click.away="if (window.innerWidth < 1024) sidebarOpen = false">
 
             <!-- Sidebar header -->
             <div class="flex justify-between mb-8 pr-3 sm:px-2">
-                <!-- Close button -->
-                <button class="lg:hidden text-gray-300 hover:text-white" @click.stop="sidebarOpen = !sidebarOpen"
-                    aria-controls="sidebar" :aria-expanded="sidebarOpen">
+                <!-- Close button (mobile only) -->
+                <button class="lg:hidden text-gray-300 hover:text-white transition-colors"
+                    @click.stop="sidebarOpen = false"
+                    aria-controls="sidebar"
+                    :aria-expanded="sidebarOpen">
                     <span class="sr-only">Close sidebar</span>
                     <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M10.7 18.7l1.4-1.4L7.8 13H20v-2H7.8l4.3-4.3-1.4-1.4L4 12z" />
                     </svg>
                 </button>
                 <!-- Logo -->
-                <div class="flex flex-row gap-3 items-center" href="{{ route('dashboard') }}">
-                    <img src="/images/frist_icon.png" alt="Booking Logo" class='w-10 h-10'>
-                    <p class="text-white text-center text-lg font-bold transition-opacity duration-200"
-                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                        x-show="sidebarExpanded || window.innerWidth < 1024">
+                <a class="flex flex-row gap-3 items-center" href="{{ route('dashboard') }}">
+                    <img src="/images/frist_icon.png" alt="Booking Logo" class='w-10 h-10 flex-shrink-0'>
+                    <p class="text-white text-center text-lg font-bold whitespace-nowrap overflow-hidden"
+                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 w-auto' : 'lg:opacity-0 lg:w-0'">
                         {{ $globalTitle }}
                     </p>
-                </div>
+                </a>
             </div>
 
             <!-- Links -->
-            <div class="space-y-1">
+            <div class="space-y-1" @click="if (window.innerWidth < 1024 && $event.target.tagName === 'A') sidebarOpen = false">
                 <!-- Dashboard -->
                 <div class="mb-4">
-                    <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2">
-                        <span x-show="!sidebarExpanded && window.innerWidth >= 1024" class="text-center w-6"
+                    <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2 overflow-hidden">
+                        <span class="inline-block text-center transition-all duration-300"
+                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'opacity-100 max-w-[1.5rem]' : 'opacity-0 max-w-0'"
                             aria-hidden="true">•••</span>
-                        <span x-show="sidebarExpanded || window.innerWidth < 1024"
-                            class="transition-opacity duration-200">Management</span>
+                        <span class="inline-block transition-all duration-300"
+                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'opacity-0 max-w-0'">Management</span>
                     </h3>
                     <ul class="space-y-1">
                         <!-- Dashboard -->
                         @can('view_dashboard')
                             <li>
                                 <a href="{{ route('dashboard') }}"
-                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group @if (Route::is('dashboard')) bg-indigo-900 @endif">
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('dashboard')) bg-indigo-900 @endif">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                     </svg>
-                                    <span class="transition-opacity duration-200 whitespace-nowrap"
-                                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                        x-show="sidebarExpanded || window.innerWidth < 1024">Dashboard</span>
+                                    <span class="whitespace-nowrap transition-all duration-300"
+                                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Dashboard</span>
                                     <!-- Tooltip for collapsed state -->
-                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                        class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                         Dashboard
                                     </div>
                                 </a>
@@ -68,17 +94,17 @@
 
                         <!-- Bookings Menu Item -->
                         @can('view_bookings')
-                            <li x-data="{ open: false }" x-init="open = window.location.href.includes('checkin') ||
+                            <li x-init="if (window.location.href.includes('checkin') ||
                                 window.location.href.includes('checkout') ||
                                 window.location.href.includes('bookings') ||
                                 window.location.href.includes('pendings') ||
                                 window.location.href.includes('newReserv') ||
                                 window.location.href.includes('completed') ||
-                                window.location.href.includes('change-room')">
+                                window.location.href.includes('change-room')) { activeMenu = 'bookings' }">
 
                                 <!-- Main Menu Button -->
-                                <a @click="open = !open"
-                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative @if (Route::is(
+                                <a @click="activeMenu = activeMenu === 'bookings' ? '' : 'bookings'"
+                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer group relative overflow-hidden @if (Route::is(
                                             'checkin.index',
                                             'checkout.index',
                                             'bookings.index',
@@ -86,7 +112,7 @@
                                             'completed.index',
                                             'newReserv.index',
                                             'changerooom.index')) bg-indigo-900 @endif">
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <!-- Calendar Icon -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
@@ -95,37 +121,36 @@
                                         </svg>
 
                                         <!-- Menu Text -->
-                                        <span class="transition-all duration-300 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100 ml-0' : 'lg:opacity-0 lg:ml-[-0.5rem]'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
                                             Bookings
                                         </span>
                                     </div>
 
                                     <!-- Chevron Icon -->
                                     <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="h-4 w-4 transition-all duration-300 flex-shrink-0"
-                                        :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        class="h-4 w-4 flex-shrink-0 transition-all duration-300"
+                                        style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="[
+                                            activeMenu === 'bookings' ? 'rotate-180' : '',
+                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
+                                        ]"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7" />
                                     </svg>
 
                                     <!-- Tooltip for Collapsed State -->
-                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                        x-transition:enter="transition ease-out duration-200"
-                                        x-transition:enter-start="opacity-0 translate-x-1"
-                                        x-transition:enter-end="opacity-100 translate-x-0"
-                                        x-transition:leave="transition ease-in duration-150"
-                                        x-transition:leave-start="opacity-100 translate-x-0"
-                                        x-transition:leave-end="opacity-0 translate-x-1"
-                                        class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                                    <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                         Bookings
                                     </div>
                                 </a>
 
                                 <!-- Submenu Items -->
-                                <div x-show="open && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
+                                <div x-show="activeMenu === 'bookings' && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
                                     x-transition:enter="transition-[height] ease-out duration-300"
                                     x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
@@ -215,11 +240,11 @@
 
                         <!-- Properties Menu Item -->
                         @can('view_properties')
-                            <li x-data="{ open: false }" x-init="open = window.location.href.includes('m-properties') ||
-                                window.location.href.includes('facilityProperty')">
+                            <li x-init="if (window.location.href.includes('m-properties') ||
+                                window.location.href.includes('facilityProperty')) { activeMenu = 'properties' }">
 
                                 <!-- Main Menu Button -->
-                                <a @click="open = !open"
+                                <a @click="activeMenu = activeMenu === 'properties' ? '' : 'properties'"
                                     class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index')) bg-indigo-900 @endif">
 
                                     <div class="flex items-center gap-3">
@@ -241,7 +266,7 @@
                                     <!-- Chevron Icon -->
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                         class="h-4 w-4 transition-all duration-300 flex-shrink-0"
-                                        :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
+                                        :class="activeMenu === 'properties' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7" />
@@ -261,7 +286,7 @@
                                 </a>
 
                                 <!-- Submenu Items -->
-                                <div x-show="open && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
+                                <div x-show="activeMenu === 'properties' && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
                                     x-transition:enter="transition-[height] ease-out duration-300"
                                     x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
@@ -296,11 +321,11 @@
 
                         <!-- Rooms/Units Menu Item -->
                         @can('rooms')
-                            <li x-data="{ open: false }" x-init="open = window.location.href.includes('m-rooms') ||
-                                window.location.href.includes('facilityRooms')">
+                            <li x-init="if (window.location.href.includes('m-rooms') ||
+                                window.location.href.includes('facilityRooms')) { activeMenu = 'rooms' }">
 
                                 <!-- Main Menu Button -->
-                                <a @click="open = !open"
+                                <a @click="activeMenu = activeMenu === 'rooms' ? '' : 'rooms'"
                                     class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('rooms.index', 'facilityRooms.index')) bg-indigo-900 @endif">
 
                                     <div class="flex items-center gap-3">
@@ -322,7 +347,7 @@
                                     <!-- Chevron Icon -->
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                         class="h-4 w-4 transition-all duration-300 flex-shrink-0"
-                                        :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
+                                        :class="activeMenu === 'rooms' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7" />
@@ -342,7 +367,7 @@
                                 </a>
 
                                 <!-- Submenu Items -->
-                                <div x-show="open && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
+                                <div x-show="activeMenu === 'rooms' && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
                                     x-transition:enter="transition-[height] ease-out duration-300"
                                     x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
@@ -499,12 +524,12 @@
 
                             <!-- Reports Menu Item -->
                             @can('view_reports')
-                                <li x-data="{ open: false }" x-init="open = window.location.href.includes('reports/booking') ||
+                                <li x-init="if (window.location.href.includes('reports/booking') ||
                                     window.location.href.includes('reports/payment') ||
-                                    window.location.href.includes('reports/rented-rooms')">
+                                    window.location.href.includes('reports/rented-rooms')) { activeMenu = 'reports' }">
 
                                     <!-- Main Menu Button -->
-                                    <a @click="open = !open"
+                                    <a @click="activeMenu = activeMenu === 'reports' ? '' : 'reports'"
                                         class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('reports.booking.*', 'reports.payment.*', 'reports.rented-rooms.*')) bg-indigo-900 @endif">
 
                                         <div class="flex items-center gap-3">
@@ -526,7 +551,7 @@
                                         <!-- Chevron Icon -->
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                             class="h-4 w-4 transition-all duration-300 flex-shrink-0"
-                                            :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
+                                            :class="activeMenu === 'reports' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
                                             stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 9l-7 7-7-7" />
@@ -546,7 +571,7 @@
                                     </a>
 
                                     <!-- Submenu Items -->
-                                    <div x-show="open && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
+                                    <div x-show="activeMenu === 'reports' && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
                                         x-transition:enter="transition-[height] ease-out duration-300"
                                         x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
