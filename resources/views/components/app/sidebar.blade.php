@@ -1,4 +1,4 @@
-<div x-data="{ sidebarPersistent: false, activeMenu: '' }" class="flex">
+<div x-data="{ sidebarOpen: false, sidebarExpanded: false, sidebarPersistent: false, activeMenu: '' }" class="flex">
     <div class="min-w-fit">
         <!-- Mobile Menu Button -->
         <button
@@ -34,25 +34,23 @@
 
             <!-- Sidebar header -->
             <div class="flex justify-between mb-8 pr-3 sm:px-2">
-                <!-- Close button (mobile only) -->
-                <button class="lg:hidden text-gray-300 hover:text-white transition-colors"
-                    @click.stop="sidebarOpen = false"
-                    aria-controls="sidebar"
-                    :aria-expanded="sidebarOpen">
+                <!-- Close button -->
+                <button class="lg:hidden text-gray-300 hover:text-white" @click.stop="sidebarOpen = !sidebarOpen"
+                    aria-controls="sidebar" :aria-expanded="sidebarOpen">
                     <span class="sr-only">Close sidebar</span>
                     <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M10.7 18.7l1.4-1.4L7.8 13H20v-2H7.8l4.3-4.3-1.4-1.4L4 12z" />
                     </svg>
                 </button>
                 <!-- Logo -->
-                <a class="flex flex-row gap-3 items-center" href="{{ route('dashboard') }}">
-                    <img src="/images/frist_icon.png" alt="Booking Logo" class='w-10 h-10 flex-shrink-0'>
-                    <p class="text-white text-center text-lg font-bold whitespace-nowrap overflow-hidden"
-                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 w-auto' : 'lg:opacity-0 lg:w-0'">
+                <div class="flex flex-row gap-3 items-center" href="{{ route('dashboard') }}">
+                    <img src="/images/frist_icon.png" alt="Booking Logo" class='w-10 h-10'>
+                    <p class="text-white text-center text-lg font-bold transition-opacity duration-200"
+                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
+                        x-show="sidebarExpanded || window.innerWidth < 1024">
                         {{ $globalTitle }}
                     </p>
-                </a>
+                </div>
             </div>
 
             <!-- Links -->
@@ -247,7 +245,7 @@
                                 <a @click="activeMenu = activeMenu === 'properties' ? '' : 'properties'"
                                     class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index')) bg-indigo-900 @endif">
 
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <!-- Building Icon -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -256,31 +254,30 @@
                                         </svg>
 
                                         <!-- Menu Text -->
-                                        <span class="transition-all duration-300 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100 ml-0' : 'lg:opacity-0 lg:ml-[-0.5rem]'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
                                             Properties
                                         </span>
                                     </div>
 
                                     <!-- Chevron Icon -->
                                     <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="h-4 w-4 transition-all duration-300 flex-shrink-0"
-                                        :class="activeMenu === 'properties' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        class="h-4 w-4 flex-shrink-0 transition-all duration-300"
+                                        style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="[
+                                            activeMenu === 'properties' ? 'rotate-180' : '',
+                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
+                                        ]"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7" />
                                     </svg>
 
                                     <!-- Tooltip for Collapsed State -->
-                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                        x-transition:enter="transition ease-out duration-200"
-                                        x-transition:enter-start="opacity-0 translate-x-1"
-                                        x-transition:enter-end="opacity-100 translate-x-0"
-                                        x-transition:leave="transition ease-in duration-150"
-                                        x-transition:leave-start="opacity-100 translate-x-0"
-                                        x-transition:leave-end="opacity-0 translate-x-1"
-                                        class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                                    <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                         Properties
                                     </div>
                                 </a>
@@ -328,7 +325,7 @@
                                 <a @click="activeMenu = activeMenu === 'rooms' ? '' : 'rooms'"
                                     class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('rooms.index', 'facilityRooms.index')) bg-indigo-900 @endif">
 
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
                                         <!-- Folder Icon -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -337,31 +334,30 @@
                                         </svg>
 
                                         <!-- Menu Text -->
-                                        <span class="transition-all duration-300 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100 ml-0' : 'lg:opacity-0 lg:ml-[-0.5rem]'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
                                             Rooms/Units
                                         </span>
                                     </div>
 
                                     <!-- Chevron Icon -->
                                     <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="h-4 w-4 transition-all duration-300 flex-shrink-0"
-                                        :class="activeMenu === 'rooms' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
+                                        class="h-4 w-4 flex-shrink-0 transition-all duration-300"
+                                        style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="[
+                                            activeMenu === 'rooms' ? 'rotate-180' : '',
+                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
+                                        ]"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7" />
                                     </svg>
 
                                     <!-- Tooltip for Collapsed State -->
-                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                        x-transition:enter="transition ease-out duration-200"
-                                        x-transition:enter-start="opacity-0 translate-x-1"
-                                        x-transition:enter-end="opacity-100 translate-x-0"
-                                        x-transition:leave="transition ease-in duration-150"
-                                        x-transition:leave-start="opacity-100 translate-x-0"
-                                        x-transition:leave-end="opacity-0 translate-x-1"
-                                        class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                                    <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                         Rooms/Units
                                     </div>
                                 </a>
@@ -405,18 +401,19 @@
                         @can('view_customers')
                             <li>
                                 <a href="{{ route('customers.index') }}"
-                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('customers.*')) bg-indigo-900 @endif">
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('customers.*')) bg-indigo-900 @endif">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                     </svg>
-                                    <span class="transition-opacity duration-200 whitespace-nowrap"
-                                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                        x-show="sidebarExpanded || window.innerWidth < 1024">Customers</span>
+                                    <span class="whitespace-nowrap transition-all duration-300"
+                                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Customers</span>
                                     <!-- Tooltip for collapsed state -->
-                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                        class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                         Customers
                                     </div>
                                 </a>
@@ -427,7 +424,7 @@
                         @can('view_room_availability')
                             <li>
                                 <a href="{{ route('room-availability.index') }}"
-                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('room-availability.index')) bg-indigo-900 @endif">
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('room-availability.index')) bg-indigo-900 @endif">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -435,12 +432,13 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8 15l2 2 4-4" />
                                     </svg>
-                                    <span class="transition-opacity duration-200 whitespace-nowrap"
-                                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                        x-show="sidebarExpanded || window.innerWidth < 1024">Room Availability</span>
+                                    <span class="whitespace-nowrap transition-all duration-300"
+                                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Room Availability</span>
 
-                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                        class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                         Room Availability
                                     </div>
                                 </a>
@@ -450,17 +448,19 @@
                         <!-- Master Vouchers -->
                         <li>
                             <a href="{{ route('vouchers.index') }}"
-                                class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('vouchers.*')) bg-indigo-900 @endif">
+                                class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('vouchers.*')) bg-indigo-900 @endif">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                 </svg>
-                                <span class="truncate transition-opacity duration-200"
-                                    x-show="sidebarExpanded || window.innerWidth < 1024">Vouchers</span>
+                                <span class="whitespace-nowrap transition-all duration-300"
+                                    style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                    :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Vouchers</span>
 
-                                <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                    class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                    style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                    :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                     Vouchers
                                 </div>
                             </a>
@@ -482,18 +482,19 @@
                             @can('view_payments')
                                 <li>
                                     <a href="{{ route('admin.payments.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('admin.payments.index')) bg-indigo-900 @endif">
+                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('admin.payments.index')) bg-indigo-900 @endif">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
-                                        <span class="transition-opacity duration-200 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">Payments</span>
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Payments</span>
                                         <!-- Tooltip for collapsed state -->
-                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                        <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                            style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                             Payments
                                         </div>
                                     </a>
@@ -503,18 +504,19 @@
                             <!-- Refunds -->
                             <li>
                                 <a href="{{ route('admin.refunds.index') }}"
-                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('admin.refunds.index')) bg-indigo-900 @endif">
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('admin.refunds.index')) bg-indigo-900 @endif">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                                     </svg>
-                                    <span class="transition-opacity duration-200 whitespace-nowrap"
-                                        :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                        x-show="sidebarExpanded || window.innerWidth < 1024">Refunds</span>
+                                    <span class="whitespace-nowrap transition-all duration-300"
+                                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Refunds</span>
                                     <!-- Tooltip for collapsed state -->
-                                    <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                        class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                         Refunds
                                     </div>
                                 </a>
@@ -532,7 +534,7 @@
                                     <a @click="activeMenu = activeMenu === 'reports' ? '' : 'reports'"
                                         class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('reports.booking.*', 'reports.payment.*', 'reports.rented-rooms.*')) bg-indigo-900 @endif">
 
-                                        <div class="flex items-center gap-3">
+                                        <div class="flex items-center gap-3 min-w-0">
                                             <!-- Chart/Report Icon -->
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -541,31 +543,30 @@
                                             </svg>
 
                                             <!-- Menu Text -->
-                                            <span class="transition-all duration-300 whitespace-nowrap"
-                                                :class="sidebarExpanded ? 'opacity-100 ml-0' : 'lg:opacity-0 lg:ml-[-0.5rem]'"
-                                                x-show="sidebarExpanded || window.innerWidth < 1024">
+                                            <span class="whitespace-nowrap transition-all duration-300"
+                                                style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                                :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
                                                 Reports
                                             </span>
                                         </div>
 
                                         <!-- Chevron Icon -->
                                         <svg xmlns="http://www.w3.org/2000/svg"
-                                            class="h-4 w-4 transition-all duration-300 flex-shrink-0"
-                                            :class="activeMenu === 'reports' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor" x-show="sidebarExpanded || window.innerWidth < 1024">
+                                            class="h-4 w-4 flex-shrink-0 transition-all duration-300"
+                                            style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="[
+                                                activeMenu === 'reports' ? 'rotate-180' : '',
+                                                sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
+                                            ]"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 9l-7 7-7-7" />
                                         </svg>
 
                                         <!-- Tooltip for Collapsed State -->
-                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            x-transition:enter="transition ease-out duration-200"
-                                            x-transition:enter-start="opacity-0 translate-x-1"
-                                            x-transition:enter-end="opacity-100 translate-x-0"
-                                            x-transition:leave="transition ease-in duration-150"
-                                            x-transition:leave-start="opacity-100 translate-x-0"
-                                            x-transition:leave-end="opacity-0 translate-x-1"
-                                            class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                                        <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
+                                            style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                             Reports
                                         </div>
                                     </a>
@@ -632,18 +633,19 @@
                             @can('view_users')
                                 <li>
                                     <a href="{{ route('users-newManagement') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('users-newManagement')) bg-indigo-900 @endif">
+                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('users-newManagement')) bg-indigo-900 @endif">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                         </svg>
-                                        <span class="transition-opacity duration-200 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">Users</span>
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Users</span>
                                         <!-- Tooltip for collapsed state -->
-                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                        <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                            style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                             Users
                                         </div>
                                     </a>
@@ -654,7 +656,7 @@
                             @can('manage_roles')
                                 <li>
                                     <a href="{{ route('master-role-management') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('master-role-management')) bg-indigo-900 @endif">
+                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('master-role-management')) bg-indigo-900 @endif">
                                         <!-- Icon Gembok -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
@@ -665,12 +667,13 @@
                                             <rect x="6" y="11" width="12" height="10" rx="2" ry="2"
                                                 stroke="currentColor" stroke-width="2" fill="none" />
                                         </svg>
-                                        <span class="transition-opacity duration-200 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">Role &amp; Permission</span>
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Role &amp; Permission</span>
                                         <!-- Tooltip for collapsed state -->
-                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                        <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                            style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                             Role &amp; Permission
                                         </div>
                                     </a>
@@ -679,8 +682,8 @@
                             <!-- Account / Settings -->
                             @can('manage_settings')
                                 <li>
-                                    <a href=" {{ route('users.show') }} "
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative @if (Route::is('users.show')) bg-indigo-900 @endif">
+                                    <a href="{{ route('users.show') }}"
+                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('users.show')) bg-indigo-900 @endif">
                                         <!-- Gear Icon -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
@@ -689,12 +692,13 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
-                                        <span class="transition-opacity duration-200 whitespace-nowrap"
-                                            :class="sidebarExpanded ? 'opacity-100' : 'lg:opacity-0'"
-                                            x-show="sidebarExpanded || window.innerWidth < 1024">Settings</span>
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Settings</span>
                                         <!-- Tooltip for collapsed state -->
-                                        <div x-show="!sidebarExpanded && window.innerWidth >= 1024"
-                                            class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                        <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                            style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                             Settings
                                         </div>
                                     </a>

@@ -1422,7 +1422,12 @@
                         timerProgressBar: true,
                         didClose: () => {
                             this.closeModal();
-                            window.location.reload();
+                            // Reload table only, no full page refresh
+                            if (typeof reloadRoomsTable === 'function') {
+                                reloadRoomsTable();
+                            } else {
+                                window.location.reload();
+                            }
                         }
                     });
                 } catch (error) {

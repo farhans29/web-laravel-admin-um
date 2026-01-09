@@ -153,6 +153,104 @@
     </div>
 
     <script>
+        // Global function untuk reload facility rooms table
+        function applyFacilityRoomsFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const perPageSelect = document.getElementById('perPageSelect');
+
+            if (!searchInput || !statusFilter || !perPageSelect) {
+                return;
+            }
+
+            const params = new URLSearchParams();
+
+            // Add all filter values to params
+            if (searchInput.value) params.append('search', searchInput.value);
+            if (statusFilter.value) params.append('status', statusFilter.value);
+            if (perPageSelect.value) params.append('per_page', perPageSelect.value);
+
+            // Show loading state
+            showFacilityRoomsLoading();
+
+            // AJAX request
+            fetch(`/properties/m-rooms/facilityRooms?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Parse HTML response
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Update table body
+                    const newTableBody = doc.querySelector('tbody');
+                    const currentTableBody = document.querySelector('tbody');
+                    if (newTableBody && currentTableBody) {
+                        currentTableBody.innerHTML = newTableBody.innerHTML;
+                    }
+
+                    // Update pagination
+                    const newPagination = doc.getElementById('paginationContainer');
+                    const currentPagination = document.getElementById('paginationContainer');
+                    if (newPagination && currentPagination) {
+                        currentPagination.innerHTML = newPagination.innerHTML;
+                    }
+
+                    // Update URL tanpa reload halaman
+                    const newUrl = `${window.location.pathname}?${params.toString()}`;
+                    window.history.pushState({}, '', newUrl);
+
+                    // Hide loading
+                    hideFacilityRoomsLoading();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    hideFacilityRoomsLoading();
+                });
+        }
+
+        // Global function untuk menampilkan loading state
+        function showFacilityRoomsLoading() {
+            const tableBody = document.querySelector('tbody');
+            if (!tableBody) return;
+
+            const existingOverlay = document.getElementById('loadingOverlay');
+            if (existingOverlay) {
+                existingOverlay.remove();
+            }
+
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.id = 'loadingOverlay';
+            loadingOverlay.className =
+                'absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10';
+            loadingOverlay.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm text-gray-600">Loading...</span>
+                </div>
+            `;
+
+            const tableContainer = document.querySelector('.overflow-x-auto');
+            if (tableContainer) {
+                tableContainer.style.position = 'relative';
+                tableContainer.appendChild(loadingOverlay);
+            }
+        }
+
+        // Global function untuk menyembunyikan loading state
+        function hideFacilityRoomsLoading() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.remove();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Elements
             const searchInput = document.getElementById('searchInput');
@@ -162,107 +260,20 @@
             // Debounce function untuk delay search
             let searchTimeout;
 
-            // Function untuk melakukan filtering dengan AJAX
-            function applyFilters() {
-                const params = new URLSearchParams();
-
-                // Add all filter values to params
-                if (searchInput.value) params.append('search', searchInput.value);
-                if (statusFilter.value) params.append('status', statusFilter.value);
-                if (perPageSelect.value) params.append('per_page', perPageSelect.value);
-
-                // Show loading state
-                showLoading();
-
-                // AJAX request
-                fetch(`/properties/m-rooms/facilityRooms?${params.toString()}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.text())
-                    .then(html => {
-                        // Parse HTML response
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-
-                        // Update table body
-                        const newTableBody = doc.querySelector('tbody');
-                        const currentTableBody = document.querySelector('tbody');
-                        if (newTableBody && currentTableBody) {
-                            currentTableBody.innerHTML = newTableBody.innerHTML;
-                        }
-
-                        // Update pagination
-                        const newPagination = doc.getElementById('paginationContainer');
-                        const currentPagination = document.getElementById('paginationContainer');
-                        if (newPagination && currentPagination) {
-                            currentPagination.innerHTML = newPagination.innerHTML;
-                        }
-
-                        // Update URL tanpa reload halaman
-                        const newUrl = `${window.location.pathname}?${params.toString()}`;
-                        window.history.pushState({}, '', newUrl);
-
-                        // Hide loading
-                        hideLoading();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        hideLoading();
-                    });
-            }
-
             // Event listeners untuk real-time filtering
             searchInput.addEventListener('input', function(e) {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    applyFilters();
+                    applyFacilityRoomsFilters();
                 }, 500); // Delay 500ms setelah user berhenti mengetik
             });
 
-            statusFilter.addEventListener('change', applyFilters); 
-            perPageSelect.addEventListener('change', applyFilters);
-
-            // Function untuk menampilkan loading state
-            function showLoading() {
-                const tableBody = document.querySelector('tbody');
-                if (!tableBody) return;
-
-                // Create loading overlay
-                const loadingOverlay = document.createElement('div');
-                loadingOverlay.id = 'loadingOverlay';
-                loadingOverlay.className =
-                    'absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10';
-                loadingOverlay.innerHTML = `
-                            <div class="flex items-center space-x-2">
-                                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span class="text-sm text-gray-600">Loading...</span>
-                            </div>
-                        `;
-
-                // Add relative positioning to table container
-                const tableContainer = document.querySelector('.overflow-x-auto');
-                if (tableContainer) {
-                    tableContainer.style.position = 'relative';
-                    tableContainer.appendChild(loadingOverlay);
-                }
-            }
-
-            // Function untuk menyembunyikan loading state
-            function hideLoading() {
-                const loadingOverlay = document.getElementById('loadingOverlay');
-                if (loadingOverlay) {
-                    loadingOverlay.remove();
-                }
-            }
+            statusFilter.addEventListener('change', applyFacilityRoomsFilters);
+            perPageSelect.addEventListener('change', applyFacilityRoomsFilters);
 
             // Handle browser back/forward buttons
             window.addEventListener('popstate', function() {
-                applyFilters();
+                applyFacilityRoomsFilters();
             });
         });
 
@@ -371,9 +382,22 @@
                             'Fasilitas berhasil ditambahkan'
                         );
 
-                        // Redirect to facility index page after 1.5 seconds
+                        // Close modal and reload table only
+                        this.modalOpenDetail = false;
+                        this.currentFacility = {
+                            id: null,
+                            facility: '',
+                            description: '',
+                            status: '1',
+                        };
+
+                        // Reload table via AJAX
                         setTimeout(() => {
-                            window.location.href = '/properties/m-rooms/facilityRooms';
+                            if (typeof applyFacilityRoomsFilters === 'function') {
+                                applyFacilityRoomsFilters();
+                            } else {
+                                window.location.href = '/properties/m-rooms/facilityRooms';
+                            }
                         }, 500);
 
                     } catch (error) {
@@ -468,8 +492,23 @@
                         }
 
                         this.showSuccessToast('Fasilitas berhasil diperbarui');
+
+                        // Close modal and reload table only
+                        this.modalOpenEdit = false;
+                        this.currentFacility = {
+                            id: null,
+                            facility: '',
+                            description: '',
+                            status: 1
+                        };
+
+                        // Reload table via AJAX
                         setTimeout(() => {
-                            window.location.href = '/properties/m-rooms/facilityRooms';
+                            if (typeof applyFacilityRoomsFilters === 'function') {
+                                applyFacilityRoomsFilters();
+                            } else {
+                                window.location.href = '/properties/m-rooms/facilityRooms';
+                            }
                         }, 500);
 
                     } catch (error) {

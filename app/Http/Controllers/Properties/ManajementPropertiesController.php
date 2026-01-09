@@ -14,7 +14,7 @@ class ManajementPropertiesController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 5);
+        $perPage = $request->input('per_page', 8);
 
         $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
@@ -74,7 +74,7 @@ class ManajementPropertiesController extends Controller
 
     public function filter(Request $request)
     {
-        $perPage = $request->input('per_page', 5);
+        $perPage = $request->input('per_page', 8);
         $search = $request->input('search');
         $status = $request->input('status');
 
@@ -463,9 +463,10 @@ class ManajementPropertiesController extends Controller
             ->when($request->category, function ($q) use ($request) {
                 $q->where('category', $request->category);
             })
+            ->orderBy('category', 'asc')
             ->orderBy('created_at', 'desc');
 
-        $perPage = $request->per_page ?? 5;
+        $perPage = $request->per_page ?? 8;
         $facilities = $perPage === 'all'
             ? $query->get()
             : $query->paginate($perPage)->withQueryString();

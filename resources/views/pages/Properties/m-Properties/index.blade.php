@@ -803,8 +803,8 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let searchTimeout;
+        // Fungsi global untuk memuat data dengan AJAX
+        function loadPropertiesData() {
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
             const perPageSelect = document.getElementById('perPageSelect');
@@ -812,67 +812,76 @@
             const propertyTableContainer = document.getElementById('propertyTableContainer');
             const paginationContainer = document.getElementById('paginationContainer');
 
-            // Fungsi untuk memuat data dengan AJAX
-            function loadData() {
-                // Tampilkan loading indicator
-                loadingIndicator.classList.remove('hidden');
-                propertyTableContainer.classList.add('opacity-50');
-
-                // Siapkan data form
-                const formData = new FormData();
-                formData.append('search', searchInput.value);
-                formData.append('status', statusFilter.value);
-                formData.append('per_page', perPageSelect.value);
-                formData.append('_token', '{{ csrf_token() }}');
-
-                // Kirim request AJAX
-                fetch('{{ route('properties.filter') }}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Update tabel
-                        propertyTableContainer.innerHTML = data.html;
-
-                        // Update pagination jika ada
-                        if (data.pagination) {
-                            paginationContainer.innerHTML = data.pagination;
-                        } else {
-                            paginationContainer.innerHTML = '';
-                        }
-
-                        // Sembunyikan loading indicator
-                        loadingIndicator.classList.add('hidden');
-                        propertyTableContainer.classList.remove('opacity-50');
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        loadingIndicator.classList.add('hidden');
-                        propertyTableContainer.classList.remove('opacity-50');
-                        alert('Terjadi kesalahan saat memuat data.');
-                    });
+            if (!searchInput || !statusFilter || !perPageSelect || !loadingIndicator || !propertyTableContainer || !
+                paginationContainer) {
+                return;
             }
+
+            // Tampilkan loading indicator
+            loadingIndicator.classList.remove('hidden');
+            propertyTableContainer.classList.add('opacity-50');
+
+            // Siapkan data form
+            const formData = new FormData();
+            formData.append('search', searchInput.value);
+            formData.append('status', statusFilter.value);
+            formData.append('per_page', perPageSelect.value);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            // Kirim request AJAX
+            fetch('{{ route('properties.filter') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update tabel
+                    propertyTableContainer.innerHTML = data.html;
+
+                    // Update pagination jika ada
+                    if (data.pagination) {
+                        paginationContainer.innerHTML = data.pagination;
+                    } else {
+                        paginationContainer.innerHTML = '';
+                    }
+
+                    // Sembunyikan loading indicator
+                    loadingIndicator.classList.add('hidden');
+                    propertyTableContainer.classList.remove('opacity-50');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingIndicator.classList.add('hidden');
+                    propertyTableContainer.classList.remove('opacity-50');
+                    alert('Terjadi kesalahan saat memuat data.');
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let searchTimeout;
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const perPageSelect = document.getElementById('perPageSelect');
 
             // Event listener untuk search input dengan debounce
             searchInput.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(loadData, 500); // Delay 500ms
+                searchTimeout = setTimeout(loadPropertiesData, 500); // Delay 500ms
             });
 
             // Event listener untuk status filter
-            statusFilter.addEventListener('change', loadData);
+            statusFilter.addEventListener('change', loadPropertiesData);
 
             // Event listener untuk per page select
-            perPageSelect.addEventListener('change', loadData);
+            perPageSelect.addEventListener('change', loadPropertiesData);
         });
 
         function toggleStatus(checkbox) {
@@ -1544,8 +1553,12 @@
                                 timer: 1000,
                                 timerProgressBar: true,
                                 didClose: () => {
-                                    window.location.href =
-                                        '{{ route('properties.index') }}';
+                                    // Reload table only, no full page refresh
+                                    if (typeof loadPropertiesData === 'function') {
+                                        loadPropertiesData();
+                                    } else {
+                                        window.location.href = '{{ route('properties.index') }}';
+                                    }
                                 }
                             });
                         })
@@ -2440,7 +2453,12 @@
                             timerProgressBar: true,
                             didClose: () => {
                                 this.closeModal();
-                                window.location.reload();
+                                // Reload table only, no full page refresh
+                                if (typeof loadPropertiesData === 'function') {
+                                    loadPropertiesData();
+                                } else {
+                                    window.location.reload();
+                                }
                             }
                         });
                     } catch (error) {

@@ -1523,7 +1523,12 @@
                         // Reset form dan close modal
                         this.modalOpen = false;
                         setTimeout(() => {
-                            window.location.reload();
+                            // Reload table only, no full page refresh
+                            if (typeof reloadRoomsTable === 'function') {
+                                reloadRoomsTable();
+                            } else {
+                                window.location.reload();
+                            }
                         }, 1000);
 
                     } catch (error) {
@@ -1681,7 +1686,12 @@
                                 timer: 2000,
                                 showConfirmButton: false
                             }).then(() => {
-                                location.reload(); // refresh halaman setelah toast hilang
+                                // Reload table only, no full page refresh
+                                if (typeof reloadRoomsTable === 'function') {
+                                    reloadRoomsTable();
+                                } else {
+                                    location.reload();
+                                }
                             });
                         })
                         .catch(error => {
@@ -1695,6 +1705,72 @@
                         });
                 }
             });
+        }
+
+        // Global function untuk reload rooms table
+        function reloadRoomsTable() {
+            const roomFilter = document.getElementById('room-filter');
+            const statusFilter = document.getElementById('status-filter');
+            const searchInput = document.getElementById('search-input');
+            const perPageFilter = document.getElementById('per-page-filter');
+
+            if (!roomFilter || !statusFilter || !searchInput || !perPageFilter) {
+                location.reload();
+                return;
+            }
+
+            const propertyId = roomFilter.value;
+            const status = statusFilter.value;
+            const searchQuery = searchInput.value.trim();
+            const perPage = perPageFilter.value;
+
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+
+            if (propertyId) params.set('property_id', propertyId);
+            else params.delete('property_id');
+
+            if (status !== '') params.set('status', status);
+            else params.delete('status');
+
+            if (searchQuery) params.set('search', searchQuery);
+            else params.delete('search');
+
+            if (perPage) params.set('per_page', perPage);
+            else params.set('per_page', '8');
+
+            window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
+
+            document.getElementById('roomTableContainer').innerHTML =
+                '<div class="p-4 text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div><p class="mt-2 text-gray-600">Memuat data...</p></div>';
+
+            fetch(`{{ route('rooms.index') }}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    const tableContainer = document.getElementById('roomTableContainer');
+                    const paginationContainer = document.getElementById('paginationContainer');
+
+                    if (tableContainer) tableContainer.innerHTML = data.html || '';
+                    if (paginationContainer) {
+                        paginationContainer.innerHTML = data.pagination || '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const container = document.getElementById('roomTableContainer');
+                    if (container) {
+                        container.innerHTML =
+                            '<div class="p-4 text-center text-red-600">Terjadi kesalahan saat memuat data.</div>';
+                    }
+                });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
