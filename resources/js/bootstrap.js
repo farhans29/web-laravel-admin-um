@@ -30,3 +30,22 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
 //     enabledTransports: ['ws', 'wss'],
 // });
+
+/**
+ * Alpine.js and plugins initialization
+ */
+import Alpine from 'alpinejs';
+import persist from '@alpinejs/persist';
+import collapse from '@alpinejs/collapse';
+import focus from '@alpinejs/focus';
+import intersect from '@alpinejs/intersect';
+import mask from '@alpinejs/mask';
+
+Alpine.plugin(persist);
+Alpine.plugin(collapse);
+Alpine.plugin(focus);
+Alpine.plugin(intersect);
+Alpine.plugin(mask);
+
+window.Alpine = Alpine;
+Alpine.start();
