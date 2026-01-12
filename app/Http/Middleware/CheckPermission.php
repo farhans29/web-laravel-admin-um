@@ -76,6 +76,9 @@ class CheckPermission
             '/\.change-price-index$/',      // e.g., rooms.prices.change-price-index
             '/\.date$/',              // e.g., rooms.prices.date
             '/check\.email$/',        // e.g., check.email
+            '/-newManagement$/',      // e.g., users-newManagement
+            '/-editManagement$/',     // e.g., users-editManagement
+            '/-deleteManagement$/',   // e.g., users-deleteManagement
         ];
 
         // Check if current route matches any API pattern
@@ -173,6 +176,7 @@ class CheckPermission
             'reports.payment.' => 'reports.payment.index',
             'reports.rented-rooms.' => 'reports.rented-rooms.index',
             'vouchers.' => 'vouchers.index',
+            'users-' => 'users-management',
             'users.' => 'users-management',
             'menus.' => 'users-management',
             'account.' => 'dashboard',
