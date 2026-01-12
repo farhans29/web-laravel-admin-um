@@ -195,6 +195,14 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 1
         ]);
 
+        $refunds = SidebarItem::create([
+            'name' => 'Refunds',
+            'route' => 'admin.refunds.index',
+            'permission_id' => $permissions['view_refunds'] ?? null,
+            'parent_id' => $financialSection->id,
+            'order' => 2
+        ]);
+
         $reports = SidebarItem::create([
             'name' => 'Reports',
             'route' => null,
@@ -239,7 +247,7 @@ class SidebarItemsTableSeeder extends Seeder
         
         $users = SidebarItem::create([
             'name' => 'Users',
-            'route' => 'users-access-management',
+            'route' => 'users-management',
             'permission_id' => $permissions['view_users'] ?? null,
             'parent_id' => $settingsSection->id,
             'order' => 1

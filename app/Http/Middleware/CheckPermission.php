@@ -35,6 +35,7 @@ class CheckPermission
             'logout',
             'user.password.update',
             'user.activity',
+            'progress',
         ];
 
         if (in_array($currentRoute, $allowedRoutes)) {
@@ -79,6 +80,12 @@ class CheckPermission
             '/-newManagement$/',      // e.g., users-newManagement
             '/-editManagement$/',     // e.g., users-editManagement
             '/-deleteManagement$/',   // e.g., users-deleteManagement
+            '/\.permissions$/',       // e.g., master-role.permissions
+            '/\.update-permissions$/',// e.g., master-role.update-permissions
+            '/\.get$/',               // e.g., dashboard-widgets.get
+            '/\.checkin$/',           // e.g., newReserv.checkin, bookings.checkin
+            '/\.checkout$/',          // e.g., bookings.checkout
+            '/-access-management$/',  // e.g., users-access-management
         ];
 
         // Check if current route matches any API pattern

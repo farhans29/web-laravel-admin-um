@@ -45,6 +45,7 @@ class AuthServiceProvider extends ServiceProvider
             'view_customers',
             'financial',
             'view_payments',
+            'view_refunds',
             'view_invoices',
             'view_reports',
             'view_booking_report',
