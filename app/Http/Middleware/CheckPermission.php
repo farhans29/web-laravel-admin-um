@@ -176,7 +176,7 @@ class CheckPermission
             'users.' => 'users-management',
             'menus.' => 'users-management',
             'account.' => 'dashboard',
-            'user-access.' => 'users-access-management',
+            'user-access.' => 'users-management',
             'master-role.' => 'master-role-management',
             'role.' => 'master-role-management',
             'dashboard-widgets.' => 'dashboard',
