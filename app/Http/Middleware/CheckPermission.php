@@ -95,8 +95,8 @@ class CheckPermission
             if ($parentRoute) {
                 $sidebarItem = SidebarItem::where('route', $parentRoute)->first();
 
-                if ($sidebarItem) {
-                    $permissionId = $sidebarItem->id;
+                if ($sidebarItem && $sidebarItem->permission_id) {
+                    $permissionId = $sidebarItem->permission_id;
 
                     $hasPermission = DB::table('role_permission')
                         ->where('user_id', $user->id)
@@ -120,8 +120,13 @@ class CheckPermission
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 
-        // Get the permission_id from sidebar_item (this is actually sidebar_item.id)
-        $permissionId = $sidebarItem->id;
+        // SECURITY: Block access if sidebar_item has no permission_id
+        if (!$sidebarItem->permission_id) {
+            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
+        // Get the permission_id from sidebar_item
+        $permissionId = $sidebarItem->permission_id;
 
         // Check if user has permission
         $hasPermission = DB::table('role_permission')
