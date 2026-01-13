@@ -209,6 +209,15 @@ class DashboardWidgetsSeeder extends Seeder
                 'icon' => 'fas fa-dollar-sign',
                 'order' => 21,
                 'is_active' => 1
+            ],
+            [
+                'name' => 'Chat',
+                'slug' => 'chat',
+                'description' => 'Widget untuk menampilkan chat',
+                'category' => 'communication',
+                'icon' => 'fas fa-comments',
+                'order' => 22,
+                'is_active' => 1
             ]
         ];
 

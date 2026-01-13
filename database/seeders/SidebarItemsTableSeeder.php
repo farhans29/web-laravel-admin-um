@@ -178,6 +178,14 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 7
         ]);
 
+        $chat = SidebarItem::create([
+            'name' => 'Chat',
+            'route' => 'chat.index',
+            'permission_id' => $permissions['manage_chat'] ?? null,
+            'parent_id' => $managementSection->id,
+            'order' => 8
+        ]);
+
         // Financial items
         $financialSection = SidebarItem::create([
             'name' => 'Financial',

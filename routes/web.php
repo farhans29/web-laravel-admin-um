@@ -28,7 +28,6 @@ use Symfony\Component\Console\Command\CompleteCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 
-
 // Route::redirect('/', 'login');
 
 Route::middleware(['guest'])->group(function () {
@@ -235,5 +234,14 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::get('/{id}', [VoucherController::class, 'show'])->where('id', '[0-9]+')->name('vouchers.show');
         Route::put('/{id}', [VoucherController::class, 'update'])->where('id', '[0-9]+')->name('vouchers.update');
         Route::delete('/{id}', [VoucherController::class, 'destroy'])->where('id', '[0-9]+')->name('vouchers.destroy');
+    });
+
+    Route::prefix('chat')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Chat\ChatController::class, 'index'])->name('chat.index');
+        Route::get('/filter', [\App\Http\Controllers\Chat\ChatController::class, 'filter'])->name('chat.filter');
+        Route::get('/conversations-json', [\App\Http\Controllers\Chat\ChatController::class, 'getConversationsJson'])->name('chat.conversations-json');
+        Route::get('/{id}', [\App\Http\Controllers\Chat\ChatController::class, 'show'])->where('id', '[0-9]+')->name('chat.show');
+        Route::post('/store', [\App\Http\Controllers\Chat\ChatController::class, 'store'])->name('chat.store');
+        Route::post('/{conversationId}/send', [\App\Http\Controllers\Chat\ChatController::class, 'sendMessage'])->name('chat.send');
     });
 });

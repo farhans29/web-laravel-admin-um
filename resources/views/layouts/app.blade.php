@@ -108,6 +108,13 @@
 
     </div>
 
+    {{-- Floating Chat Widget --}}
+    @auth
+        @can('manage_chat')
+            <x-chat-widget />
+        @endcan
+    @endauth
+
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     @livewireScriptConfig

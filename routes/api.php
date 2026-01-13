@@ -17,3 +17,28 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Chat API Routes for Android App
+Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
+    // Conversations
+    Route::get('/conversations', [\App\Http\Controllers\Api\ChatApiController::class, 'index']);
+    Route::post('/conversations', [\App\Http\Controllers\Api\ChatApiController::class, 'store']);
+    Route::get('/conversations/{id}', [\App\Http\Controllers\Api\ChatApiController::class, 'show']);
+    Route::put('/conversations/{id}', [\App\Http\Controllers\Api\ChatApiController::class, 'update']);
+    Route::delete('/conversations/{id}', [\App\Http\Controllers\Api\ChatApiController::class, 'destroy']);
+
+    // Messages
+    Route::get('/conversations/{id}/messages', [\App\Http\Controllers\Api\ChatApiController::class, 'getMessages']);
+    Route::post('/conversations/{id}/messages', [\App\Http\Controllers\Api\ChatApiController::class, 'sendMessage']);
+    Route::post('/messages/{id}/read', [\App\Http\Controllers\Api\ChatApiController::class, 'markAsRead']);
+    Route::post('/conversations/{id}/read-all', [\App\Http\Controllers\Api\ChatApiController::class, 'markAllAsRead']);
+
+    // Attachments
+    Route::post('/messages/{id}/attachments', [\App\Http\Controllers\Api\ChatApiController::class, 'uploadAttachment']);
+
+    // Typing Indicator
+    Route::post('/conversations/{id}/typing', [\App\Http\Controllers\Api\ChatApiController::class, 'setTypingStatus']);
+
+    // Search
+    Route::get('/search', [\App\Http\Controllers\Api\ChatApiController::class, 'searchMessages']);
+});

@@ -1,22 +1,17 @@
 <div x-data="{ sidebarOpen: false, sidebarExpanded: false, sidebarPersistent: false, activeMenu: '' }" class="flex">
     <div class="min-w-fit">
         <!-- Mobile Menu Button -->
-        <button
-            @click="sidebarOpen = true"
-            x-show="!sidebarOpen"
+        <button @click="sidebarOpen = true" x-show="!sidebarOpen"
             class="fixed top-4 left-4 z-[60] lg:hidden p-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all shadow-lg"
-            aria-label="Open sidebar"
-            type="button">
+            aria-label="Open sidebar" type="button">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
         </button>
         <!-- Sidebar backdrop (mobile only) -->
         <div class="fixed inset-0 bg-gray-900/50 z-40 lg:hidden lg:z-auto transition-opacity duration-200"
-            :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'"
-            @click="sidebarOpen = false"
-            aria-hidden="true"
-            x-cloak></div>
+            :class="sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'" @click="sidebarOpen = false"
+            aria-hidden="true" x-cloak></div>
 
         <!-- Sidebar -->
         <div id="sidebar"
@@ -26,8 +21,7 @@
                 sidebarExpanded || window.innerWidth < 1024 ? 'w-64' : 'w-20',
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
             ]"
-            x-init="$el.classList.toggle('sidebar-expanded', sidebarExpanded)"
-            x-effect="$el.classList.toggle('sidebar-expanded', sidebarExpanded)"
+            x-init="$el.classList.toggle('sidebar-expanded', sidebarExpanded)" x-effect="$el.classList.toggle('sidebar-expanded', sidebarExpanded)"
             @mouseenter="if (!sidebarPersistent && window.innerWidth >= 1024) sidebarExpanded = true"
             @mouseleave="if (!sidebarPersistent && window.innerWidth >= 1024) sidebarExpanded = false"
             @click.away="if (window.innerWidth < 1024) sidebarOpen = false">
@@ -54,17 +48,21 @@
             </div>
 
             <!-- Links -->
-            <div class="space-y-1" @click="if (window.innerWidth < 1024 && $event.target.tagName === 'A') sidebarOpen = false">
+            <div class="space-y-1"
+                @click="if (window.innerWidth < 1024 && $event.target.tagName === 'A') sidebarOpen = false">
                 <!-- Dashboard -->
                 <div class="mb-4">
-                    <h3 class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2 overflow-hidden">
+                    <h3
+                        class="text-xs uppercase text-indigo-400 dark:text-indigo-300 font-semibold pl-3 mb-2 overflow-hidden">
                         <span class="inline-block text-center transition-all duration-300"
                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'opacity-100 max-w-[1.5rem]' : 'opacity-0 max-w-0'"
+                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'opacity-100 max-w-[1.5rem]' :
+                                'opacity-0 max-w-0'"
                             aria-hidden="true">•••</span>
                         <span class="inline-block transition-all duration-300"
                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'opacity-0 max-w-0'">Management</span>
+                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                'opacity-0 max-w-0'">Management</span>
                     </h3>
                     <ul class="space-y-1">
                         <!-- Dashboard -->
@@ -79,7 +77,8 @@
                                     </svg>
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Dashboard</span>
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                            'lg:opacity-0 lg:max-w-0'">Dashboard</span>
                                     <!-- Tooltip for collapsed state -->
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
@@ -121,7 +120,8 @@
                                         <!-- Menu Text -->
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">
                                             Bookings
                                         </span>
                                     </div>
@@ -132,7 +132,8 @@
                                         style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="[
                                             activeMenu === 'bookings' ? 'rotate-180' : '',
-                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
+                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' :
+                                            'lg:opacity-0 lg:max-w-0'
                                         ]"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -148,8 +149,8 @@
                                 </a>
 
                                 <!-- Submenu Items -->
-                                <div x-show="activeMenu === 'bookings' && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
-                                    x-transition:enter="transition-[height] ease-out duration-300"
+                                <div x-show="activeMenu === 'bookings' && (sidebarExpanded || window.innerWidth < 1024)"
+                                    x-collapse x-transition:enter="transition-[height] ease-out duration-300"
                                     x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
                                     <ul class="pl-8 mt-1 space-y-1">
@@ -256,7 +257,8 @@
                                         <!-- Menu Text -->
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">
                                             Properties
                                         </span>
                                     </div>
@@ -267,7 +269,8 @@
                                         style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="[
                                             activeMenu === 'properties' ? 'rotate-180' : '',
-                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
+                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' :
+                                            'lg:opacity-0 lg:max-w-0'
                                         ]"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -283,8 +286,8 @@
                                 </a>
 
                                 <!-- Submenu Items -->
-                                <div x-show="activeMenu === 'properties' && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
-                                    x-transition:enter="transition-[height] ease-out duration-300"
+                                <div x-show="activeMenu === 'properties' && (sidebarExpanded || window.innerWidth < 1024)"
+                                    x-collapse x-transition:enter="transition-[height] ease-out duration-300"
                                     x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
                                     <ul class="pl-8 mt-1 space-y-1">
@@ -336,7 +339,8 @@
                                         <!-- Menu Text -->
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">
                                             Rooms/Units
                                         </span>
                                     </div>
@@ -347,7 +351,8 @@
                                         style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="[
                                             activeMenu === 'rooms' ? 'rotate-180' : '',
-                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
+                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' :
+                                            'lg:opacity-0 lg:max-w-0'
                                         ]"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -363,8 +368,8 @@
                                 </a>
 
                                 <!-- Submenu Items -->
-                                <div x-show="activeMenu === 'rooms' && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
-                                    x-transition:enter="transition-[height] ease-out duration-300"
+                                <div x-show="activeMenu === 'rooms' && (sidebarExpanded || window.innerWidth < 1024)"
+                                    x-collapse x-transition:enter="transition-[height] ease-out duration-300"
                                     x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
                                     <ul class="pl-8 mt-1 space-y-1">
@@ -409,7 +414,8 @@
                                     </svg>
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Customers</span>
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                            'lg:opacity-0 lg:max-w-0'">Customers</span>
                                     <!-- Tooltip for collapsed state -->
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
@@ -434,7 +440,9 @@
                                     </svg>
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Room Availability</span>
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                            'lg:opacity-0 lg:max-w-0'">Room
+                                        Availability</span>
 
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
@@ -447,25 +455,51 @@
 
                         <!-- Master Vouchers -->
                         @can('view_vouchers')
-                        <li>
-                            <a href="{{ route('vouchers.index') }}"
-                                class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('vouchers.*')) bg-indigo-900 @endif">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                </svg>
-                                <span class="whitespace-nowrap transition-all duration-300"
-                                    style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                    :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Vouchers</span>
+                            <li>
+                                <a href="{{ route('vouchers.index') }}"
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('vouchers.*')) bg-indigo-900 @endif">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    <span class="whitespace-nowrap transition-all duration-300"
+                                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                            'lg:opacity-0 lg:max-w-0'">Vouchers</span>
 
-                                <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
-                                    style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
-                                    :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                    Vouchers
-                                </div>
-                            </a>
-                        </li>
+                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
+                                        Vouchers
+                                    </div>
+                                </a>
+                            </li>
+                        @endcan
+
+                        <!-- Chat -->
+                        @can('manage_chat')
+                            <li>
+                                <a href="{{ route('chat.index') }}"
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('chat.index')) bg-indigo-900 @endif">
+                                    <!-- Chat Icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 10h18M3 14h18M3 18h18" />
+                                    </svg>
+                                    <span class="whitespace-nowrap transition-all duration-300"
+                                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                            'lg:opacity-0 lg:max-w-0'">Chat</span>
+                                    <!-- Tooltip for collapsed state -->
+                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
+                                        Chat
+                                    </div>
+                                </a>
+                            </li>
                         @endcan
                     </ul>
                 </div>
@@ -492,7 +526,8 @@
                                         </svg>
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Payments</span>
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">Payments</span>
                                         <!-- Tooltip for collapsed state -->
                                         <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
@@ -514,7 +549,8 @@
                                     </svg>
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Refunds</span>
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                            'lg:opacity-0 lg:max-w-0'">Refunds</span>
                                     <!-- Tooltip for collapsed state -->
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
@@ -547,7 +583,8 @@
                                             <!-- Menu Text -->
                                             <span class="whitespace-nowrap transition-all duration-300"
                                                 style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                                :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
+                                                :class="sidebarExpanded || window.innerWidth < 1024 ?
+                                                    'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
                                                 Reports
                                             </span>
                                         </div>
@@ -558,7 +595,8 @@
                                             style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="[
                                                 activeMenu === 'reports' ? 'rotate-180' : '',
-                                                sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
+                                                sidebarExpanded || window.innerWidth < 1024 ?
+                                                'opacity-100 max-w-[1rem]' : 'lg:opacity-0 lg:max-w-0'
                                             ]"
                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -574,8 +612,8 @@
                                     </a>
 
                                     <!-- Submenu Items -->
-                                    <div x-show="activeMenu === 'reports' && (sidebarExpanded || window.innerWidth < 1024)" x-collapse
-                                        x-transition:enter="transition-[height] ease-out duration-300"
+                                    <div x-show="activeMenu === 'reports' && (sidebarExpanded || window.innerWidth < 1024)"
+                                        x-collapse x-transition:enter="transition-[height] ease-out duration-300"
                                         x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
 
                                         <ul class="pl-8 mt-1 space-y-1">
@@ -585,7 +623,8 @@
                                                     <a href="{{ route('reports.booking.index') }}"
                                                         class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.booking.*')) bg-indigo-900 @endif">
                                                         <span
-                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Booking Report</span>
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Booking
+                                                            Report</span>
                                                     </a>
                                                 </li>
                                             @endcan
@@ -596,7 +635,8 @@
                                                     <a href="{{ route('reports.payment.index') }}"
                                                         class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.payment.*')) bg-indigo-900 @endif">
                                                         <span
-                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Payment Report</span>
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Payment
+                                                            Report</span>
                                                     </a>
                                                 </li>
                                             @endcan
@@ -607,7 +647,8 @@
                                                     <a href="{{ route('reports.rented-rooms.index') }}"
                                                         class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.rented-rooms.*')) bg-indigo-900 @endif">
                                                         <span
-                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Rented Rooms Report</span>
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Rented
+                                                            Rooms Report</span>
                                                     </a>
                                                 </li>
                                             @endcan
@@ -616,7 +657,7 @@
                                 </li>
                             @endcan
 
-                            
+
                         </ul>
                     </div>
                 @endcan
@@ -643,7 +684,8 @@
                                         </svg>
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Users</span>
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">Users</span>
                                         <!-- Tooltip for collapsed state -->
                                         <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
@@ -671,7 +713,9 @@
                                         </svg>
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Role &amp; Permission</span>
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">Role
+                                            &amp; Permission</span>
                                         <!-- Tooltip for collapsed state -->
                                         <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
@@ -696,7 +740,8 @@
                                         </svg>
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">Settings</span>
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">Settings</span>
                                         <!-- Tooltip for collapsed state -->
                                         <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"

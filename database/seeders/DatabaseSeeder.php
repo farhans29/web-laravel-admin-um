@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             RoomFacilitySeeder::class,
             DashboardWidgetsSeeder::class,
             RoleDashboardWidgetsSeeder::class,
+            ChatSampleDataSeeder::class,
         ]);
     }
 }

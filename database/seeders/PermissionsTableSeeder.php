@@ -47,11 +47,15 @@ class PermissionsTableSeeder extends Seeder
             // Vouchers
             'view_vouchers',
 
+            // Chat
+            'manage_chat',
+
             // Financial
             'financial',
 
             // Payments
             'view_payments',
+            'view_refunds',
 
             // Reports
             'view_reports',
