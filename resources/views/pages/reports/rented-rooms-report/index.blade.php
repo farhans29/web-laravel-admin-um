@@ -234,7 +234,7 @@
                 mode: 'single',
                 dateFormat: 'Y-m-d',
                 altInput: true,
-                altFormat: 'j F Y',
+                altFormat: 'j M Y',
                 defaultDate: defaultDate,
                 onChange: function(selectedDates, dateStr, instance) {
                     document.getElementById('single_date').value = dateStr;
@@ -248,7 +248,7 @@
                 mode: 'range',
                 dateFormat: 'Y-m-d',
                 altInput: true,
-                altFormat: 'j F Y',
+                altFormat: 'j M Y',
                 defaultDate: [startDate, endDate],
                 onChange: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 2) {

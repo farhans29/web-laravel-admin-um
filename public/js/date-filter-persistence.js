@@ -97,7 +97,7 @@ const DateFilterPersistence = {
             mode: "range",
             dateFormat: "Y-m-d",
             altInput: true,
-            altFormat: "j F Y",
+            altFormat: "j M Y",
             allowInput: true,
             static: true,
             monthSelectorType: 'static',

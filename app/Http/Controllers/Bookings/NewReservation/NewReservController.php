@@ -39,7 +39,7 @@ class NewReservController extends Controller
             ->whereNull('check_out_at') // Only bookings that haven't checked out
             ->join('t_transactions', 't_booking.order_id', '=', 't_transactions.order_id')
             ->orderByRaw('ISNULL(check_in_at) DESC')
-            ->orderBy('t_transactions.check_in', 'asc');
+            ->orderBy('t_transactions.check_in', 'desc');
 
         // Apply date filter if provided in request
         if (request()->filled('start_date') && request()->filled('end_date')) {

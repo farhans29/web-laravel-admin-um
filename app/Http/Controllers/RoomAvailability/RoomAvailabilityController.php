@@ -58,8 +58,7 @@ class RoomAvailabilityController extends Controller
                     $query->where('rental_status', 1);
                 }
             })
-            ->orderBy('property_name')
-            ->orderBy('no')
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 

@@ -446,6 +446,7 @@
                         @endcan
 
                         <!-- Master Vouchers -->
+                        @can('view_vouchers')
                         <li>
                             <a href="{{ route('vouchers.index') }}"
                                 class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('vouchers.*')) bg-indigo-900 @endif">
@@ -465,6 +466,7 @@
                                 </div>
                             </a>
                         </li>
+                        @endcan
                     </ul>
                 </div>
 

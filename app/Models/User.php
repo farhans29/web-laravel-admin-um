@@ -182,4 +182,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payment::class, 'verified_by');
     }
+
+    // Chat Relationships
+    public function chatParticipations()
+    {
+        return $this->hasMany(ChatParticipant::class, 'user_id');
+    }
+
+    public function chatConversations()
+    {
+        return $this->belongsToMany(ChatConversation::class, 't_chat_participants', 'user_id', 'conversation_id')
+                    ->withPivot('role', 'joined_at', 'last_read_at')
+                    ->withTimestamps();
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'sender_id');
+    }
 }

@@ -65,7 +65,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'slug' => 'checkout_list',
                 'description' => 'Widget untuk menampilkan daftar check-out hari ini',
                 'category' => 'stats',
-                'icon' => 'fas fa-list-check',
+                'icon' => 'fas fa-list-alt',
                 'order' => 6,
                 'is_active' => 1
             ],
@@ -209,7 +209,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'icon' => 'fas fa-dollar-sign',
                 'order' => 21,
                 'is_active' => 1
-            ],
+            ]
         ];
 
         foreach ($widgets as $widget) {

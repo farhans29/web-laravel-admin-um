@@ -83,34 +83,7 @@
                     <!-- Quick Stats Section with Overlay -->
                     <div
                         class="relative bg-gradient-to-br from-gray-900/70 to-gray-900/50 backdrop-blur-md rounded-xl p-6 border border-white/10 shadow-2xl">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            @if ($canViewWidget('booking_upcoming'))
-                                <!-- Confirm Booking (Upcoming) -->
-                                <div
-                                    class="group relative bg-gradient-to-br from-blue-500/20 to-blue-600/10 backdrop-blur-sm rounded-xl p-5 border border-blue-400/30 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1">
-                                    <div class="flex flex-col h-full">
-                                        <div class="flex justify-between items-start mb-3">
-                                            <div
-                                                class="bg-blue-500/30 p-3 rounded-lg border border-blue-400/30 group-hover:bg-blue-500/40 transition-colors">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-100"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-blue-100 text-xs font-semibold uppercase tracking-wide mb-2">
-                                                Konfirmasi Booking</p>
-                                            <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
-                                                {{ $stats['upcoming'] }}</h3>
-                                            <p class="text-blue-200 text-sm">Mendatang</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             @if ($canViewWidget('booking_today'))
                                 <!-- Confirm Booking (Today) -->
                                 <div
@@ -797,6 +770,45 @@
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-1 gap-8">
             <!-- Left Column -->
             <div class="lg:col-span-2 space-y-8">
+                @if ($canViewWidget('checkin_list'))
+                    <!-- Check-in Section -->
+                    <div
+                        class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
+                        <div
+                            class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-green-50 to-teal-50">
+                            <div class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                </svg>
+                                <h2 class="font-semibold text-gray-800 text-lg">Check-in Hari Ini</h2>
+                            </div>
+                            <a href="{{ route('newReserv.index') }}"
+                                class="text-sm font-medium text-green-600 hover:text-green-800 flex items-center">
+                                Lihat Semua
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="overflow-x-auto">
+                            @include('pages.bookings.newreservations.partials.newreserve_table', [
+                                'checkIns' => $checkIns,
+                                'per_page' => request('per_page', 4),
+                                'type' => 'check-in',
+                                'showStatus' => false,
+                                'showActions' => false,
+                            ])
+                        </div>
+                        <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
+                            Menampilkan {{ min(4, count($checkIns)) }} dari {{ count($checkIns) }} check-in mendatang
+                        </div>
+                    </div>
+                @endif
+
                 @if ($canViewWidget('checkout_list'))
                     <!-- Check-out Section -->
                     <div
@@ -833,45 +845,6 @@
                         <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
                             Menampilkan {{ min(4, count($checkOuts)) }} dari {{ count($checkOuts) }} check-out
                             mendatang
-                        </div>
-                    </div>
-                @endif
-
-                @if ($canViewWidget('checkin_list'))
-                    <!-- Check-in Section -->
-                    <div
-                        class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transition-all hover:shadow-lg">
-                        <div
-                            class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-green-50 to-teal-50">
-                            <div class="flex items-center space-x-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                </svg>
-                                <h2 class="font-semibold text-gray-800 text-lg">Check-in Hari Ini</h2>
-                            </div>
-                            <a href="{{ route('newReserv.index') }}"
-                                class="text-sm font-medium text-green-600 hover:text-green-800 flex items-center">
-                                Lihat Semua
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7" />
-                                </svg>
-                            </a>
-                        </div>
-                        <div class="overflow-x-auto">
-                            @include('pages.bookings.newreservations.partials.newreserve_table', [
-                                'checkIns' => $checkIns,
-                                'per_page' => request('per_page', 4),
-                                'type' => 'check-in',
-                                'showStatus' => false,
-                                'showActions' => false,
-                            ])
-                        </div>
-                        <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
-                            Menampilkan {{ min(4, count($checkIns)) }} dari {{ count($checkIns) }} check-in mendatang
                         </div>
                     </div>
                 @endif

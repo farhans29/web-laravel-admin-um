@@ -32,6 +32,7 @@ class UserController extends Controller
                         });
                 });
             })
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends([
                 'search' => $search,
@@ -72,6 +73,7 @@ class UserController extends Controller
                         });
                 });
             })
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends([
                 'search' => $search,
@@ -171,6 +173,7 @@ class UserController extends Controller
                         });
                 });
             })
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends([
                 'search' => $search,
@@ -274,6 +277,7 @@ class UserController extends Controller
                         });
                 });
             })
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends([
                 'search' => $search,

@@ -191,6 +191,7 @@ class CheckPermission
             'master-role.' => 'master-role-management',
             'role.' => 'master-role-management',
             'dashboard-widgets.' => 'dashboard',
+            'chat.' => 'chat.index',
         ];
 
         // Check each prefix

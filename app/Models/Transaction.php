@@ -90,4 +90,10 @@ class Transaction extends Model
     {
         return $this->belongsTo(Room::class, 'room_id', 'idrec');
     }
+
+    // Chat Relationship
+    public function chatConversations()
+    {
+        return $this->hasMany(ChatConversation::class, 'order_id', 'order_id');
+    }
 }

@@ -110,8 +110,8 @@ class CustomerController extends Controller
                 ->mergeBindings($query->getQuery());
         }
 
-        // Order by total spent descending
-        return $query->orderBy('total_spent', 'desc');
+        // Order by last booking date descending (newest first)
+        return $query->orderBy('last_booking_date', 'desc');
     }
 
     public function getBookings(Request $request, $identifier)
