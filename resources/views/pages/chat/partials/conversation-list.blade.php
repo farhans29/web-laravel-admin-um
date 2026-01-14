@@ -45,9 +45,16 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {{ $conversation->messages_count }} messages
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {{ $conversation->messages_count }} messages
+                                </span>
+                                @if(isset($conversation->unread_count) && $conversation->unread_count > 0)
+                                    <span class="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white min-w-[24px]">
+                                        {{ $conversation->unread_count }}
+                                    </span>
+                                @endif
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             @if($conversation->last_message_at)

@@ -254,7 +254,7 @@
                                     </label>
                                     <select name="room_bed" required
                                         class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                        x-model="roomData.bed" @change="updateCapacity()">
+                                        x-model="roomData.bed">
                                         <option value="">Pilih Jenis Kasur</option>
                                         <option value="Single">Single</option>
                                         <option value="Twin">Twin</option>
@@ -280,8 +280,9 @@
                                         Kapasitas (Pax) <span class="text-red-500">*</span>
                                     </label>
                                     <input type="number" name="room_capacity" required
-                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 bg-gray-100 cursor-not-allowed"
-                                        x-model="roomData.capacity" readonly />
+                                        class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
+                                        placeholder="Masukkan kapasitas"
+                                        x-model="roomData.capacity" />
                                 </div>
                             </div>
 
@@ -1106,21 +1107,22 @@
                 }
             },
 
-            updateCapacity() {
-                switch (this.roomData.bed) {
-                    case "Single":
-                        this.roomData.capacity = 1;
-                        break;
-                    case "Twin":
-                    case "Double":
-                    case "Queen":
-                    case "King":
-                        this.roomData.capacity = 2;
-                        break;
-                    default:
-                        this.roomData.capacity = '';
-                }
-            },
+            // Kapasitas (Pax) is now manual input - auto-fill functionality removed
+            // updateCapacity() {
+            //     switch (this.roomData.bed) {
+            //         case "Single":
+            //             this.roomData.capacity = 1;
+            //             break;
+            //         case "Twin":
+            //         case "Double":
+            //         case "Queen":
+            //         case "King":
+            //             this.roomData.capacity = 2;
+            //             break;
+            //         default:
+            //             this.roomData.capacity = '';
+            //     }
+            // },
 
             getImageIndex(type, index) {
                 if (type === 'existing') {

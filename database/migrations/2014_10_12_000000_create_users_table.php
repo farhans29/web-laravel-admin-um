@@ -29,6 +29,7 @@ return new class extends Migration
             $table->binary('profile_picture')->nullable();
             $table->string('profile_photo_path', 255)->nullable();
             $table->unsignedBigInteger('role_id')->nullable()->default(2);
+            // $table->tinyInteger('user_type')->default(0)->comment('0=HO, 1=Site');
             $table->string('property_id')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

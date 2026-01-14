@@ -90,6 +90,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
     Route::get('/settings/users-management/edit', [UserController::class, 'indexEdit'])->name('users-editManagement');
     Route::put('/settings/users/{user}', [UserController::class, 'updateUsers'])->name('users.update');
     Route::put('/settings/users/{id}/status', [UserController::class, 'updateStatus'])->name('users.updateStatus');
+    Route::put('/settings/users/{id}/reset-password', [UserController::class, 'resetUserPassword'])->name('users.resetPassword');
 
     Route::get('/settings/users-management/delete', [UserController::class, 'indexDelete'])->name('users-deleteManagement');
     Route::post('/settings/users/{user}/deactivate', [UserController::class, 'deactivateUser'])->name('users.deactivate');
@@ -102,6 +103,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
 
     // Master Role Management Routes
     Route::get('/settings/master-role-management', [UserController::class, 'indexMasterRole'])->name('master-role-management');
+    Route::get('/master-role/search', [UserController::class, 'searchMasterRoleUsers'])->name('master-role.search');
     Route::post('/master-role/create', [UserController::class, 'createRole'])->name('master-role.create');
     Route::post('/master-role/update/{userId}', [UserController::class, 'updateMasterRole'])->name('master-role.update');
     Route::get('/master-role/permissions/{userId}', [UserController::class, 'getMasterRolePermissions'])->name('master-role.permissions');
@@ -239,9 +241,14 @@ Route::middleware(['auth', 'permission'])->group(function () {
     Route::prefix('chat')->group(function () {
         Route::get('/', [\App\Http\Controllers\Chat\ChatController::class, 'index'])->name('chat.index');
         Route::get('/filter', [\App\Http\Controllers\Chat\ChatController::class, 'filter'])->name('chat.filter');
+        Route::get('/find-by-order', [\App\Http\Controllers\Chat\ChatController::class, 'findByOrder'])->name('chat.find-by-order');
         Route::get('/conversations-json', [\App\Http\Controllers\Chat\ChatController::class, 'getConversationsJson'])->name('chat.conversations-json');
         Route::get('/{id}', [\App\Http\Controllers\Chat\ChatController::class, 'show'])->where('id', '[0-9]+')->name('chat.show');
         Route::post('/store', [\App\Http\Controllers\Chat\ChatController::class, 'store'])->name('chat.store');
         Route::post('/{conversationId}/send', [\App\Http\Controllers\Chat\ChatController::class, 'sendMessage'])->name('chat.send');
+        Route::get('/checked-in-users', [\App\Http\Controllers\Chat\ChatController::class, 'getCheckedInUsers'])->name('chat.checked-in-users');
+        Route::post('/{conversationId}/upload-image', [\App\Http\Controllers\Chat\ChatController::class, 'uploadImage'])->name('chat.upload-image');
+        Route::put('/messages/{id}/edit', [\App\Http\Controllers\Chat\ChatController::class, 'editMessage'])->name('chat.messages.edit');
+        Route::get('/unread-count', [\App\Http\Controllers\Chat\ChatController::class, 'getUnreadCount'])->name('chat.unread-count');
     });
 });

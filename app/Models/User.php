@@ -33,6 +33,7 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'property_id',
+        'user_type',
         'role_id',
         'status',
         'created_by',
@@ -199,5 +200,41 @@ class User extends Authenticatable
     public function sentMessages()
     {
         return $this->hasMany(ChatMessage::class, 'sender_id');
+    }
+
+    /**
+     * Check if user is HO (Head Office) type
+     * @return bool
+     */
+    public function isHO()
+    {
+        return $this->user_type === 0;
+    }
+
+    /**
+     * Check if user is Site type
+     * @return bool
+     */
+    public function isSite()
+    {
+        return $this->user_type === 1;
+    }
+
+    /**
+     * Get user type label
+     * @return string
+     */
+    public function getUserTypeLabel()
+    {
+        return $this->user_type === 0 ? 'HO' : 'Site';
+    }
+
+    /**
+     * Get user type icon
+     * @return string
+     */
+    public function getUserTypeIcon()
+    {
+        return $this->user_type === 0 ? '🏢' : '📍';
     }
 }

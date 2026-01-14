@@ -211,7 +211,7 @@
                                                 <input type="number" id="room_capacity" name="room_capacity"
                                                     required
                                                     class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                                    placeholder="Kapasitas" readonly>
+                                                    placeholder="Masukkan kapasitas">
                                             </div>
                                         </div>
 
@@ -1582,21 +1582,22 @@
             }));
         });
 
-        document.getElementById('room_bed').addEventListener('change', function() {
-            const bed = this.value;
-            const capacityField = document.getElementById('room_capacity');
+        // Kapasitas (Pax) is now manual input - auto-fill functionality removed
+        // document.getElementById('room_bed').addEventListener('change', function() {
+        //     const bed = this.value;
+        //     const capacityField = document.getElementById('room_capacity');
 
-            if (bed === "Single") {
-                capacityField.value = 1;
-                capacityField.readOnly = true;
-            } else if (bed === "Twin" || bed === "Double" || bed === "Queen" || bed === "King") {
-                capacityField.value = 2;
-                capacityField.readOnly = true;
-            } else {
-                capacityField.value = "";
-                capacityField.readOnly = false;
-            }
-        });
+        //     if (bed === "Single") {
+        //         capacityField.value = 1;
+        //         capacityField.readOnly = true;
+        //     } else if (bed === "Twin" || bed === "Double" || bed === "Queen" || bed === "King") {
+        //         capacityField.value = 2;
+        //         capacityField.readOnly = true;
+        //     } else {
+        //         capacityField.value = "";
+        //         capacityField.readOnly = false;
+        //     }
+        // });
 
         function toggleStatus(checkbox) {
             const propertyId = checkbox.getAttribute('data-id');

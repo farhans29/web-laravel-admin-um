@@ -19,6 +19,15 @@ class ManajementPropertiesController extends Controller
         $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
 
+        // Filter berdasarkan property_id user (kecuali super admin dan HO role)
+        $user = Auth::user();
+        $accessiblePropertyId = $user->getAccessiblePropertyId();
+
+        if ($accessiblePropertyId !== null) {
+            // User hanya bisa melihat property mereka sendiri
+            $query->where('idrec', $accessiblePropertyId);
+        }
+
         $generalFacilities = PropertyFacility::where('status', 1)->byCategory('general')->get();
         $securityFacilities = PropertyFacility::where('status', 1)->byCategory('security')->get();
         $amenitiesFacilities = PropertyFacility::where('status', 1)->byCategory('amenities')->get();
@@ -80,6 +89,15 @@ class ManajementPropertiesController extends Controller
 
         $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
+
+        // Filter berdasarkan property_id user (kecuali super admin dan HO role)
+        $user = Auth::user();
+        $accessiblePropertyId = $user->getAccessiblePropertyId();
+
+        if ($accessiblePropertyId !== null) {
+            // User hanya bisa melihat property mereka sendiri
+            $query->where('idrec', $accessiblePropertyId);
+        }
 
         // Get all facilities data
         $generalFacilities = PropertyFacility::where('status', 1)->byCategory('general')->get();
@@ -241,8 +259,8 @@ class ManajementPropertiesController extends Controller
             // Generate nama file unik
             $fileName = 'property_' . $idrec . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
 
-            // Simpan file ke storage/app/public/property_image
-            $path = $file->storeAs('property_image', $fileName, 'public');
+            // Simpan file ke storage/app/public/property_images
+            $path = $file->storeAs('property_images', $fileName, 'public');
 
             // Simpan path untuk digunakan di database
             $imagePaths[] = $path;
@@ -436,6 +454,15 @@ class ManajementPropertiesController extends Controller
 
         $query = Property::with(['creator', 'images'])
             ->orderBy('created_at', 'desc');
+
+        // Filter berdasarkan property_id user (kecuali super admin dan HO role)
+        $user = Auth::user();
+        $accessiblePropertyId = $user->getAccessiblePropertyId();
+
+        if ($accessiblePropertyId !== null) {
+            // User hanya bisa melihat property mereka sendiri
+            $query->where('idrec', $accessiblePropertyId);
+        }
 
         $properties = $perPage === 'all'
             ? $query->get()

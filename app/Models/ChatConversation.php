@@ -90,13 +90,15 @@ class ChatConversation extends Model
             return 0;
         }
 
-        return $this->messages()
-            ->where('sender_id', '!=', $userId)
-            ->where(function ($query) use ($participant) {
-                $query->where('created_at', '>', $participant->last_read_at)
-                      ->orWhereNull($participant->last_read_at);
-            })
-            ->count();
+        $query = $this->messages()->where('sender_id', '!=', $userId);
+
+        // If participant has last_read_at, only count messages after that time
+        // If null, count all messages from other senders
+        if ($participant->last_read_at) {
+            $query->where('created_at', '>', $participant->last_read_at);
+        }
+
+        return $query->count();
     }
 
     public function markAsReadByUser($userId)

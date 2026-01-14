@@ -479,24 +479,74 @@
 
                         <!-- Chat -->
                         @can('manage_chat')
-                            <li>
+                            <li x-data="{ unreadCount: 0 }"
+                                x-init="
+                                    // Fetch unread count on init
+                                    fetch('/chat/unread-count', {
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'Accept': 'application/json',
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            unreadCount = data.unread_count;
+                                        }
+                                    })
+                                    .catch(error => console.error('Error fetching unread count:', error));
+
+                                    // Refresh every 30 seconds
+                                    setInterval(() => {
+                                        fetch('/chat/unread-count', {
+                                            headers: {
+                                                'X-Requested-With': 'XMLHttpRequest',
+                                                'Accept': 'application/json',
+                                            }
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.success) {
+                                                unreadCount = data.unread_count;
+                                            }
+                                        })
+                                        .catch(error => console.error('Error fetching unread count:', error));
+                                    }, 30000);
+                                ">
                                 <a href="{{ route('chat.index') }}"
                                     class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('chat.index')) bg-indigo-900 @endif">
-                                    <!-- Chat Icon -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 10h18M3 14h18M3 18h18" />
-                                    </svg>
-                                    <span class="whitespace-nowrap transition-all duration-300"
+                                    <!-- Chat Icon with Badge -->
+                                    <div class="relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        </svg>
+                                        <!-- Unread Badge (collapsed state) -->
+                                        <span x-show="unreadCount > 0 && (!sidebarExpanded && window.innerWidth >= 1024)"
+                                            class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full min-w-[18px]"
+                                            x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
+                                    </div>
+
+                                    <span class="whitespace-nowrap transition-all duration-300 flex items-center gap-2"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                            'lg:opacity-0 lg:max-w-0'">Chat</span>
+                                            'lg:opacity-0 lg:max-w-0'">
+                                        Chat
+                                        <!-- Unread Badge (expanded state) -->
+                                        <span x-show="unreadCount > 0"
+                                            class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-red-500 rounded-full min-w-[20px]"
+                                            x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
+                                    </span>
+
                                     <!-- Tooltip for collapsed state -->
-                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 flex items-center gap-2"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                         Chat
+                                        <span x-show="unreadCount > 0"
+                                            class="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold text-white bg-red-500 rounded-full min-w-[18px]"
+                                            x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
                                     </div>
                                 </a>
                             </li>

@@ -97,8 +97,8 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
-        $validatedData = $request->validate([
+        // Validasi dasar
+        $rules = [
             'first_name' => 'required|string|max:255',
             'last_name'  => 'required|string|max:255',
             'username'   => 'required|string|max:255|unique:users,username',
@@ -108,14 +108,23 @@ class UserController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                // Updated regex to allow any symbol, not just specific ones
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/'
             ],
             'role'       => 'required|exists:m_roles,id',
-            'property_id' => 'nullable|exists:m_properties,idrec',
-        ], [
+            'user_type'  => 'required|in:0,1',
+        ];
+
+        // Conditional validation: property_id required jika user_type = 1 (Site)
+        if ($request->user_type == 1) {
+            $rules['property_id'] = 'required|exists:m_properties,idrec';
+        } else {
+            $rules['property_id'] = 'nullable|exists:m_properties,idrec';
+        }
+
+        $validatedData = $request->validate($rules, [
             'password.confirmed' => 'Password and Confirm Password must match.',
             'password.regex'     => 'Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 symbol.',
+            'property_id.required' => 'Property is required for Site account type.',
         ]);
 
         // Simpan data user baru
@@ -127,7 +136,8 @@ class UserController extends Controller
             'password'   => Hash::make($validatedData['password']),
             'is_admin'   => 1,
             'role_id'    => $validatedData['role'],
-            'property_id' => $validatedData['property_id'] ?? null,
+            'user_type'  => $validatedData['user_type'],
+            'property_id' => $validatedData['user_type'] == 1 ? $validatedData['property_id'] : null,
             'status'     => 1, // default active
             'created_by' => Auth::id(),
             'created_at' => Carbon::now(),
@@ -211,8 +221,17 @@ class UserController extends Controller
         if ($request->has('status')) {
             $validationRules['status'] = 'required|in:0,1';
         }
+        if ($request->has('user_type')) {
+            $validationRules['user_type'] = 'required|in:0,1';
+        }
+
+        // Conditional validation untuk property_id based on user_type
         if ($request->has('property_id')) {
-            $validationRules['property_id'] = 'nullable|exists:m_properties,idrec';
+            if ($request->user_type == 1) {
+                $validationRules['property_id'] = 'required|exists:m_properties,idrec';
+            } else {
+                $validationRules['property_id'] = 'nullable|exists:m_properties,idrec';
+            }
         }
 
         $validator = Validator::make($request->all(), $validationRules);
@@ -239,9 +258,15 @@ class UserController extends Controller
             $updateData['role_id'] = $request->role;
         }
 
+        // Update user_type jika ada
+        if ($request->has('user_type')) {
+            $updateData['user_type'] = $request->user_type;
+        }
+
         // Update property_id jika ada
         if ($request->has('property_id')) {
-            $updateData['property_id'] = $request->property_id ?: null;
+            // Jika user_type = 0 (HO), set property_id ke null
+            $updateData['property_id'] = $request->user_type == 1 ? $request->property_id : null;
         }
 
         // Update status jika ada (untuk admin management)
@@ -456,19 +481,49 @@ class UserController extends Controller
     public function indexMasterRole(Request $request)
     {
         $perPage = $request->input('per_page', 8);
+        $search = $request->input('search');
 
-        // Get only users with is_admin = 1
+        // Get only users with is_admin = 1 and status = 1
         if ($perPage === 'all') {
             $adminUsers = User::with('role')
                 ->where('is_admin', 1)
+                ->where('status', 1)
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($q) use ($search) {
+                        $q->where('first_name', 'like', '%' . $search . '%')
+                            ->orWhere('last_name', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                            ->orWhere('username', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%')
+                            ->orWhereHas('role', function ($roleQuery) use ($search) {
+                                $roleQuery->where('name', 'like', '%' . $search . '%');
+                            });
+                    });
+                })
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
             $adminUsers = User::with('role')
                 ->where('is_admin', 1)
+                ->where('status', 1)
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($q) use ($search) {
+                        $q->where('first_name', 'like', '%' . $search . '%')
+                            ->orWhere('last_name', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                            ->orWhere('username', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%')
+                            ->orWhereHas('role', function ($roleQuery) use ($search) {
+                                $roleQuery->where('name', 'like', '%' . $search . '%');
+                            });
+                    });
+                })
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage)
-                ->appends(['per_page' => $perPage]);
+                ->appends([
+                    'per_page' => $perPage,
+                    'search' => $search
+                ]);
         }
 
         $roles = Role::all();
@@ -485,6 +540,76 @@ class UserController extends Controller
             ->get();
 
         return view('pages.settings.master-role-management', compact('adminUsers', 'roles', 'sidebarItems', 'dashboardWidgets', 'perPage'));
+    }
+
+    /**
+     * Search admin users (AJAX endpoint)
+     */
+    public function searchMasterRoleUsers(Request $request)
+    {
+        $perPage = $request->input('per_page', 8);
+        $search = $request->input('search');
+
+        // Get only users with is_admin = 1 and status = 1
+        if ($perPage === 'all') {
+            $adminUsers = User::with('role')
+                ->where('is_admin', 1)
+                ->where('status', 1)
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($q) use ($search) {
+                        $q->where('first_name', 'like', '%' . $search . '%')
+                            ->orWhere('last_name', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                            ->orWhere('username', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%')
+                            ->orWhereHas('role', function ($roleQuery) use ($search) {
+                                $roleQuery->where('name', 'like', '%' . $search . '%');
+                            });
+                    });
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'users' => $adminUsers,
+                'pagination' => null,
+                'perPage' => 'all'
+            ]);
+        } else {
+            $adminUsers = User::with('role')
+                ->where('is_admin', 1)
+                ->where('status', 1)
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($q) use ($search) {
+                        $q->where('first_name', 'like', '%' . $search . '%')
+                            ->orWhere('last_name', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                            ->orWhere('username', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%')
+                            ->orWhereHas('role', function ($roleQuery) use ($search) {
+                                $roleQuery->where('name', 'like', '%' . $search . '%');
+                            });
+                    });
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'users' => $adminUsers->items(),
+                'pagination' => [
+                    'current_page' => $adminUsers->currentPage(),
+                    'last_page' => $adminUsers->lastPage(),
+                    'per_page' => $adminUsers->perPage(),
+                    'total' => $adminUsers->total(),
+                    'from' => $adminUsers->firstItem(),
+                    'to' => $adminUsers->lastItem(),
+                    'links' => $adminUsers->links()->render()
+                ],
+                'perPage' => $perPage
+            ]);
+        }
     }
 
     /**
@@ -724,5 +849,53 @@ class UserController extends Controller
                 'message' => 'Failed to update widgets: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Reset user password (Superadmin only)
+     */
+    public function resetUserPassword(Request $request, $id)
+    {
+        // Check if current user is superadmin
+        if (!Auth::user()->isSuperAdmin()) {
+            return redirect()->back()->with('error', 'Unauthorized access. Only superadmin can reset passwords.');
+        }
+
+        // Find user
+        $user = User::find($id);
+
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
+        // Prevent superadmin from resetting their own password via this method
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'You cannot reset your own password using this method. Please use the account settings.');
+        }
+
+        // Validate new password
+        $validatedData = $request->validate([
+            'new_password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/'
+            ],
+        ], [
+            'new_password.confirmed' => 'Password and Confirm Password must match.',
+            'new_password.regex'     => 'Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 symbol.',
+            'new_password.min'       => 'Password must be at least 8 characters.',
+        ]);
+
+        // Update password
+        $user->update([
+            'password' => Hash::make($validatedData['new_password']),
+            'updated_by' => Auth::id(),
+            'updated_at' => now()
+        ]);
+
+        return redirect()->route('users-newManagement')
+            ->with('success', "Password for user '{$user->first_name} {$user->last_name}' has been reset successfully!");
     }
 }
