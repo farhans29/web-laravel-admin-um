@@ -1,4 +1,4 @@
-<div x-data="modalRoomEdit({{ $room }})" class="relative group">
+<div x-data="modalRoomEdit(@json($room))" class="relative group">
     @php
         $roomImages = $room->roomImages
             ->map(function ($image) {
