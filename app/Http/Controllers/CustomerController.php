@@ -7,6 +7,9 @@ use App\Models\Transaction;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
@@ -170,5 +173,72 @@ class CustomerController extends Controller
                 ];
             })
         ]);
+    }
+
+    public function preRegister(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone_number' => 'required|string|max:20',
+            'password' => 'required|string|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $mainAppUrl = env('MAIN_APP_URL');
+            $apiUrl = rtrim($mainAppUrl, '/') . '/auth/register-without-verification';
+
+            $response = Http::timeout(30)->post($apiUrl, [
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'password' => $request->password,
+            ]);
+
+            $responseData = $response->json();
+
+            if ($response->successful() && isset($responseData['status']) && $responseData['status'] === 'success') {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $responseData['message'] ?? 'Registration successful.',
+                    'data' => $responseData['data'] ?? null
+                ], 200);
+            }
+
+            // Handle error response from external API
+            return response()->json([
+                'status' => 'error',
+                'message' => $responseData['message'] ?? 'Registration failed. Please try again.',
+                'errors' => $responseData['errors'] ?? null
+            ], $response->status() ?: 400);
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('Pre-registration API connection error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unable to connect to registration service. Please try again later.'
+            ], 503);
+
+        } catch (\Exception $e) {
+            Log::error('Pre-registration error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred. Please try again.'
+            ], 500);
+        }
     }
 }
