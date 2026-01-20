@@ -44,7 +44,7 @@
     </div>
 
     <!-- Modal dialog -->
-    <div id="room-detail-modal" class="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4"
+    <div class="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4"
         role="dialog" aria-modal="true" x-show="modalOpenDetail"
         x-transition:enter="transition ease-in-out duration-300" x-transition:enter-start="opacity-0 scale-95"
         x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in-out duration-200"

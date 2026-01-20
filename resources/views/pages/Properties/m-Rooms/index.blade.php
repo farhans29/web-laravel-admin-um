@@ -2034,7 +2034,7 @@
                         }
 
                         this.isLoading = true;
-                        submitBtn = document.querySelector('#roomEditForm button[type="submit"]');
+                        submitBtn = this.$refs.submitBtn;
 
                         if (submitBtn) {
                             originalBtnContent = submitBtn.innerHTML;
@@ -2050,7 +2050,7 @@
 
                         const loadingAlert = this.showLoadingAlert('Memperbarui data kamar...');
 
-                        const form = document.getElementById('roomEditForm');
+                        const form = this.$refs.editForm;
                         const formData = new FormData(form);
 
                         formData.delete('general_facilities[]');
