@@ -49,12 +49,11 @@ class CustomerController extends Controller
     private function getCustomersQuery($search = null, $registrationStatus = null)
     {
         // Get registered users with their booking statistics
-        // TAMBAHKAN FILTER WHERE is_admin != 1 ATAU is_admin = 0
         $registeredUsers = User::select([
             'users.id',
             DB::raw('CAST(users.username AS CHAR) COLLATE utf8mb4_unicode_ci as username'),
             DB::raw('CAST(users.email AS CHAR) COLLATE utf8mb4_unicode_ci as email'),
-            DB::raw('CAST(NULL AS CHAR) COLLATE utf8mb4_unicode_ci as phone'),
+            DB::raw('CAST(users.phone_number AS CHAR) COLLATE utf8mb4_unicode_ci as phone'), // PERBAIKAN DI SINI
             DB::raw('CAST("registered" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
             DB::raw('COALESCE(COUNT(DISTINCT t_transactions.order_id), 0) as total_bookings'),
             DB::raw('COALESCE(SUM(t_transactions.grandtotal_price), 0) as total_spent'),
@@ -67,7 +66,7 @@ class CustomerController extends Controller
                     ->orWhere('users.is_admin', 0)
                     ->orWhereNull('users.is_admin');
             })
-            ->groupBy('users.id', 'users.username', 'users.email');
+            ->groupBy('users.id', 'users.username', 'users.email', 'users.phone_number'); // TAMBAHKAN phone_number ke GROUP BY
 
         // Get guest customers (transactions without user_id)
         $guestCustomers = Transaction::select([

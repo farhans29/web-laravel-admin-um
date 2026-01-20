@@ -2,16 +2,13 @@
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
-                <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Customer
                 </th>
-                <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contact Info
                 </th>
-                <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Registration
                 </th>
                 <th scope="col"
@@ -72,9 +69,7 @@
                     <!-- Contact Info -->
                     <td class="px-6 py-4">
                         <div class="text-sm text-gray-900">{{ $customer->email ?? '-' }}</div>
-                        @if ($customer->phone)
-                            <div class="text-sm text-gray-500">{{ $customer->phone }}</div>
-                        @endif
+                        <div class="text-sm text-gray-500">{{ $customer->phone ?? '-' }}</div>
                     </td>
 
                     <!-- Registration Status -->
