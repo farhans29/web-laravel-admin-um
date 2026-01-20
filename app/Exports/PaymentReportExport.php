@@ -358,7 +358,7 @@ class PaymentReportExport
         $deposit = $transaction->deposit ?? 0;
 
         // Service Fee
-        $serviceFee = $transaction->service_fees ?? 0;
+        $serviceFee = $transaction->service_fees ?? 1;
 
         // Room type
         $roomType = '-';
@@ -397,7 +397,7 @@ class PaymentReportExport
             $transaction->user_email ?? '-',                                                        // Email
             $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-', // Check In
             $transaction->check_out ? Carbon::parse($transaction->check_out)->format('d M Y') : '-', // Check Out
-            $duration . ' ' . ($bookingType === 'monthly' ? 'Bulan' : 'Hari'),                     // Duration
+            $duration . ' ',                                                                        // Duration
             round($pricePerUnit, 0),                                                               // Price Kamar Per Unit
             round($dppKamarPerUnit, 0),                                                            // DPP Kamar Per Unit
             round($subtotal, 0),                                                                   // Subtotal

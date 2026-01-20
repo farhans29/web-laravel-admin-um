@@ -175,7 +175,7 @@ class PaymentReportController extends Controller
                 'email' => $transaction->user_email ?? '-',
                 'check_in' => $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-',
                 'check_out' => $transaction->check_out ? Carbon::parse($transaction->check_out)->format('d M Y') : '-',
-                'duration' => $duration . ' ' . ($bookingType === 'monthly' ? 'Bulan' : 'Hari'),
+                'duration' => $duration . ' ',
                 'price_per_unit' => 'Rp ' . number_format($pricePerUnit, 0, ',', '.'),
                 'dpp_kamar_per_unit' => 'Rp ' . number_format(round($dppKamarPerUnit, 0), 0, ',', '.'),
                 'subtotal' => 'Rp ' . number_format(round($subtotal, 0), 0, ',', '.'),
