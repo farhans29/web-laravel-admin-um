@@ -41,6 +41,7 @@ class Room extends Model
         'rental_status',
         'created_at',
         'updated_at',
+        'deleted_at',
     ];
 
     protected $casts = [
