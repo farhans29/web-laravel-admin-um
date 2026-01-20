@@ -75,16 +75,22 @@ class ChatController extends Controller
         // Mark as read
         $conversation->markAsReadByUser($user->id);
 
+        // Get booking data for user info
+        $booking = Booking::with(['room', 'transaction'])
+            ->where('order_id', $conversation->order_id)
+            ->first();
+
         // Return JSON for AJAX requests (widget)
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'conversation' => $conversation,
-                'messages' => $messages
+                'messages' => $messages,
+                'booking' => $booking
             ]);
         }
 
-        return view('pages.chat.show', compact('conversation', 'messages'));
+        return view('pages.chat.show', compact('conversation', 'messages', 'booking'));
     }
 
     /**
@@ -260,25 +266,35 @@ class ChatController extends Controller
 
     /**
      * Get list of checked-in users for creating conversations
+     * Includes: currently checked-in users AND departed users within 7 days after checkout
      */
     public function getCheckedInUsers(Request $request)
     {
         $user = Auth::user();
 
-        // Query checked-in bookings with property scoping
+        // Query bookings with property scoping
+        // Include: checked-in users OR departed users within 7 days after checkout
         $query = Booking::with(['transaction', 'room', 'property'])
             ->whereHas('transaction', function($q) {
                 $q->where('transaction_status', '=', 'paid');
             })
             ->whereNotNull('t_booking.check_in_at')
-            ->whereNull('t_booking.check_out_at');
+            ->where(function($q) {
+                // Currently checked-in (check_out_at is null)
+                $q->whereNull('t_booking.check_out_at')
+                  // OR departed within 7 days after checkout
+                  ->orWhere(function($subQ) {
+                      $subQ->whereNotNull('t_booking.check_out_at')
+                           ->where('t_booking.check_out_at', '>=', now()->subDays(7));
+                  });
+            });
 
         // Property scoping
         if (!$user->canViewAllProperties() && $user->property_id) {
             $query->where('t_booking.property_id', $user->property_id);
         }
 
-        $bookings = $query->get();
+        $bookings = $query->orderBy('t_booking.check_in_at', 'desc')->get();
 
         // Format data for frontend
         $data = $bookings->map(function($booking) {
@@ -295,6 +311,22 @@ class ChatController extends Controller
                 }
             }
 
+            // Safely format check_out_at
+            $checkOutFormatted = null;
+            if ($booking->check_out_at) {
+                try {
+                    $checkOutFormatted = $booking->check_out_at->format('Y-m-d H:i');
+                } catch (\Exception $e) {
+                    $checkOutFormatted = $booking->check_out_at;
+                }
+            }
+
+            // Determine status
+            $status = 'checked_in';
+            if ($booking->check_out_at) {
+                $status = 'departed';
+            }
+
             return [
                 'order_id' => $booking->order_id,
                 'user_name' => $booking->user_name ?? 'N/A',
@@ -302,6 +334,8 @@ class ChatController extends Controller
                 'room_name' => $booking->room->name ?? 'N/A',
                 'property_name' => $booking->property->name ?? 'N/A',
                 'check_in_at' => $checkInFormatted,
+                'check_out_at' => $checkOutFormatted,
+                'status' => $status,
                 'has_conversation' => $hasConversation,
             ];
         });

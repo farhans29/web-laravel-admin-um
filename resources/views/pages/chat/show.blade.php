@@ -19,6 +19,51 @@
                     <h1 class="text-2xl font-bold text-gray-900 mb-2">
                         {{ $conversation->title ?: 'Chat untuk Booking ' . $conversation->order_id }}
                     </h1>
+
+                    {{-- User Info Section --}}
+                    @if(isset($booking))
+                    <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="flex items-center mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold mr-3">
+                                {{ substr($booking->user_name ?? 'U', 0, 1) }}
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">{{ $booking->user_name ?? 'N/A' }}</h3>
+                                <p class="text-sm text-gray-600">{{ $booking->user_email ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                            <div class="flex items-center text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                <div>
+                                    <span class="text-gray-500">Kamar:</span>
+                                    <span class="font-medium text-gray-900 ml-1">{{ $booking->room->name ?? 'N/A' }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <div>
+                                    <span class="text-gray-500">Check-in:</span>
+                                    <span class="font-medium text-gray-900 ml-1">{{ $booking->transaction->check_in ? \Carbon\Carbon::parse($booking->transaction->check_in)->format('d M Y') : 'N/A' }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <div>
+                                    <span class="text-gray-500">Check-out:</span>
+                                    <span class="font-medium text-gray-900 ml-1">{{ $booking->transaction->check_out ? \Carbon\Carbon::parse($booking->transaction->check_out)->format('d M Y') : 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="flex flex-wrap gap-4 text-sm text-gray-600">
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-gray-400" fill="none"

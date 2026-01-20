@@ -4,7 +4,7 @@
         <!-- Modal Header -->
         <div class="flex items-center justify-between pb-3 border-b border-gray-200">
             <h3 class="text-xl font-semibold text-gray-900">
-                Pilih User yang Sedang Check-In
+                Pilih User untuk Memulai Chat
             </h3>
             <button onclick="closeCheckedInModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,10 +44,10 @@
                                     Room
                                 </th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Check-In
+                                    Period
                                 </th>
                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
+                                    Action
                                 </th>
                             </tr>
                         </thead>
@@ -62,7 +62,8 @@
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                     </svg>
-                    <p class="mt-2 text-gray-600">Tidak ada user yang sedang check-in</p>
+                    <p class="mt-2 text-gray-600">Tidak ada user yang tersedia untuk chat</p>
+                    <p class="text-xs text-gray-400 mt-1">User harus check-in atau check-out dalam 7 hari terakhir</p>
                 </div>
             </div>
         </div>
@@ -70,7 +71,7 @@
 </div>
 
 <script>
-let checkedInUsersData = [];
+var checkedInUsersData = [];
 
 // Open modal and load data
 async function openCheckedInModal() {
@@ -125,9 +126,52 @@ function renderCheckedInUsers(users) {
 
     emptyState.classList.add('hidden');
 
-    tbody.innerHTML = users.map(user => `
-        <tr onclick="handleUserRowClick('${user.order_id}', ${user.has_conversation})"
-            class="hover:bg-blue-50 transition-colors cursor-pointer">
+    tbody.innerHTML = users.map(user => {
+        // Format period display
+        let periodDisplay = user.check_in_at;
+        if (user.check_out_at) {
+            periodDisplay = `
+                <p class="text-sm text-gray-900">${user.check_in_at}</p>
+                <p class="text-xs text-gray-500">to ${user.check_out_at}</p>
+            `;
+        } else {
+            periodDisplay = `
+                <p class="text-sm text-gray-900">${user.check_in_at}</p>
+                <p class="text-xs text-gray-500">- ongoing</p>
+            `;
+        }
+
+        // Status badge for display
+        let statusBadge = user.status === 'departed'
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">Departed</span>`
+            : `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Checked-In</span>`;
+
+        // Action button - different for existing conversation vs new
+        let actionButton = '';
+        if (user.has_conversation) {
+            actionButton = `
+                <button onclick="handleUserRowClick('${user.order_id}', true)" type="button"
+                    class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Chat
+                </button>
+            `;
+        } else {
+            actionButton = `
+                <button onclick="handleUserRowClick('${user.order_id}', false)" type="button"
+                    class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Start Chat
+                </button>
+            `;
+        }
+
+        return `
+        <tr class="hover:bg-gray-50 transition-colors">
             <td class="px-4 py-3">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
@@ -137,6 +181,7 @@ function renderCheckedInUsers(users) {
                         <p class="text-sm font-medium text-gray-900">${user.user_name || 'N/A'}</p>
                         <p class="text-sm text-gray-500">${user.user_email || 'N/A'}</p>
                         <p class="text-xs text-gray-400">Order: ${user.order_id}</p>
+                        ${statusBadge}
                     </div>
                 </div>
             </td>
@@ -144,19 +189,14 @@ function renderCheckedInUsers(users) {
                 <p class="text-sm text-gray-900">${user.room_name}</p>
                 <p class="text-xs text-gray-500">${user.property_name}</p>
             </td>
-            <td class="px-4 py-3 text-sm text-gray-500">
-                ${user.check_in_at}
+            <td class="px-4 py-3">
+                ${periodDisplay}
             </td>
             <td class="px-4 py-3 text-center">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    Checked-In
-                </span>
+                ${actionButton}
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 // Search functionality
@@ -169,7 +209,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 (user.user_name && user.user_name.toLowerCase().includes(searchTerm)) ||
                 (user.user_email && user.user_email.toLowerCase().includes(searchTerm)) ||
                 (user.order_id && user.order_id.toLowerCase().includes(searchTerm)) ||
-                (user.room_name && user.room_name.toLowerCase().includes(searchTerm))
+                (user.room_name && user.room_name.toLowerCase().includes(searchTerm)) ||
+                (user.status && user.status.toLowerCase().includes(searchTerm))
             );
             renderCheckedInUsers(filtered);
         });

@@ -65,7 +65,9 @@
                                     <!-- Step 1 -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step > 1 ? 'bg-blue-600 border-blue-600 text-white' : step === 1 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
+                                            :class="step > 1 ? 'bg-blue-600 border-blue-600 text-white' : step === 1 ?
+                                                'bg-blue-600 border-blue-600 text-white' :
+                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                             <span class="text-sm font-semibold" x-show="step === 1 || step < 1">1</span>
                                             <svg x-show="step > 1" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -89,7 +91,9 @@
                                     <!-- Step 2 -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step > 2 ? 'bg-blue-600 border-blue-600 text-white' : step === 2 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
+                                            :class="step > 2 ? 'bg-blue-600 border-blue-600 text-white' : step === 2 ?
+                                                'bg-blue-600 border-blue-600 text-white' :
+                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                             <span class="text-sm font-semibold" x-show="step === 2 || step < 2">2</span>
                                             <svg x-show="step > 2" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -112,7 +116,9 @@
                                     <!-- Step 3 (Fasilitas) -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step > 3 ? 'bg-blue-600 border-blue-600 text-white' : step === 3 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
+                                            :class="step > 3 ? 'bg-blue-600 border-blue-600 text-white' : step === 3 ?
+                                                'bg-blue-600 border-blue-600 text-white' :
+                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                             <span class="text-sm font-semibold" x-show="step === 3 || step < 3">3</span>
                                             <svg x-show="step > 3" class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -135,7 +141,8 @@
                                     <!-- Step 4 (Foto) -->
                                     <div class="flex items-center">
                                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                            :class="step === 4 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
+                                            :class="step === 4 ? 'bg-blue-600 border-blue-600 text-white' :
+                                                'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'">
                                             <span class="text-sm font-semibold">4</span>
                                         </div>
                                         <div class="ml-3 text-sm">
@@ -159,15 +166,33 @@
                                         x-transition:enter-start="opacity-0 translate-x-4"
                                         x-transition:enter-end="opacity-100 translate-x-0">
                                         <div class="space-y-6">
-                                            <div>
-                                                <label for="property_name"
-                                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                    Nama Properti <span class="text-red-500">*</span>
-                                                </label>
-                                                <input type="text" id="property_name" name="property_name"
-                                                    required
-                                                    class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                    placeholder="Masukkan nama properti">
+                                            <div class="grid grid-cols-12 gap-4">
+                                                <div class="col-span-10">
+                                                    <label for="property_name"
+                                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                        Nama Properti <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="text" id="property_name" name="property_name"
+                                                        required
+                                                        class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                        placeholder="Masukkan nama properti">
+                                                </div>
+
+                                                <div class="col-span-2 col-start-11">
+                                                    <label for="initial"
+                                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                        Initial <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <div class="flex items-center">
+                                                        <input type="text" id="initial" name="initial" required
+                                                            maxlength="3"
+                                                            class="w-24 border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase text-center"
+                                                            placeholder="ABC"
+                                                            oninput="this.value = this.value.toUpperCase()">
+                                                    </div>
+                                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Maks. 3
+                                                        karakter</p>
+                                                </div>
                                             </div>
 
                                             <div>
@@ -482,7 +507,8 @@
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                     Foto Properti <span class="text-red-500">*</span>
                                                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                                                        (Minimal 3 foto, maksimal 10 foto - <span x-text="remainingSlots"></span> slot tersisa)
+                                                        (Minimal 3 foto, maksimal 10 foto - <span
+                                                            x-text="remainingSlots"></span> slot tersisa)
                                                     </span>
                                                 </label>
 
@@ -583,7 +609,8 @@
                                                             class="text-sm text-green-600 dark:text-green-400 font-medium">
                                                             10 foto telah
                                                             diupload!</p>
-                                                        <p class="text-xs text-green-500 dark:text-green-400">Maksimal foto telah tercapai
+                                                        <p class="text-xs text-green-500 dark:text-green-400">Maksimal
+                                                            foto telah tercapai
                                                         </p>
                                                     </div>
                                                 </div>
@@ -1557,7 +1584,8 @@
                                     if (typeof loadPropertiesData === 'function') {
                                         loadPropertiesData();
                                     } else {
-                                        window.location.href = '{{ route('properties.index') }}';
+                                        window.location.href =
+                                            '{{ route('properties.index') }}';
                                     }
                                 }
                             });
@@ -1610,6 +1638,7 @@
                 isDragging: false,
                 propertyData: {
                     name: property.name || '',
+                    initial: property.initial || '',
                     tags: property.tags || 'House',
                     description: property.description || '',
                     address: property.address || '',
@@ -2337,6 +2366,7 @@
 
                         // Add basic property data
                         formData.append('name', this.propertyData.name);
+                        formData.append('initial', this.propertyData.initial);
                         formData.append('description', this.propertyData.description);
                         formData.append('address', this.propertyData.address);
                         formData.append('latitude', this.propertyData.latitude);
