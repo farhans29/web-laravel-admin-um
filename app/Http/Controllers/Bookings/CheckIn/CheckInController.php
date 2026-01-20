@@ -43,21 +43,25 @@ class CheckInController extends Controller
             });
         }
 
-        // Date range filter - using check_in_at from booking table
+        // Date range filter - using check_out from transaction table
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = $request->start_date;
             $endDate = $request->end_date;
 
-            $query->whereBetween('check_in_at', [
-                $startDate,
-                Carbon::parse($endDate)->endOfDay()
-            ]);
+            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('check_out', [
+                    $startDate,
+                    Carbon::parse($endDate)->endOfDay()
+                ]);
+            });
         } else {
             // Default filter: from today to 1 month ahead
-            $query->whereBetween('check_in_at', [
-                now()->startOfDay(),
-                now()->addMonth()->endOfDay()
-            ]);
+            $query->whereHas('transaction', function ($q) {
+                $q->whereBetween('check_out', [
+                    now()->startOfDay(),
+                    now()->addMonth()->endOfDay()
+                ]);
+            });
         }
 
         $checkOuts = $query
@@ -98,23 +102,25 @@ class CheckInController extends Controller
             });
         }
 
-        // Date range filter - using check_in_at from booking table
+        // Date range filter - using check_out from transaction table
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = $request->start_date;
             $endDate = $request->end_date;
 
-            $query->where(function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('check_in_at', [
+            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('check_out', [
                     $startDate,
                     Carbon::parse($endDate)->endOfDay()
                 ]);
             });
         } else {
             // Default filter: from today to 1 month ahead
-            $query->whereBetween('check_in_at', [
-                now()->startOfDay(),
-                now()->addMonth()->endOfDay()
-            ]);
+            $query->whereHas('transaction', function ($q) {
+                $q->whereBetween('check_out', [
+                    now()->startOfDay(),
+                    now()->addMonth()->endOfDay()
+                ]);
+            });
         }
 
         $checkOuts = $query->paginate($request->input('per_page', 8));

@@ -4,7 +4,7 @@
         <div class="flex flex-1 overflow-hidden">
             <!-- Content Area -->
             <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
-                <div class="container mx-auto">
+                <div class="w-full">
                     <!-- Tabs Navigation -->
                     <div class="border-b border-gray-200 mb-6">
                         <nav class="flex space-x-8">

@@ -821,7 +821,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 17l-4 4m0 0l-4-4m4 4V3" />
                                 </svg>
-                                <h2 class="font-semibold text-gray-800 text-lg">Check-out Hari Ini</h2>
+                                <h2 class="font-semibold text-gray-800 text-lg">Check-out 3 Hari Ke Depan</h2>
                             </div>
                             <a href="{{ route('checkin.index') }}"
                                 class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
@@ -844,7 +844,7 @@
                         </div>
                         <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
                             Menampilkan {{ min(4, count($checkOuts)) }} dari {{ count($checkOuts) }} check-out
-                            mendatang
+                            dalam 3 hari ke depan
                         </div>
                     </div>
                 @endif

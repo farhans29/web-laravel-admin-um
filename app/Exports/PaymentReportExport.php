@@ -5,6 +5,7 @@ namespace App\Exports;
 use App\Models\Transaction;
 use App\Models\Property;
 use App\Services\ExcelService;
+use App\Services\InvoiceNumberService;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -23,6 +24,10 @@ class PaymentReportExport
     {
         // Get data
         $payments = $this->getPayments();
+
+        // Generate invoice numbers batch
+        $invoiceNumbers = InvoiceNumberService::generateBatch($payments);
+
         $totalRevenue = $payments->sum(function ($transaction) {
             return $transaction->grandtotal_price ?? 0;
         });
@@ -35,12 +40,12 @@ class PaymentReportExport
         $sheet = $excel->getActiveSheet();
 
         // Add Main Title with custom styling
-        $excel->addTitleSection('💰 LAPORAN KEUANGAN PEMBAYARAN', [
+        $excel->addTitleSection('LAPORAN KEUANGAN PEMBAYARAN', [
             'bgColor' => '059669', // Green
             'textColor' => 'FFFFFF',
             'fontSize' => 20,
             'height' => 40,
-            'endColumn' => 'R', // 18 columns
+            'endColumn' => 'AB', // 28 columns
         ]);
 
         // Add subtitle with generation info
@@ -49,7 +54,7 @@ class PaymentReportExport
             'textColor' => '6B7280',
             'italic' => true,
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'R',
+            'endColumn' => 'AB',
         ]);
 
         $excel->addEmptyRow();
@@ -61,25 +66,35 @@ class PaymentReportExport
         // Add separator
         $excel->addInfoRow('', []);
 
-        // Headers with enhanced styling
+        // Headers with enhanced styling (28 columns)
         $headers = [
-            'No.',
-            'Payment Date',
-            'Order ID',
+            'No',
+            'Invoice Number',
+            'Invoice Date',
             'Transaction Code',
             'Property Name',
+            'Room Type',
             'Room Number',
             'Tenant Name',
             'Mobile Number',
             'Email',
             'Check In',
             'Check Out',
-            'Room Price',
-            'Service Fee',
+            'Duration',
+            'Price Kamar Per Unit',
+            'DPP Kamar Per Unit',
+            'Subtotal',
+            'Diskon',
+            'DPP Diskon',
+            'Parkir',
+            'DPP Parkir',
+            'VATT 11%',
             'Grand Total',
+            'Deposit',
+            'Service Fee',
             'Payment Status',
-            'Verification By',
-            'Verification Date',
+            'Verified By',
+            'Verified Date',
             'Notes'
         ];
 
@@ -87,10 +102,10 @@ class PaymentReportExport
 
         // Style header row with custom colors
         $actualHeaderRow = $excel->getCurrentRow() - 1;
-        $sheet->getStyle('A' . $actualHeaderRow . ':R' . $actualHeaderRow)->applyFromArray([
+        $sheet->getStyle('A' . $actualHeaderRow . ':AB' . $actualHeaderRow)->applyFromArray([
             'font' => [
                 'bold' => true,
-                'size' => 11,
+                'size' => 10,
                 'color' => ['rgb' => 'FFFFFF']
             ],
             'fill' => [
@@ -100,6 +115,7 @@ class PaymentReportExport
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
+                'wrapText' => true,
             ],
             'borders' => [
                 'allBorders' => [
@@ -108,28 +124,38 @@ class PaymentReportExport
                 ]
             ]
         ]);
-        $sheet->getRowDimension($actualHeaderRow)->setRowHeight(28);
+        $sheet->getRowDimension($actualHeaderRow)->setRowHeight(35);
 
-        // Column widths
+        // Column widths (28 columns: A-AB)
         $columnWidths = [
-            'A' => 8,  // No.
-            'B' => 18, // Payment Date
-            'C' => 20, // Order ID
-            'D' => 20, // Transaction Code
-            'E' => 25, // Property Name
-            'F' => 15, // Room Number
-            'G' => 20, // Tenant Name
-            'H' => 18, // Mobile Number
-            'I' => 25, // Email
-            'J' => 15, // Check In
-            'K' => 15, // Check Out
-            'L' => 15, // Room Price
-            'M' => 12, // Admin Fee
-            'N' => 15, // Grand Total
-            'O' => 15, // Payment Status
-            'P' => 20, // Verification By
-            'Q' => 18, // Verification Date
-            'R' => 40, // Notes
+            'A' => 6,   // No
+            'B' => 28,  // Invoice Number
+            'C' => 18,  // Invoice Date
+            'D' => 20,  // Transaction Code
+            'E' => 22,  // Property Name
+            'F' => 15,  // Room Type
+            'G' => 12,  // Room Number
+            'H' => 20,  // Tenant Name
+            'I' => 16,  // Mobile Number
+            'J' => 25,  // Email
+            'K' => 14,  // Check In
+            'L' => 14,  // Check Out
+            'M' => 10,  // Duration
+            'N' => 18,  // Price Kamar Per Unit
+            'O' => 18,  // DPP Kamar Per Unit
+            'P' => 18,  // Subtotal
+            'Q' => 15,  // Diskon
+            'R' => 15,  // DPP Diskon
+            'S' => 15,  // Parkir
+            'T' => 15,  // DPP Parkir
+            'U' => 15,  // VATT 11%
+            'V' => 18,  // Grand Total
+            'W' => 15,  // Deposit
+            'X' => 15,  // Service Fee
+            'Y' => 14,  // Payment Status
+            'Z' => 18,  // Verified By
+            'AA' => 18, // Verified Date
+            'AB' => 35, // Notes
         ];
 
         foreach ($columnWidths as $col => $width) {
@@ -140,7 +166,8 @@ class PaymentReportExport
         $dataStartRow = $excel->getCurrentRow();
 
         foreach ($payments as $index => $transaction) {
-            $row = $this->mapPayment($transaction, $index + 1);
+            $invoiceNumber = $invoiceNumbers[$transaction->idrec] ?? '-';
+            $row = $this->mapPayment($transaction, $index + 1, $invoiceNumber);
             $currentDataRow = $excel->getCurrentRow();
 
             $excel->addRow($row);
@@ -148,7 +175,7 @@ class PaymentReportExport
             // Highlight refunds with red background
             $isRefund = $transaction->booking && $transaction->booking->refund;
             if ($isRefund) {
-                $sheet->getStyle('A' . $currentDataRow . ':R' . $currentDataRow)->applyFromArray([
+                $sheet->getStyle('A' . $currentDataRow . ':AB' . $currentDataRow)->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => ['rgb' => 'FEE2E2'] // Light red
@@ -157,7 +184,7 @@ class PaymentReportExport
             } else {
                 // Add zebra striping for non-refund rows
                 if ($index % 2 == 0) {
-                    $sheet->getStyle('A' . $currentDataRow . ':R' . $currentDataRow)->applyFromArray([
+                    $sheet->getStyle('A' . $currentDataRow . ':AB' . $currentDataRow)->applyFromArray([
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => ['rgb' => 'F9FAFB']
@@ -166,17 +193,18 @@ class PaymentReportExport
                 }
             }
 
-            // Format as currency for price columns
-            $sheet->getStyle('L' . $currentDataRow)->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('M' . $currentDataRow)->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('N' . $currentDataRow)->getNumberFormat()->setFormatCode('Rp #,##0');
+            // Format as currency for price columns (N, O, P, Q, R, S, T, U, V, W, X)
+            $currencyColumns = ['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
+            foreach ($currencyColumns as $col) {
+                $sheet->getStyle($col . $currentDataRow)->getNumberFormat()->setFormatCode('#,##0');
+            }
         }
 
         $dataEndRow = $excel->getCurrentRow() - 1;
 
         // Style data rows with borders
         if ($payments->count() > 0) {
-            $sheet->getStyle('A' . $dataStartRow . ':R' . $dataEndRow)->applyFromArray([
+            $sheet->getStyle('A' . $dataStartRow . ':AB' . $dataEndRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -190,13 +218,13 @@ class PaymentReportExport
         $excel->addEmptyRow(2);
 
         // Add summary section with enhanced design
-        $excel->addInfoRow('💵 SUMMARY REPORT', [
+        $excel->addInfoRow('SUMMARY REPORT', [
             'bold' => true,
             'bgColor' => 'D1FAE5',
             'textColor' => '059669',
             'fontSize' => 12,
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'R',
+            'endColumn' => 'AB',
         ]);
 
         $excel->addEmptyRow();
@@ -204,15 +232,15 @@ class PaymentReportExport
         // Total Revenue using new method
         $excel->addSummaryRow('TOTAL REVENUE:', $totalRevenue, [
             'labelColumn' => 'A',
-            'valueColumn' => 'N',
-            'labelEndColumn' => 'M',
+            'valueColumn' => 'V',
+            'labelEndColumn' => 'U',
             'bgColor' => 'D1FAE5',
             'textColor' => '059669',
         ]);
 
         // Format revenue as currency
         $summaryRowNum = $excel->getCurrentRow() - 1;
-        $sheet->getStyle('N' . $summaryRowNum)->getNumberFormat()->setFormatCode('Rp #,##0');
+        $sheet->getStyle('V' . $summaryRowNum)->getNumberFormat()->setFormatCode('Rp #,##0');
 
         // Total Records
         $excel->addInfoRow('Total Payments: ' . $payments->count() . ' | Refunds: ' . $totalRefunds, [
@@ -220,7 +248,7 @@ class PaymentReportExport
             'fontSize' => 10,
             'textColor' => '6B7280',
             'align' => Alignment::HORIZONTAL_RIGHT,
-            'endColumn' => 'R',
+            'endColumn' => 'AB',
         ]);
 
         // Add footer
@@ -230,7 +258,7 @@ class PaymentReportExport
             'italic' => true,
             'textColor' => '9CA3AF',
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'R',
+            'endColumn' => 'AB',
         ]);
 
         // Freeze panes at header row
@@ -279,13 +307,64 @@ class PaymentReportExport
         return $query->get();
     }
 
-    private function mapPayment($transaction, $no): array
+    private function mapPayment($transaction, $no, $invoiceNumber): array
     {
         $payment = $transaction->payment;
 
         // Detect refund
         $isRefund = $transaction->booking && $transaction->booking->refund;
         $refundSuffix = $isRefund ? ' [REFUND]' : '';
+
+        // Get duration
+        $duration = 0;
+        $bookingType = $transaction->booking_type ?? 'daily';
+        if ($bookingType === 'monthly') {
+            $duration = $transaction->booking_months ?? 0;
+        } else {
+            $duration = $transaction->booking_days ?? 0;
+        }
+
+        // Get price per unit (daily or monthly rate)
+        $pricePerUnit = 0;
+        if ($bookingType === 'monthly') {
+            $pricePerUnit = $transaction->monthly_price ?? 0;
+        } else {
+            $pricePerUnit = $transaction->daily_price ?? 0;
+        }
+
+        // Calculate DPP (Dasar Pengenaan Pajak) - price without VAT 11%
+        // DPP = Price / 1.11
+        $dppKamarPerUnit = $pricePerUnit / 1.11;
+
+        // Subtotal = Duration * DPP Kamar Per Unit
+        $subtotal = $duration * $dppKamarPerUnit;
+
+        // Discount (from voucher)
+        $diskon = $transaction->discount_amount ?? 0;
+        $dppDiskon = $diskon / 1.11;
+
+        // Parking (currently not in transaction, set to 0)
+        $parkir = $transaction->parking_fee ?? 0;
+        $dppParkir = $parkir / 1.11;
+
+        // VATT 11% = (Subtotal - DPP Diskon + DPP Parkir) * 11%
+        $vatt = ($subtotal - $dppDiskon + $dppParkir) * 0.11;
+
+        // Grand Total calculation for display
+        // Note: Using actual grandtotal_price from transaction for accuracy
+        $grandTotal = $transaction->grandtotal_price ?? 0;
+
+        // Deposit
+        $deposit = $transaction->deposit ?? 0;
+
+        // Service Fee
+        $serviceFee = $transaction->service_fees ?? 0;
+
+        // Room type
+        $roomType = '-';
+        if ($transaction->room) {
+            $roomType = $transaction->room->type ?? '-';
+        }
 
         // Format notes with refund info
         $notes = $transaction->notes ?? '';
@@ -306,24 +385,34 @@ class PaymentReportExport
         }
 
         return [
-            $no,
-            $transaction->paid_at ? Carbon::parse($transaction->paid_at)->format('d M Y H:i') : '-',
-            $transaction->order_id . $refundSuffix,
-            $transaction->transaction_code ?? '-',
-            $transaction->property_name ?? '-',
-            $transaction->room ? $transaction->room->name : '-',
-            $transaction->user_name ?? '-',
-            $transaction->user_phone_number ?? '-',
-            $transaction->user_email ?? '-',
-            $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-',
-            $transaction->check_out ? Carbon::parse($transaction->check_out)->format('d M Y') : '-',
-            $transaction->room_price ?? 0,
-            $transaction->service_fees ?? 0, // Fixed: service_fees (with 's')
-            $transaction->grandtotal_price ?? 0,
-            'Paid',
-            $payment && $payment->verified_by ? $payment->verified_by : '-', // Direct field access
-            $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-',
-            $notes,
+            $no,                                                                                    // No
+            $invoiceNumber,                                                                         // Invoice Number
+            $transaction->paid_at ? Carbon::parse($transaction->paid_at)->format('d M Y H:i') : '-', // Invoice Date
+            $transaction->transaction_code ?? '-',                                                  // Transaction Code
+            $transaction->property_name ?? '-',                                                     // Property Name
+            $roomType,                                                                              // Room Type
+            $transaction->room ? $transaction->room->name : '-',                                    // Room Number
+            $transaction->user_name ?? '-',                                                         // Tenant Name
+            $transaction->user_phone_number ?? '-',                                                 // Mobile Number
+            $transaction->user_email ?? '-',                                                        // Email
+            $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-', // Check In
+            $transaction->check_out ? Carbon::parse($transaction->check_out)->format('d M Y') : '-', // Check Out
+            $duration . ' ' . ($bookingType === 'monthly' ? 'Bulan' : 'Hari'),                     // Duration
+            round($pricePerUnit, 0),                                                               // Price Kamar Per Unit
+            round($dppKamarPerUnit, 0),                                                            // DPP Kamar Per Unit
+            round($subtotal, 0),                                                                   // Subtotal
+            round($diskon, 0),                                                                     // Diskon
+            round($dppDiskon, 0),                                                                  // DPP Diskon
+            round($parkir, 0),                                                                     // Parkir
+            round($dppParkir, 0),                                                                  // DPP Parkir
+            round($vatt, 0),                                                                       // VATT 11%
+            round($grandTotal, 0),                                                                 // Grand Total
+            round($deposit, 0),                                                                    // Deposit
+            round($serviceFee, 0),                                                                 // Service Fee
+            'Paid',                                                                                // Payment Status
+            $payment && $payment->verified_by ? $payment->verified_by : '-',                       // Verified By
+            $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-', // Verified Date
+            $notes,                                                                                // Notes
         ];
     }
 
@@ -335,20 +424,20 @@ class PaymentReportExport
         if (!empty($this->filters['start_date']) && !empty($this->filters['end_date'])) {
             $startDate = Carbon::parse($this->filters['start_date'])->format('d M Y');
             $endDate = Carbon::parse($this->filters['end_date'])->format('d M Y');
-            $filters[] = '📅 Payment Period: ' . $startDate . ' - ' . $endDate;
+            $filters[] = 'Payment Period: ' . $startDate . ' - ' . $endDate;
         }
 
         // Property
         if (!empty($this->filters['property_id'])) {
             $property = Property::find($this->filters['property_id']);
             if ($property) {
-                $filters[] = '🏢 Property: ' . $property->name;
+                $filters[] = 'Property: ' . $property->name;
             }
         }
 
         // Search
         if (!empty($this->filters['search'])) {
-            $filters[] = '🔎 Search Keyword: "' . $this->filters['search'] . '"';
+            $filters[] = 'Search Keyword: "' . $this->filters['search'] . '"';
         }
 
         return $filters;

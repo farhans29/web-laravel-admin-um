@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\Property;
 use App\Exports\PaymentReportExport;
+use App\Services\InvoiceNumberService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -100,8 +101,11 @@ class PaymentReportController extends Controller
 
         $payments = $query->paginate($request->input('per_page', 15));
 
-        // Transform data for display (18 columns)
-        $data = $payments->map(function ($transaction, $index) use ($payments) {
+        // Generate invoice numbers for the paginated results
+        $invoiceNumbers = InvoiceNumberService::generateBatch($payments->getCollection());
+
+        // Transform data for display (28 columns)
+        $data = $payments->map(function ($transaction, $index) use ($payments, $invoiceNumbers) {
             $payment = $transaction->payment;
 
             // Detect refund
@@ -114,12 +118,56 @@ class PaymentReportController extends Controller
 
             $offset = ($payments->currentPage() - 1) * $payments->perPage();
 
+            // Get invoice number
+            $invoiceNumber = $invoiceNumbers[$transaction->idrec] ?? '-';
+
+            // Get duration
+            $bookingType = $transaction->booking_type ?? 'daily';
+            $duration = 0;
+            if ($bookingType === 'monthly') {
+                $duration = $transaction->booking_months ?? 0;
+            } else {
+                $duration = $transaction->booking_days ?? 0;
+            }
+
+            // Get price per unit (daily or monthly rate)
+            $pricePerUnit = 0;
+            if ($bookingType === 'monthly') {
+                $pricePerUnit = $transaction->monthly_price ?? 0;
+            } else {
+                $pricePerUnit = $transaction->daily_price ?? 0;
+            }
+
+            // Calculate DPP (Dasar Pengenaan Pajak) - price without VAT 11%
+            $dppKamarPerUnit = $pricePerUnit / 1.11;
+
+            // Subtotal = Duration * DPP Kamar Per Unit
+            $subtotal = $duration * $dppKamarPerUnit;
+
+            // Discount (from voucher)
+            $diskon = $transaction->discount_amount ?? 0;
+            $dppDiskon = $diskon / 1.11;
+
+            // Parking (currently not in transaction, set to 0)
+            $parkir = $transaction->parking_fee ?? 0;
+            $dppParkir = $parkir / 1.11;
+
+            // VATT 11% = (Subtotal - DPP Diskon + DPP Parkir) * 11%
+            $vatt = ($subtotal - $dppDiskon + $dppParkir) * 0.11;
+
+            // Room type
+            $roomType = '-';
+            if ($transaction->room) {
+                $roomType = $transaction->room->type ?? '-';
+            }
+
             return [
                 'no' => $offset + $index + 1,
-                'payment_date' => $transaction->paid_at ? Carbon::parse($transaction->paid_at)->format('d M Y H:i') : '-',
-                'order_id' => $transaction->order_id,
+                'invoice_number' => $invoiceNumber,
+                'invoice_date' => $transaction->paid_at ? Carbon::parse($transaction->paid_at)->format('d M Y H:i') : '-',
                 'transaction_code' => $transaction->transaction_code ?? '-',
                 'property_name' => $transaction->property_name ?? '-',
+                'room_type' => $roomType,
                 'room_number' => $transaction->room ? $transaction->room->name : '-',
                 'room_name' => $transaction->room ? $transaction->room->name : '-',
                 'tenant_name' => $transaction->user_name ?? '-',
@@ -127,14 +175,27 @@ class PaymentReportController extends Controller
                 'email' => $transaction->user_email ?? '-',
                 'check_in' => $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-',
                 'check_out' => $transaction->check_out ? Carbon::parse($transaction->check_out)->format('d M Y') : '-',
-                'room_price' => 'Rp ' . number_format($transaction->room_price ?? 0, 0, ',', '.'),
-                'service_fee' => 'Rp ' . number_format($transaction->service_fees ?? 0, 0, ',', '.'),
+                'duration' => $duration . ' ' . ($bookingType === 'monthly' ? 'Bulan' : 'Hari'),
+                'price_per_unit' => 'Rp ' . number_format($pricePerUnit, 0, ',', '.'),
+                'dpp_kamar_per_unit' => 'Rp ' . number_format(round($dppKamarPerUnit, 0), 0, ',', '.'),
+                'subtotal' => 'Rp ' . number_format(round($subtotal, 0), 0, ',', '.'),
+                'diskon' => 'Rp ' . number_format(round($diskon, 0), 0, ',', '.'),
+                'dpp_diskon' => 'Rp ' . number_format(round($dppDiskon, 0), 0, ',', '.'),
+                'parkir' => 'Rp ' . number_format(round($parkir, 0), 0, ',', '.'),
+                'dpp_parkir' => 'Rp ' . number_format(round($dppParkir, 0), 0, ',', '.'),
+                'vatt' => 'Rp ' . number_format(round($vatt, 0), 0, ',', '.'),
                 'grand_total' => 'Rp ' . number_format($transaction->grandtotal_price ?? 0, 0, ',', '.'),
+                'deposit' => 'Rp ' . number_format($transaction->deposit ?? 0, 0, ',', '.'),
+                'service_fee' => 'Rp ' . number_format($transaction->service_fees ?? 0, 0, ',', '.'),
                 'payment_status' => 'Paid',
-                'verified_by' => $payment && $payment->verified_by ? $payment->verified_by : '-', // Direct field access
+                'verified_by' => $payment && $payment->verified_by ? $payment->verified_by : '-',
                 'verified_at' => $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-',
                 'notes' => $this->formatNotes($transaction, $isRefund, $refundInfo),
                 'is_refund' => $isRefund,
+                // Legacy fields for backward compatibility
+                'order_id' => $transaction->order_id,
+                'payment_date' => $transaction->paid_at ? Carbon::parse($transaction->paid_at)->format('d M Y H:i') : '-',
+                'room_price' => 'Rp ' . number_format($transaction->room_price ?? 0, 0, ',', '.'),
             ];
         });
 
