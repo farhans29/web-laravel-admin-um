@@ -735,14 +735,15 @@ class DashboardController extends Controller
             ->limit(4)
             ->get();
 
-        // Get today's check-outs (paid bookings with today's check-out date, checked in but not checked out)
+        // Get upcoming check-outs (paid bookings with check-out date within 3 days, checked in but not checked out)
         $checkOuts = Booking::with(['user', 'room', 'property', 'transaction'])
             ->when($userPropertyId, function ($q) use ($userPropertyId) {
                 $q->where('property_id', $userPropertyId);
             })
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid')
-                    ->whereDate('check_out', now()->toDateString());
+                    ->whereDate('check_out', '>=', now()->toDateString())
+                    ->whereDate('check_out', '<=', now()->addDays(3)->toDateString());
             })
             ->whereNotNull('check_in_at')
             ->whereNull('check_out_at')

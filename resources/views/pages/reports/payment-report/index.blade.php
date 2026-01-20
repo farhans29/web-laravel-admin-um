@@ -97,25 +97,39 @@
                 <table class="w-full">
                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No.</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tanggal Bayar</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID Pesanan</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Properti & Kamar</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Info Penyewa</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Periode</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Harga Kamar</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Biaya Layanan</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Total</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status Pembayaran</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Diverifikasi Oleh</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tanggal Verifikasi</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Catatan</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Kode Transaksi</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Invoice Number</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Invoice Date</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Transaction Code</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Property Name</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Type</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Number</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tenant Name</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Mobile Number</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Check In</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Check Out</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Duration</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Price Kamar Per Unit</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">DPP Kamar Per Unit</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Subtotal</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Diskon</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">DPP Diskon</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Parkir</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">DPP Parkir</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">VATT 11%</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Grand Total</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Deposit</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Service Fee</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Status</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Verified By</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Verified Date</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Notes</th>
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200">
                         <tr>
-                            <td colspan="14" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="28" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
                                     <svg class="animate-spin h-8 w-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -140,6 +154,7 @@
     <script>
         let currentPage = 1;
         let searchTimeout;
+        let reportData = []; // Store report data for printing
 
         document.addEventListener('DOMContentLoaded', function() {
             const defaultStartDate = new Date('{{ $startDate }}');
@@ -203,7 +218,7 @@
             const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="14" class="px-4 py-8 text-center text-gray-500">
+                    <td colspan="28" class="px-4 py-8 text-center text-gray-500">
                         <div class="flex justify-center items-center gap-2">
                             <svg class="animate-spin h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -219,6 +234,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        reportData = data.data; // Store for printing
                         renderTable(data.data);
                         renderPagination(data.pagination);
                     }
@@ -227,7 +243,7 @@
                     console.error('Error:', error);
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="14" class="px-4 py-8 text-center text-red-500">
+                            <td colspan="28" class="px-4 py-8 text-center text-red-500">
                                 Gagal memuat data. Silakan coba lagi.
                             </td>
                         </tr>
@@ -241,7 +257,7 @@
             if (data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="14" class="px-4 py-8 text-center text-gray-500">
+                        <td colspan="28" class="px-4 py-8 text-center text-gray-500">
                             <div class="flex flex-col items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -257,36 +273,38 @@
             tbody.innerHTML = data.map(row => {
                 const refundClass = row.is_refund ? 'bg-red-50' : '';
                 const refundBadge = row.is_refund ?
-                    '<span class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full font-semibold">REFUND</span>' : '';
+                    '<span class="ml-1 px-1 py-0.5 text-xs bg-red-100 text-red-800 rounded font-semibold">REFUND</span>' : '';
 
                 return `
                 <tr class="hover:bg-gray-50 transition-colors ${refundClass}">
-                    <td class="px-4 py-3 text-sm text-gray-900">${row.no}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900">${row.payment_date}</td>
-                    <td class="px-4 py-3 text-sm font-medium text-blue-600">${row.order_id}${refundBadge}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900">
-                        <div class="font-medium">${row.property_name}</div>
-                        <div class="text-gray-600">${row.room_name || row.room_number}</div>
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900">
-                        <div class="font-medium">${row.tenant_name}</div>
-                        <div class="text-gray-600 text-xs">${row.mobile_number}</div>
-                        <div class="text-gray-600 text-xs">${row.email}</div>
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-700">
-                        <div class="text-xs">
-                            <div><span class="font-medium">In:</span> ${row.check_in}</div>
-                            <div><span class="font-medium">Out:</span> ${row.check_out}</div>
-                        </div>
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-900">${row.room_price}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900">${row.service_fee}</td>
-                    <td class="px-4 py-3 text-sm font-semibold text-gray-900">${row.grand_total}</td>
-                    <td class="px-4 py-3 text-sm text-gray-700">${row.payment_status}</td>
-                    <td class="px-4 py-3 text-sm text-gray-700">${row.verified_by}</td>
-                    <td class="px-4 py-3 text-sm text-gray-700">${row.verified_at}</td>
-                    <td class="px-4 py-3 text-sm text-gray-600">${row.notes || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900">${row.transaction_code}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.no}</td>
+                    <td class="px-3 py-3 text-xs font-medium text-blue-600">${row.invoice_number}${refundBadge}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.invoice_date}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.transaction_code}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.property_name}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.room_type}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.room_number}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.tenant_name}</td>
+                    <td class="px-3 py-3 text-xs text-gray-700">${row.mobile_number}</td>
+                    <td class="px-3 py-3 text-xs text-gray-700">${row.email}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.check_in}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.check_out}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.duration}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.price_per_unit}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.dpp_kamar_per_unit}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.subtotal}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.diskon}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.dpp_diskon}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.parkir}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.dpp_parkir}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.vatt}</td>
+                    <td class="px-3 py-3 text-xs font-semibold text-gray-900">${row.grand_total}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.deposit}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.service_fee}</td>
+                    <td class="px-3 py-3 text-xs text-gray-700">${row.payment_status}</td>
+                    <td class="px-3 py-3 text-xs text-gray-700">${row.verified_by}</td>
+                    <td class="px-3 py-3 text-xs text-gray-700">${row.verified_at}</td>
+                    <td class="px-3 py-3 text-xs text-gray-600">${row.notes || '-'}</td>
                 </tr>
             `}).join('');
         }
@@ -391,8 +409,46 @@
                 filterInfo += `<p><strong>Pencarian:</strong> ${searchValue}</p>`;
             }
 
-            // Get table content
-            const tableContent = document.getElementById('reportTableBody').innerHTML;
+            // Build table rows from reportData
+            let tableRows = '';
+            if (reportData && reportData.length > 0) {
+                tableRows = reportData.map(row => {
+                    const refundClass = row.is_refund ? 'refund-row' : '';
+                    const refundBadge = row.is_refund ? ' [REFUND]' : '';
+                    return `
+                        <tr class="${refundClass}">
+                            <td>${row.no}</td>
+                            <td>${row.invoice_number}${refundBadge}</td>
+                            <td>${row.invoice_date}</td>
+                            <td>${row.transaction_code}</td>
+                            <td>${row.property_name}</td>
+                            <td>${row.room_type}</td>
+                            <td>${row.room_number}</td>
+                            <td>${row.tenant_name}</td>
+                            <td>${row.mobile_number}</td>
+                            <td>${row.email}</td>
+                            <td>${row.check_in}</td>
+                            <td>${row.check_out}</td>
+                            <td>${row.duration}</td>
+                            <td>${row.price_per_unit}</td>
+                            <td>${row.dpp_kamar_per_unit}</td>
+                            <td>${row.subtotal}</td>
+                            <td>${row.diskon}</td>
+                            <td>${row.dpp_diskon}</td>
+                            <td>${row.parkir}</td>
+                            <td>${row.dpp_parkir}</td>
+                            <td>${row.vatt}</td>
+                            <td>${row.grand_total}</td>
+                            <td>${row.deposit}</td>
+                            <td>${row.service_fee}</td>
+                            <td>${row.payment_status}</td>
+                            <td>${row.verified_by}</td>
+                            <td>${row.verified_at}</td>
+                            <td>${row.notes || '-'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
 
             // Create print window
             const printWindow = window.open('', '_blank');
@@ -402,75 +458,82 @@
                 <head>
                     <title>${reportTitle}</title>
                     <style>
+                        @page {
+                            size: landscape;
+                            margin: 10mm;
+                        }
                         body {
                             font-family: Arial, sans-serif;
-                            margin: 20px;
+                            margin: 10px;
                             color: #333;
+                            font-size: 8px;
                         }
                         .header {
                             text-align: center;
-                            margin-bottom: 20px;
+                            margin-bottom: 15px;
                             border-bottom: 2px solid #059669;
                             padding-bottom: 10px;
                         }
                         .header h1 {
                             margin: 0;
                             color: #059669;
-                            font-size: 24px;
+                            font-size: 18px;
                         }
                         .header p {
                             margin: 5px 0;
                             color: #666;
+                            font-size: 10px;
                         }
                         .filter-info {
                             background: #F3F4F6;
-                            padding: 15px;
-                            border-radius: 8px;
-                            margin-bottom: 20px;
+                            padding: 10px;
+                            border-radius: 5px;
+                            margin-bottom: 15px;
                         }
                         .filter-info p {
-                            margin: 5px 0;
-                            font-size: 14px;
+                            margin: 3px 0;
+                            font-size: 10px;
                         }
                         table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin-top: 20px;
-                            font-size: 10px;
+                            margin-top: 10px;
                         }
                         th {
                             background-color: #059669;
                             color: white;
-                            padding: 10px 6px;
+                            padding: 5px 3px;
                             text-align: left;
-                            font-size: 9px;
+                            font-size: 7px;
                             font-weight: 600;
                             text-transform: uppercase;
                             border: 1px solid #047857;
+                            white-space: nowrap;
                         }
                         td {
-                            padding: 8px 6px;
+                            padding: 4px 3px;
                             border: 1px solid #E5E7EB;
-                            font-size: 10px;
+                            font-size: 7px;
+                            white-space: nowrap;
                         }
                         tr:nth-child(even) {
                             background-color: #F9FAFB;
                         }
-                        tr.bg-red-50 {
+                        tr.refund-row {
                             background-color: #FEE2E2 !important;
                         }
                         .footer {
-                            margin-top: 30px;
+                            margin-top: 20px;
                             text-align: center;
-                            font-size: 12px;
+                            font-size: 9px;
                             color: #666;
                             border-top: 1px solid #E5E7EB;
-                            padding-top: 15px;
+                            padding-top: 10px;
                         }
                         @media print {
                             body {
                                 margin: 0;
-                                padding: 10px;
+                                padding: 5px;
                             }
                             .filter-info {
                                 background: #F9FAFB !important;
@@ -488,7 +551,7 @@
                                 -webkit-print-color-adjust: exact;
                                 print-color-adjust: exact;
                             }
-                            tr.bg-red-50 {
+                            tr.refund-row {
                                 background-color: #FEE2E2 !important;
                                 -webkit-print-color-adjust: exact;
                                 print-color-adjust: exact;
@@ -512,24 +575,38 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>No.</th>
-                                <th>Tgl Bayar</th>
-                                <th>Order ID</th>
-                                <th>Properti & Kamar</th>
-                                <th>Info Penyewa</th>
-                                <th>Periode</th>
-                                <th>Harga Kamar</th>
-                                <th>Biaya Layanan</th>
-                                <th>Total</th>
+                                <th>No</th>
+                                <th>Invoice Number</th>
+                                <th>Invoice Date</th>
+                                <th>Trx Code</th>
+                                <th>Property</th>
+                                <th>Room Type</th>
+                                <th>Room No</th>
+                                <th>Tenant</th>
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Duration</th>
+                                <th>Price/Unit</th>
+                                <th>DPP/Unit</th>
+                                <th>Subtotal</th>
+                                <th>Diskon</th>
+                                <th>DPP Diskon</th>
+                                <th>Parkir</th>
+                                <th>DPP Parkir</th>
+                                <th>VATT 11%</th>
+                                <th>Grand Total</th>
+                                <th>Deposit</th>
+                                <th>Service Fee</th>
                                 <th>Status</th>
-                                <th>Diverifikasi Oleh</th>
-                                <th>Tgl Verifikasi</th>
-                                <th>Catatan</th>
-                                <th>Kode Trx</th>
+                                <th>Verified By</th>
+                                <th>Verified Date</th>
+                                <th>Notes</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${tableContent}
+                            ${tableRows}
                         </tbody>
                     </table>
                     <div class="footer">
