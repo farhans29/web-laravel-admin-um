@@ -212,6 +212,7 @@ class ManajementPropertiesController extends Controller
     {
         $validated = $request->validate([
             'property_name' => 'required',
+            'initial' => 'required|string|max:3',
             'property_type' => 'required',
             'province' => 'required|string',
             'city' => 'required|string',
@@ -245,8 +246,8 @@ class ManajementPropertiesController extends Controller
         $nameShort = strtolower(collect(explode(' ', $request->property_name))->map(fn($w) => substr($w, 0, 1))->implode(''));
         $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
 
-        // Generate initial dari property_name
-        $initials = $this->generateInitials($request->property_name);
+        // Gunakan initial dari input user (uppercase)
+        $initials = strtoupper($request->initial);
 
         $imagePaths = [];
         $thumbnailIndex = $request->thumbnail_index;
@@ -312,6 +313,7 @@ class ManajementPropertiesController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'initial' => 'required|string|max:3',
                 'tags' => 'required|string',
                 'description' => 'nullable|string',
                 'address' => 'required|string',
@@ -412,6 +414,7 @@ class ManajementPropertiesController extends Controller
             // Update data ke tabel `m_properties`
             $property->update([
                 'name' => $request->input('name'),
+                'initial' => strtoupper($request->input('initial')),
                 'tags' => $request->input('tags'),
                 'description' => $request->input('description'),
                 'address' => $request->input('address'),

@@ -28,8 +28,15 @@
                 <!-- Search Button with Modal -->
                 {{-- <x-modal-search /> --}}
 
+                <!-- Chat button -->
+                @auth
+                    @can('manage_chat')
+                        <x-dropdown-chat align="right" />
+                    @endcan
+                @endauth
+
                 <!-- Notifications button -->
-                <x-dropdown-notifications align="right" />
+                {{-- <x-dropdown-notifications align="right" /> --}}
 
                 <!-- Info button -->
                 {{-- <x-dropdown-help align="right" /> --}}

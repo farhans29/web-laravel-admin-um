@@ -454,6 +454,7 @@
                                 type="button"
                                 @click.prevent='openModal({
                                             name: @json($property->name),
+                                            initial: @json($property->initial),
                                             city: @json($property->city),
                                             province: @json($property->province),
                                             description: @json($property->description),
@@ -461,7 +462,7 @@
                                             updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
                                             creator: "{{ $property->creator->username ?? 'Unknown' }}",
                                             status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                            location: @json($property->location),                                                                                                                      
+                                            location: @json($property->location),
                                             general: @json($property->general ?? []),
                                             security: @json($property->security ?? []),
                                             amenities: @json($property->amenities ?? []),
@@ -641,16 +642,37 @@
                                                 x-transition:enter-start="opacity-0 translate-x-4"
                                                 x-transition:enter-end="opacity-100 translate-x-0">
                                                 <div class="space-y-6">
-                                                    <div>
-                                                        <label for="property_name_edit_{{ $property->idrec }}"
-                                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                            Nama Properti <span class="text-red-500">*</span>
-                                                        </label>
-                                                        <input type="text"
-                                                            id="property_name_edit_{{ $property->idrec }}"
-                                                            name="property_name" required x-model="propertyData.name"
-                                                            class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                            placeholder="Masukkan nama properti">
+                                                    <div class="grid grid-cols-12 gap-4">
+                                                        <div class="col-span-10">
+                                                            <label for="property_name_edit_{{ $property->idrec }}"
+                                                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                                Nama Properti <span class="text-red-500">*</span>
+                                                            </label>
+                                                            <input type="text"
+                                                                id="property_name_edit_{{ $property->idrec }}"
+                                                                name="property_name" required
+                                                                x-model="propertyData.name"
+                                                                class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                                placeholder="Masukkan nama properti">
+                                                        </div>
+
+                                                        <div class="col-span-2">
+                                                            <label for="initial_edit_{{ $property->idrec }}"
+                                                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                                Initial <span class="text-red-500">*</span>
+                                                            </label>
+                                                            <div class="flex items-center">
+                                                                <input type="text"
+                                                                    id="initial_edit_{{ $property->idrec }}"
+                                                                    name="initial" required maxlength="3"
+                                                                    x-model="propertyData.initial"
+                                                                    class="w-24 border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase text-center text-center"
+                                                                    placeholder="ABC"
+                                                                    oninput="this.value = this.value.toUpperCase()">
+                                                            </div>
+                                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                                Maks. 3 karakter</p>
+                                                        </div>
                                                     </div>
 
                                                     <div>

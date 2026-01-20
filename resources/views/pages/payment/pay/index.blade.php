@@ -420,47 +420,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const defaultStartDate = new Date('{{ $startDate ?? now()->format('Y-m-d') }}');
-            const defaultEndDate = new Date('{{ $endDate ?? now()->addMonth()->format('Y-m-d') }}');
-
-            // Initialize Flatpickr with persistence
-            const datePicker = DateFilterPersistence.initFlatpickr('payment-pay', {
-                defaultStartDate: defaultStartDate,
-                defaultEndDate: defaultEndDate,
-                maxRangeDays: 31,
-                onChange: function(selectedDates, dateStr, instance) {
-                    fetchFilteredBookings();
-                },
-                onClose: function(selectedDates, dateStr, instance) {
-                    if (selectedDates.length === 0) {
-                        fetchFilteredBookings();
-                    }
-                }
-            });
-
-            // Ambil semua elemen filter
-            const searchInput = document.getElementById('search');
-            const statusSelect = document.getElementById('status');
-            const perPageSelect = document.getElementById('per_page');
-
-            // Fungsi debounce untuk pencarian
-            const debounce = (func, delay) => {
-                let timeout;
-                return function() {
-                    const context = this;
-                    const args = arguments;
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => func.apply(context, args), delay);
-                };
-            };
-
-            // Event listener
-            searchInput.addEventListener('input', debounce(fetchFilteredBookings, 300));
-            statusSelect.addEventListener('change', fetchFilteredBookings);
-            perPageSelect.addEventListener('change', fetchFilteredBookings);
-
-            // Fungsi untuk mengambil data booking terfilter
-            function fetchFilteredBookings() {
+             // Fungsi untuk mengambil data booking terfilter
+            window.fetchFilteredBookings = function() {
                 // Ambil semua nilai filter
                 const params = new URLSearchParams();
 
@@ -512,12 +473,55 @@
                     .catch(error => {
                         console.error('Error:', error);
                         tableContainer.innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    Gagal memuat data. Silakan coba lagi.
-                </div>
-            `;
+                            <div class="text-center py-8 text-red-500">
+                                Gagal memuat data. Silakan coba lagi.
+                            </div>
+                        `;
                     });
-            }
+            };
+            
+            // local reference for convenience
+            const fetchFilteredBookings = window.fetchFilteredBookings;
+
+            const defaultStartDate = new Date('{{ $startDate ?? now()->format('Y-m-d') }}');
+            const defaultEndDate = new Date('{{ $endDate ?? now()->addMonth()->format('Y-m-d') }}');
+
+            // Initialize Flatpickr with persistence
+            const datePicker = DateFilterPersistence.initFlatpickr('payment-pay', {
+                defaultStartDate: defaultStartDate,
+                defaultEndDate: defaultEndDate,
+                maxRangeDays: 31,
+                onChange: function(selectedDates, dateStr, instance) {
+                    fetchFilteredBookings();
+                },
+                onClose: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 0) {
+                        fetchFilteredBookings();
+                    }
+                }
+            });
+
+            // Ambil semua elemen filter
+            const searchInput = document.getElementById('search');
+            const statusSelect = document.getElementById('status');
+            const perPageSelect = document.getElementById('per_page');
+
+            // Fungsi debounce untuk pencarian
+            const debounce = (func, delay) => {
+                let timeout;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), delay);
+                };
+            };
+
+            // Event listener
+            searchInput.addEventListener('input', debounce(fetchFilteredBookings, 300));
+            statusSelect.addEventListener('change', fetchFilteredBookings);
+            perPageSelect.addEventListener('change', fetchFilteredBookings);
+
         });
 
 
