@@ -493,11 +493,16 @@
 
                 document.addEventListener('keydown', handleKeyDown);
 
-                this.$el.addEventListener('alpine:initialized', () => {
-                    this.$el.addEventListener('alpine:destroying', () => {
-                        document.removeEventListener('keydown', handleKeyDown);
-                    });
+                // Cleanup when component is destroyed
+                this.$watch('modalOpenDetail', (value) => {
+                    if (!value) {
+                        this.enableBodyScroll();
+                    }
                 });
+            },
+
+            destroy() {
+                this.enableBodyScroll();
             }
         }));
     });

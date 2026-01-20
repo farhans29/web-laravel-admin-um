@@ -346,11 +346,6 @@
 
             // Initialize immediately since scripts are loaded in correct order now
             $(document).ready(function() {
-                console.log('Document ready, initializing daterangepicker...');
-                console.log('jQuery version:', $.fn.jquery);
-                console.log('Moment available:', typeof moment !== 'undefined');
-                console.log('Daterangepicker available:', typeof $.fn.daterangepicker !== 'undefined');
-
                 initDateRangePicker();
 
                 // Status toggle handler
