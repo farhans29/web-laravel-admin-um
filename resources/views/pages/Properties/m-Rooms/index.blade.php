@@ -2356,7 +2356,11 @@
                     const tableContainer = document.getElementById('roomTableContainer');
                     const paginationContainer = document.getElementById('paginationContainer');
 
-                    if (tableContainer) tableContainer.innerHTML = data.html || '';
+                    if (tableContainer) {
+                        tableContainer.innerHTML = data.html || '';
+                        // Re-initialize Alpine.js components for newly added HTML
+                        Alpine.initTree(tableContainer);
+                    }
                     if (paginationContainer) {
                         paginationContainer.innerHTML = data.pagination || '';
                     }
@@ -2453,7 +2457,11 @@
                         const tableContainer = document.getElementById('roomTableContainer');
                         const paginationContainer = document.getElementById('paginationContainer');
 
-                        if (tableContainer) tableContainer.innerHTML = data.html || '';
+                        if (tableContainer) {
+                            tableContainer.innerHTML = data.html || '';
+                            // Re-initialize Alpine.js components for newly added HTML
+                            Alpine.initTree(tableContainer);
+                        }
                         if (paginationContainer) {
                             paginationContainer.innerHTML = data.pagination || '';
                         }
