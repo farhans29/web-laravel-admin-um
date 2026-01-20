@@ -24,7 +24,7 @@
                 <!-- Modal dialog -->
                 <div class="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6" x-show="modalOpenDetail"
                     x-transition x-cloak @keydown.escape.window="modalOpenDetail = false">
-                    <div class="bg-white rounded-xl shadow-lg w-full max-w-md animate-modal relative z-50"
+                    <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl animate-modal relative z-50"
                         @click.outside="modalOpenDetail = false">
 
                         <!-- Header -->
@@ -158,10 +158,40 @@
                                     @enderror
                                 </div>
 
-                                <!-- Property -->
+                                <!-- User Type Selection -->
                                 <div class="mb-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Tipe Akun <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="flex gap-4">
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="radio" name="user_type" id="user_type_ho" value="0"
+                                                {{ old('user_type', '0') == '0' ? 'checked' : '' }}
+                                                class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                                onchange="togglePropertyField()">
+                                            <span class="ml-2 text-sm text-gray-700 flex items-center gap-1">
+                                                🏢 <strong>HO (Head Office)</strong> - Akses semua properti
+                                            </span>
+                                        </label>
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="radio" name="user_type" id="user_type_site" value="1"
+                                                {{ old('user_type') == '1' ? 'checked' : '' }}
+                                                class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                                onchange="togglePropertyField()">
+                                            <span class="ml-2 text-sm text-gray-700 flex items-center gap-1">
+                                                📍 <strong>Site</strong> - Akses 1 properti tertentu
+                                            </span>
+                                        </label>
+                                    </div>
+                                    @error('user_type')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Property -->
+                                <div class="mb-5" id="property_field_container">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Properti
+                                        Properti <span class="text-red-500" id="property_required_mark">*</span>
                                     </label>
                                     <select name="property_id" id="property_id"
                                         class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
@@ -173,6 +203,10 @@
                                             </option>
                                         @endforeach
                                     </select>
+                                    <p class="text-xs text-gray-500 mt-1" id="property_field_hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span id="property_hint_text">Wajib diisi untuk akun Site</span>
+                                    </p>
                                     @error('property_id')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
@@ -242,6 +276,7 @@
                         <tr class="bg-gray-200 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider">
                             <th class="px-4 py-3">Nama</th>
                             <th class="px-4 py-3">Email</th>
+                            <th class="px-4 py-3 text-center">Tipe</th>
                             <th class="px-4 py-3 text-center">Peran</th>
                             <th class="px-4 py-3">Properti</th>
                             <th class="px-4 py-3 text-center">Status</th>
@@ -289,6 +324,16 @@
                                 <td class="px-4 py-4 text-sm text-gray-900">
                                     {{ $user->email }}
                                 </td>
+
+                                <!-- User Type -->
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
+                                        {{ $user->user_type == 0 ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700' }}">
+                                        <span class="text-base">{{ $user->user_type == 0 ? '🏢' : '📍' }}</span>
+                                        {{ $user->user_type == 0 ? 'HO' : 'Site' }}
+                                    </span>
+                                </td>
+
                                 @php
                                     $roleName = optional($user->role)->name ?? 'No Role';
                                 @endphp
@@ -377,6 +422,117 @@
                                 <!-- Actions -->
                                 <td class="px-4 py-4">
                                     <div class="flex gap-2">
+                                        <!-- Reset Password Button (Only for Superadmin) -->
+                                        @if(Auth::user()->isSuperAdmin())
+                                            <div x-data="{ modalOpenResetPwd{{ $user->id }}: false, showNewPassword{{ $user->id }}: false, showConfirmPassword{{ $user->id }}: false }">
+                                                <button class="p-2 rounded-xl text-amber-600 hover:bg-amber-50 transition"
+                                                    type="button"
+                                                    title="Reset Password"
+                                                    @click.prevent="modalOpenResetPwd{{ $user->id }} = true">
+                                                    <i class="fas fa-key"></i>
+                                                </button>
+
+                                                <!-- Modal backdrop -->
+                                                <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
+                                                    x-show="modalOpenResetPwd{{ $user->id }}" x-transition.opacity
+                                                    aria-hidden="true" x-cloak></div>
+
+                                                <!-- Modal dialog -->
+                                                <div class="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6"
+                                                    x-show="modalOpenResetPwd{{ $user->id }}" x-transition x-cloak
+                                                    @keydown.escape.window="modalOpenResetPwd{{ $user->id }} = false">
+                                                    <div class="bg-white rounded-xl shadow-lg w-full max-w-md animate-modal relative z-50"
+                                                        @click.outside="modalOpenResetPwd{{ $user->id }} = false">
+
+                                                        <!-- Header -->
+                                                        <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+                                                            <div>
+                                                                <h2 class="text-xl font-semibold text-gray-900">Reset Password</h2>
+                                                                <p class="text-sm text-gray-500 mt-1">{{ $user->first_name }} {{ $user->last_name }} ({{ '@' . $user->username }})</p>
+                                                            </div>
+                                                            <button class="text-gray-500 text-xl hover:text-gray-700 transition-colors"
+                                                                @click="modalOpenResetPwd{{ $user->id }} = false">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        <!-- Body -->
+                                                        <div class="p-6">
+                                                            <form method="POST" action="{{ route('users.resetPassword', $user->id) }}" id="resetPasswordForm{{ $user->id }}">
+                                                                @csrf
+                                                                @method('PUT')
+
+                                                                <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                                                    <div class="flex gap-2">
+                                                                        <i class="fas fa-exclamation-triangle text-amber-600 mt-0.5"></i>
+                                                                        <div class="text-sm text-amber-800">
+                                                                            <strong>Perhatian!</strong> Anda akan mereset password untuk user ini. Pastikan untuk memberitahu user password baru mereka.
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- New Password -->
+                                                                <div class="mb-4">
+                                                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                                        Password Baru <span class="text-red-500">*</span>
+                                                                    </label>
+                                                                    <div class="relative">
+                                                                        <input :type="showNewPassword{{ $user->id }} ? 'text' : 'password'"
+                                                                            name="new_password"
+                                                                            id="new_password_{{ $user->id }}"
+                                                                            minlength="8"
+                                                                            required
+                                                                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm pr-10
+                                                                            focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
+                                                                            placeholder="Masukkan password baru">
+                                                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+                                                                            @click="showNewPassword{{ $user->id }} = !showNewPassword{{ $user->id }}">
+                                                                            <i class="fas" :class="showNewPassword{{ $user->id }} ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                                                        </span>
+                                                                    </div>
+                                                                    <p class="text-gray-500 text-xs mt-1">Harus mengandung huruf besar, kecil, angka, simbol, dan minimal 8 karakter</p>
+                                                                </div>
+
+                                                                <!-- Confirm Password -->
+                                                                <div class="mb-4">
+                                                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                                        Konfirmasi Password <span class="text-red-500">*</span>
+                                                                    </label>
+                                                                    <div class="relative">
+                                                                        <input :type="showConfirmPassword{{ $user->id }} ? 'text' : 'password'"
+                                                                            name="new_password_confirmation"
+                                                                            id="new_password_confirmation_{{ $user->id }}"
+                                                                            minlength="8"
+                                                                            required
+                                                                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm pr-10
+                                                                            focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
+                                                                            placeholder="Konfirmasi password baru">
+                                                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+                                                                            @click="showConfirmPassword{{ $user->id }} = !showConfirmPassword{{ $user->id }}">
+                                                                            <i class="fas" :class="showConfirmPassword{{ $user->id }} ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Footer -->
+                                                                <div class="mt-6 flex justify-end gap-3">
+                                                                    <button type="button" @click="modalOpenResetPwd{{ $user->id }} = false"
+                                                                        class="px-4 py-2 rounded-lg border text-sm font-medium text-gray-600 hover:bg-gray-100 transition">
+                                                                        Batal
+                                                                    </button>
+                                                                    <button type="submit"
+                                                                        class="px-5 py-2.5 bg-amber-600 text-white rounded-lg shadow hover:bg-amber-700 transition-all duration-200 flex items-center gap-2">
+                                                                        <i class="fas fa-key"></i>
+                                                                        <span>Reset Password</span>
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         <div x-data="{ modalOpenEdit{{ $user->id }}: false }">
                                             <!-- Edit button -->
                                             <button class="p-2 rounded-xl text-indigo-600 hover:bg-gray-100 transition"
@@ -396,7 +552,7 @@
                                                 class="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6"
                                                 x-show="modalOpenEdit{{ $user->id }}" x-transition x-cloak
                                                 @keydown.escape.window="modalOpenEdit{{ $user->id }} = false">
-                                                <div class="bg-white rounded-xl shadow-lg w-full max-w-md animate-modal relative z-50"
+                                                <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl animate-modal relative z-50"
                                                     @click.outside="modalOpenEdit{{ $user->id }} = false">
 
                                                     <!-- Header -->
@@ -414,13 +570,12 @@
                                                     <!-- Body -->
                                                     <div class="p-6">
                                                         <form method="POST"
-                                                            action="{{ route('users.update', $user->id) }}"
-                                                            class="space-y-5">
+                                                            action="{{ route('users.update', $user->id) }}">
                                                             @csrf
                                                             @method('PUT')
 
                                                             <!-- First & Last Name -->
-                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                                                                 <!-- First Name -->
                                                                 <div>
                                                                     <label for="first_name_{{ $user->id }}"
@@ -437,8 +592,7 @@
                                                                 <div>
                                                                     <label for="last_name_{{ $user->id }}"
                                                                         class="block text-sm font-medium text-gray-700 mb-1">
-                                                                        Nama Belakang <span
-                                                                            class="text-red-500">*</span>
+                                                                        Nama Belakang <span class="text-red-500">*</span>
                                                                     </label>
                                                                     <input type="text" name="last_name"
                                                                         id="last_name_{{ $user->id }}"
@@ -447,8 +601,8 @@
                                                                 </div>
                                                             </div>
 
-                                                            <!-- Username / Name -->
-                                                            <div class="mt-4">
+                                                            <!-- Username -->
+                                                            <div class="mb-5">
                                                                 <label for="name_{{ $user->id }}"
                                                                     class="block text-sm font-medium text-gray-700 mb-1">
                                                                     Username <span class="text-red-500">*</span>
@@ -460,7 +614,7 @@
                                                             </div>
 
                                                             <!-- Email -->
-                                                            <div class="mt-4 relative">
+                                                            <div class="mb-5 relative">
                                                                 <label for="email_{{ $user->id }}"
                                                                     class="block text-sm font-medium text-gray-700 mb-1">
                                                                     Email <span class="text-red-500">*</span>
@@ -473,33 +627,61 @@
                                                                 </div>
                                                             </div>
 
-
                                                             <!-- Role -->
-                                                            <div class="grid grid-cols-1 gap-4">
-                                                                <div>
-                                                                    <label for="role_{{ $user->id }}"
-                                                                        class="block text-sm font-medium text-gray-700 mb-1">
-                                                                        Peran <span class="text-red-500">*</span>
+                                                            <div class="mb-5">
+                                                                <label for="role_{{ $user->id }}"
+                                                                    class="block text-sm font-medium text-gray-700 mb-1">
+                                                                    Peran <span class="text-red-500">*</span>
+                                                                </label>
+                                                                <select name="role"
+                                                                    id="role_{{ $user->id }}" required
+                                                                    class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
+                                                                    <option value="">Pilih Peran</option>
+                                                                    @foreach ($roles as $role)
+                                                                        <option value="{{ $role->id }}"
+                                                                            {{ $user->role_id == $role->id ? 'selected' : '' }}>
+                                                                            {{ $role->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- User Type Selection -->
+                                                            <div class="mb-5">
+                                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                                    Tipe Akun <span class="text-red-500">*</span>
+                                                                </label>
+                                                                <div class="flex gap-4">
+                                                                    <label class="flex items-center cursor-pointer">
+                                                                        <input type="radio" name="user_type"
+                                                                            id="user_type_ho_{{ $user->id }}"
+                                                                            value="0"
+                                                                            {{ $user->user_type == 0 ? 'checked' : '' }}
+                                                                            class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                                                            onchange="togglePropertyFieldEdit{{ $user->id }}()">
+                                                                        <span class="ml-2 text-sm text-gray-700 flex items-center gap-1">
+                                                                            🏢 <strong>HO (Head Office)</strong> - Akses semua properti
+                                                                        </span>
                                                                     </label>
-                                                                    <select name="role"
-                                                                        id="role_{{ $user->id }}" required
-                                                                        class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
-                                                                        <option value="">Pilih Peran</option>
-                                                                        @foreach ($roles as $role)
-                                                                            <option value="{{ $role->id }}"
-                                                                                {{ $user->role_id == $role->id ? 'selected' : '' }}>
-                                                                                {{ $role->name }}
-                                                                            </option>
-                                                                        @endforeach
-                                                                    </select>
+                                                                    <label class="flex items-center cursor-pointer">
+                                                                        <input type="radio" name="user_type"
+                                                                            id="user_type_site_{{ $user->id }}"
+                                                                            value="1"
+                                                                            {{ $user->user_type == 1 ? 'checked' : '' }}
+                                                                            class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                                                            onchange="togglePropertyFieldEdit{{ $user->id }}()">
+                                                                        <span class="ml-2 text-sm text-gray-700 flex items-center gap-1">
+                                                                            📍 <strong>Site</strong> - Akses 1 properti tertentu
+                                                                        </span>
+                                                                    </label>
                                                                 </div>
                                                             </div>
 
                                                             <!-- Property -->
-                                                            <div class="mt-4">
+                                                            <div class="mb-5" id="property_field_container_{{ $user->id }}">
                                                                 <label for="property_id_{{ $user->id }}"
                                                                     class="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Properti
+                                                                    Properti <span class="text-red-500" id="property_required_mark_{{ $user->id }}">*</span>
                                                                 </label>
                                                                 <select name="property_id"
                                                                     id="property_id_{{ $user->id }}"
@@ -512,7 +694,43 @@
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
+                                                                <p class="text-xs text-gray-500 mt-1" id="property_field_hint_{{ $user->id }}">
+                                                                    <i class="fas fa-info-circle"></i>
+                                                                    <span id="property_hint_text_{{ $user->id }}">Wajib diisi untuk akun Site</span>
+                                                                </p>
                                                             </div>
+
+                                                            <script>
+                                                                // Toggle Property Field for Edit Modal {{ $user->id }}
+                                                                function togglePropertyFieldEdit{{ $user->id }}() {
+                                                                    const userTypeHO = document.getElementById('user_type_ho_{{ $user->id }}');
+                                                                    const propertyField = document.getElementById('property_id_{{ $user->id }}');
+                                                                    const propertyRequiredMark = document.getElementById('property_required_mark_{{ $user->id }}');
+                                                                    const propertyHintText = document.getElementById('property_hint_text_{{ $user->id }}');
+
+                                                                    if (userTypeHO && userTypeHO.checked) {
+                                                                        // HO selected - disable property field
+                                                                        propertyField.disabled = true;
+                                                                        propertyField.required = false;
+                                                                        propertyField.value = '';
+                                                                        propertyField.classList.add('bg-gray-100', 'cursor-not-allowed');
+                                                                        propertyRequiredMark.classList.add('hidden');
+                                                                        propertyHintText.textContent = 'Tidak perlu properti untuk akun HO';
+                                                                    } else {
+                                                                        // Site selected - enable property field
+                                                                        propertyField.disabled = false;
+                                                                        propertyField.required = true;
+                                                                        propertyField.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                                                                        propertyRequiredMark.classList.remove('hidden');
+                                                                        propertyHintText.textContent = 'Wajib diisi untuk akun Site';
+                                                                    }
+                                                                }
+
+                                                                // Initialize on modal open
+                                                                document.addEventListener('DOMContentLoaded', function() {
+                                                                    togglePropertyFieldEdit{{ $user->id }}();
+                                                                });
+                                                            </script>
 
                                                             <!-- Footer -->
                                                             <div class="mt-6 flex justify-end gap-3">
@@ -592,6 +810,36 @@
     @endif
 
     <script>
+        // Toggle Property Field based on User Type
+        function togglePropertyField() {
+            const userTypeHO = document.getElementById('user_type_ho');
+            const propertyField = document.getElementById('property_id');
+            const propertyRequiredMark = document.getElementById('property_required_mark');
+            const propertyHintText = document.getElementById('property_hint_text');
+
+            if (userTypeHO && userTypeHO.checked) {
+                // HO selected - disable property field
+                propertyField.disabled = true;
+                propertyField.required = false;
+                propertyField.value = '';
+                propertyField.classList.add('bg-gray-100', 'cursor-not-allowed');
+                propertyRequiredMark.classList.add('hidden');
+                propertyHintText.textContent = 'Tidak perlu properti untuk akun HO';
+            } else {
+                // Site selected - enable property field
+                propertyField.disabled = false;
+                propertyField.required = true;
+                propertyField.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                propertyRequiredMark.classList.remove('hidden');
+                propertyHintText.textContent = 'Wajib diisi untuk akun Site';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            togglePropertyField();
+        });
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('modal', () => ({
                 modalOpenDetail: false,

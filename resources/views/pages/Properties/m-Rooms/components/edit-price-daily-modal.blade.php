@@ -84,7 +84,7 @@
 
                             <div class="grid grid-cols-7 gap-1">
                                 <template x-for="(week, weekIndex) in calendarWeeks" :key="weekIndex">
-                                    <template x-for="day in week" :key="day.date">
+                                    <template x-for="day in week" :key="day.date.getTime()">
                                         <button @click="selectDate(day)" :disabled="!day.isCurrentMonth || day.isPast"
                                             :class="[
                                                 'h-10 rounded-lg text-sm font-medium transition-all duration-200',

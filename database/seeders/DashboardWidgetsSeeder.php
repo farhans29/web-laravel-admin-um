@@ -16,21 +16,12 @@ class DashboardWidgetsSeeder extends Seeder
         $widgets = [
             // Kategori: Stats (Statistik Booking)
             [
-                'name' => 'Konfirmasi Booking (Mendatang)',
-                'slug' => 'booking_upcoming',
-                'description' => 'Widget untuk menampilkan jumlah booking yang akan datang',
-                'category' => 'stats',
-                'icon' => 'fas fa-clock',
-                'order' => 1,
-                'is_active' => 1
-            ],
-            [
                 'name' => 'Konfirmasi Booking (Hari Ini)',
                 'slug' => 'booking_today',
                 'description' => 'Widget untuk menampilkan jumlah booking hari ini',
                 'category' => 'stats',
                 'icon' => 'fas fa-calendar-day',
-                'order' => 2,
+                'order' => 1,
                 'is_active' => 1
             ],
             [
@@ -39,7 +30,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan statistik check-in',
                 'category' => 'stats',
                 'icon' => 'fas fa-arrow-up',
-                'order' => 3,
+                'order' => 2,
                 'is_active' => 1
             ],
             [
@@ -48,7 +39,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan statistik check-out',
                 'category' => 'stats',
                 'icon' => 'fas fa-arrow-down',
-                'order' => 4,
+                'order' => 3,
                 'is_active' => 1
             ],
             [
@@ -57,7 +48,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan daftar check-in hari ini',
                 'category' => 'stats',
                 'icon' => 'fas fa-list',
-                'order' => 5,
+                'order' => 4,
                 'is_active' => 1
             ],
             [
@@ -66,7 +57,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan daftar check-out hari ini',
                 'category' => 'stats',
                 'icon' => 'fas fa-list-alt',
-                'order' => 6,
+                'order' => 5,
                 'is_active' => 1
             ],
 
@@ -86,7 +77,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan pendapatan bulan ini',
                 'category' => 'finance',
                 'icon' => 'fas fa-chart-line',
-                'order' => 8,
+                'order' => 6,
                 'is_active' => 1
             ],
             [
@@ -95,7 +86,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan pembayaran yang tertunda',
                 'category' => 'finance',
                 'icon' => 'fas fa-hourglass-half',
-                'order' => 9,
+                'order' => 7,
                 'is_active' => 1
             ],
             [
@@ -104,7 +95,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan tingkat keberhasilan pembayaran',
                 'category' => 'finance',
                 'icon' => 'fas fa-check-circle',
-                'order' => 10,
+                'order' => 8,
                 'is_active' => 1
             ],
             [
@@ -113,7 +104,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan breakdown metode pembayaran',
                 'category' => 'finance',
                 'icon' => 'fas fa-credit-card',
-                'order' => 11,
+                'order' => 9,
                 'is_active' => 1
             ],
             [
@@ -122,7 +113,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan ringkasan cash flow',
                 'category' => 'finance',
                 'icon' => 'fas fa-exchange-alt',
-                'order' => 12,
+                'order' => 10,
                 'is_active' => 1
             ],
             [
@@ -131,7 +122,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan transaksi terbaru',
                 'category' => 'finance',
                 'icon' => 'fas fa-receipt',
-                'order' => 13,
+                'order' => 11,
                 'is_active' => 1
             ],
 
@@ -151,7 +142,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan detail kamar yang sedang terisi',
                 'category' => 'rooms',
                 'icon' => 'fas fa-bed',
-                'order' => 15,
+                'order' => 12,
                 'is_active' => 1
             ],
             [
@@ -160,7 +151,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan riwayat okupansi kamar',
                 'category' => 'rooms',
                 'icon' => 'fas fa-chart-area',
-                'order' => 16,
+                'order' => 13,
                 'is_active' => 1
             ],
             [
@@ -169,7 +160,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan breakdown berdasarkan tipe kamar',
                 'category' => 'rooms',
                 'icon' => 'fas fa-th-large',
-                'order' => 17,
+                'order' => 14,
                 'is_active' => 1
             ],
             [
@@ -178,7 +169,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan laporan per property',
                 'category' => 'rooms',
                 'icon' => 'fas fa-building',
-                'order' => 18,
+                'order' => 15,
                 'is_active' => 1
             ],
 
@@ -189,7 +180,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan grafik penjualan 30 hari terakhir',
                 'category' => 'reports',
                 'icon' => 'fas fa-chart-bar',
-                'order' => 19,
+                'order' => 16,
                 'is_active' => 1
             ],
             [
@@ -198,7 +189,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan trend durasi sewa',
                 'category' => 'reports',
                 'icon' => 'fas fa-calendar-alt',
-                'order' => 20,
+                'order' => 17,
                 'is_active' => 1
             ],
             [
@@ -207,16 +198,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'description' => 'Widget untuk menampilkan revenue per kamar yang terisi',
                 'category' => 'reports',
                 'icon' => 'fas fa-dollar-sign',
-                'order' => 21,
-                'is_active' => 1
-            ],
-            [
-                'name' => 'Chat',
-                'slug' => 'chat',
-                'description' => 'Widget untuk menampilkan chat',
-                'category' => 'communication',
-                'icon' => 'fas fa-comments',
-                'order' => 22,
+                'order' => 18,
                 'is_active' => 1
             ]
         ];

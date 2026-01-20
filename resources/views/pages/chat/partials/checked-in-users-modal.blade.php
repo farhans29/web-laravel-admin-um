@@ -190,18 +190,24 @@ async function handleUserRowClick(orderId, hasConversation) {
 // Open existing conversation
 async function openExistingConversation(orderId) {
     try {
-        // Get conversation by order_id
-        const response = await fetch('{{ route('chat.index') }}?search=' + orderId, {
+        // Find conversation ID by order_id
+        const response = await fetch('{{ route('chat.find-by-order') }}?order_id=' + orderId, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'text/html',
+                'Accept': 'application/json',
             }
         });
 
-        if (response.ok) {
+        const data = await response.json();
+
+        if (data.success && data.conversation_id) {
             closeCheckedInModal();
-            // Reload page with search filter to show the conversation
-            window.location.href = '{{ route('chat.index') }}?search=' + orderId;
+            // Open chat directly using the chatManager
+            if (window.openChat) {
+                window.openChat(data.conversation_id);
+            }
+        } else {
+            alert('Conversation tidak ditemukan.');
         }
     } catch (error) {
         console.error('Error opening conversation:', error);
@@ -245,6 +251,7 @@ async function createChatForUser(orderId) {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
             },
             body: JSON.stringify({
                 order_id: orderId
@@ -253,17 +260,17 @@ async function createChatForUser(orderId) {
 
         const data = await response.json();
 
-        if (response.ok) {
-            await Swal.fire({
-                title: 'Berhasil!',
-                text: 'Chat berhasil dibuat',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
+        if (data.success && data.conversation_id) {
+            // Close the loading alert
+            Swal.close();
+
+            // Close modal
             closeCheckedInModal();
-            // Reload the page or navigate to the chat
-            window.location.href = '{{ route('chat.index') }}';
+
+            // Open chat directly using the chatManager
+            if (window.openChat) {
+                window.openChat(data.conversation_id);
+            }
         } else {
             Swal.fire({
                 title: 'Gagal!',

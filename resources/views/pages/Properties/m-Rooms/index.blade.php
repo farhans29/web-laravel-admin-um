@@ -59,7 +59,8 @@
                                 <!-- Step 1 -->
                                 <div class="flex items-center">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                        :class="step > 1 ? 'bg-blue-600 border-blue-600 text-white' : step === 1 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
+                                        :class="step > 1 ? 'bg-blue-600 border-blue-600 text-white' : step === 1 ?
+                                            'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
                                         <span class="text-sm font-semibold" x-show="step === 1">1</span>
                                         <span class="text-sm font-semibold" x-show="step < 1">1</span>
                                         <svg x-show="step > 1" class="w-5 h-5" fill="none" stroke="currentColor"
@@ -81,7 +82,8 @@
                                 <!-- Step 2 -->
                                 <div class="flex items-center">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                        :class="step > 2 ? 'bg-blue-600 border-blue-600 text-white' : step === 2 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
+                                        :class="step > 2 ? 'bg-blue-600 border-blue-600 text-white' : step === 2 ?
+                                            'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
                                         <span class="text-sm font-semibold" x-show="step === 2 || step < 2">2</span>
                                         <svg x-show="step > 2" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -102,7 +104,8 @@
                                 <!-- Step 3 -->
                                 <div class="flex items-center">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                        :class="step > 3 ? 'bg-blue-600 border-blue-600 text-white' : step === 3 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
+                                        :class="step > 3 ? 'bg-blue-600 border-blue-600 text-white' : step === 3 ?
+                                            'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
                                         <span class="text-sm font-semibold" x-show="step === 3 || step < 3">3</span>
                                         <svg x-show="step > 3" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -123,7 +126,8 @@
                                 <!-- Step 4 -->
                                 <div class="flex items-center">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300"
-                                        :class="step === 4 ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 text-gray-500'">
+                                        :class="step === 4 ? 'bg-blue-600 border-blue-600 text-white' :
+                                            'border-gray-300 text-gray-500'">
                                         <span class="text-sm font-semibold">4</span>
                                     </div>
                                     <div class="ml-3 text-sm">
@@ -211,7 +215,7 @@
                                                 <input type="number" id="room_capacity" name="room_capacity"
                                                     required
                                                     class="w-full border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4"
-                                                    placeholder="Kapasitas" readonly>
+                                                    placeholder="Masukkan kapasitas">
                                             </div>
                                         </div>
 
@@ -245,17 +249,21 @@
                                     x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                     <div class="space-y-6">
                                         <div class="mb-4">
-                                            <h3 class="text-md font-semibold text-gray-700 mb-2">Jenis Harga <span class="text-red-500">*</span></h3>
-                                            <p class="text-xs text-gray-500 mb-3">Pilih satu jenis periode pembayaran</p>
+                                            <h3 class="text-md font-semibold text-gray-700 mb-2">Jenis Harga <span
+                                                    class="text-red-500">*</span></h3>
+                                            <p class="text-xs text-gray-500 mb-3">Pilih satu jenis periode pembayaran
+                                            </p>
                                             <div class="flex space-x-6">
                                                 <label class="inline-flex items-center cursor-pointer">
-                                                    <input type="radio" name="price_type" value="daily" x-model="priceType"
-                                                        class="form-radio text-blue-600 h-4 w-4">
+                                                    <input type="radio" name="price_type" value="daily"
+                                                        x-model="priceType" class="form-radio text-blue-600 h-4 w-4"
+                                                        required>
                                                     <span class="ml-2 text-sm font-medium text-gray-700">Harian</span>
                                                 </label>
                                                 <label class="inline-flex items-center cursor-pointer">
-                                                    <input type="radio" name="price_type" value="monthly" x-model="priceType"
-                                                        class="form-radio text-blue-600 h-4 w-4">
+                                                    <input type="radio" name="price_type" value="monthly"
+                                                        x-model="priceType" class="form-radio text-blue-600 h-4 w-4"
+                                                        required>
                                                     <span class="ml-2 text-sm font-medium text-gray-700">Bulanan</span>
                                                 </label>
                                             </div>
@@ -272,7 +280,9 @@
                                                 </div>
                                                 <input type="text" x-ref="dailyPriceInput"
                                                     class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                    placeholder="Masukkan harga harian">
+                                                    placeholder="Masukkan harga harian" x-model="dailyPriceFormatted"
+                                                    @input="updateDailyPrice($event.target.value)">
+                                                <!-- Hidden input untuk backend -->
                                                 <input type="hidden" name="daily_price" x-model="dailyPrice">
                                             </div>
                                             <p x-show="dailyPriceError" class="text-red-500 text-xs mt-1"
@@ -290,30 +300,14 @@
                                                 </div>
                                                 <input type="text" x-ref="monthlyPriceInput"
                                                     class="w-full pl-10 border-2 border-gray-200 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                    placeholder="Masukkan harga bulanan">
+                                                    placeholder="Masukkan harga bulanan"
+                                                    x-model="monthlyPriceFormatted"
+                                                    @input="updateMonthlyPrice($event.target.value)">
+                                                <!-- Hidden input untuk backend -->
                                                 <input type="hidden" name="monthly_price" x-model="monthlyPrice">
                                             </div>
                                             <p x-show="monthlyPriceError" class="text-red-500 text-xs mt-1"
                                                 x-text="monthlyPriceError"></p>
-                                        </div>
-
-                                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-4">
-                                            <div class="flex items-start">
-                                                <div class="flex-shrink-0">
-                                                    <svg class="h-5 w-5 text-blue-500" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                        </path>
-                                                    </svg>
-                                                </div>
-                                                <div class="ml-3">
-                                                    <p class="text-sm text-blue-700">
-                                                        Pilih salah satu jenis periode pembayaran. Isi harga sesuai dengan periode yang dipilih.
-                                                    </p>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -387,7 +381,8 @@
                                             <label class="block text-sm font-semibold text-gray-700 mb-3">
                                                 Foto Kamar <span class="text-red-500">*</span>
                                                 <span class="text-sm font-normal text-gray-500">
-                                                    (Minimal 3 foto, maksimal 5 foto - <span x-text="remainingSlots"></span> slot tersisa)
+                                                    (Minimal 3 foto, maksimal 5 foto - <span
+                                                        x-text="remainingSlots"></span> slot tersisa)
                                                 </span>
                                             </label>
 
@@ -691,10 +686,10 @@
                 facilities: [],
                 formErrors: {},
                 isLoading: false,
+                dailyPriceFormatted: '',
+                monthlyPriceFormatted: '',
 
                 init() {
-                    console.log('Modal Room initialized');
-
                     // Watch for modal close to reset form
                     this.$watch('modalOpen', (value) => {
                         if (!value) {
@@ -702,40 +697,51 @@
                         }
                     });
 
-                    // Initialize price input formatting dengan error handling
+                    // Initialize price input formatting
                     this.$nextTick(() => {
                         try {
-                            // Wait for Alpine to fully render refs
                             setTimeout(() => {
+                                // Initialize Cleave for daily price
                                 if (this.$refs.dailyPriceInput) {
-                                    new Cleave(this.$refs.dailyPriceInput, {
-                                        numeral: true,
-                                        numeralThousandsGroupStyle: 'thousand',
-                                        onValueChanged: (e) => {
-                                            this.validatePriceInput(this.$refs.dailyPriceInput,
-                                                'dailyPrice');
-                                        }
-                                    });
+                                    this.initCleave(this.$refs.dailyPriceInput,
+                                        'dailyPrice');
                                 }
 
+                                // Initialize Cleave for monthly price
                                 if (this.$refs.monthlyPriceInput) {
-                                    new Cleave(this.$refs.monthlyPriceInput, {
-                                        numeral: true,
-                                        numeralThousandsGroupStyle: 'thousand',
-                                        onValueChanged: (e) => {
-                                            this.validatePriceInput(this.$refs.monthlyPriceInput,
-                                                'monthlyPrice');
-                                        }
-                                    });
+                                    this.initCleave(this.$refs.monthlyPriceInput,
+                                        'monthlyPrice');
                                 }
-                            }, 100);
+                            }, 300);
                         } catch (error) {
-                            console.error('Cleave.js initialization error:', error);
+                            console.error('Price input initialization error:', error);
                         }
                     });
 
                     // Set up global error handler
                     this.setupGlobalErrorHandling();
+                },
+
+                initCleave(inputRef, priceType) {
+                    try {
+                        if (!inputRef || inputRef._cleave) return;
+
+                        const cleave = new Cleave(inputRef, {
+                            numeral: true,
+                            numeralThousandsGroupStyle: 'thousand',
+                            numeralDecimalMark: ',',
+                            delimiter: '.',
+                            numeralDecimalScale: 0,
+                            onValueChanged: (e) => {
+                                this.validatePriceInput(inputRef, priceType);
+                            }
+                        });
+
+                        // Store reference
+                        inputRef._cleave = cleave;
+                    } catch (error) {
+                        console.error('Cleave init error:', error);
+                    }
                 },
 
                 resetForm() {
@@ -757,16 +763,18 @@
                         form.reset();
                     }
 
-                    // Clear price inputs with Cleave
+                    // Reset price inputs
                     if (this.$refs.dailyPriceInput) {
                         this.$refs.dailyPriceInput.value = '';
-                        const cleave = this.$refs.dailyPriceInput._cleave;
-                        if (cleave) cleave.setRawValue('');
+                        if (this.$refs.dailyPriceInput._cleave) {
+                            this.$refs.dailyPriceInput._cleave.setRawValue('');
+                        }
                     }
                     if (this.$refs.monthlyPriceInput) {
                         this.$refs.monthlyPriceInput.value = '';
-                        const cleave = this.$refs.monthlyPriceInput._cleave;
-                        if (cleave) cleave.setRawValue('');
+                        if (this.$refs.monthlyPriceInput._cleave) {
+                            this.$refs.monthlyPriceInput._cleave.setRawValue('');
+                        }
                     }
 
                     // Clear error borders
@@ -774,7 +782,6 @@
                 },
 
                 setupGlobalErrorHandling() {
-                    // Handle unhandled promise rejections
                     window.addEventListener('unhandledrejection', (event) => {
                         console.error('Unhandled promise rejection:', event.reason);
                         this.showErrorAlert(
@@ -785,7 +792,6 @@
                         event.preventDefault();
                     });
 
-                    // Handle JavaScript runtime errors
                     window.addEventListener('error', (event) => {
                         console.error('JavaScript error:', event.error);
                         this.showErrorAlert(
@@ -798,77 +804,55 @@
 
                 validatePriceInput(inputRef, priceType) {
                     try {
-                        if (!inputRef) {
-                            throw new Error('Input reference tidak ditemukan');
+                        if (!inputRef) return;
+
+                        // Get raw value from Cleave
+                        let rawValue = inputRef.value;
+                        if (inputRef._cleave) {
+                            rawValue = inputRef._cleave.getRawValue() || '';
                         }
 
-                        // Get the raw value without formatting
-                        let rawValue = inputRef.value.replace(/[^\d.]/g, '');
+                        // Remove formatting characters
+                        let numericString = rawValue.replace(/[^\d]/g, '');
 
-                        // Ensure only one decimal point
-                        const decimalParts = rawValue.split('.');
-                        if (decimalParts.length > 2) {
-                            rawValue = decimalParts[0] + '.' + decimalParts.slice(1).join('');
-                        }
+                        // Convert to number
+                        let numericValue = numericString ? parseInt(numericString, 10) : 0;
 
-                        // Limit to 4 decimal places
-                        if (decimalParts.length === 2 && decimalParts[1].length > 4) {
-                            rawValue = decimalParts[0] + '.' + decimalParts[1].substring(0, 4);
-                            this[priceType + 'Error'] = 'Maksimal 4 digit di belakang koma';
-                            this.showErrorAlert('Maksimal 4 digit di belakang koma untuk harga');
+                        // Validate
+                        if (numericValue > 999999999999) {
+                            this[priceType + 'Error'] = 'Maksimum Rp 999.999.999.999';
+                            numericValue = 999999999999;
+                            if (inputRef._cleave) {
+                                inputRef._cleave.setRawValue('999999999999');
+                            }
                         } else {
                             this[priceType + 'Error'] = '';
                         }
 
-                        // Limit total digits (14 before decimal + 4 after = 18)
-                        const withoutDecimal = rawValue.replace('.', '');
-                        if (withoutDecimal.length > 18) {
-                            rawValue = rawValue.substring(0, rawValue.length - (withoutDecimal.length -
-                                18));
-                            this[priceType + 'Error'] =
-                                'Maksimal 18 digit total (14 sebelum koma, 4 setelah)';
-                            this.showErrorAlert(
-                                'Maksimal 18 digit total untuk harga (14 sebelum koma, 4 setelah)');
-                        }
-
-                        // Convert to number and check maximum value
-                        const numericValue = parseFloat(rawValue) || 0;
-                        if (numericValue > 999999999999) {
-                            this[priceType + 'Error'] = 'Nilai maksimum adalah 999,999,999,999.9999';
-                            this.showErrorAlert('Nilai maksimum harga adalah 999,999,999,999.9999');
-                        }
-
-                        // Update the model value (without formatting)
+                        // Update model
                         this[priceType] = numericValue;
 
-                        // Update the input value with proper formatting
-                        if (inputRef) {
-                            const cleave = inputRef._cleave;
-                            if (cleave) {
-                                cleave.setRawValue(rawValue);
-                            }
+                        // Update hidden input
+                        const hiddenInput = document.querySelector(`input[name="${priceType}"]`);
+                        if (hiddenInput) {
+                            hiddenInput.value = numericValue;
                         }
+
                     } catch (error) {
                         this.showErrorAlert('Terjadi kesalahan validasi harga: ' + error.message);
                     }
                 },
 
-                // Enhanced photo upload methods dengan comprehensive error handling
+                // Photo upload methods
                 handleFileSelect(event) {
                     try {
                         if (!event.target.files || event.target.files.length === 0) {
-                            this.showWarningAlert('Tidak ada file yang dipilih', 'Pilih File');
                             return;
                         }
 
                         const files = Array.from(event.target.files);
-                        const wasEmpty = this.images.length === 0;
-
                         this.processFiles(files, event);
 
-                        if (wasEmpty && this.images.length > 0) {
-                            this.showSuccessAlert('Foto pertama akan menjadi thumbnail kamar');
-                        }
                     } catch (error) {
                         this.showErrorAlert('Terjadi kesalahan saat memproses file: ' + error.message);
                     }
@@ -879,7 +863,6 @@
                         event.preventDefault();
 
                         if (!event.dataTransfer.files || event.dataTransfer.files.length === 0) {
-                            this.showWarningAlert('Tidak ada file yang di-drop', 'Drag & Drop');
                             return;
                         }
 
@@ -893,160 +876,81 @@
                 processFiles(files, event) {
                     try {
                         const imageFiles = files.filter(file => {
-                            try {
-                                // Validasi tipe file yang diizinkan
-                                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png',
-                                    'image/gif', 'image/webp'
-                                ];
-                                const isAllowedType = allowedTypes.includes(file.type);
+                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png',
+                                'image/gif', 'image/webp'
+                            ];
+                            const isAllowedType = allowedTypes.includes(file.type);
+                            const isWithinSizeLimit = file.size <= 5 * 1024 * 1024;
 
-                                // Blokir format HEIC/HEIF berdasarkan tipe dan ekstensi
-                                const isHeic = file.type === 'image/heic' ||
-                                    file.type === 'image/heif' ||
-                                    file.name.toLowerCase().endsWith('.heic') ||
-                                    file.name.toLowerCase().endsWith('.heif');
-
-                                // Validasi ukuran file (5MB)
-                                const isWithinSizeLimit = file.size <= 5 * 1024 * 1024;
-
-                                return isAllowedType && !isHeic && isWithinSizeLimit;
-                            } catch (filterError) {
-                                console.error('Error filtering file:', filterError);
-                                return false;
+                            if (!isAllowedType) {
+                                this.showErrorAlert(
+                                    `File ${file.name} bukan format gambar yang didukung (hanya JPEG, PNG, JPG, GIF, WebP)`
+                                );
                             }
+                            if (!isWithinSizeLimit) {
+                                this.showErrorAlert(
+                                    `File ${file.name} melebihi ukuran maksimal 5MB`);
+                            }
+
+                            return isAllowedType && isWithinSizeLimit;
                         });
 
                         const availableSlots = this.maxImages - this.images.length;
 
                         if (availableSlots <= 0) {
-                            this.showErrorAlert(
-                                `Maksimal hanya ${this.maxImages} foto yang dapat diupload.`);
+                            this.showErrorAlert(`Maksimal ${this.maxImages} foto`);
                             return;
                         }
 
                         const filesToProcess = imageFiles.slice(0, availableSlots);
 
-                        // Deteksi dan tampilkan file yang ditolak
-                        const rejectedFiles = files.filter(file => {
-                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png',
-                                'image/gif', 'image/webp'
-                            ];
-                            const isHeic = file.type === 'image/heic' ||
-                                file.type === 'image/heif' ||
-                                file.name.toLowerCase().endsWith('.heic') ||
-                                file.name.toLowerCase().endsWith('.heif');
-                            const isOversized = file.size > 5 * 1024 * 1024;
+                        // Process valid files
+                        filesToProcess.forEach(file => {
+                            const reader = new FileReader();
 
-                            return !allowedTypes.includes(file.type) || isHeic || isOversized;
-                        });
+                            reader.onload = (e) => {
+                                // **PERBAIKAN: Pastikan properti url ada**
+                                const imageObject = {
+                                    file: file,
+                                    url: e.target.result || URL.createObjectURL(
+                                        file), // Fallback ke createObjectURL
+                                    name: file.name,
+                                    size: file.size,
+                                    type: file.type
+                                };
 
-                        // Tampilkan warning untuk file yang ditolak
-                        if (rejectedFiles.length > 0) {
-                            let errorMessage = 'Beberapa file tidak memenuhi syarat:<br><br>';
-                            let errorCount = {
-                                heic: 0,
-                                oversized: 0,
-                                format: 0
+                                console.log('Image processed:', imageObject); // Debug
+
+                                this.images.push(imageObject);
+
+                                // Auto-set first image as thumbnail
+                                if (this.thumbnailIndex === null) {
+                                    this.thumbnailIndex = 0;
+                                }
                             };
 
-                            rejectedFiles.forEach(file => {
-                                const isHeic = file.type === 'image/heic' ||
-                                    file.type === 'image/heif' ||
-                                    file.name.toLowerCase().endsWith('.heic') ||
-                                    file.name.toLowerCase().endsWith('.heif');
-                                const isOversized = file.size > 5 * 1024 * 1024;
+                            reader.onerror = () => {
+                                console.error('Gagal membaca file:', file.name);
+                                // Fallback dengan createObjectURL
+                                const fallbackImage = {
+                                    file: file,
+                                    url: URL.createObjectURL(file),
+                                    name: file.name,
+                                    size: file.size,
+                                    type: file.type
+                                };
 
-                                if (isHeic) {
-                                    errorCount.heic++;
-                                } else if (isOversized) {
-                                    errorCount.oversized++;
-                                } else {
-                                    errorCount.format++;
+                                this.images.push(fallbackImage);
+
+                                if (this.thumbnailIndex === null) {
+                                    this.thumbnailIndex = 0;
                                 }
-                            });
+                            };
 
-                            if (errorCount.heic > 0) {
-                                errorMessage +=
-                                    `• ${errorCount.heic} file format HEIC tidak didukung<br>`;
-                            }
-                            if (errorCount.oversized > 0) {
-                                errorMessage += `• ${errorCount.oversized} file melebihi 5MB<br>`;
-                            }
-                            if (errorCount.format > 0) {
-                                errorMessage += `• ${errorCount.format} file format tidak didukung<br>`;
-                            }
-
-                            this.showWarningAlert('File Tidak Sesuai', errorMessage);
-                        }
-
-                        if (imageFiles.length > availableSlots) {
-                            this.showWarningAlert(
-                                `Hanya ${availableSlots} foto yang dapat ditambahkan`,
-                                `Sisa slot upload: ${availableSlots} foto`
-                            );
-                        }
-
-                        // Process valid files
-                        let processedCount = 0;
-                        let processingErrors = [];
-
-                        filesToProcess.forEach(file => {
-                            try {
-                                const reader = new FileReader();
-
-                                reader.onload = (e) => {
-                                    try {
-                                        this.images.push({
-                                            file: file,
-                                            url: e.target.result,
-                                            name: file.name,
-                                            size: file.size,
-                                            type: file.type
-                                        });
-
-                                        processedCount++;
-
-                                        // Auto-set thumbnail untuk gambar pertama
-                                        if (this.thumbnailIndex === null &&
-                                            processedCount === 1) {
-                                            this.thumbnailIndex = 0;
-                                            this.showInfoAlert(
-                                                'Foto pertama otomatis dipilih sebagai thumbnail'
-                                                );
-                                        }
-                                    } catch (pushError) {
-                                        processingErrors.push(
-                                            `Gagal memproses ${file.name}: ${pushError.message}`
-                                            );
-                                    }
-                                };
-
-                                reader.onerror = () => {
-                                    processingErrors.push(
-                                        `Gagal membaca file: ${file.name}`);
-                                };
-
-                                reader.onabort = () => {
-                                    processingErrors.push(
-                                        `Pembacaan file dibatalkan: ${file.name}`);
-                                };
-
-                                reader.readAsDataURL(file);
-                            } catch (fileError) {
-                                processingErrors.push(
-                                    `Error processing ${file.name}: ${fileError.message}`);
-                            }
+                            reader.readAsDataURL(file);
                         });
 
-                        // Tampilkan error processing jika ada
-                        if (processingErrors.length > 0) {
-                            this.showErrorAlert(
-                                processingErrors.join('\n'),
-                                'Kesalahan Memproses File'
-                            );
-                        }
-
-                        // Clear the file input
+                        // Clear file input
                         if (event.target) {
                             event.target.value = '';
                         }
@@ -1058,13 +962,30 @@
 
                 setThumbnail(index) {
                     try {
-                        if (index < 0 || index >= this.images.length) {
-                            throw new Error('Index thumbnail tidak valid');
+                        if (index < 0 || index >= this.images.length) return;
+
+                        // **PERBAIKAN: Validasi objek image**
+                        const image = this.images[index];
+                        if (!image) {
+                            console.error('Image tidak ditemukan di index:', index);
+                            return;
+                        }
+
+                        // Validasi URL
+                        if (!image.url) {
+                            console.warn('Image tanpa URL, mencoba generate ulang...');
+                            if (image.file) {
+                                image.url = URL.createObjectURL(image.file);
+                            } else {
+                                console.error('Tidak bisa set thumbnail: image tidak valid');
+                                return;
+                            }
                         }
 
                         this.thumbnailIndex = index;
-                        this.showSuccessAlert('Thumbnail berhasil dipilih!');
+                        console.log('Thumbnail set to index:', index, 'URL:', image.url);
                     } catch (error) {
+                        console.error('Gagal memilih thumbnail:', error);
                         this.showErrorAlert('Gagal memilih thumbnail: ' + error.message);
                     }
                 },
@@ -1073,13 +994,9 @@
                     try {
                         if (event) event.preventDefault();
 
-                        if (index < 0 || index >= this.images.length) {
-                            throw new Error('Index gambar tidak valid');
-                        }
+                        if (index < 0 || index >= this.images.length) return;
 
-                        const imageName = this.images[index].name;
-
-                        // Adjust thumbnail index if we're removing the current thumbnail
+                        // Adjust thumbnail index
                         if (this.thumbnailIndex === index) {
                             this.thumbnailIndex = null;
                         } else if (this.thumbnailIndex > index) {
@@ -1087,73 +1004,136 @@
                         }
 
                         this.images.splice(index, 1);
-                        this.showInfoAlert(`Foto "${imageName}" berhasil dihapus`);
+
+                        // Auto-select new thumbnail if exists
+                        if (this.thumbnailIndex === null && this.images.length > 0) {
+                            this.thumbnailIndex = 0;
+                        }
                     } catch (error) {
                         this.showErrorAlert('Gagal menghapus foto: ' + error.message);
                     }
                 },
 
-                // Comprehensive Alert Methods
+                // Alert Methods
                 showErrorAlert(message, title = 'Error') {
-                    return Swal.fire({
-                        icon: 'error',
-                        title: title,
-                        html: typeof message === 'string' ? message.replace(/\n/g, '<br>') :
-                            message,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#dc2626',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false
-                    });
+                    if (typeof Swal !== 'undefined') {
+                        return Swal.fire({
+                            icon: 'error',
+                            title: title,
+                            html: typeof message === 'string' ? message.replace(/\n/g, '<br>') :
+                                message,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#dc2626',
+                        });
+                    } else {
+                        alert(title + ': ' + message);
+                    }
                 },
 
                 showSuccessAlert(message, title = 'Sukses') {
-                    return Swal.fire({
-                        icon: 'success',
-                        title: title,
-                        text: message,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#059669',
-                        timer: 3000,
-                        showConfirmButton: true
-                    });
+                    if (typeof Swal !== 'undefined') {
+                        return Swal.fire({
+                            icon: 'success',
+                            title: title,
+                            text: message,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#059669',
+                        });
+                    } else {
+                        alert(title + ': ' + message);
+                    }
                 },
 
                 showWarningAlert(title, message) {
-                    return Swal.fire({
-                        icon: 'warning',
-                        title: title,
-                        html: typeof message === 'string' ? message.replace(/\n/g, '<br>') :
-                            message,
-                        confirmButtonText: 'Mengerti',
-                        confirmButtonColor: '#d97706'
-                    });
-                },
-
-                showInfoAlert(message, title = 'Informasi') {
-                    return Swal.fire({
-                        icon: 'info',
-                        title: title,
-                        text: message,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#2563eb',
-                        timer: 2000,
-                        showConfirmButton: true
-                    });
+                    if (typeof Swal !== 'undefined') {
+                        return Swal.fire({
+                            icon: 'warning',
+                            title: title,
+                            html: typeof message === 'string' ? message.replace(/\n/g, '<br>') :
+                                message,
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#d97706'
+                        });
+                    } else {
+                        alert(title + ': ' + message);
+                    }
                 },
 
                 showLoadingAlert(title = 'Memproses...') {
-                    return Swal.fire({
-                        title: title,
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
+                    if (typeof Swal !== 'undefined') {
+                        return Swal.fire({
+                            title: title,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    }
                 },
 
-                // Validasi step dengan comprehensive error handling
+                updateDailyPrice(value) {
+                    // Format angka
+                    const numericValue = value.replace(/[^\d]/g, '');
+                    this.dailyPrice = numericValue ? parseInt(numericValue, 10) : 0;
+
+                    // Format untuk display
+                    if (this.dailyPrice > 0) {
+                        this.dailyPriceFormatted = new Intl.NumberFormat('id-ID').format(this
+                            .dailyPrice);
+                    } else {
+                        this.dailyPriceFormatted = '';
+                    }
+                },
+
+                updateMonthlyPrice(value) {
+                    // Format angka
+                    const numericValue = value.replace(/[^\d]/g, '');
+                    this.monthlyPrice = numericValue ? parseInt(numericValue, 10) : 0;
+
+                    // Format untuk display
+                    if (this.monthlyPrice > 0) {
+                        this.monthlyPriceFormatted = new Intl.NumberFormat('id-ID').format(this
+                            .monthlyPrice);
+                    } else {
+                        this.monthlyPriceFormatted = '';
+                    }
+                },
+
+                // Perbaiki validateStep2()
+                validateStep2() {
+                    try {
+                        console.log('Validating price - Type:', this.priceType, 'Daily:', this
+                            .dailyPrice, 'Monthly:', this.monthlyPrice);
+
+                        if (!this.priceType) {
+                            this.showErrorAlert('Pilih jenis harga (harian atau bulanan)',
+                                'Jenis Harga Belum Dipilih');
+                            return false;
+                        }
+
+                        if (this.priceType === 'daily') {
+                            if (!this.dailyPrice || this.dailyPrice <= 0) {
+                                this.showErrorAlert('Harga harian harus diisi dengan nilai yang valid',
+                                    'Harga Tidak Valid');
+                                return false;
+                            }
+                        } else if (this.priceType === 'monthly') {
+                            if (!this.monthlyPrice || this.monthlyPrice <= 0) {
+                                this.showErrorAlert('Harga bulanan harus diisi dengan nilai yang valid',
+                                    'Harga Tidak Valid');
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan validasi harga: ' + error.message);
+                        return false;
+                    }
+                },
+
+                // Validasi step
                 async validateStep(step) {
                     try {
                         this.clearFormErrors();
@@ -1189,7 +1169,6 @@
                 },
 
                 clearFormErrors() {
-                    // Clear all error borders
                     const errorFields = document.querySelectorAll('.border-red-500');
                     errorFields.forEach(field => {
                         field.classList.remove('border-red-500');
@@ -1198,7 +1177,6 @@
                 },
 
                 highlightErrorFields() {
-                    // Highlight fields dengan error
                     Object.keys(this.formErrors).forEach(fieldId => {
                         const field = document.getElementById(fieldId);
                         if (field) {
@@ -1242,6 +1220,7 @@
                         const missingFields = [];
                         this.formErrors = {};
 
+                        // Validate required fields
                         requiredFields.forEach(field => {
                             const el = document.getElementById(field.id);
                             if (el && !el.value.trim()) {
@@ -1258,29 +1237,25 @@
                             return false;
                         }
 
-                        // Validasi nomor kamar unik
+                        // Validate room number uniqueness
                         const propertyId = document.getElementById('property_id').value;
                         const roomNo = document.getElementById('room_no').value;
 
-                        if (!propertyId || !roomNo) {
-                            await this.showErrorAlert(
-                                'Property ID dan Nomor Kamar harus diisi untuk validasi');
-                            return false;
-                        }
+                        if (!propertyId || !roomNo) return false;
 
                         this.isCheckingRoomNo = true;
                         this.roomNoError = '';
 
-                        const loadingAlert = this.showLoadingAlert('Memeriksa nomor kamar...');
-
+                        // Check room number availability
                         try {
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')
+                                ?.content;
                             const response = await fetch('/properties/rooms/check-room-number', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector(
-                                        'meta[name="csrf-token"]').content
+                                    'X-CSRF-TOKEN': csrfToken || ''
                                 },
                                 body: JSON.stringify({
                                     property_id: propertyId,
@@ -1288,42 +1263,27 @@
                                 })
                             });
 
-                            Swal.close(loadingAlert);
-
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-
                             const data = await response.json();
                             this.isCheckingRoomNo = false;
 
                             if (data.exists) {
                                 this.formErrors['room_no'] = data.message;
                                 document.getElementById('room_no').classList.add('border-red-500');
-
-                                await this.showErrorAlert(
-                                    data.message,
-                                    'Nomor Kamar Sudah Ada'
-                                );
+                                await this.showErrorAlert(data.message, 'Nomor Kamar Sudah Ada');
                                 return false;
                             }
 
                             return true;
                         } catch (fetchError) {
-                            Swal.close(loadingAlert);
                             this.isCheckingRoomNo = false;
-
-                            await this.showErrorAlert(
-                                'Gagal memeriksa nomor kamar: ' + fetchError.message,
-                                'Kesalahan Jaringan'
-                            );
-                            return true; // Biarkan lanjut meskipun error checking
+                            console.error('Error checking room number:', fetchError);
+                            // Continue even if check fails
+                            return true;
                         }
 
                     } catch (error) {
                         this.isCheckingRoomNo = false;
-                        await this.showErrorAlert('Terjadi kesalahan validasi step 1: ' + error
-                            .message);
+                        console.error('Validate step 1 error:', error);
                         return false;
                     }
                 },
@@ -1331,29 +1291,21 @@
                 validateStep2() {
                     try {
                         if (!this.priceType) {
-                            this.showErrorAlert(
-                                'Pilih jenis harga (harian atau bulanan)',
-                                'Jenis Harga Belum Dipilih'
-                            );
+                            this.showErrorAlert('Pilih jenis harga (harian atau bulanan)',
+                                'Jenis Harga Belum Dipilih');
                             return false;
                         }
 
                         const errors = [];
 
-                        // Validate the selected price type has valid value
+                        // Validate price based on selected type
                         if (this.priceType === 'daily') {
                             if (!this.dailyPrice || this.dailyPrice <= 0) {
-                                errors.push('• Harga harian harus diisi dengan nilai yang valid');
-                            } else if (this.dailyPriceError) {
-                                errors.push('• ' + this.dailyPriceError);
+                                errors.push('• Harga harian harus diisi');
                             }
-                        }
-
-                        if (this.priceType === 'monthly') {
+                        } else if (this.priceType === 'monthly') {
                             if (!this.monthlyPrice || this.monthlyPrice <= 0) {
-                                errors.push('• Harga bulanan harus diisi dengan nilai yang valid');
-                            } else if (this.monthlyPriceError) {
-                                errors.push('• ' + this.monthlyPriceError);
+                                errors.push('• Harga bulanan harus diisi');
                             }
                         }
 
@@ -1373,7 +1325,7 @@
                 },
 
                 validateStep3() {
-                    // Facilities are optional, no validation needed
+                    // Facilities are optional
                     return true;
                 },
 
@@ -1381,7 +1333,7 @@
                     try {
                         if (this.images.length < this.minImages) {
                             this.showErrorAlert(
-                                `<strong>Minimal ${this.minImages} foto kamar harus diupload!</strong><br>Saat ini hanya ${this.images.length} foto yang terupload.<br>Silakan upload ${this.minImages - this.images.length} foto lagi.`,
+                                `Minimal ${this.minImages} foto kamar harus diupload!<br>Saat ini: ${this.images.length} foto`,
                                 'Foto Tidak Mencukupi'
                             );
                             return false;
@@ -1389,18 +1341,8 @@
 
                         if (this.thumbnailIndex === null) {
                             this.showErrorAlert(
-                                'Anda harus memilih satu foto sebagai thumbnail untuk kamar ini!<br>Klik pada foto yang ingin dijadikan thumbnail.',
+                                'Pilih foto sebagai thumbnail!<br>Klik pada foto yang ingin dijadikan thumbnail.',
                                 'Thumbnail Belum Dipilih'
-                            );
-                            return false;
-                        }
-
-                        // Validasi tambahan untuk memastikan semua file valid
-                        const invalidImages = this.images.filter(img => !img.file || !img.url);
-                        if (invalidImages.length > 0) {
-                            this.showErrorAlert(
-                                `Terdapat ${invalidImages.length} foto yang tidak valid. Silakan upload ulang.`,
-                                'Foto Tidak Valid'
                             );
                             return false;
                         }
@@ -1420,140 +1362,185 @@
                     return this.maxImages - this.images.length;
                 },
 
-                formatFileSize(bytes) {
-                    if (bytes === 0) return '0 Bytes';
-                    const k = 1024;
-                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                    const i = Math.floor(Math.log(bytes) / Math.log(k));
-                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-                },
-
-                // Submit form dengan comprehensive error handling
                 async submitForm() {
-                    try {
-                        this.isLoading = true;
+                    let submitBtn = null;
+                    let originalBtnContent = null;
 
-                        // Validasi final sebelum submit
+                    try {
+                        // Final validation
                         if (!await this.validateStep(4)) {
-                            this.isLoading = false;
                             return;
                         }
 
-                        // Store original button state
-                        const submitBtn = document.querySelector('#roomForm button[type="submit"]');
-                        const originalBtnContent = submitBtn?.innerHTML;
+                        // Set loading state
+                        this.isLoading = true;
+                        submitBtn = document.querySelector('#roomForm button[type="submit"]');
 
                         if (submitBtn) {
+                            originalBtnContent = submitBtn.innerHTML;
                             submitBtn.disabled = true;
                             submitBtn.innerHTML = `
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Menyimpan Data...
-                    `;
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Menyimpan Data...
+                            `;
                         }
 
                         const loadingAlert = this.showLoadingAlert('Menyimpan data kamar...');
 
+                        // Get form and create FormData
                         const form = document.getElementById('roomForm');
                         const formData = new FormData(form);
 
-                        // Clear any existing file inputs
+                        // Debug: Log data sebelum dikirim
+                        console.log('Price Type:', this.priceType);
+                        console.log('Daily Price:', this.dailyPrice);
+                        console.log('Monthly Price:', this.monthlyPrice);
+
+                        // Clear existing file inputs
                         formData.delete('room_images[]');
+
+                        // Add thumbnail index
                         formData.append('thumbnail_index', this.thumbnailIndex);
 
-                        // Add each selected image
+                        // Add images
                         this.images.forEach((image, index) => {
                             if (image.file) {
                                 formData.append('room_images[]', image.file);
                             }
                         });
 
-                        // Add image count for backend validation
-                        formData.append('image_count', this.images.length);
+                        // **PERBAIKAN: Pastikan data harga dikirim dengan benar**
+                        // Hapus dulu input harga yang mungkin sudah ada
+                        formData.delete('daily_price');
+                        formData.delete('monthly_price');
+                        formData.delete('price_type');
 
-                        // Add price type
-                        const priceObject = {
-                            daily: this.priceType === 'daily',
-                            monthly: this.priceType === 'monthly'
-                        };
-                        formData.append('price_types', JSON.stringify(priceObject));
+                        // Tambahkan data harga berdasarkan jenis yang dipilih
+                        if (this.priceType === 'daily') {
+                            // Untuk harga harian
+                            formData.append('daily_price', this.dailyPrice.toString());
+                            formData.append('monthly_price', '0'); // Set monthly ke 0
+                            formData.append('price_type', 'daily'); // Tambahkan price_type
+                        } else if (this.priceType === 'monthly') {
+                            // Untuk harga bulanan
+                            formData.append('monthly_price', this.monthlyPrice.toString());
+                            formData.append('daily_price', '0'); // Set daily ke 0
+                            formData.append('price_type', 'monthly'); // Tambahkan price_type
+                        } else {
+                            // Jika tidak ada jenis harga yang dipilih
+                            throw new Error('Jenis harga belum dipilih');
+                        }
 
-                        // Submit the form
+                        // **OPTIONAL: Tambahkan field untuk debugging**
+                        formData.append('_debug', 'true');
+
+                        // **DEBUG: Log semua data FormData**
+                        console.log('=== FormData yang akan dikirim ===');
+                        for (let pair of formData.entries()) {
+                            console.log(pair[0] + ': ', pair[1]);
+                        }
+
+                        // Submit form
                         const response = await fetch(form.action, {
                             method: 'POST',
                             body: formData,
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
+                                    'meta[name="csrf-token"]')?.content || '',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
                             }
                         });
 
-                        Swal.close(loadingAlert);
+                        // Close loading alert
+                        if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+                            Swal.close();
+                        }
 
-                        // Handle non-JSON responses
-                        const contentType = response.headers.get('content-type');
-                        if (!contentType || !contentType.includes('application/json')) {
-                            const text = await response.text();
-                            throw new Error(
-                                `Server mengembalikan response tidak valid. Status: ${response.status}`
-                                );
+                        // Handle response
+                        if (!response.ok) {
+                            let errorMessage = 'Gagal menyimpan data';
+
+                            try {
+                                const data = await response.json();
+                                console.log('Error Response:', data); // Debug log
+
+                                if (data.errors) {
+                                    // Format validation errors
+                                    if (typeof data.errors === 'object') {
+                                        errorMessage = Object.entries(data.errors)
+                                            .map(([field, errors]) =>
+                                                `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`
+                                            )
+                                            .join('\n');
+                                    } else {
+                                        errorMessage = JSON.stringify(data.errors);
+                                    }
+                                } else if (data.message) {
+                                    errorMessage = data.message;
+                                }
+                            } catch (e) {
+                                // If response is not JSON
+                                console.error('Response parsing error:', e);
+                                errorMessage = `Error ${response.status}: ${response.statusText}`;
+                            }
+
+                            throw new Error(errorMessage);
                         }
 
                         const data = await response.json();
-
-                        if (!response.ok) {
-                            let errorMsg = data.message || 'Gagal menyimpan data';
-                            if (data.errors) {
-                                // Format validation errors
-                                errorMsg = Object.values(data.errors).flat().join('<br>• ');
-                                errorMsg = `<strong>Kesalahan Validasi:</strong><br>• ${errorMsg}`;
-                            }
-                            throw new Error(errorMsg);
-                        }
+                        console.log('Success Response:', data); // Debug log
 
                         // Success
                         await this.showSuccessAlert(
-                            `Kamar berhasil disimpan dengan ${this.images.length} foto!`,
-                            'Data Berhasil Disimpan'
+                            data.message || 'Kamar berhasil disimpan!',
+                            'Berhasil'
                         );
 
-                        // Reset form dan close modal
+                        // Close modal
                         this.modalOpen = false;
-                        setTimeout(() => {
-                            // Reload table only, no full page refresh
-                            if (typeof reloadRoomsTable === 'function') {
-                                reloadRoomsTable();
-                            } else {
-                                window.location.reload();
-                            }
-                        }, 1000);
+
+                        // Refresh or redirect
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else if (window.Livewire) {
+                            // If using Livewire
+                            Livewire.dispatch('room-saved');
+                        } else if (typeof reloadRoomsTable === 'function') {
+                            reloadRoomsTable();
+                        } else {
+                            // Default: reload page after delay
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
 
                     } catch (error) {
                         console.error('Submission Error:', error);
-                        await this.showErrorAlert(
-                            error.message ||
-                            'Terjadi kesalahan tidak terduga saat menyimpan data',
-                            'Gagal Menyimpan Data'
-                        );
-                    } finally {
-                        this.isLoading = false;
-                        const submitBtn = document.querySelector('#roomForm button[type="submit"]');
+
+                        // Restore button state
                         if (submitBtn) {
                             submitBtn.disabled = false;
-                            submitBtn.innerHTML = `
-                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Simpan
-                    `;
+                            submitBtn.innerHTML = originalBtnContent || `
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Simpan
+                            `;
                         }
+
+                        await this.showErrorAlert(
+                            error.message || 'Terjadi kesalahan saat menyimpan data',
+                            'Gagal Menyimpan'
+                        );
+
+                    } finally {
+                        this.isLoading = false;
                     }
                 },
 
-                // Navigation between steps dengan error handling
+                // Navigation
                 nextStep() {
                     try {
                         this.validateStep(this.step).then(isValid => {
@@ -1561,42 +1548,652 @@
                                 this.step++;
                             }
                         }).catch(error => {
-                            this.showErrorAlert('Terjadi kesalahan saat pindah step: ' + error
-                                .message);
+                            console.error('Next step error:', error);
                         });
                     } catch (error) {
-                        this.showErrorAlert('Terjadi kesalahan navigasi: ' + error.message);
+                        console.error('Navigation error:', error);
                     }
                 },
 
                 prevStep() {
+                    if (this.step > 1) {
+                        this.step--;
+                    }
+                }
+            }));
+
+            // Modal Room Edit Component
+            Alpine.data('modalRoomEdit', () => ({
+                // REACTIVE STATE
+                editModalOpen: false,
+                editStep: 1,
+                selectedPriceType: '',
+                priceTypes: {
+                    daily: false,
+                    monthly: false
+                },
+                dailyPrice: 0,
+                monthlyPrice: 0,
+                dailyPriceError: '',
+                monthlyPriceError: '',
+                selectedFacilities: [],
+                formErrors: {},
+                isLoading: false,
+                dailyPriceFormatted: '',
+                monthlyPriceFormatted: '',
+                editFormAction: '',
+                roomId: null,
+
+                // ROOM DATA
+                roomData: {
+                    idrec: null,
+                    property_id: '',
+                    property_name: '',
+                    room_no: '',
+                    room_name: '',
+                    room_bed: '',
+                    room_capacity: '',
+                    description: '',
+                    daily_price: '',
+                    monthly_price: '',
+                    facilities: [],
+                    periode: {}
+                },
+
+                // IMAGE HANDLING FOR EDIT
+                editExistingImages: [],
+                editNewImages: [],
+                editDeletedImageIds: [],
+                editThumbnailIndex: null,
+                editMaxImages: 5,
+
+                // COMPUTED PROPERTIES FOR IMAGES
+                get editAllImages() {
+                    return [...this.editExistingImages, ...this.editNewImages];
+                },
+                get editRemainingSlots() {
+                    return this.editMaxImages - this.editAllImages.length;
+                },
+                get editCanUploadMore() {
+                    return this.editAllImages.length < this.editMaxImages;
+                },
+
+                init() {},
+
+                openModal(roomData) {
+                    this.editStep = 1;
+                    this.selectedFacilities = [];
+                    this.selectedPriceType = '';
+                    this.priceTypes = { daily: false, monthly: false };
+                    this.dailyPrice = 0;
+                    this.monthlyPrice = 0;
+                    this.dailyPriceFormatted = '';
+                    this.monthlyPriceFormatted = '';
+
+                    this.roomData = {
+                        idrec: roomData.idrec,
+                        property_id: roomData.property?.idrec || roomData.property_id,
+                        property_name: roomData.property?.name || roomData.property_name || 'N/A',
+                        room_no: roomData.no || '',
+                        room_name: roomData.name || '',
+                        room_bed: roomData.bed_type || '',
+                        room_capacity: roomData.capacity || '',
+                        description: roomData.descriptions || '',
+                        daily_price: roomData.price_original_daily || '',
+                        monthly_price: roomData.price_original_monthly || '',
+                        facilities: roomData.facility || [],
+                        periode: roomData.periode || {}
+                    };
+
+                    this.roomId = roomData.idrec;
+                    this.editFormAction = `/properties/rooms/update/${roomData.idrec}`;
+
                     try {
-                        if (this.step > 1) {
-                            this.step--;
+                        const periode = typeof this.roomData.periode === 'string'
+                            ? JSON.parse(this.roomData.periode)
+                            : this.roomData.periode || {};
+
+                        this.priceTypes.daily = Boolean(periode.daily);
+                        this.priceTypes.monthly = Boolean(periode.monthly);
+
+                        if (this.priceTypes.daily) {
+                            this.selectedPriceType = 'daily';
+                        } else if (this.priceTypes.monthly) {
+                            this.selectedPriceType = 'monthly';
                         }
+                    } catch (e) {
+                        console.error('Error parsing periode:', e);
+                        this.priceTypes = { daily: false, monthly: false };
+                        this.selectedPriceType = '';
+                    }
+
+                    if (this.roomData.daily_price) {
+                        this.dailyPrice = parseFloat(this.roomData.daily_price) || 0;
+                        this.dailyPriceFormatted = this.formatRupiah(this.dailyPrice.toString());
+                    }
+
+                    if (this.roomData.monthly_price) {
+                        this.monthlyPrice = parseFloat(this.roomData.monthly_price) || 0;
+                        this.monthlyPriceFormatted = this.formatRupiah(this.monthlyPrice.toString());
+                    }
+
+                    let facilityData = this.roomData.facilities;
+                    if (typeof facilityData === 'string') {
+                        try {
+                            facilityData = JSON.parse(facilityData);
+                        } catch (e) {
+                            facilityData = [];
+                        }
+                    }
+                    if (facilityData && Array.isArray(facilityData)) {
+                        this.selectedFacilities = facilityData.map(f => f.toString());
+                    }
+
+                    this.editExistingImages = [];
+                    this.editNewImages = [];
+                    this.editDeletedImageIds = [];
+                    this.editThumbnailIndex = null;
+
+                    this.loadExistingImages(roomData);
+                    this.editModalOpen = true;
+
+                    this.$nextTick(() => {
+                        if (this.$refs.dailyPriceInput) {
+                            this.$refs.dailyPriceInput.value = this.dailyPriceFormatted;
+                        }
+                        if (this.$refs.monthlyPriceInput) {
+                            this.$refs.monthlyPriceInput.value = this.monthlyPriceFormatted;
+                        }
+                    });
+                },
+
+                loadExistingImages(roomData) {
+                    const images = roomData.room_images || roomData.roomImages || [];
+
+                    if (images && Array.isArray(images)) {
+                        this.editExistingImages = images.map((img, index) => {
+                            const imageUrl = img.image.startsWith('http') ? img.image : `/storage/${img.image}`;
+                            return {
+                                id: img.idrec,
+                                url: imageUrl,
+                                isExisting: true,
+                                isThumbnail: img.thumbnail == 1 || img.thumbnail === true
+                            };
+                        });
+
+                        const thumbnailIdx = this.editExistingImages.findIndex(img => img.isThumbnail);
+                        if (thumbnailIdx !== -1) {
+                            this.editThumbnailIndex = thumbnailIdx;
+                        }
+                    }
+                },
+
+                formatRupiah(amount) {
+                    if (!amount) return '';
+                    const num = typeof amount === 'string' ?
+                        Number(amount.replace(/[^\d]/g, '')) :
+                        Number(amount);
+
+                    if (isNaN(num)) return '';
+
+                    return new Intl.NumberFormat('id-ID', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    }).format(num);
+                },
+
+                updateDailyPrice(value) {
+                    const numericValue = value.replace(/[^\d]/g, '');
+                    this.dailyPrice = numericValue ? parseInt(numericValue, 10) : 0;
+
+                    if (this.dailyPrice > 0) {
+                        this.dailyPriceFormatted = this.formatRupiah(this.dailyPrice.toString());
+                    } else {
+                        this.dailyPriceFormatted = '';
+                    }
+                },
+
+                updateMonthlyPrice(value) {
+                    const numericValue = value.replace(/[^\d]/g, '');
+                    this.monthlyPrice = numericValue ? parseInt(numericValue, 10) : 0;
+
+                    if (this.monthlyPrice > 0) {
+                        this.monthlyPriceFormatted = this.formatRupiah(this.monthlyPrice.toString());
+                    } else {
+                        this.monthlyPriceFormatted = '';
+                    }
+                },
+
+                onPriceTypeChange(type) {
+                    this.selectedPriceType = type;
+
+                    if (type === 'daily') {
+                        this.priceTypes.daily = true;
+                        this.priceTypes.monthly = false;
+                        this.monthlyPrice = 0;
+                        this.monthlyPriceFormatted = '';
+                    } else if (type === 'monthly') {
+                        this.priceTypes.daily = false;
+                        this.priceTypes.monthly = true;
+                        this.dailyPrice = 0;
+                        this.dailyPriceFormatted = '';
+                    }
+                },
+
+                async validateEditStep(step) {
+                    try {
+                        this.clearFormErrors();
+                        let isValid = false;
+
+                        switch (step) {
+                            case 1:
+                                isValid = await this.validateStep1();
+                                break;
+                            case 2:
+                                isValid = this.validateStep2();
+                                break;
+                            case 3:
+                                isValid = true;
+                                break;
+                            case 4:
+                                isValid = this.validateStep4();
+                                break;
+                            default:
+                                throw new Error('Step tidak valid: ' + step);
+                        }
+
+                        if (!isValid) {
+                            this.highlightErrorFields();
+                        }
+
+                        return isValid;
                     } catch (error) {
-                        this.showErrorAlert('Terjadi kesalahan saat kembali ke step sebelumnya: ' +
-                            error.message);
+                        this.showErrorAlert('Terjadi kesalahan saat validasi: ' + error.message);
+                        return false;
+                    }
+                },
+
+                async validateStep1() {
+                    try {
+                        const requiredFields = [
+                            { id: 'edit_room_no', name: 'Nomor Kamar', value: this.roomData.room_no },
+                            { id: 'edit_room_name', name: 'Nama Kamar', value: this.roomData.room_name },
+                            { id: 'edit_room_bed', name: 'Jenis Tempat Tidur', value: this.roomData.room_bed },
+                            { id: 'edit_room_capacity', name: 'Kapasitas', value: this.roomData.room_capacity },
+                            { id: 'edit_description', name: 'Deskripsi', value: this.roomData.description }
+                        ];
+
+                        const missingFields = [];
+                        this.formErrors = {};
+
+                        requiredFields.forEach(field => {
+                            if (!field.value || field.value.toString().trim() === '') {
+                                this.formErrors[field.id] = `${field.name} harus diisi`;
+                                missingFields.push(field.name);
+                            }
+                        });
+
+                        if (missingFields.length > 0) {
+                            await this.showErrorAlert(
+                                `<strong>Field berikut harus diisi:</strong><br>${missingFields.map(field => '• ' + field).join('<br>')}`,
+                                'Data Belum Lengkap'
+                            );
+                            return false;
+                        }
+
+                        return true;
+                    } catch (error) {
+                        console.error('Validate step 1 error:', error);
+                        return false;
+                    }
+                },
+
+                validateStep2() {
+                    try {
+                        if (!this.selectedPriceType) {
+                            this.showErrorAlert('Pilih jenis periode (Harian atau Bulanan)', 'Jenis Periode Belum Dipilih');
+                            return false;
+                        }
+
+                        if (this.selectedPriceType === 'daily' && (!this.dailyPrice || this.dailyPrice <= 0)) {
+                            this.showErrorAlert('Harga harian harus diisi dan lebih dari 0', 'Harga Harian Tidak Valid');
+                            return false;
+                        }
+
+                        if (this.selectedPriceType === 'monthly' && (!this.monthlyPrice || this.monthlyPrice <= 0)) {
+                            this.showErrorAlert('Harga bulanan harus diisi dan lebih dari 0', 'Harga Bulanan Tidak Valid');
+                            return false;
+                        }
+
+                        return true;
+                    } catch (error) {
+                        this.showErrorAlert('Terjadi kesalahan validasi harga: ' + error.message);
+                        return false;
+                    }
+                },
+
+                clearFormErrors() {
+                    const errorFields = document.querySelectorAll('.border-red-500');
+                    errorFields.forEach(field => {
+                        field.classList.remove('border-red-500');
+                    });
+                    this.formErrors = {};
+                },
+
+                highlightErrorFields() {
+                    Object.keys(this.formErrors).forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.classList.add('border-red-500');
+                        }
+                    });
+                },
+
+                handleEditFileSelect(event) {
+                    const files = event.target.files;
+                    if (files) {
+                        this.processEditFiles(Array.from(files));
+                    }
+                    event.target.value = '';
+                },
+
+                handleEditDrop(event) {
+                    event.preventDefault();
+                    const files = event.dataTransfer.files;
+                    if (files) {
+                        this.processEditFiles(Array.from(files));
+                    }
+                },
+
+                processEditFiles(files) {
+                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+                    const maxSize = 5 * 1024 * 1024;
+
+                    for (const file of files) {
+                        if (this.editAllImages.length >= this.editMaxImages) {
+                            this.showErrorAlert(`Maksimal ${this.editMaxImages} foto yang dapat diupload`, 'Batas Foto Tercapai');
+                            break;
+                        }
+
+                        if (!validTypes.includes(file.type)) {
+                            this.showErrorAlert(`File ${file.name} bukan format gambar yang valid. Gunakan JPEG, PNG, atau WEBP.`, 'Format Tidak Valid');
+                            continue;
+                        }
+
+                        if (file.size > maxSize) {
+                            this.showErrorAlert(`File ${file.name} melebihi ukuran maksimal 5MB`, 'Ukuran File Terlalu Besar');
+                            continue;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.editNewImages.push({
+                                id: `new_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                                url: e.target.result,
+                                file: file,
+                                isExisting: false
+                            });
+
+                            if (this.editThumbnailIndex === null && this.editAllImages.length === 1) {
+                                this.editThumbnailIndex = 0;
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+
+                setEditThumbnail(index) {
+                    this.editThumbnailIndex = index;
+                },
+
+                removeEditImage(index, event) {
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    const image = this.editAllImages[index];
+
+                    if (image.isExisting) {
+                        this.editDeletedImageIds.push(image.id);
+                        this.editExistingImages = this.editExistingImages.filter(img => img.id !== image.id);
+                    } else {
+                        const newIndex = index - this.editExistingImages.length;
+                        this.editNewImages.splice(newIndex, 1);
+                    }
+
+                    if (this.editThumbnailIndex === index) {
+                        this.editThumbnailIndex = this.editAllImages.length > 0 ? 0 : null;
+                    } else if (this.editThumbnailIndex > index) {
+                        this.editThumbnailIndex--;
+                    }
+                },
+
+                validateStep4() {
+                    if (this.editAllImages.length < 3) {
+                        this.showErrorAlert('Minimal 3 foto harus diupload', 'Foto Belum Lengkap');
+                        return false;
+                    }
+
+                    if (this.editThumbnailIndex === null) {
+                        this.showErrorAlert('Silakan pilih satu foto sebagai thumbnail', 'Thumbnail Belum Dipilih');
+                        return false;
+                    }
+
+                    return true;
+                },
+
+                showErrorAlert(message, title = 'Error') {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: title,
+                            html: typeof message === 'string' ? message.replace(/\n/g, '<br>') : message,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#dc2626',
+                        });
+                    } else {
+                        alert(title + ': ' + message);
+                    }
+                },
+
+                showSuccessAlert(message, title = 'Sukses') {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: title,
+                            text: message,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#059669',
+                        });
+                    } else {
+                        alert(title + ': ' + message);
+                    }
+                },
+
+                showLoadingAlert(title = 'Memproses...') {
+                    if (typeof Swal !== 'undefined') {
+                        return Swal.fire({
+                            title: title,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    }
+                },
+
+                async submitEditForm() {
+                    let submitBtn = null;
+                    let originalBtnContent = null;
+
+                    try {
+                        if (!await this.validateStep1() || !this.validateStep2() || !this.validateStep4()) {
+                            return;
+                        }
+
+                        this.isLoading = true;
+                        submitBtn = document.querySelector('#roomEditForm button[type="submit"]');
+
+                        if (submitBtn) {
+                            originalBtnContent = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = `
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Memperbarui Data...
+                            `;
+                        }
+
+                        const loadingAlert = this.showLoadingAlert('Memperbarui data kamar...');
+
+                        const form = document.getElementById('roomEditForm');
+                        const formData = new FormData(form);
+
+                        formData.delete('general_facilities[]');
+                        formData.delete('daily_price');
+                        formData.delete('monthly_price');
+                        formData.delete('room_images[]');
+
+                        this.selectedFacilities.forEach(facilityId => {
+                            formData.append('general_facilities[]', facilityId);
+                        });
+
+                        const periode = {
+                            daily: this.selectedPriceType === 'daily',
+                            monthly: this.selectedPriceType === 'monthly'
+                        };
+
+                        formData.append('periode', JSON.stringify(periode));
+
+                        if (this.selectedPriceType === 'daily') {
+                            formData.append('daily_price', this.dailyPrice.toString());
+                            formData.append('monthly_price', '0');
+                        } else if (this.selectedPriceType === 'monthly') {
+                            formData.append('daily_price', '0');
+                            formData.append('monthly_price', this.monthlyPrice.toString());
+                        }
+
+                        this.editExistingImages.forEach(img => {
+                            formData.append('existing_images[]', img.id);
+                        });
+
+                        this.editNewImages.forEach(img => {
+                            if (img.file) {
+                                formData.append('room_images[]', img.file);
+                            }
+                        });
+
+                        this.editDeletedImageIds.forEach(id => {
+                            formData.append('delete_images[]', id);
+                        });
+
+                        formData.append('thumbnail_index', this.editThumbnailIndex.toString());
+
+                        const response = await fetch(this.editFormAction, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+                            Swal.close();
+                        }
+
+                        if (!response.ok) {
+                            let errorMessage = 'Gagal memperbarui data';
+
+                            try {
+                                const data = await response.json();
+
+                                if (data.errors) {
+                                    if (typeof data.errors === 'object') {
+                                        errorMessage = Object.entries(data.errors)
+                                            .map(([field, errors]) =>
+                                                `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`
+                                            )
+                                            .join('\n');
+                                    } else {
+                                        errorMessage = JSON.stringify(data.errors);
+                                    }
+                                } else if (data.message) {
+                                    errorMessage = data.message;
+                                }
+                            } catch (e) {
+                                console.error('Response parsing error:', e);
+                                errorMessage = `Error ${response.status}: ${response.statusText}`;
+                            }
+
+                            throw new Error(errorMessage);
+                        }
+
+                        const data = await response.json();
+
+                        await this.showSuccessAlert(
+                            data.message || 'Kamar berhasil diperbarui!',
+                            'Berhasil'
+                        );
+
+                        this.editModalOpen = false;
+
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else if (window.Livewire) {
+                            Livewire.dispatch('room-updated');
+                        } else if (typeof reloadRoomsTable === 'function') {
+                            reloadRoomsTable();
+                        } else {
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+
+                    } catch (error) {
+                        console.error('Edit Submission Error:', error);
+
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnContent || `
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Update
+                            `;
+                        }
+
+                        await this.showErrorAlert(
+                            error.message || 'Terjadi kesalahan saat memperbarui data',
+                            'Gagal Memperbarui'
+                        );
+
+                    } finally {
+                        this.isLoading = false;
                     }
                 }
             }));
         });
 
-        document.getElementById('room_bed').addEventListener('change', function() {
-            const bed = this.value;
-            const capacityField = document.getElementById('room_capacity');
+        // Kapasitas (Pax) is now manual input - auto-fill functionality removed
+        // document.getElementById('room_bed').addEventListener('change', function() {
+        //     const bed = this.value;
+        //     const capacityField = document.getElementById('room_capacity');
 
-            if (bed === "Single") {
-                capacityField.value = 1;
-                capacityField.readOnly = true;
-            } else if (bed === "Twin" || bed === "Double" || bed === "Queen" || bed === "King") {
-                capacityField.value = 2;
-                capacityField.readOnly = true;
-            } else {
-                capacityField.value = "";
-                capacityField.readOnly = false;
-            }
-        });
+        //     if (bed === "Single") {
+        //         capacityField.value = 1;
+        //         capacityField.readOnly = true;
+        //     } else if (bed === "Twin" || bed === "Double" || bed === "Queen" || bed === "King") {
+        //         capacityField.value = 2;
+        //         capacityField.readOnly = true;
+        //     } else {
+        //         capacityField.value = "";
+        //         capacityField.readOnly = false;
+        //     }
+        // });
 
         function toggleStatus(checkbox) {
             const propertyId = checkbox.getAttribute('data-id');
@@ -1669,16 +2266,19 @@
                     fetch(`/properties/rooms/${id}/destroy`, {
                             method: 'DELETE',
                             headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
                                 'Content-Type': 'application/json',
+                                'Accept': 'application/json',
                             },
                         })
-                        .then(response => {
-                            if (!response.ok) throw new Error('Gagal menghapus data');
-                            return response.json();
+                        .then(async response => {
+                            const data = await response.json();
+                            if (!response.ok) {
+                                throw new Error(data.message || 'Gagal menghapus data');
+                            }
+                            return data;
                         })
                         .then(data => {
-                            // Notifikasi sukses
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
@@ -1686,7 +2286,6 @@
                                 timer: 2000,
                                 showConfirmButton: false
                             }).then(() => {
-                                // Reload table only, no full page refresh
                                 if (typeof reloadRoomsTable === 'function') {
                                     reloadRoomsTable();
                                 } else {
@@ -1696,11 +2295,10 @@
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            // Notifikasi error
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Oops...',
-                                text: 'Terjadi kesalahan saat menghapus!',
+                                text: error.message || 'Terjadi kesalahan saat menghapus!',
                             });
                         });
                 }

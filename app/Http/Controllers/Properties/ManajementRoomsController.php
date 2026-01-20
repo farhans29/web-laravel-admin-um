@@ -111,6 +111,16 @@ class ManajementRoomsController extends Controller
         DB::beginTransaction();
 
         try {
+            // **DEBUG: Log semua input yang diterima**
+            \Log::info('Store Room Request Data:', [
+                'all_request' => $request->all(),
+                'files_count' => $request->hasFile('room_images') ? count($request->file('room_images')) : 0,
+                'price_type' => $request->input('price_type'),
+                'daily_price' => $request->input('daily_price'),
+                'monthly_price' => $request->input('monthly_price'),
+                'general_facilities' => $request->input('general_facilities', []),
+            ]);
+
             // Validasi input
             $validator = Validator::make($request->all(), [
                 'property_id' => 'required|numeric|exists:m_properties,idrec',
@@ -120,9 +130,11 @@ class ManajementRoomsController extends Controller
                 'room_bed' => 'required|string|in:Single,Double,King,Queen,Twin',
                 'room_capacity' => 'required|numeric|min:1',
                 'description_id' => 'required|string',
-                'daily_price' => 'nullable|numeric|min:0',
-                'monthly_price' => 'nullable|numeric|min:0',
-                'facilities' => 'nullable|array',
+                'price_type' => 'required|string|in:daily,monthly', // Tambahkan validasi price_type
+                'daily_price' => 'required_if:price_type,daily|nullable|numeric|min:0',
+                'monthly_price' => 'required_if:price_type,monthly|nullable|numeric|min:0',
+                'general_facilities' => 'nullable|array',
+                'general_facilities.*' => 'numeric', // Ubah dari string ke numeric karena value adalah idrec
                 'room_images' => 'required|array|min:3|max:5',
                 'room_images.*' => [
                     'image',
@@ -140,8 +152,6 @@ class ManajementRoomsController extends Controller
                         }
                     }
                 ],
-                'general_facilities' => 'nullable|array',
-                'general_facilities.*' => 'string',
                 'thumbnail_index' => 'required|integer|min:0',
             ], [
                 'property_id.required' => 'Properti harus dipilih',
@@ -151,6 +161,9 @@ class ManajementRoomsController extends Controller
                 'room_bed.required' => 'Jenis tempat tidur harus dipilih',
                 'room_capacity.required' => 'Kapasitas kamar harus diisi',
                 'description_id.required' => 'Deskripsi kamar harus diisi',
+                'price_type.required' => 'Jenis harga harus dipilih',
+                'daily_price.required_if' => 'Harga harian harus diisi ketika memilih harga harian',
+                'monthly_price.required_if' => 'Harga bulanan harus diisi ketika memilih harga bulanan',
                 'room_images.required' => 'Foto kamar harus diupload',
                 'room_images.min' => 'Minimal :min foto harus diupload',
                 'room_images.max' => 'Maksimal :max foto yang dapat diupload',
@@ -161,6 +174,7 @@ class ManajementRoomsController extends Controller
             ]);
 
             if ($validator->fails()) {
+                \Log::error('Validation failed:', $validator->errors()->toArray());
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Validasi gagal',
@@ -171,24 +185,27 @@ class ManajementRoomsController extends Controller
             $validated = $validator->validated();
 
             // Validasi tambahan untuk ukuran file
-            foreach ($request->file('room_images') as $image) {
-                if ($image->getSize() > 5 * 1024 * 1024) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Validasi file gagal',
-                        'errors' => [
-                            'room_images' => ['File ' . $image->getClientOriginalName() . ' melebihi ukuran maksimal 5MB.']
-                        ]
-                    ], 422);
+            if ($request->hasFile('room_images')) {
+                foreach ($request->file('room_images') as $image) {
+                    if ($image->getSize() > 5 * 1024 * 1024) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Validasi file gagal',
+                            'errors' => [
+                                'room_images' => ['File ' . $image->getClientOriginalName() . ' melebihi ukuran maksimal 5MB.']
+                            ]
+                        ], 422);
+                    }
                 }
             }
 
             // Get property data
             $property = Property::findOrFail($validated['property_id']);
 
-            // Check for duplicate room number
+            // Validasi duplikasi nomor kamar
             $existingRoom = Room::where('property_id', $validated['property_id'])
                 ->where('no', $validated['room_no'])
+                ->whereNull('deleted_at')
                 ->first();
 
             if ($existingRoom) {
@@ -203,7 +220,7 @@ class ManajementRoomsController extends Controller
 
             $facilityData = $request->input('general_facilities', []);
 
-            // Generate ID and unique slug
+            // Generate ID dan slug
             $idrec = Room::max('idrec') + 1;
             $tagShort = strtolower(substr($property->tags, 0, 3));
             $nameShort = strtolower(collect(explode(' ', $validated['room_name']))->map(fn($w) => substr($w, 0, 1))->implode(''));
@@ -213,34 +230,51 @@ class ManajementRoomsController extends Controller
             $imagePaths = [];
             $thumbnailIndex = $request->thumbnail_index;
 
-            foreach ($request->file('room_images') as $index => $file) {
-                if (!$file->isValid()) {
-                    throw new \Exception('File ' . $file->getClientOriginalName() . ' tidak valid.');
+            if ($request->hasFile('room_images')) {
+                foreach ($request->file('room_images') as $index => $file) {
+                    if (!$file->isValid()) {
+                        throw new \Exception('File ' . $file->getClientOriginalName() . ' tidak valid.');
+                    }
+
+                    // Generate unique filename
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = 'room_' . $idrec . '_' . time() . '_' . $index . '.' . $extension;
+
+                    // Store image
+                    $path = $file->storeAs('room_images', $filename, 'public');
+
+                    $imagePaths[] = [
+                        'filename' => $path,
+                        'thumbnail' => ($index == $thumbnailIndex),
+                        'original_name' => $file->getClientOriginalName()
+                    ];
                 }
-
-                // Generate unique filename
-                $extension = $file->getClientOriginalExtension();
-                $filename = 'room_' . $idrec . '_' . time() . '_' . $index . '.' . $extension;
-
-                // Store image
-                $path = $file->storeAs('room_images', $filename, 'public');
-
-                $imagePaths[] = [
-                    'filename' => $path,
-                    'thumbnail' => ($index == $thumbnailIndex),
-                    'original_name' => $file->getClientOriginalName()
-                ];
             }
 
-            // Determine price period
-            $periode = json_decode($request->price_types, true);
+            // **PERBAIKAN: Tentukan periode berdasarkan price_type yang dikirim dari frontend**
+            $priceType = $validated['price_type'];
+            $periode = [
+                'daily' => ($priceType === 'daily') ? 1 : 0,
+                'monthly' => ($priceType === 'monthly') ? 1 : 0
+            ];
 
-            if (!isset($periode['daily']) && !isset($periode['monthly'])) {
-                throw new \Exception('Minimal satu jenis harga harus dipilih.');
-            }
+            $periode_daily = $periode['daily'];
+            $periode_monthly = $periode['monthly'];
 
-            $periode_daily = $periode['daily'] ? 1 : 0;
-            $periode_monthly = $periode['monthly'] ? 1 : 0;
+            // Tentukan harga berdasarkan jenis
+            $dailyPrice = $priceType === 'daily' ? ($validated['daily_price'] ?? 0) : 0;
+            $monthlyPrice = $priceType === 'monthly' ? ($validated['monthly_price'] ?? 0) : 0;
+
+            // Harga utama untuk field price
+            $mainPrice = $priceType === 'daily' ? $dailyPrice : $monthlyPrice;
+
+            \Log::info('Price Calculation:', [
+                'price_type' => $priceType,
+                'daily_price' => $dailyPrice,
+                'monthly_price' => $monthlyPrice,
+                'main_price' => $mainPrice,
+                'periode' => $periode
+            ]);
 
             // Save to rooms table
             $room = new Room();
@@ -254,20 +288,27 @@ class ManajementRoomsController extends Controller
             $room->size = $validated['room_size'];
             $room->bed_type = $validated['room_bed'];
             $room->capacity = $validated['room_capacity'];
-            $room->periode = $periode;
+            $room->periode = $periode; // Simpan sebagai array JSON
             $room->periode_daily = $periode_daily;
             $room->periode_monthly = $periode_monthly;
             $room->type = $property->type;
             $room->level = 1;
-            $room->facility = $facilityData;
-            $room->price = $validated['daily_price'] ?? $validated['monthly_price'] ?? 0;
+            $room->facility = $facilityData; // Simpan sebagai array
+            $room->price = $mainPrice; // Harga utama berdasarkan jenis
             $room->discount_percent = 0;
-            $room->price_original_daily = $validated['daily_price'] ?? 0;
-            $room->price_original_monthly = $validated['monthly_price'] ?? 0;
+            $room->price_original_daily = $dailyPrice;
+            $room->price_original_monthly = $monthlyPrice;
             $room->created_by = Auth::id();
             $room->status = 1;
             $room->created_at = now();
             $room->save();
+
+            \Log::info('Room saved:', [
+                'id' => $room->idrec,
+                'price' => $room->price,
+                'daily_price' => $room->price_original_daily,
+                'monthly_price' => $room->price_original_monthly
+            ]);
 
             // Save to room_images table
             foreach ($imagePaths as $index => $imageData) {
@@ -276,23 +317,23 @@ class ManajementRoomsController extends Controller
                 $image->image = $imageData['filename'];
                 $image->thumbnail = $imageData['thumbnail'] ? 1 : 0;
                 $image->caption = $imageData['original_name'] ?? 'No caption';
-                $image->created_by = Auth::user()->id;
+                $image->created_by = Auth::id();
                 $image->created_at = now();
                 $image->save();
             }
 
-            // Generate daily prices if daily price is set
-            if ($periode['daily'] && isset($validated['daily_price'])) {
+            // Generate daily prices jika memilih harga harian
+            if ($priceType === 'daily' && $dailyPrice > 0) {
                 $startDate = Carbon::now();
                 $endDate = $startDate->copy()->addYear();
-                $dailyPrice = $validated['daily_price'];
+                $dailyPriceValue = $dailyPrice;
 
                 $priceInserts = [];
                 while ($startDate->lessThan($endDate)) {
                     $priceInserts[] = [
                         'room_id' => $idrec,
                         'date' => $startDate->format('Y-m-d'),
-                        'price' => $dailyPrice,
+                        'price' => $dailyPriceValue,
                         'created_at' => now(),
                         'created_by' => Auth::id(),
                         'status' => '1',
@@ -313,13 +354,23 @@ class ManajementRoomsController extends Controller
 
             DB::commit();
 
+            \Log::info('Room created successfully:', ['room_id' => $idrec]);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Ruangan berhasil dibuat!',
-                'data' => $room
+                'data' => [
+                    'id' => $room->idrec,
+                    'room_no' => $room->no,
+                    'name' => $room->name,
+                    'price' => $room->price,
+                    'price_type' => $priceType
+                ],
+                'redirect' => route('rooms.index') // Sesuaikan dengan route Anda
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
+            \Log::error('Validation Exception:', $e->errors());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validasi gagal',
@@ -327,8 +378,9 @@ class ManajementRoomsController extends Controller
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Room creation error: ' . $e->getMessage(), [
+            \Log::error('Room creation error: ' . $e->getMessage(), [
                 'exception' => $e,
+                'trace' => $e->getTraceAsString(),
                 'request_data' => $request->except(['room_images'])
             ]);
 
@@ -349,7 +401,7 @@ class ManajementRoomsController extends Controller
         // Cek exist tapi hanya yang belum di-soft delete (deleted_at = null)
         $exists = Room::where('property_id', $request->property_id)
             ->where('no', $request->room_no)
-            ->whereNull('deleted_at')  // tambahkan ini
+            ->whereNull('deleted_at')
             ->exists();
 
         return response()->json([
@@ -363,26 +415,71 @@ class ManajementRoomsController extends Controller
 
     public function update(Request $request, $idrec)
     {
-        // Validate input
-        $validated = $request->validate([
+        // Log request data untuk debugging
+        Log::info('Update Room Request:', [
+            'idrec' => $idrec,
+            'all_data' => $request->except(['room_images']),
+        ]);
+
+        // Validate input - accept field names from the edit modal form
+        $validator = Validator::make($request->all(), [
             'property_id' => 'required|numeric|exists:m_properties,idrec',
-            'number' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'size' => 'required|numeric|min:0',
-            'bed' => 'required|string|in:Single,Double,King,Queen,Twin',
-            'capacity' => 'required|numeric|min:1',
+            'room_no' => 'required|string|max:255',
+            'room_name' => 'required|string|max:255',
+            'room_bed' => 'required|string|in:Single,Double,King,Queen,Twin',
+            'room_capacity' => 'required|numeric|min:1',
             'description' => 'required|string',
             'daily_price' => 'nullable|numeric|min:0',
             'monthly_price' => 'nullable|numeric|min:0',
-            'facilities' => 'nullable|string',
-            'room_images' => 'nullable|array|min:0|max:10',
-            'room_images.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+            'general_facilities' => 'nullable|array',
+            'general_facilities.*' => 'numeric',
+            'periode' => 'nullable|string',
+            'room_images' => 'nullable|array|max:5',
+            'room_images.*' => [
+                'image',
+                'mimes:jpeg,png,jpg,gif,webp',
+                'max:5120',
+                function ($attribute, $value, $fail) {
+                    $extension = strtolower($value->getClientOriginalExtension());
+                    $mimeType = strtolower($value->getMimeType());
+
+                    $heicExtensions = ['heic', 'heif'];
+                    $heicMimeTypes = ['image/heic', 'image/heif'];
+
+                    if (in_array($extension, $heicExtensions) || in_array($mimeType, $heicMimeTypes)) {
+                        $fail('Format HEIC/HEIF tidak didukung. Silakan gunakan JPEG, PNG, atau format gambar lainnya.');
+                    }
+                }
+            ],
             'thumbnail_index' => 'required|integer|min:0',
             'delete_images' => 'nullable|array',
             'delete_images.*' => 'integer',
-            'existing_images' => 'nullable|array', // Add validation for existing images
-            'existing_images.*' => 'integer', // Each should be integer (image ID)
+            'existing_images' => 'nullable|array',
+            'existing_images.*' => 'integer',
+        ], [
+            'property_id.required' => 'Properti harus dipilih',
+            'room_no.required' => 'Nomor kamar harus diisi',
+            'room_name.required' => 'Nama kamar harus diisi',
+            'room_bed.required' => 'Jenis tempat tidur harus dipilih',
+            'room_capacity.required' => 'Kapasitas kamar harus diisi',
+            'description.required' => 'Deskripsi kamar harus diisi',
+            'room_images.max' => 'Maksimal :max foto yang dapat diupload',
+            'room_images.*.image' => 'File harus berupa gambar',
+            'room_images.*.mimes' => 'Format gambar harus: jpeg, png, jpg, gif, webp',
+            'room_images.*.max' => 'Ukuran gambar maksimal :max KB',
+            'thumbnail_index.required' => 'Thumbnail harus dipilih',
         ]);
+
+        if ($validator->fails()) {
+            Log::error('Update validation failed:', $validator->errors()->toArray());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         // Begin database transaction
         DB::beginTransaction();
@@ -392,47 +489,102 @@ class ManajementRoomsController extends Controller
             $room = Room::findOrFail($idrec);
             $property = Property::findOrFail($validated['property_id']);
 
-            // Prepare facility data
-            $facilitiesArray = [];
-            if (!empty($validated['facilities'])) {
+            // Calculate total images after update
+            $existingImagesCount = count($validated['existing_images'] ?? []);
+            $newImagesCount = $request->hasFile('room_images') ? count($request->file('room_images')) : 0;
+            $totalImages = $existingImagesCount + $newImagesCount;
+
+            // Validate minimum 3 images
+            if ($totalImages < 3) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validasi gagal',
+                    'errors' => [
+                        'room_images' => ['Minimal 3 foto harus ada. Saat ini hanya ada ' . $totalImages . ' foto.']
+                    ]
+                ], 422);
+            }
+
+            // Validate maximum 5 images
+            if ($totalImages > 5) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validasi gagal',
+                    'errors' => [
+                        'room_images' => ['Maksimal 5 foto yang dapat diupload. Saat ini ada ' . $totalImages . ' foto.']
+                    ]
+                ], 422);
+            }
+
+            // Prepare facility data - now received as array from general_facilities[]
+            $facilitiesArray = $validated['general_facilities'] ?? [];
+
+            // Parse periode from JSON string if provided
+            $periodeData = [];
+            if (!empty($validated['periode'])) {
                 try {
-                    $facilitiesArray = json_decode($validated['facilities'], true);
-                    if (!is_array($facilitiesArray)) {
-                        $facilitiesArray = [];
-                    }
+                    $periodeData = json_decode($validated['periode'], true);
                 } catch (\Exception $e) {
-                    $facilitiesArray = [];
+                    $periodeData = [];
                 }
             }
 
+            // Determine periode based on price values or periode data
+            $hasDailyPrice = !empty($validated['daily_price']) && $validated['daily_price'] > 0;
+            $hasMonthlyPrice = !empty($validated['monthly_price']) && $validated['monthly_price'] > 0;
+
+            // Use periode data from form if available, otherwise infer from prices
+            $periodeDaily = $periodeData['daily'] ?? $hasDailyPrice;
+            $periodeMonthly = $periodeData['monthly'] ?? $hasMonthlyPrice;
+
             // Generate new slug
-            $tagShort = strtolower(substr($property->tags, 0, 3));
-            $nameShort = strtolower(collect(explode(' ', $validated['name']))
+            $tagShort = strtolower(substr($property->tags ?? '', 0, 3));
+            $nameShort = strtolower(collect(explode(' ', $validated['room_name']))
                 ->map(fn($w) => substr($w, 0, 1))
                 ->implode(''));
             $slug = $tagShort . '_' . $nameShort . '_' . $idrec;
+
+            // Get daily and monthly prices
+            $dailyPrice = $validated['daily_price'] ?? 0;
+            $monthlyPrice = $validated['monthly_price'] ?? 0;
+
+            // Determine main price
+            $mainPrice = $dailyPrice > 0 ? $dailyPrice : $monthlyPrice;
+
+            Log::info('Update Room Data:', [
+                'room_no' => $validated['room_no'],
+                'room_name' => $validated['room_name'],
+                'daily_price' => $dailyPrice,
+                'monthly_price' => $monthlyPrice,
+                'facilities' => $facilitiesArray,
+                'periode_daily' => $periodeDaily,
+                'periode_monthly' => $periodeMonthly,
+            ]);
 
             // Update room data
             $room->update([
                 'property_id' => $validated['property_id'],
                 'property_name' => $property->name,
                 'slug' => $slug,
-                'no' => $validated['number'],
-                'name' => $validated['name'],
+                'no' => $validated['room_no'],
+                'name' => $validated['room_name'],
                 'descriptions' => $validated['description'],
-                'size' => $validated['size'],
-                'bed_type' => $validated['bed'],
-                'capacity' => $validated['capacity'],
+                'size' => $room->size ?? 0, // Keep existing size or default to 0
+                'bed_type' => $validated['room_bed'],
+                'capacity' => $validated['room_capacity'],
                 'periode' => json_encode([
-                    'daily' => !empty($validated['daily_price']),
-                    'monthly' => !empty($validated['monthly_price'])
+                    'daily' => $periodeDaily,
+                    'monthly' => $periodeMonthly
                 ]),
+                'periode_daily' => $periodeDaily ? 1 : 0,
+                'periode_monthly' => $periodeMonthly ? 1 : 0,
                 'type' => $property->type,
                 'level' => 1,
                 'facility' => $facilitiesArray,
-                'price' => $validated['daily_price'] ?? $validated['monthly_price'] ?? 0,
-                'price_original_daily' => $validated['daily_price'] ?? 0,
-                'price_original_monthly' => $validated['monthly_price'] ?? 0,
+                'price' => $mainPrice,
+                'price_original_daily' => $dailyPrice,
+                'price_original_monthly' => $monthlyPrice,
+                'updated_by' => Auth::id(),
                 'updated_at' => now(),
             ]);
 
@@ -489,18 +641,26 @@ class ManajementRoomsController extends Controller
             }
 
             // Determine and set the thumbnail
-            $thumbnailIndex = $validated['thumbnail_index'];
+            $thumbnailIndex = $validated['thumbnail_index'] ?? null;
             $totalImagesBeforeNew = $existingImages->count();
 
-            if ($thumbnailIndex < $totalImagesBeforeNew) {
-                // Thumbnail is an existing image
-                $existingImages[$thumbnailIndex]->update(['thumbnail' => true]);
+            if ($thumbnailIndex !== null) {
+                if ($thumbnailIndex < $totalImagesBeforeNew) {
+                    // Thumbnail is an existing image
+                    $existingImages[$thumbnailIndex]->update(['thumbnail' => true]);
+                } else {
+                    // Thumbnail is a new image
+                    $newImageIndex = $thumbnailIndex - $totalImagesBeforeNew;
+                    if (isset($newImageIds[$newImageIndex])) {
+                        MRoomImage::where('idrec', $newImageIds[$newImageIndex])
+                            ->update(['thumbnail' => true]);
+                    }
+                }
             } else {
-                // Thumbnail is a new image
-                $newImageIndex = $thumbnailIndex - $totalImagesBeforeNew;
-                if (isset($newImageIds[$newImageIndex])) {
-                    MRoomImage::where('idrec', $newImageIds[$newImageIndex])
-                        ->update(['thumbnail' => true]);
+                // No thumbnail specified, set first existing image as thumbnail if available
+                $firstImage = MRoomImage::where('room_id', $idrec)->first();
+                if ($firstImage) {
+                    $firstImage->update(['thumbnail' => true]);
                 }
             }
 
@@ -509,18 +669,18 @@ class ManajementRoomsController extends Controller
             // Delete all existing prices first
             RoomPrices::where('room_id', $idrec)->delete();
 
-            // Only create daily prices if daily is selected and price > 0
-            if (!empty($validated['daily_price'])) {
+            // Only create daily prices if daily periode is selected and price > 0
+            if ($periodeDaily && $dailyPrice > 0) {
                 $startDate = Carbon::now();
                 $endDate = $startDate->copy()->addYear();
-                $dailyPrice = $validated['daily_price'];
+                $dailyPriceValue = $dailyPrice;
 
                 $priceInserts = [];
                 while ($startDate->lessThan($endDate)) {
                     $priceInserts[] = [
                         'room_id' => $idrec,
                         'date' => $startDate->format('Y-m-d'),
-                        'price' => $dailyPrice,
+                        'price' => $dailyPriceValue,
                         'created_at' => now(),
                         'created_by' => Auth::id(),
                         'status' => '1',
@@ -544,22 +704,39 @@ class ManajementRoomsController extends Controller
             // Commit transaction
             DB::commit();
 
-            return $request->wantsJson()
-                ? response()->json([
-                    'status' => 'success',
-                    'message' => 'Room updated successfully!',
-                    'data' => $room
-                ], 200)
-                : redirect()->route('rooms.index')->with('success', 'Room updated successfully!');
+            Log::info('Room updated successfully:', ['room_id' => $idrec]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Kamar berhasil diperbarui!',
+                'data' => [
+                    'id' => $room->idrec,
+                    'room_no' => $room->no,
+                    'name' => $room->name,
+                    'price' => $room->price,
+                ],
+                'redirect' => route('rooms.index')
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            Log::error('Validation Exception:', $e->errors());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Room update error: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['room_images'])
+            ]);
 
-            return $request->wantsJson()
-                ? response()->json([
-                    'status' => 'error',
-                    'message' => 'Failed to update room: ' . $e->getMessage()
-                ], 500)
-                : back()->with('error', 'Failed to update room: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -675,13 +852,34 @@ class ManajementRoomsController extends Controller
     {
         try {
             $room = Room::findOrFail($idrec);
-            $room->status = '2';         
-            $room->deleted_at = now();   
-            $room->save();
 
-            return response()->json(['message' => 'Room deleted successfully.'], 200);
+            $room->update([
+                'status' => '2',
+                'deleted_at' => now(),
+                'updated_by' => Auth::id(),
+            ]);
+
+            Log::info('Room deleted successfully', ['room_id' => $idrec]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Kamar berhasil dihapus!'
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Room not found for deletion', ['room_id' => $idrec]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kamar tidak ditemukan.'
+            ], 404);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete room.'], 500);
+            Log::error('Room deletion error: ' . $e->getMessage(), [
+                'room_id' => $idrec,
+                'exception' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus kamar: ' . $e->getMessage()
+            ], 500);
         }
     }
 

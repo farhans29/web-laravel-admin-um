@@ -19,11 +19,18 @@
                     </h1>
                     <p class="text-gray-600 mt-1">Manage conversations with customers about their bookings</p>
                 </div>
+            </div>
 
-                <div x-show="showChatWindow && currentConversation">
-                    <h1 class="text-2xl font-bold text-gray-900" x-text="currentConversation?.title || 'Chat'"></h1>
-                    <p class="text-sm text-gray-600" x-text="'Order ID: ' + currentConversation?.order_id"></p>
-                </div>
+            <!-- Start Chat Button -->
+            <div x-show="!showChatWindow">
+                <button onclick="openCheckedInModal()"
+                    class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Start Chat with Checked-In User
+                </button>
             </div>
         </div>
 
@@ -94,6 +101,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Include Checked-In Users Modal -->
+    @include('pages.chat.partials.checked-in-users-modal')
 
     <script>
         function chatManager() {
@@ -173,21 +183,47 @@
 
                             <!-- Message Input -->
                             <div class="border-t border-gray-200 bg-white p-4">
-                                <form onsubmit="sendMessage(event, ${conversation.id})" class="flex items-end space-x-3">
-                                    <div class="flex-1">
-                                        <textarea id="messageInput" rows="2" placeholder="Type your message..."
-                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                                            required></textarea>
+                                <form id="messageForm_${conversation.id}" onsubmit="sendMessage(event, ${conversation.id})" class="space-y-3">
+                                    <!-- Image Preview Container -->
+                                    <div id="imagePreview_${conversation.id}" class="hidden">
+                                        <div class="relative inline-block">
+                                            <img id="previewImg_${conversation.id}" src="" alt="Preview" class="max-h-32 rounded-lg border border-gray-300">
+                                            <button type="button" onclick="clearImagePreview(${conversation.id})"
+                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button type="submit"
-                                        class="inline-flex items-center px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                        </svg>
-                                        Send
-                                    </button>
+
+                                    <div class="flex items-end space-x-3">
+                                        <div class="flex-1">
+                                            <textarea id="messageInput_${conversation.id}" rows="2" placeholder="Type your message..."
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none min-h-[46px]"></textarea>
+                                        </div>
+
+                                        <!-- Image Upload Button -->
+                                        <input type="file" id="imageInput_${conversation.id}" accept="image/jpeg,image/png,image/jpg"
+                                            class="hidden" onchange="handleImageSelect(event, ${conversation.id})">
+                                        <button type="button" onclick="document.getElementById('imageInput_${conversation.id}').click()"
+                                            class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors h-[46px]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </button>
+
+                                        <button type="submit"
+                                            class="inline-flex items-center px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors h-[46px]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                            </svg>
+                                            Send
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -227,8 +263,40 @@
                             ? 'from-blue-500 to-indigo-600 ml-3'
                             : 'from-gray-400 to-gray-600 mr-3';
 
+                        // Render attachments (images)
+                        let attachmentHtml = '';
+                        if (message.attachments && message.attachments.length > 0) {
+                            attachmentHtml = message.attachments.map(att => {
+                                if (att.file_type && att.file_type.startsWith('image/')) {
+                                    const fileUrl = att.file_url || '/storage/' + att.file_path;
+                                    return `
+                                        <div class="mt-2">
+                                            <a href="${fileUrl}" target="_blank">
+                                                <img src="${fileUrl}" alt="${att.file_name || 'Image'}"
+                                                    class="max-w-xs rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
+                                            </a>
+                                        </div>
+                                    `;
+                                }
+                                return '';
+                            }).join('');
+                        }
+
+                        // Edit button (only for own text messages)
+                        const editButton = isOwn && message.message_type === 'text' ? `
+                            <button onclick="editMessage(${message.id}, '${this.escapeHtml(message.message_text).replace(/'/g, "\\'")}', ${message.conversation_id})"
+                                class="ml-2 text-xs ${isOwn ? 'text-blue-200 hover:text-white' : 'text-gray-500 hover:text-gray-700'} opacity-0 group-hover:opacity-100 transition-opacity">
+                                Edit
+                            </button>
+                        ` : '';
+
+                        // Edited indicator
+                        const editedIndicator = message.is_edited ? `
+                            <span class="text-xs ${isOwn ? 'text-blue-200' : 'text-gray-500'} ml-2">(edited)</span>
+                        ` : '';
+
                         return `
-                            <div class="flex ${alignmentClass} mb-4">
+                            <div class="flex ${alignmentClass} mb-4 group">
                                 <div class="flex items-start max-w-xl ${isOwn ? 'flex-row-reverse' : ''}">
                                     <div class="flex-shrink-0 ${isOwn ? 'ml-3' : 'mr-3'}">
                                         <div class="w-10 h-10 rounded-full bg-gradient-to-br ${avatarClass} flex items-center justify-center text-white font-semibold">
@@ -239,9 +307,12 @@
                                         <div class="flex items-center mb-1">
                                             <span class="text-sm font-medium text-gray-900">${message.sender?.name || 'Unknown'}</span>
                                             <span class="text-xs text-gray-500 ml-2">${this.formatDate(message.created_at)}</span>
+                                            ${editedIndicator}
+                                            ${editButton}
                                         </div>
-                                        <div class="rounded-lg px-4 py-2 ${bubbleClass}">
-                                            <p class="text-sm whitespace-pre-wrap">${this.escapeHtml(message.message_text)}</p>
+                                        <div class="rounded-lg px-4 py-2 ${bubbleClass}" id="message_${message.id}">
+                                            ${message.message_text ? `<p class="text-sm whitespace-pre-wrap">${this.escapeHtml(message.message_text)}</p>` : ''}
+                                            ${attachmentHtml}
                                         </div>
                                     </div>
                                 </div>
@@ -316,31 +387,84 @@
                 .catch(error => console.error('Error:', error));
         }
 
+        let selectedImage = null;
+
+        function handleImageSelect(event, conversationId) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, JPG)');
+                event.target.value = '';
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size must not exceed 5MB');
+                event.target.value = '';
+                return;
+            }
+
+            selectedImage = file;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById(`previewImg_${conversationId}`).src = e.target.result;
+                document.getElementById(`imagePreview_${conversationId}`).classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImagePreview(conversationId) {
+            selectedImage = null;
+            const imageInput = document.getElementById(`imageInput_${conversationId}`);
+            if (imageInput) imageInput.value = '';
+            document.getElementById(`imagePreview_${conversationId}`).classList.add('hidden');
+        }
+
         function sendMessage(event, conversationId) {
             event.preventDefault();
 
-            const messageInput = document.getElementById('messageInput');
+            const messageInput = document.getElementById(`messageInput_${conversationId}`);
             const messageText = messageInput.value.trim();
 
-            if (!messageText) return;
+            if (!messageText && !selectedImage) {
+                alert('Please enter a message or select an image');
+                return;
+            }
 
             messageInput.disabled = true;
 
-            fetch(`/chat/${conversationId}/send`, {
+            // Prepare form data
+            const formData = new FormData();
+            if (messageText) {
+                formData.append('message_text', messageText);
+            }
+
+            let endpoint = `/chat/${conversationId}/send`;
+
+            // If image is selected, use upload-image endpoint
+            if (selectedImage) {
+                formData.append('image', selectedImage);
+                endpoint = `/chat/${conversationId}/upload-image`;
+            }
+
+            fetch(endpoint, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({
-                        message_text: messageText
-                    })
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         messageInput.value = '';
+                        clearImagePreview(conversationId);
                         // Reload chat window
                         window.openChat(conversationId);
                     } else {
@@ -355,6 +479,88 @@
                     messageInput.disabled = false;
                     messageInput.focus();
                 });
+        }
+
+        function editMessage(messageId, currentText, conversationId) {
+            Swal.fire({
+                title: 'Edit Message',
+                input: 'textarea',
+                inputValue: currentText,
+                inputAttributes: {
+                    'aria-label': 'Edit your message',
+                    'rows': 4
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Save',
+                confirmButtonColor: '#3b82f6',
+                cancelButtonText: 'Cancel',
+                inputValidator: (value) => {
+                    if (!value || value.trim() === '') {
+                        return 'Message cannot be empty';
+                    }
+                    if (value.length > 5000) {
+                        return 'Message is too long (max 5000 characters)';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    updateMessage(messageId, result.value, conversationId);
+                }
+            });
+        }
+
+        function updateMessage(messageId, newText, conversationId) {
+            Swal.fire({
+                title: 'Updating...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch(`/chat/messages/${messageId}/edit`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    message_text: newText
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Message updated successfully',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // Reload conversation to show updated message
+                    window.openChat(conversationId);
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Failed to update message',
+                        icon: 'error',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while updating the message',
+                    icon: 'error',
+                    confirmButtonColor: '#3b82f6'
+                });
+            });
         }
     </script>
 </x-app-layout>

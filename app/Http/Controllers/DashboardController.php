@@ -788,7 +788,10 @@ class DashboardController extends Controller
                 ->whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
                 ->whereNotNull('check_in_at')
                 ->whereNull('check_out_at')
-                ->whereHas('transaction', fn($q) => $q->whereDate('check_out', now()->toDateString()))
+                ->whereHas('transaction', fn($q) =>
+                    $q->whereDate('check_out', '>=', now()->toDateString())
+                      ->whereDate('check_out', '<=', now()->addDays(3)->toDateString())
+                )
                 ->count(),
         ];
 

@@ -9,15 +9,26 @@
                 </h1>
                 <p class="text-gray-600 mt-1">Lihat dan ekspor laporan pemesanan dengan filter</p>
             </div>
-            <button onclick="exportReport()"
-                class="mt-4 md:mt-0 px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Ekspor ke Excel
-            </button>
+            <div class="mt-4 md:mt-0 flex gap-2">
+                <button onclick="printReport()"
+                    class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print
+                </button>
+                <button onclick="exportReport()"
+                    class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Ekspor ke Excel
+                </button>
+            </div>
         </div>
 
         <!-- Filter Section -->
@@ -385,6 +396,248 @@
             `;
 
             container.innerHTML = paginationHTML;
+        }
+
+        function printReport() {
+            const reportTitle = 'Laporan Pemesanan';
+
+            // Get filter info
+            let filterInfo = '';
+
+            // Date range
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+            if (startDate && endDate) {
+                filterInfo += `<p><strong>Periode:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}</p>`;
+            }
+
+            // Property filter
+            const propertySelect = document.getElementById('property_id');
+            if (propertySelect) {
+                const selectedProperty = propertySelect.options[propertySelect.selectedIndex].text;
+                if (propertySelect.value) {
+                    filterInfo += `<p><strong>Alamat:</strong> ${selectedProperty}</p>`;
+                }
+            }
+
+            // Status filter
+            const statusSelect = document.getElementById('status');
+            if (statusSelect && statusSelect.value) {
+                const selectedStatus = statusSelect.options[statusSelect.selectedIndex].text;
+                filterInfo += `<p><strong>Status:</strong> ${selectedStatus}</p>`;
+            }
+
+            // Search filter
+            const searchValue = document.getElementById('search').value;
+            if (searchValue) {
+                filterInfo += `<p><strong>Pencarian:</strong> ${searchValue}</p>`;
+            }
+
+            // Get table content
+            const tableContent = document.getElementById('reportTableBody').innerHTML;
+
+            // Create print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${reportTitle}</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 20px;
+                            color: #333;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 20px;
+                            border-bottom: 2px solid #2563EB;
+                            padding-bottom: 10px;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            color: #2563EB;
+                            font-size: 24px;
+                        }
+                        .header p {
+                            margin: 5px 0;
+                            color: #666;
+                        }
+                        .filter-info {
+                            background: #F3F4F6;
+                            padding: 15px;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                        }
+                        .filter-info p {
+                            margin: 5px 0;
+                            font-size: 14px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                            font-size: 10px;
+                        }
+                        th {
+                            background-color: #2563EB;
+                            color: white;
+                            padding: 10px 6px;
+                            text-align: left;
+                            font-size: 9px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            border: 1px solid #1E40AF;
+                        }
+                        td {
+                            padding: 8px 6px;
+                            border: 1px solid #E5E7EB;
+                            font-size: 10px;
+                        }
+                        tr:nth-child(even) {
+                            background-color: #F9FAFB;
+                        }
+                        .footer {
+                            margin-top: 30px;
+                            text-align: center;
+                            font-size: 12px;
+                            color: #666;
+                            border-top: 1px solid #E5E7EB;
+                            padding-top: 15px;
+                        }
+                        /* Badge styling */
+                        .px-2 {
+                            padding-left: 0.5rem;
+                            padding-right: 0.5rem;
+                        }
+                        .py-1 {
+                            padding-top: 0.25rem;
+                            padding-bottom: 0.25rem;
+                        }
+                        .text-xs {
+                            font-size: 0.75rem;
+                            line-height: 1rem;
+                        }
+                        .font-medium {
+                            font-weight: 500;
+                        }
+                        .rounded-full {
+                            border-radius: 9999px;
+                        }
+                        .bg-yellow-100 { background-color: #FEF3C7; }
+                        .text-yellow-800 { color: #92400E; }
+                        .bg-orange-100 { background-color: #FFEDD5; }
+                        .text-orange-800 { color: #9A3412; }
+                        .bg-green-100 { background-color: #D1FAE5; }
+                        .text-green-800 { color: #065F46; }
+                        .bg-red-100 { background-color: #FEE2E2; }
+                        .text-red-800 { color: #991B1B; }
+                        .bg-gray-100 { background-color: #F3F4F6; }
+                        .text-gray-800 { color: #1F2937; }
+                        @media print {
+                            body {
+                                margin: 0;
+                                padding: 10px;
+                            }
+                            .filter-info {
+                                background: #F9FAFB !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            th {
+                                background-color: #2563EB !important;
+                                color: white !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            tr:nth-child(even) {
+                                background-color: #F9FAFB !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .bg-yellow-100 {
+                                background-color: #FEF3C7 !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .bg-orange-100 {
+                                background-color: #FFEDD5 !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .bg-green-100 {
+                                background-color: #D1FAE5 !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .bg-red-100 {
+                                background-color: #FEE2E2 !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .bg-gray-100 {
+                                background-color: #F3F4F6 !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${reportTitle}</h1>
+                        <p>Dicetak pada: ${new Date().toLocaleString('id-ID', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</p>
+                    </div>
+                    ${filterInfo ? '<div class="filter-info"><strong>Filter yang Diterapkan:</strong>' + filterInfo + '</div>' : ''}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Booking Date</th>
+                                <th>Booking Number</th>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Room</th>
+                                <th>Stay Period</th>
+                                <th>Payment Date & Time</th>
+                                <th>Payment Type</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableContent}
+                        </tbody>
+                    </table>
+                    <div class="footer">
+                        <p>Booking Management System - Laporan Pemesanan</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+
+            // Wait for content to load then print
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+            };
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
         }
 
         function exportReport() {

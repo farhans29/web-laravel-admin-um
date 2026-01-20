@@ -21,22 +21,34 @@
         <!-- Role Assignment Card -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div
-                class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Daftar User Admin</h3>
-                </div>
-                <div class="flex items-center gap-2">
-                    <label for="perPageSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                        Show:
-                    </label>
-                    <select id="perPageSelect" onchange="changePerPage(this.value)"
-                        class="border border-gray-300 rounded-lg text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 w-24 md:w-32 lg:w-40">
-                        <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
-                        <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
-                        <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                        <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
-                        <option value="all" {{ $perPage === 'all' ? 'selected' : '' }}>All</option>
-                    </select>
+                class="master-role-header px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <!-- Judul tetap di kiri atas -->
+                <h3 class="text-lg font-semibold text-gray-800 w-full sm:w-auto">Daftar User Admin</h3>
+
+                <!-- Container untuk Search + Show Selector -->
+                <div class="w-full sm:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-auto">
+                        <input type="text" id="searchInput" placeholder="Search by name, username, email, or role..."
+                            value="{{ request('search') }}"
+                            class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+
+                    <!-- Show selector -->
+                    <div class="flex items-center gap-2">
+                        <label for="perPageSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                            Show:
+                        </label>
+                        <select id="perPageSelect" onchange="changePerPage(this.value)"
+                            class="border border-gray-300 rounded-lg text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 w-24 md:w-32 lg:w-40">
+                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                            <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
+                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                            <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                            <option value="all" {{ $perPage === 'all' ? 'selected' : '' }}>All</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -59,7 +71,7 @@
                                 Dashboard Widgets</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
                         @forelse ($adminUsers as $index => $user)
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -125,7 +137,7 @@
                                 <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                                     <i class="fas fa-users text-4xl mb-4 block text-gray-300"></i>
                                     <p class="text-lg font-medium">No Admin Users Found</p>
-                                    <p class="text-sm">Users with is_admin = 1 will appear here</p>
+                                    <p class="text-sm">Users with is_admin = 1 and status = 1 will appear here</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -133,13 +145,14 @@
                 </table>
             </div>
 
-            @if ($perPage !== 'all' && $adminUsers->hasPages())
-                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                    <div class="ml-4">
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50"
+                style="{{ $perPage !== 'all' && $adminUsers->hasPages() ? '' : 'display: none;' }}">
+                <div id="paginationSection" class="ml-4">
+                    @if ($perPage !== 'all' && $adminUsers->hasPages())
                         {{ $adminUsers->links() }}
-                    </div>
+                    @endif
                 </div>
-            @endif
+            </div>
 
         </div>
 
@@ -301,7 +314,7 @@
                                     data-is-sub="{{ $isSubMenu ? 'true' : 'false' }}"
                                     data-is-list="{{ $isListMenu ? 'true' : 'false' }}">
                                     <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        @if($item->permission_id)
+                                        @if ($item->permission_id)
                                             <input type="checkbox" class="modal-checkbox-round"
                                                 value="{{ $item->permission_id }}">
                                         @else
@@ -374,7 +387,8 @@
                     class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 p-4 bg-purple-50 rounded-lg">
                     <div class="flex items-center mb-3 sm:mb-0">
                         <i class="fas fa-filter text-purple-500 mr-2"></i>
-                        <label for="widgetCategoryFilter" class="text-sm font-medium text-gray-700 mr-2">Filter by Category:</label>
+                        <label for="widgetCategoryFilter" class="text-sm font-medium text-gray-700 mr-2">Filter by
+                            Category:</label>
                         <select id="widgetCategoryFilter"
                             class="select-custom border border-gray-300 rounded-lg text-sm px-3 py-2 w-full sm:w-64">
                             <option value="">Show All Categories</option>
@@ -416,20 +430,39 @@
                             @foreach ($dashboardWidgets as $widget)
                                 @php
                                     $categoryColors = [
-                                        'stats' => ['bg' => 'bg-blue-100', 'text' => 'text-blue-800', 'icon' => 'text-blue-500'],
-                                        'finance' => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-800', 'icon' => 'text-emerald-500'],
-                                        'rooms' => ['bg' => 'bg-purple-100', 'text' => 'text-purple-800', 'icon' => 'text-purple-500'],
-                                        'reports' => ['bg' => 'bg-orange-100', 'text' => 'text-orange-800', 'icon' => 'text-orange-500'],
+                                        'stats' => [
+                                            'bg' => 'bg-blue-100',
+                                            'text' => 'text-blue-800',
+                                            'icon' => 'text-blue-500',
+                                        ],
+                                        'finance' => [
+                                            'bg' => 'bg-emerald-100',
+                                            'text' => 'text-emerald-800',
+                                            'icon' => 'text-emerald-500',
+                                        ],
+                                        'rooms' => [
+                                            'bg' => 'bg-purple-100',
+                                            'text' => 'text-purple-800',
+                                            'icon' => 'text-purple-500',
+                                        ],
+                                        'reports' => [
+                                            'bg' => 'bg-orange-100',
+                                            'text' => 'text-orange-800',
+                                            'icon' => 'text-orange-500',
+                                        ],
                                     ];
 
-                                    $colors = $categoryColors[$widget->category] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-800', 'icon' => 'text-gray-500'];
+                                    $colors = $categoryColors[$widget->category] ?? [
+                                        'bg' => 'bg-gray-100',
+                                        'text' => 'text-gray-800',
+                                        'icon' => 'text-gray-500',
+                                    ];
                                 @endphp
 
                                 <tr class="widget-item group hover:bg-gray-50 transition-colors duration-150"
                                     data-category="{{ $widget->category }}">
                                     <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <input type="checkbox" class="widget-checkbox"
-                                            value="{{ $widget->id }}">
+                                        <input type="checkbox" class="widget-checkbox" value="{{ $widget->id }}">
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -594,10 +627,253 @@
 
         // Pagination per page change handler
         function changePerPage(perPage) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('per_page', perPage);
-            window.location.href = url.toString();
+            // If there's an active search, use AJAX to update
+            if (currentSearch && currentSearch.trim() !== '') {
+                performSearch(currentSearch, 1);
+            } else {
+                // Otherwise, reload the page with new per_page value
+                const url = new URL(window.location.href);
+                url.searchParams.set('per_page', perPage);
+                window.location.href = url.toString();
+            }
         }
+
+        // Search functionality with debounce (AJAX)
+        let searchTimeout;
+        let currentSearch = '{{ request('search') }}';
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const searchValue = e.target.value;
+
+            searchTimeout = setTimeout(() => {
+                currentSearch = searchValue;
+                performSearch(searchValue);
+            }, 500); // Debounce 500ms
+        });
+
+        function performSearch(searchValue, page = 1) {
+            const perPage = document.getElementById('perPageSelect').value;
+            const searchIndicator = document.querySelector('.search-indicator-section');
+            const tableBody = document.querySelector('#usersTableBody');
+            const paginationSection = document.querySelector('#paginationSection');
+
+            // Show loading state
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-spinner fa-spin text-4xl mb-4 block text-gray-400"></i>
+                        <p class="text-lg font-medium">Loading...</p>
+                    </td>
+                </tr>
+            `;
+
+            // Build URL with parameters
+            const url = new URL('{{ route('master-role.search') }}', window.location.origin);
+            url.searchParams.set('per_page', perPage);
+            if (searchValue.trim() !== '') {
+                url.searchParams.set('search', searchValue);
+            }
+            if (page > 1) {
+                url.searchParams.set('page', page);
+            }
+
+            // Perform AJAX request
+            fetch(url.toString())
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateTable(data.users, data.pagination, data.perPage);
+                        updateSearchIndicator(searchValue);
+                        updatePagination(data.pagination, searchValue);
+                    } else {
+                        throw new Error('Failed to fetch data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                <i class="fas fa-exclamation-circle text-4xl mb-4 block text-red-400"></i>
+                                <p class="text-lg font-medium">Error loading data</p>
+                                <p class="text-sm">Please try again</p>
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function updateTable(users, pagination, perPage) {
+            const tableBody = document.querySelector('#usersTableBody');
+
+            if (users.length === 0) {
+                const clearSearchHtml = currentSearch ?
+                    `<button onclick="clearSearch()" class="mt-3 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        <i class="fas fa-times-circle mr-1"></i> Clear Search
+                    </button>` : '';
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-users text-4xl mb-4 block text-gray-300"></i>
+                            <p class="text-lg font-medium">No Admin Users Found</p>
+                            ${currentSearch ?
+                                `<p class="text-sm">No results found for "${currentSearch}"</p>${clearSearchHtml}` :
+                                '<p class="text-sm">Users with is_admin = 1 and status = 1 will appear here</p>'
+                            }
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            users.forEach((user, index) => {
+                // Skip if user doesn't have an ID
+                if (!user || !user.id) return;
+
+                const startIndex = pagination ? ((pagination.current_page - 1) * pagination.per_page) : 0;
+                const displayIndex = perPage === 'all' ? index + 1 : startIndex + index + 1;
+
+                const fullName = user.first_name && user.last_name ?
+                    `${user.first_name} ${user.last_name}` : (user.name || 'Unknown User');
+                const initial = user.first_name ? user.first_name.charAt(0).toUpperCase() :
+                    (user.name ? user.name.charAt(0).toUpperCase() : 'U');
+                const username = user.username || 'N/A';
+
+                // Escape single quotes in fullName for onclick handler
+                const escapedFullName = fullName.replace(/'/g, "\\'");
+
+                const roleHtml = user.role ?
+                    `<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        ${user.role.name || 'Unknown Role'}
+                    </span>` :
+                    `<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                        No Role
+                    </span>`;
+
+                const escapedRoleName = user.role && user.role.name ? user.role.name.replace(/'/g, "\\'") :
+                    'Unknown Role';
+                const widgetsButtonHtml = user.role ?
+                    `<button onclick="manageDashboardWidgets(${user.role.id}, '${escapedRoleName}')"
+                        class="btn-widgets inline-flex items-center px-3 py-2 border border-purple-600 text-sm leading-4 font-medium rounded-md text-purple-600 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150">
+                        <i class="fas fa-th-large mr-2"></i>
+                        Widgets
+                    </button>` :
+                    `<span class="text-xs text-gray-500 italic">No Role Assigned</span>`;
+
+                html += `
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${displayIndex}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center text-white font-semibold">
+                                        ${initial}
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">${fullName}</div>
+                                    <div class="text-xs text-gray-500">${username}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${user.email || 'No Email'}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${roleHtml}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="manageAccessRights(${user.id}, '${escapedFullName}')"
+                                class="btn-access-rights inline-flex items-center px-3 py-2 border border-blue-600 text-sm leading-4 font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
+                                <i class="fas fa-key mr-2"></i>
+                                Sidebar Menu
+                            </button>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            ${widgetsButtonHtml}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+        }
+
+        function updateSearchIndicator(searchValue) {
+            let searchIndicator = document.querySelector('.search-indicator-section');
+
+            if (searchValue.trim() !== '') {
+                if (!searchIndicator) {
+                    const headerDiv = document.querySelector('.master-role-header');
+                    searchIndicator = document.createElement('div');
+                    searchIndicator.className =
+                        'search-indicator-section px-6 py-3 bg-blue-50 border-b border-blue-200 flex items-center justify-between';
+                    headerDiv.parentNode.insertBefore(searchIndicator, headerDiv.nextSibling);
+                }
+
+                searchIndicator.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-filter text-blue-600 mr-2"></i>
+                        <span class="text-sm text-blue-800">
+                            Filtered by: <strong>"${searchValue}"</strong>
+                        </span>
+                    </div>
+                    <button onclick="clearSearch()"
+                        class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                        <i class="fas fa-times mr-1"></i> Clear Filter
+                    </button>
+                `;
+            } else {
+                if (searchIndicator) {
+                    searchIndicator.remove();
+                }
+            }
+        }
+
+        function updatePagination(pagination, searchValue) {
+            const paginationSection = document.querySelector('#paginationSection');
+            const paginationParent = paginationSection.parentElement;
+
+            if (!pagination || !pagination.links || pagination.last_page <= 1) {
+                paginationSection.innerHTML = '';
+                paginationParent.style.display = 'none';
+                return;
+            }
+
+            // Show pagination section
+            paginationParent.style.display = 'block';
+
+            // Parse the pagination links HTML and update onclick handlers
+            paginationSection.innerHTML = pagination.links;
+
+            // Update all pagination links to use AJAX
+            paginationSection.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = new URL(this.href);
+                    const page = url.searchParams.get('page') || 1;
+                    performSearch(searchValue, page);
+                });
+            });
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearch = '';
+            performSearch('');
+        }
+
+        // Initialize search indicator on page load if search param exists
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentSearch && currentSearch.trim() !== '') {
+                updateSearchIndicator(currentSearch);
+            }
+        });
 
         // New Role Modal Functions
         function openNewRoleModal() {
@@ -1001,7 +1277,8 @@
             const selectedCategory = this.value;
             document.querySelectorAll('#widgetsTableBody .widget-item').forEach(row => {
                 const category = row.getAttribute('data-category');
-                row.style.display = (selectedCategory === "" || category === selectedCategory) ? "" : "none";
+                row.style.display = (selectedCategory === "" || category === selectedCategory) ? "" :
+                "none";
             });
         });
 

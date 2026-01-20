@@ -160,7 +160,7 @@
                                                 Check-Out</p>
                                             <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
                                                 {{ $stats['checkout'] }}</h3>
-                                            <p class="text-yellow-200 text-sm">Hari Ini</p>
+                                            <p class="text-yellow-200 text-sm">3 Hari Ke Depan</p>
                                         </div>
                                     </div>
                                 </div>
