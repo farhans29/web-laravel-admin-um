@@ -43,8 +43,9 @@ class VoucherController extends Controller
     public function store(Request $request)
     {
         try {
+            // Validasi data
             $validated = $request->validate([
-                'code' => 'required|string|max:20|unique:m_vouchers,code',
+                'code' => 'required|string|min:8|max:12|unique:m_vouchers,code',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'discount_percentage' => 'required|numeric|min:0|max:100',
@@ -54,15 +55,43 @@ class VoucherController extends Controller
                 'valid_from' => 'required|date',
                 'valid_to' => 'required|date|after:valid_from',
                 'min_transaction_amount' => 'nullable|numeric|min:0',
-                'scope_type' => 'required|in:global,property,room',
-                'scope_ids' => 'nullable|array',
-                'status' => 'nullable|in:active,inactive,expired',
+                'scope_type' => 'required|in:global,property',
+                'property_id' => [
+                    'nullable',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($request->scope_type === 'property' && empty($value)) {
+                            $fail('The property id field is required when scope type is property.');
+                        }
+                        if ($request->scope_type === 'property' && !empty($value)) {
+                            // Check if property exists
+                            if (!\App\Models\Property::where('idrec', $value)->exists()) {
+                                $fail('The selected property id is invalid.');
+                            }
+                        }
+                    },
+                ],
+                'status' => 'required|in:active,inactive',
             ]);
 
+            // Handle property_id based on scope_type
+            if ($validated['scope_type'] === 'property') {
+                $validated['property_id'] = $request->property_id;
+            } else {
+                $validated['property_id'] = null;
+            }
+
+            // Konversi nilai numeric
+            $validated['discount_percentage'] = (float) $validated['discount_percentage'];
+            $validated['max_discount_amount'] = (float) $validated['max_discount_amount'];
+            $validated['min_transaction_amount'] = $validated['min_transaction_amount'] ? (float) $validated['min_transaction_amount'] : 0;
+            $validated['max_total_usage'] = (int) $validated['max_total_usage'];
+            $validated['max_usage_per_user'] = (int) $validated['max_usage_per_user'];
+
+            // Set default values
             $validated['created_by'] = Auth::id();
-            $validated['status'] = $validated['status'] ?? 'active';
             $validated['current_usage_count'] = 0;
 
+            // Buat voucher
             $voucher = Voucher::create($validated);
 
             return response()->json([
@@ -70,7 +99,14 @@ class VoucherController extends Controller
                 'message' => 'Voucher berhasil ditambahkan',
                 'data' => $voucher
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
+            \Log::error('Gagal menambahkan voucher: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan voucher: ' . $e->getMessage()

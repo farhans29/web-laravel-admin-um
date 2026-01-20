@@ -26,6 +26,7 @@ class Voucher extends Model
         'min_transaction_amount',
         'scope_type',
         'scope_ids',
+        'property_id',
         'status',
         'created_by',
         'updated_by',

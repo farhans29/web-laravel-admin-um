@@ -92,9 +92,9 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Kode Voucher <span class="text-red-500">*</span>
-                                <span class="text-xs text-gray-500">(4-12 karakter)</span>
+                                <span class="text-xs text-gray-500">(8-12 karakter)</span>
                             </label>
-                            <input type="text" id="code" name="code" required minlength="4" maxlength="12"
+                            <input type="text" id="code" name="code" required minlength="8" maxlength="12"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase"
                                 placeholder="Contoh: HPNY2026" style="text-transform: uppercase;">
                         </div>
@@ -190,11 +190,37 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Scope Type <span class="text-red-500">*</span>
                             </label>
-                            <select id="scope_type" name="scope_type" required
+                            <select id="scope_type" name="scope_type" required onchange="togglePropertySelector()"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                 <option value="global">Global</option>
                                 <option value="property">Property</option>
-                                <option value="room">Room</option>
+                            </select>
+                        </div>
+
+                        <!-- Property Selector (shown when scope_type is property) -->
+                        <div id="property_selector_container" style="display: none;">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Pilih Property <span class="text-red-500">*</span>
+                            </label>
+                            <select id="property_id" name="property_id"
+                                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="">-- Pilih Property --</option>
+                                @php
+                                    $user = auth()->user();
+                                    $isSiteUser = $user->isSiteRole() || $user->isSite();
+                                @endphp
+                                @if($isSiteUser && $user->property_id)
+                                    @php
+                                        $userProperty = $properties->firstWhere('idrec', $user->property_id);
+                                    @endphp
+                                    @if($userProperty)
+                                        <option value="{{ $userProperty->idrec }}" selected>{{ $userProperty->name }}</option>
+                                    @endif
+                                @else
+                                    @foreach($properties as $property)
+                                        <option value="{{ $property->idrec }}">{{ $property->name }}</option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
 
@@ -234,10 +260,6 @@
     </div>
 
     @push('scripts')
-        <!-- Re-load dependencies after body scripts -->
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-
         <script>
             // Toast notification helper
             function showToast(message, type = 'success') {
@@ -359,6 +381,19 @@
                 });
             });
 
+            // Toggle property selector based on scope type
+            function togglePropertySelector() {
+                const scopeType = $('#scope_type').val();
+                if (scopeType === 'property') {
+                    $('#property_selector_container').show();
+                    $('#property_id').prop('required', true);
+                } else {
+                    $('#property_selector_container').hide();
+                    $('#property_id').prop('required', false);
+                    $('#property_id').val('');
+                }
+            }
+
             // Filter functionality
             let debounceTimer;
             $('#search, #status_filter, #per_page').on('change keyup', function() {
@@ -403,6 +438,9 @@
                 $('#valid_to').val('');
                 $('#status').val('active'); // Set default to active
                 $('#status_toggle_container').hide(); // Hide status toggle on create
+                $('#scope_type').val('global'); // Reset scope type to global
+                $('#property_selector_container').hide(); // Hide property selector on create
+                $('#property_id').val('');
                 $('#voucherModal').removeClass('hidden').show();
             }
 
@@ -434,6 +472,14 @@
 
                         $('#min_transaction_amount').val(voucher.min_transaction_amount);
                         $('#scope_type').val(voucher.scope_type);
+
+                        if (voucher.scope_type === 'property') {
+                            $('#property_selector_container').show();
+                            $('#property_id').val(voucher.property_id);
+                        } else {
+                            $('#property_selector_container').hide();
+                            $('#property_id').val('');
+                        }
 
                         // Set status toggle
                         $('#status').val(voucher.status);
@@ -475,6 +521,7 @@
                     valid_to: $('#valid_to').val(),
                     min_transaction_amount: $('#min_transaction_amount').val(),
                     scope_type: $('#scope_type').val(),
+                    property_id: $('#property_id').val(),
                     status: $('#status').val(),
                     _token: '{{ csrf_token() }}'
                 };
