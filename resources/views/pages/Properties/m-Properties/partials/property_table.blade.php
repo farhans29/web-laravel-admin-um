@@ -429,53 +429,41 @@
                         </div>
 
                         <!-- Edit -->
-                        <div x-data="modalPropertyEdit({{ $property }})" class="relative group">
-                            @php
-                                $features = [
-                                    'general' => $property->general ?? [],
-                                    'security' => $property->security ?? [],
-                                    'amenities' => $property->amenities ?? [],
-                                ];
-                                $images = $property->images
-                                    ->map(function ($image) {
-                                        return [
-                                            'id' => $image->idrec,
-                                            'url' => asset('storage/' . $image->image),
-                                            'caption' => $image->caption,
-                                            'name' => 'Image_' . $image->idrec . '.jpg',
-                                            'is_thumbnail' => $image->thumbnail == 1,
-                                        ];
-                                    })
-                                    ->toJson();
-                            @endphp
+                        @php
+                            $propertyEditData = [
+                                'idrec' => $property->idrec,
+                                'name' => $property->name ?? '',
+                                'initial' => $property->initial ?? '',
+                                'tags' => $property->tags ?? 'Kos',
+                                'description' => $property->description ?? '',
+                                'address' => $property->address ?? '',
+                                'latitude' => $property->latitude,
+                                'longitude' => $property->longitude,
+                                'province' => $property->province ?? '',
+                                'city' => $property->city ?? '',
+                                'subdistrict' => $property->subdistrict ?? '',
+                                'village' => $property->village ?? '',
+                                'postal_code' => $property->postal_code ?? '',
+                                'general' => is_array($property->general) ? $property->general : [],
+                                'security' => is_array($property->security) ? $property->security : [],
+                                'amenities' => is_array($property->amenities) ? $property->amenities : [],
+                                'existingImages' => $property->images->map(function ($image) {
+                                    return [
+                                        'id' => $image->idrec,
+                                        'url' => asset('storage/' . $image->image),
+                                        'caption' => $image->caption,
+                                        'name' => 'Image_' . $image->idrec . '.jpg',
+                                        'is_thumbnail' => $image->thumbnail == 1,
+                                    ];
+                                })->toArray(),
+                            ];
+                        @endphp
+                        <div x-data="modalPropertyEdit(@js($propertyEditData))" class="relative group">
 
                             <button
                                 class="text-amber-600 hover:text-amber-900 dark:text-amber-500 dark:hover:text-amber-400"
                                 type="button"
-                                @click.prevent='openModal({
-                                            name: @json($property->name),
-                                            initial: @json($property->initial),
-                                            city: @json($property->city),
-                                            province: @json($property->province),
-                                            description: @json($property->description),
-                                            created_at: "{{ \Carbon\Carbon::parse($property->created_at)->format('Y-m-d H:i') }}",
-                                            updated_at: "{{ $property->updated_at ? \Carbon\Carbon::parse($property->updated_at)->format('Y-m-d H:i') : '-' }}",
-                                            creator: "{{ $property->creator->username ?? 'Unknown' }}",
-                                            status: "{{ $property->status ? 'Active' : 'Inactive' }}",
-                                            location: @json($property->location),
-                                            general: @json($property->general ?? []),
-                                            security: @json($property->security ?? []),
-                                            amenities: @json($property->amenities ?? []),
-                                            existingImages: {!! $images !!},
-                                            latitude: {{ $property->latitude ?? 'null' }},
-                                            longitude: {{ $property->longitude ?? 'null' }},
-                                            address: @json($property->address),
-                                            subdistrict: @json($property->subdistrict),
-                                            village: @json($property->village),
-                                            postal_code: @json($property->postal_code),
-                                            type: @json($property->type),
-                                            tags: @json($property->tags),
-                                        })'
+                                @click.prevent="openModal()"
                                 aria-controls="property-edit-modal-{{ $property->idrec }}" title="Edit Property">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -684,32 +672,29 @@
                                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                             Jenis Properti <span class="text-red-500">*</span>
                                                         </label>
-                                                        <div class="grid grid-cols-2 gap-4" x-data="{
-                                                            types: [
-                                                                { label: 'Kos', value: 'Kos' },
-                                                                { label: 'Apartment', value: 'Apartment' },
-                                                                { label: 'Villa', value: 'Villa' },
-                                                                { label: 'Hotel', value: 'Hotel' }
-                                                            ],
-                                                            selectedType: propertyData.tags
-                                                        }">
-                                                            <template x-for="type in types" :key="type.value">
+                                                        <div class="grid grid-cols-2 gap-4">
+                                                            @php
+                                                                $propertyTypes = [
+                                                                    ['label' => 'Kos', 'value' => 'Kos'],
+                                                                    ['label' => 'Apartment', 'value' => 'Apartment'],
+                                                                    ['label' => 'Villa', 'value' => 'Villa'],
+                                                                    ['label' => 'Hotel', 'value' => 'Hotel'],
+                                                                ];
+                                                            @endphp
+                                                            @foreach ($propertyTypes as $type)
                                                                 <div class="relative">
                                                                     <input
-                                                                        :id="'type-edit-{{ $property->idrec }}-' + type
-                                                                            .value"
+                                                                        id="type-edit-{{ $property->idrec }}-{{ $type['value'] }}"
                                                                         name="property_type" type="radio"
-                                                                        :value="type.value" class="sr-only peer"
-                                                                        required x-model="selectedType"
-                                                                        @change="propertyData.tags = type.value">
+                                                                        value="{{ $type['value'] }}" class="sr-only peer"
+                                                                        required x-model="propertyData.tags">
                                                                     <label
-                                                                        :for="'type-edit-{{ $property->idrec }}-' + type
-                                                                            .value"
+                                                                        for="type-edit-{{ $property->idrec }}-{{ $type['value'] }}"
                                                                         class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
-                                                                        <span x-text="type.label"></span>
+                                                                        {{ $type['label'] }}
                                                                     </label>
                                                                 </div>
-                                                            </template>
+                                                            @endforeach
                                                         </div>
                                                     </div>
 
@@ -1081,7 +1066,7 @@
                                                                 <div
                                                                     class="w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-gray-300 dark:border-gray-600 overflow-hidden relative flex items-center justify-center">
                                                                     <template x-if="getCurrentThumbnail()">
-                                                                        <img :src="getCurrentThumbnail().url"
+                                                                        <img :src="getCurrentThumbnail()?.url"
                                                                             class="w-full h-full object-cover"
                                                                             alt="Current Thumbnail">
                                                                     </template>

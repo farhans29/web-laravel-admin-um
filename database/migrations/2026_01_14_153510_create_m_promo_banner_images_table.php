@@ -10,13 +10,11 @@ return new class extends Migration
     {
         Schema::create('m_promo_banner_images', function (Blueprint $table) {
             $table->id('idrec');
-
             $table->unsignedBigInteger('promo_banner_id');
             $table->string('image', 255);
             $table->string('thumbnail', 255)->nullable();
             $table->string('caption', 255)->nullable();
             $table->integer('sort_order')->default(0);
-
             $table->timestamps();
 
             // Foreign key with cascade delete
@@ -42,7 +40,12 @@ return new class extends Migration
     public function down()
     {
         Schema::table('m_promo_banners', function (Blueprint $table) {
-            $table->dropForeign(['image_id']);
+            // Use try-catch to handle case where foreign key might not exist
+            try {
+                $table->dropForeign(['image_id']);
+            } catch (\Exception $e) {
+                // Foreign key doesn't exist, continue
+            }
         });
 
         Schema::dropIfExists('m_promo_banner_images');

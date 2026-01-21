@@ -41,6 +41,7 @@ class AuthServiceProvider extends ServiceProvider
             'view_rooms',
             'view_room_availability',
             'view_vouchers',
+            'view_promo_banners',
             'view_room_facilities',
             'view_customers',
             'manage_chat',

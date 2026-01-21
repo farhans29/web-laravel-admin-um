@@ -24,6 +24,7 @@ use App\Http\Controllers\Reports\BookingReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\RentedRoomsReportController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\PromoBannerController;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -236,6 +237,16 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::get('/{id}', [VoucherController::class, 'show'])->where('id', '[0-9]+')->name('vouchers.show');
         Route::put('/{id}', [VoucherController::class, 'update'])->where('id', '[0-9]+')->name('vouchers.update');
         Route::delete('/{id}', [VoucherController::class, 'destroy'])->where('id', '[0-9]+')->name('vouchers.destroy');
+    });
+
+    Route::prefix('promo-banners')->group(function () {
+        Route::get('/', [PromoBannerController::class, 'index'])->name('promo-banners.index');
+        Route::get('/filter', [PromoBannerController::class, 'filter'])->name('promo-banners.filter');
+        Route::post('/toggle-status', [PromoBannerController::class, 'toggleStatus'])->name('promo-banners.toggle-status');
+        Route::post('/store', [PromoBannerController::class, 'store'])->name('promo-banners.store');
+        Route::get('/{id}', [PromoBannerController::class, 'show'])->where('id', '[0-9]+')->name('promo-banners.show');
+        Route::put('/{id}', [PromoBannerController::class, 'update'])->where('id', '[0-9]+')->name('promo-banners.update');
+        Route::delete('/{id}', [PromoBannerController::class, 'destroy'])->where('id', '[0-9]+')->name('promo-banners.destroy');
     });
 
     Route::prefix('chat')->group(function () {

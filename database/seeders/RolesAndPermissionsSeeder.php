@@ -47,8 +47,11 @@ class RolesAndPermissionsSeeder extends Seeder
             [1, 27],
             [1, 28],
             [1, 29],
+            [1, 30],
+            [1, 31],
+            [1, 32], // view_promo_banners
 
-            
+
             [2, 1],  
             [2, 2],  
             [2, 3],  
@@ -127,8 +130,9 @@ class RolesAndPermissionsSeeder extends Seeder
             [7, 25], 
             [7, 26], 
             [7, 27], 
-            [7, 28], 
-            [7, 29], 
+            [7, 28],
+            [7, 29],
+            [7, 32], // view_promo_banners
         ];
 
         $data = array_map(function ($rolePermission) use ($now) {

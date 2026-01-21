@@ -160,7 +160,7 @@
                                                 Check-Out</p>
                                             <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
                                                 {{ $stats['checkout'] }}</h3>
-                                            <p class="text-yellow-200 text-sm">3 Hari Ke Depan</p>
+                                            <p class="text-yellow-200 text-sm">H-3 sebelum tanggal check-out</p>
                                         </div>
                                     </div>
                                 </div>
@@ -248,11 +248,6 @@
                             <h3 class="text-sm font-medium text-blue-100 mb-1">Pendapatan Bulan Ini</h3>
                             <div class="text-3xl font-bold mb-2">
                                 Rp {{ number_format($financeStats['monthly_revenue'] ?? 0, 0, ',', '.') }}
-                            </div>
-                            <div class="flex items-center text-sm text-blue-100">
-                                <span>Target: Rp
-                                    {{ number_format($financeStats['monthly_target'] ?? 150000000, 0, ',', '.') }}
-                                    ({{ $financeStats['monthly_percentage'] ?? 0 }}%)</span>
                             </div>
                         </div>
                     @endif
@@ -821,7 +816,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 17l-4 4m0 0l-4-4m4 4V3" />
                                 </svg>
-                                <h2 class="font-semibold text-gray-800 text-lg">Check-out 3 Hari Ke Depan</h2>
+                                <h2 class="font-semibold text-gray-800 text-lg">H-3 sebelum tanggal check-out</h2>
                             </div>
                             <a href="{{ route('checkin.index') }}"
                                 class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">

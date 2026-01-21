@@ -178,6 +178,14 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 7
         ]);
 
+        $promoBanners = SidebarItem::create([
+            'name' => 'Promo Banners',
+            'route' => 'promo-banners.index',
+            'permission_id' => $permissions['view_promo_banners'] ?? null,
+            'parent_id' => $managementSection->id,
+            'order' => 9
+        ]);
+
         $chat = SidebarItem::create([
             'name' => 'Chat',
             'route' => 'chat.index',
