@@ -36,6 +36,7 @@ class CheckPermission
             'user.password.update',
             'user.activity',
             'progress',
+            'room.updateStatus',
         ];
 
         if (in_array($currentRoute, $allowedRoutes)) {
@@ -86,6 +87,8 @@ class CheckPermission
             '/\.checkin$/',           // e.g., newReserv.checkin, bookings.checkin
             '/\.checkout$/',          // e.g., bookings.checkout
             '/-access-management$/',  // e.g., users-access-management
+            '/\.unread-count$/',      // e.g., chat.unread-count
+            '/\.conversations-json$/', // e.g., chat.conversations-json
         ];
 
         // Check if current route matches any API pattern
