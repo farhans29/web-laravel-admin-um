@@ -102,31 +102,21 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has a Head Office (HO) role
-     * HO roles can view all properties
+     * Check if user is HO type based on user_type column
+     * user_type: 0=HO, 1=Site
      */
     public function isHORole()
     {
-        if (!$this->role) {
-            return false;
-        }
-
-        $hoRoles = ['Owner HO', 'Manager HO', 'Finance HO'];
-        return in_array($this->role->name, $hoRoles);
+        return $this->user_type === 0;
     }
 
     /**
-     * Check if user has a Site role
-     * Site roles can only view their assigned property
+     * Check if user is Site type based on user_type column
+     * user_type: 0=HO, 1=Site
      */
     public function isSiteRole()
     {
-        if (!$this->role) {
-            return false;
-        }
-
-        $siteRoles = ['Owner site', 'Manager site', 'Finance site', 'Front Office'];
-        return in_array($this->role->name, $siteRoles);
+        return $this->user_type === 1;
     }
 
     /**
@@ -157,11 +147,11 @@ class User extends Authenticatable
 
     /**
      * Check if user can view all properties
-     * Super Admin and HO roles can view all properties
+     * Super Admin, HO user_type, and HO roles can view all properties
      */
     public function canViewAllProperties()
     {
-        return $this->isSuperAdmin() || $this->isHORole();
+        return $this->isSuperAdmin() || $this->isHO() || $this->isHORole();
     }
 
     /**

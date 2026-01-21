@@ -33,6 +33,11 @@ class ChatConversation extends Model
         return $this->belongsTo(Property::class, 'property_id', 'idrec');
     }
 
+    public function booking()
+    {
+        return $this->hasOne(Booking::class, 'order_id', 'order_id');
+    }
+
     public function messages()
     {
         return $this->hasMany(ChatMessage::class, 'conversation_id');

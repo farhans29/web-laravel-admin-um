@@ -110,6 +110,7 @@
             return {
                 showChatWindow: false,
                 currentConversation: null,
+                booking: null,
                 loading: false,
 
                 init() {
@@ -140,6 +141,7 @@
 
                         if (data.success) {
                             this.currentConversation = data.conversation;
+                            this.booking = data.booking;
                             this.showChatWindow = true;
 
                             // Render chat window
@@ -167,6 +169,8 @@
                                         <div class="flex flex-wrap gap-4 text-sm mt-2 opacity-90">
                                             <span>Order ID: ${conversation.order_id}</span>
                                             <span>Property: ${conversation.property?.name || 'N/A'}</span>
+                                            ${this.booking ? `<span>No. Kamar: ${this.booking.room?.no || 'N/A'}</span>` : ''}
+                                            ${this.booking ? `<span>Tipe Kamar: ${this.booking.room?.name || 'N/A'}</span>` : ''}
                                             <span>Participants: ${conversation.participants?.length || 0}</span>
                                         </div>
                                     </div>
@@ -263,6 +267,9 @@
                             ? 'from-blue-500 to-indigo-600 ml-3'
                             : 'from-gray-400 to-gray-600 mr-3';
 
+                        // Get sender name with fallbacks
+                        const senderName = this.getSenderName(message.sender);
+
                         // Render attachments (images)
                         let attachmentHtml = '';
                         if (message.attachments && message.attachments.length > 0) {
@@ -300,12 +307,12 @@
                                 <div class="flex items-start max-w-xl ${isOwn ? 'flex-row-reverse' : ''}">
                                     <div class="flex-shrink-0 ${isOwn ? 'ml-3' : 'mr-3'}">
                                         <div class="w-10 h-10 rounded-full bg-gradient-to-br ${avatarClass} flex items-center justify-center text-white font-semibold">
-                                            ${(message.sender?.name || 'U').charAt(0)}
+                                            ${senderName.charAt(0).toUpperCase()}
                                         </div>
                                     </div>
                                     <div class="flex flex-col ${isOwn ? 'items-end' : 'items-start'}">
                                         <div class="flex items-center mb-1">
-                                            <span class="text-sm font-medium text-gray-900">${message.sender?.name || 'Unknown'}</span>
+                                            <span class="text-sm font-medium text-gray-900">${senderName}</span>
                                             <span class="text-xs text-gray-500 ml-2">${this.formatDate(message.created_at)}</span>
                                             ${editedIndicator}
                                             ${editButton}
@@ -339,6 +346,30 @@
                         hour: '2-digit',
                         minute: '2-digit'
                     });
+                },
+
+                getSenderName(sender) {
+                    if (!sender) {
+                        // Fallback to booking user name if sender is not available
+                        return this.booking?.user_name || 'Unknown';
+                    }
+
+                    // Check name field first
+                    if (sender.name && sender.name.trim()) {
+                        return sender.name;
+                    }
+
+                    // Try combining first_name and last_name
+                    const firstName = sender.first_name || '';
+                    const lastName = sender.last_name || '';
+                    const fullName = `${firstName} ${lastName}`.trim();
+
+                    if (fullName) {
+                        return fullName;
+                    }
+
+                    // Fallback to booking user name or Unknown
+                    return this.booking?.user_name || 'Unknown';
                 },
 
                 escapeHtml(text) {

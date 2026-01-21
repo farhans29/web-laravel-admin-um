@@ -35,7 +35,6 @@ class CheckPermission
             'logout',
             'user.password.update',
             'user.activity',
-            'progress',
             'room.updateStatus',
         ];
 
@@ -113,6 +112,7 @@ class CheckPermission
             if ($parentRoute) {
                 $sidebarItem = SidebarItem::where('route', $parentRoute)->first();
 
+                // If parent sidebar item exists with permission_id, check permission
                 if ($sidebarItem && $sidebarItem->permission_id) {
                     $permissionId = $sidebarItem->permission_id;
 
@@ -124,9 +124,11 @@ class CheckPermission
                     if (!$hasPermission) {
                         abort(403, 'Anda tidak memiliki akses ke halaman ini.');
                     }
-
-                    return $next($request);
                 }
+
+                // API route with valid parent mapping - allow access
+                // (either permission check passed, or parent not configured for permissions)
+                return $next($request);
             }
         }
 
