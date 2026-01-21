@@ -89,6 +89,11 @@ class CheckPermission
             '/-access-management$/',  // e.g., users-access-management
             '/\.unread-count$/',      // e.g., chat.unread-count
             '/\.conversations-json$/', // e.g., chat.conversations-json
+            '/\.checked-in-users$/',  // e.g., chat.checked-in-users
+            '/\.send$/',              // e.g., chat.send
+            '/\.upload-image$/',      // e.g., chat.upload-image
+            '/\.messages\.edit$/',    // e.g., chat.messages.edit
+            '/\.find-by-order$/',     // e.g., chat.find-by-order
         ];
 
         // Check if current route matches any API pattern
@@ -108,6 +113,7 @@ class CheckPermission
             if ($parentRoute) {
                 $sidebarItem = SidebarItem::where('route', $parentRoute)->first();
 
+                // If parent sidebar item exists with permission_id, check permission
                 if ($sidebarItem && $sidebarItem->permission_id) {
                     $permissionId = $sidebarItem->permission_id;
 
@@ -119,9 +125,11 @@ class CheckPermission
                     if (!$hasPermission) {
                         abort(403, 'Anda tidak memiliki akses ke halaman ini.');
                     }
-
-                    return $next($request);
                 }
+
+                // API route with valid parent mapping - allow access
+                // (either permission check passed, or parent not configured for permissions)
+                return $next($request);
             }
         }
 

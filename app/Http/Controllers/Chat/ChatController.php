@@ -237,7 +237,7 @@ class ChatController extends Controller
     {
         $user = Auth::user();
 
-        $query = ChatConversation::with(['transaction', 'property', 'participants'])
+        $query = ChatConversation::with(['transaction.user', 'property', 'participants', 'booking.room'])
             ->withCount(['messages'])
             ->orderBy('last_message_at', 'desc')
             ->orderBy('created_at', 'desc');
