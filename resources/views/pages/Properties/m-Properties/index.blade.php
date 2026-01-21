@@ -166,7 +166,9 @@
                                         x-transition:enter-start="opacity-0 translate-x-4"
                                         x-transition:enter-end="opacity-100 translate-x-0">
                                         <div class="space-y-6">
+                                            <!-- Nama Properti & Initial -->
                                             <div class="grid grid-cols-12 gap-4">
+                                                <!-- Nama Properti -->
                                                 <div class="col-span-10">
                                                     <label for="property_name"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -178,7 +180,8 @@
                                                         placeholder="Masukkan nama properti">
                                                 </div>
 
-                                                <div class="col-span-2 col-start-11">
+                                                <!-- Initial -->
+                                                <div class="col-span-2">
                                                     <label for="initial"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Initial <span class="text-red-500">*</span>
@@ -186,7 +189,7 @@
                                                     <div class="flex items-center">
                                                         <input type="text" id="initial" name="initial" required
                                                             maxlength="3"
-                                                            class="w-24 border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase text-center"
+                                                            class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase text-center"
                                                             placeholder="ABC"
                                                             oninput="this.value = this.value.toUpperCase()">
                                                     </div>
@@ -195,6 +198,7 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Jenis Properti -->
                                             <div>
                                                 <label
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -222,6 +226,7 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Deskripsi -->
                                             <div>
                                                 <label for="description"
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">

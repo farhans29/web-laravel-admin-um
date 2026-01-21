@@ -642,7 +642,9 @@
                                                 x-transition:enter-start="opacity-0 translate-x-4"
                                                 x-transition:enter-end="opacity-100 translate-x-0">
                                                 <div class="space-y-6">
+                                                    <!-- Nama Properti & Initial -->
                                                     <div class="grid grid-cols-12 gap-4">
+                                                        <!-- Nama Properti -->
                                                         <div class="col-span-10">
                                                             <label for="property_name_edit_{{ $property->idrec }}"
                                                                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -656,6 +658,7 @@
                                                                 placeholder="Masukkan nama properti">
                                                         </div>
 
+                                                        <!-- Initial -->
                                                         <div class="col-span-2">
                                                             <label for="initial_edit_{{ $property->idrec }}"
                                                                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -666,7 +669,7 @@
                                                                     id="initial_edit_{{ $property->idrec }}"
                                                                     name="initial" required maxlength="3"
                                                                     x-model="propertyData.initial"
-                                                                    class="w-24 border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase text-center text-center"
+                                                                    class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase text-center"
                                                                     placeholder="ABC"
                                                                     oninput="this.value = this.value.toUpperCase()">
                                                             </div>
@@ -675,6 +678,7 @@
                                                         </div>
                                                     </div>
 
+                                                    <!-- Jenis Properti -->
                                                     <div>
                                                         <label
                                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -692,15 +696,15 @@
                                                             <template x-for="type in types" :key="type.value">
                                                                 <div class="relative">
                                                                     <input
-                                                                        :id="'type-edit-{{ $property->idrec }}-' +
-                                                                        type.value"
+                                                                        :id="'type-edit-{{ $property->idrec }}-' + type
+                                                                            .value"
                                                                         name="property_type" type="radio"
                                                                         :value="type.value" class="sr-only peer"
                                                                         required x-model="selectedType"
                                                                         @change="propertyData.tags = type.value">
                                                                     <label
-                                                                        :for="'type-edit-{{ $property->idrec }}-' +
-                                                                        type.value"
+                                                                        :for="'type-edit-{{ $property->idrec }}-' + type
+                                                                            .value"
                                                                         class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
                                                                         <span x-text="type.label"></span>
                                                                     </label>
@@ -709,6 +713,7 @@
                                                         </div>
                                                     </div>
 
+                                                    <!-- Deskripsi -->
                                                     <div>
                                                         <label for="description_edit_{{ $property->idrec }}"
                                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
