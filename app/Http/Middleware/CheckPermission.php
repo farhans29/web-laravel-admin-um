@@ -89,6 +89,7 @@ class CheckPermission
             '/-access-management$/',  // e.g., users-access-management
             '/\.unread-count$/',      // e.g., chat.unread-count
             '/\.conversations-json$/', // e.g., chat.conversations-json
+            '/\.checked-in-users$/',  // e.g., chat.checked-in-users
         ];
 
         // Check if current route matches any API pattern
