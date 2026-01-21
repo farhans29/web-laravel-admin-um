@@ -90,6 +90,10 @@ class CheckPermission
             '/\.unread-count$/',      // e.g., chat.unread-count
             '/\.conversations-json$/', // e.g., chat.conversations-json
             '/\.checked-in-users$/',  // e.g., chat.checked-in-users
+            '/\.send$/',              // e.g., chat.send
+            '/\.upload-image$/',      // e.g., chat.upload-image
+            '/\.messages\.edit$/',    // e.g., chat.messages.edit
+            '/\.find-by-order$/',     // e.g., chat.find-by-order
         ];
 
         // Check if current route matches any API pattern
