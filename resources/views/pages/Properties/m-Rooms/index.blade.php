@@ -398,8 +398,8 @@
                                                     <!-- Thumbnail Preview -->
                                                     <div class="w-32 h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden relative"
                                                         x-show="images.length > 0">
-                                                        <template x-if="thumbnailIndex !== null">
-                                                            <img :src="images[thumbnailIndex].url"
+                                                        <template x-if="thumbnailIndex !== null && images[thumbnailIndex]">
+                                                            <img :src="images[thumbnailIndex]?.url"
                                                                 alt="Selected Thumbnail"
                                                                 class="w-full h-full object-cover">
                                                         </template>
@@ -494,9 +494,10 @@
                                                                 :class="thumbnailIndex === index ?
                                                                     'border-blue-600 ring-2 ring-blue-400' :
                                                                     'border-gray-200 hover:border-blue-400'">
-                                                                <img :src="image.url"
+                                                                <img :src="image?.url || ''"
                                                                     :alt="`Preview ${index + 1}`"
-                                                                    class="w-full h-full object-cover">
+                                                                   class="w-full h-full object-cover"
+                                                                    x-show="image?.url">
 
                                                                 <!-- Thumbnail badge -->
                                                                 <div x-show="thumbnailIndex === index"
