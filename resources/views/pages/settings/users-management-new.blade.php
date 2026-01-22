@@ -239,6 +239,8 @@
                     <!-- Search Form -->
                     <div class="relative">
                         <form method="GET" action="{{ route('users-newManagement') }}" id="searchForm">
+                            <input type="hidden" name="status" value="{{ $statusFilter }}">
+                            <input type="hidden" name="per_page" value="{{ $perPage }}">
                             <input type="text" name="search" id="searchInput" value="{{ request('search') }}"
                                 placeholder="Cari pengguna..."
                                 class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-56">
@@ -252,8 +254,25 @@
                         </form>
                     </div>
 
+                    <!-- Status Filter -->
+                    <form method="GET" action="{{ route('users-newManagement') }}" id="statusFilterForm">
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                        <input type="hidden" name="per_page" value="{{ $perPage }}">
+                        <div class="flex items-center">
+                            <label for="status" class="mr-2 text-sm font-medium text-gray-600">Status:</label>
+                            <select name="status" id="status" onchange="this.form.submit()"
+                                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 w-36">
+                                <option value="1" {{ $statusFilter == '1' ? 'selected' : '' }}>Aktif</option>
+                                <option value="0" {{ $statusFilter == '0' ? 'selected' : '' }}>Tidak Aktif</option>
+                                <option value="all" {{ $statusFilter == 'all' ? 'selected' : '' }}>Semua</option>
+                            </select>
+                        </div>
+                    </form>
+
                     <!-- Per Page Form -->
-                    <form method="GET" action="{{ route('users-newManagement') }}">
+                    <form method="GET" action="{{ route('users-newManagement') }}" id="perPageForm">
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                        <input type="hidden" name="status" value="{{ $statusFilter }}">
                         <div class="flex items-center">
                             <label for="per_page" class="mr-2 text-sm font-medium text-gray-600">Tampilkan:</label>
                             <select name="per_page" id="per_page" onchange="this.form.submit()"

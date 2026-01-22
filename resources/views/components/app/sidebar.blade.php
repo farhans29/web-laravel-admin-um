@@ -477,6 +477,30 @@
                             </li>
                         @endcan
 
+                        <!-- Promo Banners -->
+                        @can('view_promo_banners')
+                            <li>
+                                <a href="{{ route('promo-banners.index') }}"
+                                    class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('promo-banners.*')) bg-indigo-900 @endif">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="whitespace-nowrap transition-all duration-300"
+                                        style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                            'lg:opacity-0 lg:max-w-0'">Promo Banners</span>
+
+                                    <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
+                                        Promo Banners
+                                    </div>
+                                </a>
+                            </li>
+                        @endcan
+
                         <!-- Chat -->
                         @can('manage_chat')
                             <li x-data="{ unreadCount: 0 }"

@@ -166,7 +166,9 @@
                                         x-transition:enter-start="opacity-0 translate-x-4"
                                         x-transition:enter-end="opacity-100 translate-x-0">
                                         <div class="space-y-6">
+                                            <!-- Nama Properti & Initial -->
                                             <div class="grid grid-cols-12 gap-4">
+                                                <!-- Nama Properti -->
                                                 <div class="col-span-10">
                                                     <label for="property_name"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -178,7 +180,8 @@
                                                         placeholder="Masukkan nama properti">
                                                 </div>
 
-                                                <div class="col-span-2 col-start-11">
+                                                <!-- Initial -->
+                                                <div class="col-span-2">
                                                     <label for="initial"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                         Initial <span class="text-red-500">*</span>
@@ -186,7 +189,7 @@
                                                     <div class="flex items-center">
                                                         <input type="text" id="initial" name="initial" required
                                                             maxlength="3"
-                                                            class="w-24 border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase text-center"
+                                                            class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase text-center"
                                                             placeholder="ABC"
                                                             oninput="this.value = this.value.toUpperCase()">
                                                     </div>
@@ -195,6 +198,7 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Jenis Properti -->
                                             <div>
                                                 <label
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -222,6 +226,7 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Deskripsi -->
                                             <div>
                                                 <label for="description"
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -527,8 +532,8 @@
                                                         <!-- Thumbnail Preview -->
                                                         <div class="w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 overflow-hidden relative"
                                                             x-show="images.length > 0">
-                                                            <template x-if="thumbnailIndex !== null">
-                                                                <img :src="images[thumbnailIndex].url"
+                                                            <template x-if="thumbnailIndex !== null && images[thumbnailIndex]">
+                                                                <img :src="images[thumbnailIndex]?.url"
                                                                     alt="Selected Thumbnail"
                                                                     class="w-full h-full object-cover">
                                                             </template>
@@ -771,10 +776,11 @@
                             <span class="text-sm text-gray-600 dark:text-gray-400">Status:</span>
                             <select name="status" id="statusFilter"
                                 class="border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                <option value="">Semua</option>
-                                <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active
+                                <option value="1" {{ ($statusFilter ?? '1') == '1' ? 'selected' : '' }}>Active
                                 </option>
-                                <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive
+                                <option value="0" {{ ($statusFilter ?? '1') == '0' ? 'selected' : '' }}>Inactive
+                                </option>
+                                <option value="all" {{ ($statusFilter ?? '1') == 'all' ? 'selected' : '' }}>Semua
                                 </option>
                             </select>
                         </div>
@@ -870,8 +876,19 @@
                     return response.json();
                 })
                 .then(data => {
+                    // Destroy existing Alpine components before replacing content
+                    const existingAlpineElements = propertyTableContainer.querySelectorAll('[x-data]');
+                    existingAlpineElements.forEach(el => {
+                        if (el._x_dataStack) {
+                            Alpine.destroyTree(el);
+                        }
+                    });
+
                     // Update tabel
                     propertyTableContainer.innerHTML = data.html;
+
+                    // Reinitialize Alpine on new content
+                    Alpine.initTree(propertyTableContainer);
 
                     // Update pagination jika ada
                     if (data.pagination) {
@@ -944,7 +961,7 @@
                     // Notifikasi Toastify lebih menarik
                     Toastify({
                         text: newStatus === 1 ?
-                            "✓ Kamar berhasil diaktifkan" : "⚠ Kamar berhasil dinonaktifkan",
+                            "✓ Properti berhasil diaktifkan" : "⚠ Properti berhasil dinonaktifkan",
                         duration: 3500,
                         close: true,
                         gravity: "top",
@@ -1571,6 +1588,9 @@
                             return data;
                         })
                         .then(data => {
+                            // Close the modal first before showing success message
+                            this.modalOpenDetail = false;
+
                             Swal.fire({
                                 toast: true,
                                 position: 'top-end',
@@ -1621,7 +1641,7 @@
         });
 
         document.addEventListener('alpine:init', () => {
-            Alpine.data('modalPropertyEdit', (property) => ({
+            Alpine.data('modalPropertyEdit', (property = {}) => ({
                 editModalOpen: false,
                 editStep: 1,
                 editMinImages: 3,
@@ -1636,10 +1656,11 @@
                 originalPropertyData: {},
                 thumbnailIndex: 0,
                 isDragging: false,
+                propertyIdrec: property.idrec || null,
                 propertyData: {
                     name: property.name || '',
                     initial: property.initial || '',
-                    tags: property.tags || 'House',
+                    tags: property.tags || 'Kos',
                     description: property.description || '',
                     address: property.address || '',
                     latitude: property.latitude || null,
@@ -1652,7 +1673,8 @@
                     general: Array.isArray(property.general) ? property.general : [],
                     security: Array.isArray(property.security) ? property.security : [],
                     amenities: Array.isArray(property.amenities) ? property.amenities : [],
-                    existingImages: property.existingImages || []
+                    existingImages: Array.isArray(property.existingImages) ? property.existingImages :
+                    []
                 },
 
                 init() {
@@ -1727,14 +1749,18 @@
                     return totalCurrentImages >= this.editMinImages;
                 },
 
-                openModal(data) {
-                    this.propertyData = {
-                        ...this.propertyData,
-                        ...data,
-                        general: Array.isArray(data.general) ? data.general : [],
-                        security: Array.isArray(data.security) ? data.security : [],
-                        amenities: Array.isArray(data.amenities) ? data.amenities : []
-                    };
+                openModal(data = null) {
+                    // If data is provided, merge it with existing propertyData
+                    if (data) {
+                        this.propertyData = {
+                            ...this.propertyData,
+                            ...data,
+                            general: Array.isArray(data.general) ? data.general : [],
+                            security: Array.isArray(data.security) ? data.security : [],
+                            amenities: Array.isArray(data.amenities) ? data.amenities : []
+                        };
+                    }
+
                     this.editModalOpen = true;
                     this.editStep = 1;
                     this.editImages = [];
@@ -1747,6 +1773,8 @@
                     );
                     if (thumbnailIndex !== -1) {
                         this.thumbnailIndex = thumbnailIndex;
+                    } else {
+                        this.thumbnailIndex = 0;
                     }
 
                     this.$nextTick(() => {
@@ -1763,7 +1791,7 @@
                             await this.loadLeaflet();
                         }
 
-                        const mapId = `map_edit_${property.idrec}`;
+                        const mapId = `map_edit_${this.propertyIdrec}`;
                         const mapElement = document.getElementById(mapId);
 
                         if (!mapElement) {
@@ -1819,10 +1847,15 @@
 
                         // Initialize marker if coordinates exist
                         if (this.propertyData.latitude && this.propertyData.longitude) {
-                            this.placeMarker({
-                                lat: this.propertyData.latitude,
-                                lng: this.propertyData.longitude
-                            });
+                            const lat = parseFloat(this.propertyData.latitude);
+                            const lng = parseFloat(this.propertyData.longitude);
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                this.placeMarker({
+                                    lat,
+                                    lng
+                                });
+                                this.map.setView([lat, lng], 15);
+                            }
                         }
 
                         console.log('Map initialized successfully');
@@ -1861,24 +1894,34 @@
                 },
 
                 placeMarker(latlng) {
+                    // Parse coordinates as floats to ensure they're numbers
+                    const lat = parseFloat(latlng.lat);
+                    const lng = parseFloat(latlng.lng);
+
+                    if (isNaN(lat) || isNaN(lng)) {
+                        console.error('Invalid coordinates:', latlng);
+                        return;
+                    }
+
                     if (this.marker) {
                         this.map.removeLayer(this.marker);
                     }
 
-                    this.marker = L.marker(latlng, {
+                    this.marker = L.marker([lat, lng], {
                         draggable: true
                     }).addTo(this.map);
 
                     // Update coordinates display
-                    const coordsElement = document.getElementById(`coordinates_edit_${property.idrec}`);
+                    const coordsElement = document.getElementById(
+                        `coordinates_edit_${this.propertyIdrec}`);
                     if (coordsElement) {
                         coordsElement.innerHTML =
-                            `Koordinat: ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+                            `Koordinat: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
                     }
 
                     // Update property data
-                    this.propertyData.latitude = latlng.lat;
-                    this.propertyData.longitude = latlng.lng;
+                    this.propertyData.latitude = lat;
+                    this.propertyData.longitude = lng;
 
                     // Update marker position on drag
                     this.marker.on('dragend', (e) => {
@@ -2344,7 +2387,6 @@
                     if (!this.validateEditStep() || this.isSubmitting) return;
                     this.isSubmitting = true;
 
-                    // Store the submit button reference and original text
                     const submitBtn = document.querySelector(
                         `#propertyFormEdit-${property.idrec} button[type="submit"]`);
                     const originalText = submitBtn?.innerHTML;
@@ -2352,21 +2394,21 @@
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = `
-                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Memproses...
-                                `;
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Memproses...
+                        `;
                     }
 
                     try {
-                        // Create FormData for the submission
                         const formData = new FormData();
 
                         // Add basic property data
                         formData.append('name', this.propertyData.name);
                         formData.append('initial', this.propertyData.initial);
+                        formData.append('tags', this.propertyData.tags);
                         formData.append('description', this.propertyData.description);
                         formData.append('address', this.propertyData.address);
                         formData.append('latitude', this.propertyData.latitude);
@@ -2376,43 +2418,40 @@
                         formData.append('subdistrict', this.propertyData.subdistrict);
                         formData.append('village', this.propertyData.village);
                         formData.append('postal_code', this.propertyData.postal_code);
-                        formData.append('tags', this.propertyData.tags);
 
-                        // Handle array fields properly - ensure they are always arrays
+                        // Handle array fields - FIXED: Only append if array is not empty
                         const generalArray = Array.isArray(this.propertyData.general) ? this
-                            .propertyData.general : [];
+                            .propertyData.general.map(v => parseInt(v, 10)).filter(v => !isNaN(v)) :
+                            [];
                         const securityArray = Array.isArray(this.propertyData.security) ? this
-                            .propertyData.security : [];
+                            .propertyData.security.map(v => parseInt(v, 10)).filter(v => !isNaN(
+                            v)) : [];
                         const amenitiesArray = Array.isArray(this.propertyData.amenities) ? this
-                            .propertyData.amenities : [];
+                            .propertyData.amenities.map(v => parseInt(v, 10)).filter(v => !isNaN(
+                            v)) : [];
 
-                        // Append array fields - add each item individually
-                        generalArray.forEach(item => {
-                            formData.append('general[]', item);
-                        });
-
-                        securityArray.forEach(item => {
-                            formData.append('security[]', item);
-                        });
-
-                        amenitiesArray.forEach(item => {
-                            formData.append('amenities[]', item);
-                        });
-
-                        // If arrays are empty, add empty array indicators
-                        if (generalArray.length === 0) {
-                            formData.append('general[]', '');
+                        // Append only if array has items
+                        if (generalArray.length > 0) {
+                            generalArray.forEach(item => {
+                                formData.append('general[]', item);
+                            });
                         }
-                        if (securityArray.length === 0) {
-                            formData.append('security[]', '');
+
+                        if (securityArray.length > 0) {
+                            securityArray.forEach(item => {
+                                formData.append('security[]', item);
+                            });
                         }
-                        if (amenitiesArray.length === 0) {
-                            formData.append('amenities[]', '');
+
+                        if (amenitiesArray.length > 0) {
+                            amenitiesArray.forEach(item => {
+                                formData.append('amenities[]', item);
+                            });
                         }
 
                         // Append new images
-                        this.editImages.forEach((image, index) => {
-                            formData.append(`property_images[${index}]`, image.file);
+                        this.editImages.forEach((image) => {
+                            formData.append('property_images[]', image.file);
                         });
 
                         // Append existing images that are not marked for deletion
@@ -2423,11 +2462,13 @@
                             });
 
                         // Append images to delete
-                        this.propertyData.existingImages
+                        const deleteImages = this.propertyData.existingImages
                             .filter(img => img.markedForDeletion)
-                            .forEach(img => {
-                                formData.append('delete_images[]', img.id);
-                            });
+                            .map(img => img.id);
+
+                        deleteImages.forEach(imgId => {
+                            formData.append('delete_images[]', imgId);
+                        });
 
                         formData.append('thumbnail_index', this.thumbnailIndex);
 
@@ -2435,12 +2476,6 @@
                         formData.append('_token', document.querySelector('meta[name="csrf-token"]')
                             .content);
                         formData.append('_method', 'PUT');
-
-                        // Debug: Log FormData contents
-                        console.log('FormData contents:');
-                        for (let [key, value] of formData.entries()) {
-                            console.log(key, value);
-                        }
 
                         const response = await fetch(
                             document.getElementById(`propertyFormEdit-${property.idrec}`)
@@ -2465,13 +2500,15 @@
                         }
 
                         if (!response.ok) {
-                            // Handle validation errors
                             if (data.errors) {
                                 const errorMessages = Object.values(data.errors).flat().join(', ');
                                 throw new Error(errorMessages);
                             }
                             throw new Error(data.message || 'Gagal memperbarui properti');
                         }
+
+                        // Close the modal first before showing success message
+                        this.closeModal();
 
                         Swal.fire({
                             toast: true,
@@ -2482,8 +2519,6 @@
                             timer: 1000,
                             timerProgressBar: true,
                             didClose: () => {
-                                this.closeModal();
-                                // Reload table only, no full page refresh
                                 if (typeof loadPropertiesData === 'function') {
                                     loadPropertiesData();
                                 } else {
@@ -2499,7 +2534,7 @@
                             icon: 'error',
                             title: `Error: ${error.message}`,
                             showConfirmButton: false,
-                            timer: 5000, // Longer timer for error messages
+                            timer: 5000,
                             timerProgressBar: true,
                         });
                     } finally {

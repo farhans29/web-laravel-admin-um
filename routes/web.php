@@ -24,6 +24,8 @@ use App\Http\Controllers\Reports\BookingReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\RentedRoomsReportController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\PromoBannerController;
+use App\Http\Controllers\Chat\ChatController;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -167,6 +169,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::post('/properties/toggle-status', [ManajementPropertiesController::class, 'toggleStatus'])->name('properties.toggle-status');
 
         Route::put('/m-properties/{property}/status', [ManajementPropertiesController::class, 'updateStatus'])->name('properties.updateStatus');
+        Route::post('/m-properties/set-active-all', [ManajementPropertiesController::class, 'setActiveAll'])->name('properties.setActiveAll');
         Route::post('/m-properties/store', [ManajementPropertiesController::class, 'store'])->name('properties.store');
         Route::put('/m-properties/update/{idrec}', [ManajementPropertiesController::class, 'update'])->name('properties.update');
         Route::get('/m-properties/table', [ManajementPropertiesController::class, 'tablePartial'])->name('properties.table');
@@ -181,6 +184,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::post('/rooms/check-room-number', [ManajementRoomsController::class, 'checkRoomNumber'])->name('rooms.check-room-number');
         Route::put('/rooms/update/{idrec}', [ManajementRoomsController::class, 'update'])->name('rooms.update');
         Route::put('/rooms/{room}/status', [ManajementRoomsController::class, 'updateStatus'])->name('room.updateStatus');
+        Route::post('/rooms/set-active-all', [ManajementRoomsController::class, 'setActiveAll'])->name('rooms.setActiveAll');
         Route::get('/rooms/{id}', [ManajementRoomsController::class, 'show'])->where('id', '[0-9]+')->name('rooms.show');
         Route::get('/rooms/table', [ManajementRoomsController::class, 'tablePartial'])->name('properties.table');
         Route::delete('/rooms/{idrec}/destroy', [ManajementRoomsController::class, 'destroy'])->name('rooms.destoy');
@@ -238,17 +242,27 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::delete('/{id}', [VoucherController::class, 'destroy'])->where('id', '[0-9]+')->name('vouchers.destroy');
     });
 
+    Route::prefix('promo-banners')->group(function () {
+        Route::get('/', [PromoBannerController::class, 'index'])->name('promo-banners.index');
+        Route::get('/filter', [PromoBannerController::class, 'filter'])->name('promo-banners.filter');
+        Route::post('/toggle-status', [PromoBannerController::class, 'toggleStatus'])->name('promo-banners.toggle-status');
+        Route::post('/store', [PromoBannerController::class, 'store'])->name('promo-banners.store');
+        Route::get('/{id}', [PromoBannerController::class, 'show'])->where('id', '[0-9]+')->name('promo-banners.show');
+        Route::put('/{id}', [PromoBannerController::class, 'update'])->where('id', '[0-9]+')->name('promo-banners.update');
+        Route::delete('/{id}', [PromoBannerController::class, 'destroy'])->where('id', '[0-9]+')->name('promo-banners.destroy');
+    });
+
     Route::prefix('chat')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Chat\ChatController::class, 'index'])->name('chat.index');
-        Route::get('/filter', [\App\Http\Controllers\Chat\ChatController::class, 'filter'])->name('chat.filter');
-        Route::get('/find-by-order', [\App\Http\Controllers\Chat\ChatController::class, 'findByOrder'])->name('chat.find-by-order');
-        Route::get('/conversations-json', [\App\Http\Controllers\Chat\ChatController::class, 'getConversationsJson'])->name('chat.conversations-json');
-        Route::get('/{id}', [\App\Http\Controllers\Chat\ChatController::class, 'show'])->where('id', '[0-9]+')->name('chat.show');
-        Route::post('/store', [\App\Http\Controllers\Chat\ChatController::class, 'store'])->name('chat.store');
-        Route::post('/{conversationId}/send', [\App\Http\Controllers\Chat\ChatController::class, 'sendMessage'])->name('chat.send');
-        Route::get('/checked-in-users', [\App\Http\Controllers\Chat\ChatController::class, 'getCheckedInUsers'])->name('chat.checked-in-users');
-        Route::post('/{conversationId}/upload-image', [\App\Http\Controllers\Chat\ChatController::class, 'uploadImage'])->name('chat.upload-image');
-        Route::put('/messages/{id}/edit', [\App\Http\Controllers\Chat\ChatController::class, 'editMessage'])->name('chat.messages.edit');
-        Route::get('/unread-count', [\App\Http\Controllers\Chat\ChatController::class, 'getUnreadCount'])->name('chat.unread-count');
+        Route::get('/', [ChatController::class, 'index'])->name('chat.index');
+        Route::get('/filter', [ChatController::class, 'filter'])->name('chat.filter');
+        Route::get('/find-by-order', [ChatController::class, 'findByOrder'])->name('chat.find-by-order');
+        Route::get('/conversations-json', [ChatController::class, 'getConversationsJson'])->name('chat.conversations-json');
+        Route::get('/{id}', [ChatController::class, 'show'])->where('id', '[0-9]+')->name('chat.show');
+        Route::post('/store', [ChatController::class, 'store'])->name('chat.store');
+        Route::post('/{conversationId}/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+        Route::get('/checked-in-users', [ChatController::class, 'getCheckedInUsers'])->name('chat.checked-in-users');
+        Route::post('/{conversationId}/upload-image', [ChatController::class, 'uploadImage'])->name('chat.upload-image');
+        Route::put('/messages/{id}/edit', [ChatController::class, 'editMessage'])->name('chat.messages.edit');
+        Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('chat.unread-count');
     });
 });

@@ -398,8 +398,8 @@
                                                     <!-- Thumbnail Preview -->
                                                     <div class="w-32 h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden relative"
                                                         x-show="images.length > 0">
-                                                        <template x-if="thumbnailIndex !== null">
-                                                            <img :src="images[thumbnailIndex].url"
+                                                        <template x-if="thumbnailIndex !== null && images[thumbnailIndex]">
+                                                            <img :src="images[thumbnailIndex]?.url"
                                                                 alt="Selected Thumbnail"
                                                                 class="w-full h-full object-cover">
                                                         </template>
@@ -494,9 +494,10 @@
                                                                 :class="thumbnailIndex === index ?
                                                                     'border-blue-600 ring-2 ring-blue-400' :
                                                                     'border-gray-200 hover:border-blue-400'">
-                                                                <img :src="image.url"
+                                                                <img :src="image?.url || ''"
                                                                     :alt="`Preview ${index + 1}`"
-                                                                    class="w-full h-full object-cover">
+                                                                   class="w-full h-full object-cover"
+                                                                    x-show="image?.url">
 
                                                                 <!-- Thumbnail badge -->
                                                                 <div x-show="thumbnailIndex === index"
@@ -633,9 +634,9 @@
                     <div>
                         <select id="status-filter"
                             class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Semua Status</option>
-                            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
-                            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Nonaktif</option>
+                            <option value="1" {{ ($statusFilter ?? '1') == '1' ? 'selected' : '' }}>Aktif</option>
+                            <option value="0" {{ ($statusFilter ?? '1') == '0' ? 'selected' : '' }}>Nonaktif</option>
+                            <option value="all" {{ ($statusFilter ?? '1') == 'all' ? 'selected' : '' }}>Semua Status</option>
                         </select>
                     </div>
 

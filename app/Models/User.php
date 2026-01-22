@@ -98,7 +98,7 @@ class User extends Authenticatable
 
     public function isSuperAdmin()
     {
-        return in_array($this->id, [1, 165]);
+        return $this->is_admin === 1;
     }
 
     /**

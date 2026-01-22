@@ -70,6 +70,9 @@ class PermissionsTableSeeder extends Seeder
             'view_users',
             'manage_roles',
             'manage_settings',
+
+            // Promo Banners
+            'view_promo_banners',
         ];
 
         foreach ($permissions as $permission) {

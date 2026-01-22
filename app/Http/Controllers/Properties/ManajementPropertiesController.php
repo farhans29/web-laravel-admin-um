@@ -15,6 +15,7 @@ class ManajementPropertiesController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 8);
+        $statusFilter = $request->input('status', '1'); // Default menampilkan hanya yang aktif
 
         $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
@@ -45,8 +46,9 @@ class ManajementPropertiesController extends Controller
             });
         }
 
-        if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
+        // Filter status dengan default aktif
+        if ($statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
         }
 
         $properties = $perPage === 'all'
@@ -78,6 +80,7 @@ class ManajementPropertiesController extends Controller
             'facilities' => $facilities,
             'properties' => $properties,
             'per_page' => $perPage,
+            'statusFilter' => $statusFilter,
         ]);
     }
 
@@ -85,7 +88,7 @@ class ManajementPropertiesController extends Controller
     {
         $perPage = $request->input('per_page', 8);
         $search = $request->input('search');
-        $status = $request->input('status');
+        $status = $request->input('status', '1'); // Default aktif
 
         $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
@@ -118,8 +121,8 @@ class ManajementPropertiesController extends Controller
             });
         }
 
-        // Status Filter
-        if ($status !== null && $status !== '') {
+        // Status Filter dengan default aktif
+        if ($status !== 'all') {
             $query->where('status', $status);
         }
 
@@ -183,6 +186,40 @@ class ManajementPropertiesController extends Controller
         ]);
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Set all properties to active status
+     */
+    public function setActiveAll(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $query = Property::query();
+
+            // Filter berdasarkan akses user
+            $accessiblePropertyId = $user->getAccessiblePropertyId();
+            if ($accessiblePropertyId !== null) {
+                $query->where('idrec', $accessiblePropertyId);
+            }
+
+            $updatedCount = $query->where('status', 0)->update([
+                'status' => 1,
+                'updated_at' => now(),
+                'updated_by' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $updatedCount . ' properti berhasil diaktifkan',
+                'updated_count' => $updatedCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengaktifkan properti: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 
@@ -315,7 +352,7 @@ class ManajementPropertiesController extends Controller
                 'name' => 'required|string|max:255',
                 'initial' => 'required|string|max:3',
                 'tags' => 'required|string',
-                'description' => 'nullable|string',
+                'description' => 'required|string',
                 'address' => 'required|string',
                 'latitude' => 'required|numeric',
                 'longitude' => 'required|numeric',
@@ -341,67 +378,49 @@ class ManajementPropertiesController extends Controller
 
             $property = Property::findOrFail($id);
 
-            // Hapus gambar berdasarkan delete_images
+            // 1. Handle deletion of images marked for deletion
             $imagesToDelete = $request->input('delete_images', []);
             if (!empty($imagesToDelete)) {
-                // Hapus file dari storage
                 $imagesToDeleteRecords = PropertyImage::whereIn('idrec', $imagesToDelete)
                     ->where('property_id', $property->idrec)
                     ->get();
 
                 foreach ($imagesToDeleteRecords as $image) {
-                    // Hapus file fisik dari storage
                     if (Storage::disk('public')->exists($image->image)) {
                         Storage::disk('public')->delete($image->image);
                     }
                 }
 
-                // Hapus dari database
                 PropertyImage::whereIn('idrec', $imagesToDelete)
                     ->where('property_id', $property->idrec)
                     ->delete();
             }
 
-            // Reset all thumbnails first
-            PropertyImage::where('property_id', $property->idrec)
-                ->update(['thumbnail' => false]);
-
-            // Get all existing images (after possible deletion)
-            $existingImages = PropertyImage::where('property_id', $property->idrec)
+            // 2. Get all remaining existing images (after deletion)
+            $existingImageIds = $request->input('existing_images', []);
+            $existingImages = PropertyImage::whereIn('idrec', $existingImageIds)
+                ->where('property_id', $property->idrec)
                 ->orderBy('idrec')
                 ->get();
 
-            // Handle thumbnail selection for existing images
-            $thumbnailIndex = $request->input('thumbnail_index');
-            $existingImagesCount = $existingImages->count();
+            // 3. Reset all thumbnails first
+            PropertyImage::where('property_id', $property->idrec)
+                ->update(['thumbnail' => false]);
 
-            // Set thumbnail untuk existing images
-            if ($thumbnailIndex < $existingImagesCount) {
-                $existingImages[$thumbnailIndex]->update(['thumbnail' => true]);
-            }
-
-            // Simpan gambar baru jika ada
+            // 4. Handle new image uploads
             $newImages = [];
             if ($request->hasFile('property_images')) {
                 foreach ($request->file('property_images') as $index => $file) {
                     if (!$file->isValid()) continue;
 
-                    // Generate unique filename
-                    $filename = 'property_' . $property->idrec . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
-
-                    // Store file to storage
+                    $filename = 'property_' . $property->idrec . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                     $filePath = $file->storeAs('property_images', $filename, 'public');
-
                     $caption = $file->getClientOriginalName();
-
-                    // Check if this new image should be thumbnail
-                    $isThumbnail = ($thumbnailIndex >= $existingImagesCount) &&
-                        ($index == ($thumbnailIndex - $existingImagesCount));
 
                     $newImage = PropertyImage::create([
                         'property_id' => $property->idrec,
-                        'image' => $filePath, // Simpan path file, bukan base64
-                        'thumbnail' => $isThumbnail,
+                        'image' => $filePath,
+                        'thumbnail' => false,
                         'caption' => $caption,
                         'created_by' => Auth::id(),
                         'created_at' => now()
@@ -411,7 +430,16 @@ class ManajementPropertiesController extends Controller
                 }
             }
 
-            // Update data ke tabel `m_properties`
+            // 5. Combine all images (existing + new)
+            $allImages = collect($existingImages)->merge($newImages)->values();
+
+            // 6. Set thumbnail based on thumbnail_index
+            $thumbnailIndex = $request->input('thumbnail_index');
+            if ($allImages->count() > 0 && isset($allImages[$thumbnailIndex])) {
+                $allImages[$thumbnailIndex]->update(['thumbnail' => true]);
+            }
+
+            // 7. Update property data
             $property->update([
                 'name' => $request->input('name'),
                 'initial' => strtoupper($request->input('initial')),
