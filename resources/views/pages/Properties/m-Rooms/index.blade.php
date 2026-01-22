@@ -2177,6 +2177,447 @@
                     }
                 }
             }));
+
+            // Modal View Room Component (moved from room-detail-modal.blade.php)
+            Alpine.data('modalViewRoom', () => ({
+                selectedRoom: {
+                    currentImageIndex: 0,
+                    images: [],
+                    facilities: []
+                },
+                modalOpenDetail: false,
+                isLoading: false,
+                touchStartX: 0,
+                touchEndX: 0,
+
+                // Facility data from controller
+                facilityData: @json($facilityData ?? []),
+
+                getFacilityName(id, type) {
+                    // For room facilities
+                    if (type === 'room') {
+                        const facility = this.facilityData.find(f => f.id == id);
+                        return facility ? facility.name : `Facility #${id}`;
+                    }
+                    return `Facility #${id}`;
+                },
+
+                getFacilityDescription(id) {
+                    const facility = this.facilityData.find(f => f.id == id);
+                    return facility ? facility.description : '';
+                },
+
+                openModal(room) {
+                    this.isLoading = true;
+                    this.modalOpenDetail = true;
+                    this.disableBodyScroll();
+
+                    this.$nextTick(() => {
+                        // Filter gambar yang valid (URL atau path storage)
+                        const validImages = Array.isArray(room.images) ?
+                            room.images.filter(img => {
+                                if (!img) return false;
+                                // Terima URL (http/https) atau path yang mengandung 'room_images'
+                                return img.startsWith('http') ||
+                                    img.startsWith('/storage') ||
+                                    img.includes('room_images');
+                            }) : [];
+
+                        this.selectedRoom = {
+                            ...room,
+                            currentImageIndex: 0,
+                            images: validImages,
+                            facilities: Array.isArray(room.facilities) ? room.facilities : []
+                        };
+                        this.isLoading = false;
+                    });
+                },
+
+                closeModal() {
+                    this.modalOpenDetail = false;
+                    this.enableBodyScroll();
+                    setTimeout(() => {
+                        this.selectedRoom = {
+                            currentImageIndex: 0,
+                            images: [],
+                            facilities: []
+                        };
+                    }, 300);
+                },
+
+                nextImage() {
+                    if (this.hasMultipleImages) {
+                        this.selectedRoom.currentImageIndex =
+                            (this.selectedRoom.currentImageIndex + 1) % this.selectedRoom.images.length;
+                    }
+                },
+
+                prevImage() {
+                    if (this.hasMultipleImages) {
+                        this.selectedRoom.currentImageIndex =
+                            (this.selectedRoom.currentImageIndex - 1 + this.selectedRoom.images.length) %
+                            this.selectedRoom.images.length;
+                    }
+                },
+
+                goToImage(index) {
+                    if (this.hasMultipleImages && index >= 0 && index < this.selectedRoom.images.length) {
+                        this.selectedRoom.currentImageIndex = index;
+                    }
+                },
+
+                get hasMultipleImages() {
+                    return this.selectedRoom.images?.length > 1;
+                },
+
+                get currentImage() {
+                    return this.selectedRoom.images[this.selectedRoom.currentImageIndex];
+                },
+
+                handleTouchStart(e) {
+                    this.touchStartX = e.changedTouches[0].screenX;
+                },
+
+                handleTouchEnd(e) {
+                    this.touchEndX = e.changedTouches[0].screenX;
+                    this.handleSwipe();
+                },
+
+                handleSwipe() {
+                    const threshold = 50;
+                    const diff = this.touchStartX - this.touchEndX;
+
+                    if (diff > threshold) {
+                        this.nextImage();
+                    } else if (diff < -threshold) {
+                        this.prevImage();
+                    }
+                },
+
+                disableBodyScroll() {
+                    document.body.style.overflow = 'hidden';
+                    document.body.style.paddingRight = this.scrollbarWidth + 'px';
+                },
+
+                enableBodyScroll() {
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                },
+
+                get scrollbarWidth() {
+                    return window.innerWidth - document.documentElement.clientWidth;
+                },
+
+                init() {
+                    const handleKeyDown = (e) => {
+                        if (!this.modalOpenDetail) return;
+
+                        switch (e.key) {
+                            case 'Escape':
+                                this.closeModal();
+                                break;
+                            case 'ArrowRight':
+                                this.nextImage();
+                                break;
+                            case 'ArrowLeft':
+                                this.prevImage();
+                                break;
+                        }
+                    };
+
+                    document.addEventListener('keydown', handleKeyDown);
+
+                    // Cleanup when component is destroyed
+                    this.$watch('modalOpenDetail', (value) => {
+                        if (!value) {
+                            this.enableBodyScroll();
+                        }
+                    });
+                },
+
+                destroy() {
+                    this.enableBodyScroll();
+                }
+            }));
+
+            // Price Modal Component (moved from edit-price-daily-modal.blade.php)
+            Alpine.data('priceModal', (roomId = null, basePrice = 0) => ({
+                isOpen: false,
+                isLoading: false,
+                selectedDate: null,
+                currentMonth: new Date().getMonth(),
+                currentYear: new Date().getFullYear(),
+                priceMap: {},
+                roomId: roomId,
+                basePrice: basePrice,
+                cleaveInstance: null,
+
+                // Computed properties
+                get calendarTitle() {
+                    const months = [
+                        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                    ];
+                    return `${months[this.currentMonth]} ${this.currentYear}`;
+                },
+
+                get formattedSelectedDate() {
+                    if (!this.selectedDate) return 'Pilih tanggal';
+                    return this.selectedDate.toLocaleDateString('id-ID', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                },
+
+                get formattedDatePrice() {
+                    if (!this.selectedDate) return '-';
+                    const dateKey = this.formatDateKey(this.selectedDate);
+                    const price = this.priceMap[dateKey];
+                    if (price === undefined || price === null || isNaN(price)) return '-';
+                    return this.formatCurrency(price);
+                },
+
+                get formattedBasePrice() {
+                    const price = this.basePrice;
+                    if (price === undefined || price === null || isNaN(price)) return '-';
+                    return this.formatCurrency(price);
+                },
+
+                get calendarWeeks() {
+                    const weeks = [];
+                    const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+                    const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
+
+                    // Start from Sunday (0)
+                    let startDate = new Date(firstDay);
+                    startDate.setDate(startDate.getDate() - startDate.getDay());
+
+                    for (let week = 0; week < 6; week++) {
+                        const days = [];
+                        for (let day = 0; day < 7; day++) {
+                            const currentDate = new Date(startDate);
+                            const dateKey = this.formatDateKey(currentDate);
+                            const price = this.priceMap[dateKey];
+                            const isCurrentMonth = currentDate.getMonth() === this.currentMonth;
+                            const isToday = this.isToday(currentDate);
+                            const isPast = this.isPastDate(currentDate);
+                            const isSelected = this.selectedDate && this.isSameDate(currentDate, this.selectedDate);
+
+                            days.push({
+                                date: currentDate,
+                                isCurrentMonth,
+                                isToday,
+                                isPast,
+                                isSelected,
+                                price: price
+                            });
+
+                            startDate.setDate(startDate.getDate() + 1);
+                        }
+                        weeks.push(days);
+                    }
+                    return weeks;
+                },
+
+                // Methods
+                openModal() {
+                    this.isOpen = true;
+                    document.body.classList.add('overflow-hidden');
+                    this.$nextTick(() => {
+                        this.fetchMonthPrices();
+                    });
+                },
+
+                closeModal() {
+                    this.isOpen = false;
+                    document.body.classList.remove('overflow-hidden');
+                },
+
+                formatDateKey(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+
+                formatCurrency(value) {
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    }).format(value);
+                },
+
+                isToday(date) {
+                    const today = new Date();
+                    return date.toDateString() === today.toDateString();
+                },
+
+                isPastDate(date) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const compareDate = new Date(date);
+                    compareDate.setHours(0, 0, 0, 0);
+                    return compareDate < today;
+                },
+
+                isSameDate(date1, date2) {
+                    return date1.toDateString() === date2.toDateString();
+                },
+
+                async fetchMonthPrices() {
+                    try {
+                        const res = await fetch(
+                            `/properties/rooms/${this.roomId}/prices?year=${this.currentYear}&month=${this.currentMonth + 1}`
+                        );
+
+                        if (!res.ok) throw new Error('Failed to fetch prices');
+
+                        const data = await res.json();
+                        this.priceMap = data;
+                    } catch (error) {
+                        console.error('Error fetching prices:', error);
+                        this.showAlert('error', 'Gagal memuat data harga');
+                    }
+                },
+
+                selectDate(day) {
+                    if (!day.isCurrentMonth || day.isPast) return;
+                    this.selectedDate = day.date;
+
+                    // Set current price in the input field if available
+                    if (day.price !== undefined && day.price !== null && this.cleaveInstance) {
+                        this.cleaveInstance.setRawValue(day.price.toString());
+                    } else if (this.cleaveInstance) {
+                        this.cleaveInstance.setRawValue('');
+                    }
+                },
+
+                previousMonth() {
+                    if (this.currentMonth === 0) {
+                        this.currentMonth = 11;
+                        this.currentYear--;
+                    } else {
+                        this.currentMonth--;
+                    }
+                    this.fetchMonthPrices();
+                },
+
+                nextMonth() {
+                    if (this.currentMonth === 11) {
+                        this.currentMonth = 0;
+                        this.currentYear++;
+                    } else {
+                        this.currentMonth++;
+                    }
+                    this.fetchMonthPrices();
+                },
+
+                getDayColor(day) {
+                    if (!day.isCurrentMonth || day.price === undefined || day.price === null) {
+                        return 'bg-gray-100';
+                    }
+
+                    if (parseInt(day.price) === parseInt(this.basePrice)) {
+                        return 'bg-blue-500 text-white';
+                    } else if (parseInt(day.price) > parseInt(this.basePrice)) {
+                        return 'bg-red-500 text-white';
+                    } else {
+                        return 'bg-green-500 text-white';
+                    }
+                },
+
+                getPriceIndicatorColor(day) {
+                    if (!day.isCurrentMonth || day.price === undefined || day.price === null) {
+                        return 'bg-gray-400';
+                    }
+
+                    if (parseInt(day.price) === parseInt(this.basePrice)) {
+                        return 'bg-blue-200';
+                    } else if (parseInt(day.price) > parseInt(this.basePrice)) {
+                        return 'bg-red-200';
+                    } else {
+                        return 'bg-green-200';
+                    }
+                },
+
+                async updatePrice() {
+                    if (!this.selectedDate) {
+                        this.showAlert('warning', 'Silakan pilih tanggal terlebih dahulu');
+                        return;
+                    }
+
+                    this.isLoading = true;
+
+                    try {
+                        const priceValue = this.cleaveInstance.getRawValue() ?
+                            parseFloat(this.cleaveInstance.getRawValue()) : null;
+
+                        const res = await fetch(`/properties/rooms/${this.roomId}/update-price`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                start_date: this.formatDateKey(this.selectedDate),
+                                end_date: this.formatDateKey(this.selectedDate),
+                                price: priceValue
+                            })
+                        });
+
+                        const data = await res.json();
+
+                        if (!res.ok) {
+                            throw new Error(data.message || 'Gagal memperbarui harga');
+                        }
+
+                        this.showAlert('success', 'Harga berhasil diperbarui!');
+                        await this.fetchMonthPrices();
+
+                        // Reset form
+                        this.cleaveInstance.setRawValue('');
+                    } catch (error) {
+                        console.error('Update error:', error);
+                        this.showAlert('error', error.message || 'Terjadi kesalahan saat memperbarui harga');
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                showAlert(type, message) {
+                    Swal.fire({
+                        icon: type,
+                        title: message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                },
+
+                init() {
+                    // Initialize price input formatter
+                    this.$nextTick(() => {
+                        if (this.$refs.setPrice) {
+                            this.cleaveInstance = new Cleave(this.$refs.setPrice, {
+                                numeral: true,
+                                numeralDecimalMark: ',',
+                                delimiter: '.',
+                                numeralThousandsGroupStyle: 'thousand',
+                                onValueChanged: (e) => {
+                                    // Value is handled by getRawValue()
+                                }
+                            });
+                        }
+                    });
+                }
+            }));
         });
 
         // Kapasitas (Pax) is now manual input - auto-fill functionality removed
