@@ -66,11 +66,20 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <button onclick="toggleStatus({{ $banner->idrec }}, {{ $banner->status }})"
-                                class="px-3 py-1 text-xs font-medium rounded-full transition-colors
-                                {{ $banner->status == 1 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200' }}">
-                                {{ $banner->status == 1 ? 'Active' : 'Inactive' }}
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox"
+                                        class="sr-only peer banner-status-toggle"
+                                        data-id="{{ $banner->idrec }}"
+                                        {{ $banner->status == 1 ? 'checked' : '' }}
+                                        onchange="toggleBannerStatus(this)">
+                                    <div class="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer-checked:bg-blue-600 transition-all duration-300"></div>
+                                    <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300 peer-checked:translate-x-5"></div>
+                                </label>
+                                <span class="text-sm font-medium status-label {{ $banner->status == 1 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                    {{ $banner->status == 1 ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">

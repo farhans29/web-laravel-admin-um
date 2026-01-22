@@ -12,8 +12,10 @@
             <div class="mt-4 md:mt-0">
                 <button type="button" onclick="openPreRegisterModal()"
                     class="inline-flex items-center px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
                     Pre-Register Account
                 </button>
@@ -24,9 +26,9 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
             <form method="GET" action="{{ route('customers.index') }}" id="filterForm"
                 class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                     <!-- Search Input -->
-                    <div class="md:col-span-2">
+                    <div>
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
                             Search
                         </label>
@@ -63,6 +65,23 @@
                         </select>
                     </div>
 
+                    <!-- Property Filter -->
+                    <div>
+                        <label for="property_id" class="block text-sm font-medium text-gray-700 mb-1">
+                            Property
+                        </label>
+                        <select name="property_id" id="property_id"
+                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
+                            focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                            <option value="">All Properties</option>
+                            @foreach ($properties as $property)
+                                <option value="{{ $property->idrec }}"
+                                    {{ request('property_id') == $property->idrec ? 'selected' : '' }}>
+                                    {{ $property->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     <!-- Per Page -->
                     <div class="flex items-center gap-2 justify-end">
                         <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
@@ -74,12 +93,17 @@
                         </select>
                     </div>
                 </div>
+
             </form>
         </div>
 
         <!-- Customer Table -->
-        <div id="customerTableContainer" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-            @include('pages.customers.partials.customer_table', ['customers' => $customers, 'perPage' => $perPage])
+        <div id="customerTableContainer"
+            class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+            @include('pages.customers.partials.customer_table', [
+                'customers' => $customers,
+                'perPage' => $perPage,
+            ])
         </div>
     </div>
 
@@ -91,13 +115,14 @@
         </div>
 
         <!-- Modal dialog -->
-        <div class="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6" x-show="modalOpen"
-            x-transition x-cloak @keydown.escape.window="modalOpen = false">
+        <div class="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6" x-show="modalOpen" x-transition
+            x-cloak @keydown.escape.window="modalOpen = false">
             <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden relative z-50"
                 @click.outside="modalOpen = false">
 
                 <!-- Header -->
-                <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
+                <div
+                    class="px-6 py-5 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
                     <h2 class="text-xl font-semibold text-gray-900">
                         <span x-text="customerName"></span> - Booking History
                     </h2>
@@ -111,8 +136,8 @@
                 <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
                     <!-- Loading State -->
                     <div x-show="loading" class="text-center py-8">
-                        <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                 stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor"
@@ -131,8 +156,7 @@
                                         <h3 class="font-semibold text-gray-900" x-text="booking.property_name"></h3>
                                         <p class="text-sm text-gray-600" x-text="booking.room_name"></p>
                                     </div>
-                                    <span
-                                        class="px-3 py-1 rounded-full text-xs font-semibold"
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold"
                                         :class="{
                                             'bg-yellow-100 text-yellow-700': booking.transaction_status === 'pending',
                                             'bg-green-100 text-green-700': booking.transaction_status === 'completed',
@@ -223,7 +247,11 @@
                 init() {
                     // Listen for custom event from dynamically loaded content
                     window.addEventListener('open-customer-modal', (event) => {
-                        const { identifier, type, name } = event.detail;
+                        const {
+                            identifier,
+                            type,
+                            name
+                        } = event.detail;
                         this.openModal(identifier, type, name);
                     });
                 },
@@ -254,6 +282,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search');
             const registrationStatus = document.getElementById('registration_status');
+            const propertyFilter = document.getElementById('property_id');
             const perPageSelect = document.getElementById('per_page');
             let searchTimeout;
 
@@ -263,6 +292,7 @@
                     const formData = new FormData();
                     formData.append('search', searchInput.value);
                     formData.append('registration_status', registrationStatus.value);
+                    formData.append('property_id', propertyFilter.value);
                     formData.append('per_page', perPageSelect.value);
 
                     const params = new URLSearchParams(formData);
@@ -278,6 +308,7 @@
 
             searchInput.addEventListener('input', submitFilter);
             registrationStatus.addEventListener('change', submitFilter);
+            propertyFilter.addEventListener('change', submitFilter);
             perPageSelect.addEventListener('change', submitFilter);
         });
     </script>
@@ -288,14 +319,18 @@
         <div class="fixed inset-0 flex items-center justify-center p-4">
             <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden relative">
                 <!-- Header -->
-                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-indigo-600 to-blue-600">
+                <div
+                    class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-indigo-600 to-blue-600">
                     <div>
                         <h3 class="text-lg font-semibold text-white">Pre-Register Account</h3>
                         <p class="text-white/80 text-sm">Create a new customer account without email verification</p>
                     </div>
-                    <button onclick="closePreRegisterModal()" class="text-white hover:text-indigo-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <button onclick="closePreRegisterModal()"
+                        class="text-white hover:text-indigo-200 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -371,9 +406,13 @@
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 pr-10">
                                     <button type="button" onclick="togglePreRegisterPassword()"
                                         class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" id="preRegisterEyeIcon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                            id="preRegisterEyeIcon" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </button>
                                 </div>
@@ -390,9 +429,13 @@
                             <button type="submit" id="preRegisterSubmitBtn"
                                 class="px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                                 <span id="preRegisterSubmitText">Register Account</span>
-                                <svg id="preRegisterSpinner" class="animate-spin h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <svg id="preRegisterSpinner" class="animate-spin h-4 w-4 text-white hidden"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
                                 </svg>
                             </button>
                         </div>
@@ -409,8 +452,10 @@
             <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
                 <div class="text-center">
                     <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
                         </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Registration Successful!</h3>
@@ -441,11 +486,13 @@
             // Refresh the customer table
             const searchInput = document.getElementById('search');
             const registrationStatus = document.getElementById('registration_status');
+            const propertyFilter = document.getElementById('property_id');
             const perPageSelect = document.getElementById('per_page');
 
             const formData = new FormData();
             formData.append('search', searchInput.value);
             formData.append('registration_status', registrationStatus.value);
+            formData.append('property_id', propertyFilter.value);
             formData.append('per_page', perPageSelect.value);
 
             const params = new URLSearchParams(formData);
@@ -556,7 +603,7 @@
             // Remove CSRF token from data as it's not needed for external API
             delete data._token;
 
-            const apiUrl = '{{ env("MAIN_APP_URL") }}/api/v1/auth/register-without-verification';
+            const apiUrl = '{{ env('MAIN_APP_URL') }}/api/v1/auth/register-without-verification';
 
             try {
                 const response = await fetch(apiUrl, {
@@ -587,9 +634,9 @@
                     // Handle validation errors
                     if (result.errors) {
                         Object.keys(result.errors).forEach(field => {
-                            const messages = Array.isArray(result.errors[field])
-                                ? result.errors[field]
-                                : [result.errors[field]];
+                            const messages = Array.isArray(result.errors[field]) ?
+                                result.errors[field] :
+                                [result.errors[field]];
                             showPreRegisterError(field, messages[0]);
                         });
                     }

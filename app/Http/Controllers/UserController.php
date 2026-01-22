@@ -23,6 +23,7 @@ class UserController extends Controller
         $perPage = $request->input('per_page', 8); // Default to 10 if not specified
 
         $users = User::with('role')
+            ->where('is_admin', 1)
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%')
@@ -50,8 +51,18 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $user = Auth::user();
+        $loggedInUser = Auth::user();
+
+        // Pastikan hanya menampilkan user dengan is_admin = 1
+        $adminUser = User::where('is_admin', 1)->find($user->id);
+
+        if (!$adminUser) {
+            abort(403, 'Access denied. User is not an admin.');
+        }
+
+        $user = $adminUser;
         $roles = Role::where('name', '!=', 'Admin')->get();
+
         return view('pages.settings.user-account-settings', compact('user', 'roles'));
     }
 
@@ -62,6 +73,7 @@ class UserController extends Controller
         $statusFilter = $request->input('status', '1'); // Default menampilkan hanya yang aktif
 
         $users = User::with(['role', 'property'])
+            ->where('is_admin', 1)
             ->when($statusFilter !== 'all', function ($query) use ($statusFilter) {
                 return $query->where('status', $statusFilter);
             })

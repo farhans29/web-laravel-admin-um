@@ -848,8 +848,8 @@ class DashboardController extends Controller
             ];
         }
 
-        // Get room reports - PERBAIKAN DI SINI
-        $roomReports = $this->getPropertyRoomReportData(); // Langsung panggil method data, bukan API
+        // Get room reports - Pass userPropertyId untuk filter berdasarkan user_type
+        $roomReports = $this->getPropertyRoomReportData($userPropertyId);
 
         // Get new dashboard data
         $occupiedRooms = $this->getOccupiedRoomsDetails($userPropertyId);

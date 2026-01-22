@@ -106,15 +106,26 @@
                     </td>
 
                     <!-- Last Booking Date -->
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-6 py-4 text-sm text-gray-900">
                         @if ($customer->last_booking_date)
-                            <div class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-400"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                {{ \Carbon\Carbon::parse($customer->last_booking_date)->format('M d, Y') }}
+                            <div class="space-y-1">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-400"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    {{ \Carbon\Carbon::parse($customer->last_booking_date)->format('M d, Y') }}
+                                </div>
+                                @if ($customer->last_property_name)
+                                    <div class="text-xs text-gray-600">
+                                        <span class="font-medium">{{ $customer->last_property_name }}</span>
+                                        @if ($customer->last_room_name)
+                                            <span class="text-gray-400">-</span>
+                                            <span>{{ $customer->last_room_name }}</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                         @else
                             <span class="text-gray-400">-</span>

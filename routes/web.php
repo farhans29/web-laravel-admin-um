@@ -177,6 +177,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::get('/m-properties/facility', [ManajementPropertiesController::class, 'indexFacility'])->name('facilityProperty.index');
         Route::post('/m-properties/facility/store', [ManajementPropertiesController::class, 'storeFacility'])->name('facilityProperty.store');
         Route::put('/m-properties/facility/update/{id}', [ManajementPropertiesController::class, 'updateFacility'])->name('facilityProperty.update');
+        Route::post('/m-properties/facility/toggle-status', [ManajementPropertiesController::class, 'toggleFacilityStatus'])->name('facilityProperty.toggle-status');
 
         // ------------------------- ROOMS MANAGEMENT -------------------------
         Route::get('/m-rooms', [ManajementRoomsController::class, 'index'])->name('rooms.index');
@@ -196,6 +197,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::get('/m-rooms/facilityRooms', [ManajementRoomsController::class, 'indexFacility'])->name('facilityRooms.index');
         Route::post('/rooms/facilityRooms/store', [ManajementRoomsController::class, 'storeFacility'])->name('facilityRooms.store');
         Route::put('/rooms/facilityRooms/update/{id}', [ManajementRoomsController::class, 'updateFacility'])->name('facilityRooms.update');
+        Route::post('/rooms/facilityRooms/toggle-status', [ManajementRoomsController::class, 'toggleFacilityStatus'])->name('facilityRooms.toggle-status');
     });
 
     Route::prefix('payment')->group(function () {
