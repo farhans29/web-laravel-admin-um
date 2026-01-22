@@ -52,9 +52,9 @@ class DashboardWidgetsSeeder extends Seeder
                 'is_active' => 1
             ],
             [
-                'name' => 'Daftar Check-Out Hari Ini',
+                'name' => 'Daftar Check-Out H-3',
                 'slug' => 'checkout_list',
-                'description' => 'Widget untuk menampilkan daftar check-out hari ini',
+                'description' => 'Widget untuk menampilkan daftar check-out H-3',
                 'category' => 'stats',
                 'icon' => 'fas fa-list-alt',
                 'order' => 5,
