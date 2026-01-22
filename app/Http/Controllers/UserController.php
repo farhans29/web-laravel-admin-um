@@ -59,8 +59,12 @@ class UserController extends Controller
     {
         $search = $request->input('search');
         $perPage = $request->input('per_page', 8);
+        $statusFilter = $request->input('status', '1'); // Default menampilkan hanya yang aktif
 
         $users = User::with(['role', 'property'])
+            ->when($statusFilter !== 'all', function ($query) use ($statusFilter) {
+                return $query->where('status', $statusFilter);
+            })
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('first_name', 'like', '%' . $search . '%')
@@ -77,13 +81,14 @@ class UserController extends Controller
             ->paginate($perPage)
             ->appends([
                 'search' => $search,
-                'per_page' => $perPage
+                'per_page' => $perPage,
+                'status' => $statusFilter
             ]);
 
         $roles = Role::where('name', '!=', 'Admin')->where('id', '!=', 165)->get();
         $properties = \App\Models\Property::all();
 
-        return view('pages.settings.users-management-new', compact('users', 'roles', 'perPage', 'properties'));
+        return view('pages.settings.users-management-new', compact('users', 'roles', 'perPage', 'properties', 'statusFilter'));
     }
 
 

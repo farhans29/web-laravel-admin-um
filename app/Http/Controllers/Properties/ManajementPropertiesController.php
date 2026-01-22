@@ -15,6 +15,7 @@ class ManajementPropertiesController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 8);
+        $statusFilter = $request->input('status', '1'); // Default menampilkan hanya yang aktif
 
         $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
@@ -45,8 +46,9 @@ class ManajementPropertiesController extends Controller
             });
         }
 
-        if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
+        // Filter status dengan default aktif
+        if ($statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
         }
 
         $properties = $perPage === 'all'
@@ -78,6 +80,7 @@ class ManajementPropertiesController extends Controller
             'facilities' => $facilities,
             'properties' => $properties,
             'per_page' => $perPage,
+            'statusFilter' => $statusFilter,
         ]);
     }
 
@@ -85,7 +88,7 @@ class ManajementPropertiesController extends Controller
     {
         $perPage = $request->input('per_page', 8);
         $search = $request->input('search');
-        $status = $request->input('status');
+        $status = $request->input('status', '1'); // Default aktif
 
         $query = Property::with(['creator', 'images', 'thumbnail'])
             ->orderBy('created_at', 'desc');
@@ -118,8 +121,8 @@ class ManajementPropertiesController extends Controller
             });
         }
 
-        // Status Filter
-        if ($status !== null && $status !== '') {
+        // Status Filter dengan default aktif
+        if ($status !== 'all') {
             $query->where('status', $status);
         }
 
@@ -183,6 +186,40 @@ class ManajementPropertiesController extends Controller
         ]);
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Set all properties to active status
+     */
+    public function setActiveAll(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $query = Property::query();
+
+            // Filter berdasarkan akses user
+            $accessiblePropertyId = $user->getAccessiblePropertyId();
+            if ($accessiblePropertyId !== null) {
+                $query->where('idrec', $accessiblePropertyId);
+            }
+
+            $updatedCount = $query->where('status', 0)->update([
+                'status' => 1,
+                'updated_at' => now(),
+                'updated_by' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $updatedCount . ' properti berhasil diaktifkan',
+                'updated_count' => $updatedCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengaktifkan properti: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 

@@ -776,10 +776,11 @@
                             <span class="text-sm text-gray-600 dark:text-gray-400">Status:</span>
                             <select name="status" id="statusFilter"
                                 class="border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                <option value="">Semua</option>
-                                <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active
+                                <option value="1" {{ ($statusFilter ?? '1') == '1' ? 'selected' : '' }}>Active
                                 </option>
-                                <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive
+                                <option value="0" {{ ($statusFilter ?? '1') == '0' ? 'selected' : '' }}>Inactive
+                                </option>
+                                <option value="all" {{ ($statusFilter ?? '1') == 'all' ? 'selected' : '' }}>Semua
                                 </option>
                             </select>
                         </div>

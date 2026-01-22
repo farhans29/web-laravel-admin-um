@@ -22,6 +22,7 @@ class ManajementRoomsController extends Controller
     {
         $user = Auth::user();
         $perPage = $request->input('per_page', 8);
+        $statusFilter = $request->input('status', '1'); // Default menampilkan hanya yang aktif
 
         $query = Room::where('status', '!=', '2')
             ->with(['property', 'creator'])
@@ -40,9 +41,9 @@ class ManajementRoomsController extends Controller
             }
         }
 
-        // Filter by status
-        if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
+        // Filter by status dengan default aktif
+        if ($statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
         }
 
         // Search functionality
@@ -103,6 +104,7 @@ class ManajementRoomsController extends Controller
             'rooms' => $rooms,
             'properties' => $properties,
             'per_page' => $perPage,
+            'statusFilter' => $statusFilter,
         ]);
     }
 
@@ -846,6 +848,44 @@ class ManajementRoomsController extends Controller
         ]);
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Set all rooms to active status
+     */
+    public function setActiveAll(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $query = Room::where('status', '!=', '2'); // Exclude deleted rooms
+
+            // Filter berdasarkan akses user
+            if (!$user->isSuperAdmin() && $user->property_id) {
+                $query->where('property_id', $user->property_id);
+            }
+
+            // Filter by property_id if provided
+            if ($request->has('property_id') && $request->property_id != '') {
+                $query->where('property_id', $request->property_id);
+            }
+
+            $updatedCount = $query->where('status', 0)->update([
+                'status' => 1,
+                'updated_at' => now(),
+                'updated_by' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $updatedCount . ' kamar berhasil diaktifkan',
+                'updated_count' => $updatedCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengaktifkan kamar: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy($idrec)
