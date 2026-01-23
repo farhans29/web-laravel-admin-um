@@ -81,7 +81,7 @@ class DashboardController extends Controller
                 $report[$property->idrec] = [
                     'property' => [
                         'id' => $property->idrec,
-                        'name' => $property->property_name ?? $property->name ?? 'N/A',
+                        'name' => $property->name ?? 'N/A',
                         'initial' => $property->initial ?? '',
                     ],
                     'room_stats' => [
@@ -96,7 +96,7 @@ class DashboardController extends Controller
                 ];
             }
 
-            return $propertyId ? $report[$propertyId] : $report;
+            return $propertyId ? ($report[$propertyId] ?? []) : $report;
         } catch (\Exception $e) {
             return [];
         }
@@ -249,8 +249,8 @@ class DashboardController extends Controller
             ->whereNull('check_out_at')
             ->get()
             ->map(function ($booking) {
-                $checkIn = Carbon::parse($booking->transaction->check_in)->startOfDay();
-                $checkOut = Carbon::parse($booking->transaction->check_out)->startOfDay();
+                $checkIn = Carbon::parse($booking->transaction->check_in ?? now())->startOfDay();
+                $checkOut = Carbon::parse($booking->transaction->check_out ?? now())->startOfDay();
                 $today = Carbon::now()->startOfDay();
 
                 // Calculate days correctly (inclusive)
@@ -269,7 +269,7 @@ class DashboardController extends Controller
                     'guest_name' => $booking->user_name ?? $booking->transaction->user_name ?? 'N/A',
                     'room_name' => $booking->room->name ?? 'N/A',
                     'room_type' => $booking->room->type ?? 'N/A',
-                    'property_name' => $booking->property->property_name ?? $booking->property->name ?? 'N/A',
+                    'property_name' => $booking->property->name ?? 'N/A',
                     'check_in_date' => $checkIn->format('d M Y'),
                     'check_out_date' => $checkOut->format('d M Y'),
                     'days_stayed' => $daysStayed,
@@ -644,7 +644,7 @@ class DashboardController extends Controller
                     'transaction_code' => $transaction->transaction_code ?? 'N/A',
                     'guest_name' => $transaction->user_name ?? 'Guest',
                     'room_name' => $transaction->room_name ?? 'N/A',
-                    'property_name' => $transaction->property->property_name ?? $transaction->property->name ?? 'N/A',
+                    'property_name' => $transaction->property->name ?? 'N/A',
                     'paid_date' => $paidAt->format('d M Y'),
                     'paid_time' => $paidAt->format('H:i'),
                     'amount' => (float) ($transaction->grandtotal_price ?? 0),
@@ -713,6 +713,22 @@ class DashboardController extends Controller
         $user = Auth::user();
         // Use the new helper method to get accessible property ID
         $userPropertyId = $user->getAccessiblePropertyId();
+
+        // Check if user is HO or Site
+        $isHO = $user->isHO();
+        $isSite = $user->isSite();
+
+        // Get current occupancy for Site users
+        $currentOccupancy = 0;
+        $propertyName = null;
+        if ($isSite && $userPropertyId) {
+            $currentOccupancy = Booking::where('property_id', $userPropertyId)
+                ->whereHas('transaction', fn($q) => $q->where('transaction_status', 'paid'))
+                ->whereNotNull('check_in_at')
+                ->whereNull('check_out_at')
+                ->count();
+            $propertyName = $user->property->name ?? null;
+        }
 
         $dataFeed = new DataFeed();
 
@@ -853,6 +869,7 @@ class DashboardController extends Controller
         $revenuePerRoom = $this->getRevenuePerOccupiedRoom($userPropertyId);
 
         // Get finance data - check if user has any finance widget access
+        // Super Admin can see all, other users must check role permissions
         $financeStats = [];
         $hasFinanceAccess = $user->isSuperAdmin() ||
                            ($user->role && (
@@ -873,25 +890,25 @@ class DashboardController extends Controller
             $cashFlowSummary = $this->getCashFlowSummary($userPropertyId);
 
             $financeStats = [
-                'today_revenue' => $todayRevenue['revenue'],
-                'today_transactions' => $todayRevenue['transactions'],
-                'monthly_revenue' => $monthlyRevenue['revenue'],
-                'monthly_transactions' => $monthlyRevenue['transactions'],
-                'monthly_target' => $monthlyRevenue['target'],
-                'monthly_percentage' => $monthlyRevenue['percentage'],
-                'pending_payments' => $pendingPayments['amount'],
-                'pending_count' => $pendingPayments['count'],
-                'payment_success_rate' => $paymentSuccessRate,
-                'payment_methods' => $paymentMethodBreakdown['breakdown'],
-                'payment_methods_total' => $paymentMethodBreakdown['total'],
-                'cash_flow' => $cashFlowSummary['daily_cash_flow'],
-                'total_cash_in' => $cashFlowSummary['total_cash_in'],
-                'total_cash_out' => $cashFlowSummary['total_cash_out'],
-                'net_cash_flow' => $cashFlowSummary['net_cash_flow'],
-                'recent_transactions' => $cashFlowSummary['recent_transactions'],
-                'avg_daily_revenue' => $cashFlowSummary['avg_daily_revenue'],
-                'cash_flow_trend' => $cashFlowSummary['trend'],
-                'cash_flow_trend_percentage' => $cashFlowSummary['trend_percentage'],
+                'today_revenue' => $todayRevenue['revenue'] ?? 0,
+                'today_transactions' => $todayRevenue['transactions'] ?? 0,
+                'monthly_revenue' => $monthlyRevenue['revenue'] ?? 0,
+                'monthly_transactions' => $monthlyRevenue['transactions'] ?? 0,
+                'monthly_target' => $monthlyRevenue['target'] ?? 150000000,
+                'monthly_percentage' => $monthlyRevenue['percentage'] ?? 0,
+                'pending_payments' => $pendingPayments['amount'] ?? 0,
+                'pending_count' => $pendingPayments['count'] ?? 0,
+                'payment_success_rate' => $paymentSuccessRate ?? 0,
+                'payment_methods' => $paymentMethodBreakdown['breakdown'] ?? [],
+                'payment_methods_total' => $paymentMethodBreakdown['total'] ?? 0,
+                'cash_flow' => $cashFlowSummary['daily_cash_flow'] ?? [],
+                'total_cash_in' => $cashFlowSummary['total_cash_in'] ?? 0,
+                'total_cash_out' => $cashFlowSummary['total_cash_out'] ?? 0,
+                'net_cash_flow' => $cashFlowSummary['net_cash_flow'] ?? 0,
+                'recent_transactions' => $cashFlowSummary['recent_transactions'] ?? [],
+                'avg_daily_revenue' => $cashFlowSummary['avg_daily_revenue'] ?? 0,
+                'cash_flow_trend' => $cashFlowSummary['trend'] ?? 'stable',
+                'cash_flow_trend_percentage' => $cashFlowSummary['trend_percentage'] ?? 0,
             ];
         }
 
@@ -910,7 +927,11 @@ class DashboardController extends Controller
             'occupancyHistory',
             'rentalDurationTrends',
             'revenuePerRoom',
-            'financeStats'
+            'financeStats',
+            'isHO',
+            'isSite',
+            'currentOccupancy',
+            'propertyName'
         ));
     }
 
@@ -945,17 +966,19 @@ class DashboardController extends Controller
     public function getPropertyRoomReport($propertyId = null)
     {
         $user = Auth::user();
+        $isHOSuperAdmin = $user->isHO() && $user->isSuperAdmin();
 
         // Check if user has widget permission to view rooms availability
-        if (!$user->isSuperAdmin() && $user->role && !$user->role->hasWidgetAccess('rooms_availability')) {
+        // Site users must check role, only HO Super Admin can bypass
+        if (!$isHOSuperAdmin && $user->role && !$user->role->hasWidgetAccess('rooms_availability')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized - No access to room availability widget'
             ], 403);
         }
 
-        // If user has property_id, enforce their property scope
-        if ($user->property_id) {
+        // Site users: enforce their property scope
+        if ($user->isSite() && $user->property_id) {
             $propertyId = $user->property_id;
         }
 
@@ -971,17 +994,19 @@ class DashboardController extends Controller
     public function getPropertyRevenue($propertyId = null)
     {
         $user = Auth::user();
+        $isHOSuperAdmin = $user->isHO() && $user->isSuperAdmin();
 
         // Check if user has widget permission to view property revenue report
-        if (!$user->isSuperAdmin() && $user->role && !$user->role->hasWidgetAccess('rooms_property_report')) {
+        // Site users must check role, only HO Super Admin can bypass
+        if (!$isHOSuperAdmin && $user->role && !$user->role->hasWidgetAccess('rooms_property_report')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized - No access to property revenue widget'
             ], 403);
         }
 
-        // If user has property_id, enforce their property scope
-        if ($user->property_id) {
+        // Site users: enforce their property scope
+        if ($user->isSite() && $user->property_id) {
             $propertyId = $user->property_id;
         }
 
@@ -1040,7 +1065,7 @@ class DashboardController extends Controller
 
         return [
             'property_id' => $propertyId,
-            'property_name' => $property->property_name ?? $property->name ?? 'N/A',
+            'property_name' => $property->name ?? 'N/A',
             'today_revenue' => $todayRevenue,
             'monthly_revenue' => $monthlyRevenue,
             'total_bookings' => $totalBookings,
@@ -1050,17 +1075,19 @@ class DashboardController extends Controller
     public function getRevenueTrend(Request $request, $propertyId = null)
     {
         $user = Auth::user();
+        $isHOSuperAdmin = $user->isHO() && $user->isSuperAdmin();
 
         // Check if user has widget permission to view revenue trend chart
-        if (!$user->isSuperAdmin() && $user->role && !$user->role->hasWidgetAccess('report_sales_chart')) {
+        // Site users must check role, only HO Super Admin can bypass
+        if (!$isHOSuperAdmin && $user->role && !$user->role->hasWidgetAccess('report_sales_chart')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized - No access to revenue trend widget'
             ], 403);
         }
 
-        // If user has property_id, enforce their property scope
-        if ($user->property_id) {
+        // Site users: enforce their property scope
+        if ($user->isSite() && $user->property_id) {
             $propertyId = $user->property_id;
         }
 
