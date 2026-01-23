@@ -41,6 +41,12 @@ class NewReservController extends Controller
             ->orderByRaw('ISNULL(check_in_at) DESC')
             ->orderBy('t_transactions.check_in', 'desc');
 
+        // Filter by property_id for site users
+        $user = Auth::user();
+        if ($user && $user->isSiteRole() && $user->property_id) {
+            $query->where('t_booking.property_id', $user->property_id);
+        }
+
         // Apply date filter if provided in request
         if (request()->filled('start_date') && request()->filled('end_date')) {
             $startDate = request('start_date');

@@ -61,6 +61,11 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'user_type' => 'integer',
+        'is_admin' => 'integer',
+        'property_id' => 'integer',
+        'role_id' => 'integer',
+        'status' => 'integer',
     ];
 
     /**
@@ -160,12 +165,18 @@ class User extends Authenticatable
      */
     public function getAccessiblePropertyId()
     {
+        // Site users (user_type = 1) should only access their assigned property
+        // This takes priority over is_admin flag
+        if ($this->isSite() && $this->property_id) {
+            return $this->property_id;
+        }
+
         // Super Admin and HO roles can access all properties
         if ($this->canViewAllProperties()) {
             return null;
         }
 
-        // Site roles only access their assigned property
+        // Fallback to property_id if set
         return $this->property_id;
     }
 

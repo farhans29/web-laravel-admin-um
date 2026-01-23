@@ -585,8 +585,13 @@
                             const newTable = doc.querySelector('#bookingTableContainer');
 
                             if (newTable) {
-                                document.querySelector('#bookingTableContainer').innerHTML =
-                                    newTable.innerHTML;
+                                const container = document.querySelector('#bookingTableContainer');
+                                container.innerHTML = newTable.innerHTML;
+
+                                // Reinitialize Alpine components on the newly added elements
+                                if (typeof Alpine !== 'undefined') {
+                                    Alpine.initTree(container);
+                                }
                             }
                         })
                         .catch(error => {
@@ -761,8 +766,14 @@
                         return response.json();
                     })
                     .then(data => {
-                        document.querySelector('.overflow-x-auto').innerHTML = data.table;
+                        const tableContainer = document.querySelector('.overflow-x-auto');
+                        tableContainer.innerHTML = data.table;
                         document.getElementById('paginationContainer').innerHTML = data.pagination;
+
+                        // Reinitialize Alpine components on the newly added elements
+                        if (typeof Alpine !== 'undefined') {
+                            Alpine.initTree(tableContainer);
+                        }
                     })
                     .catch(error => {
                         console.error('Error:', error);

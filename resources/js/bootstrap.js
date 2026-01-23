@@ -48,4 +48,12 @@ Alpine.plugin(intersect);
 Alpine.plugin(mask);
 
 window.Alpine = Alpine;
-Alpine.start();
+
+// Defer Alpine.start() until DOM is fully loaded
+// This allows page scripts to register alpine:init event listeners before Alpine starts
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => Alpine.start());
+} else {
+    // DOM is already loaded, start Alpine immediately
+    Alpine.start();
+}
