@@ -34,7 +34,7 @@
                             <h1 class="text-2xl md:text-3xl text-white font-bold mb-1 drop-shadow-lg">
                                 DASHBOARD
                                 @if (Auth::user()->isSiteRole() && Auth::user()->property)
-                                    - {{ Auth::user()->property->property_name ?? Auth::user()->property->name }}
+                                    - {{ Auth::user()->property->name ?? 'Unknown' }}
                                 @else
                                     {{ Auth::user()->role->name ?? 'Ulin Mahoni' }}
                                 @endif
@@ -83,6 +83,7 @@
                     <!-- Quick Stats Section with Overlay -->
                     <div
                         class="relative bg-gradient-to-br from-gray-900/70 to-gray-900/50 backdrop-blur-md rounded-xl p-6 border border-white/10 shadow-2xl">
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             @if ($canViewWidget('booking_today'))
                                 <!-- Confirm Booking (Today) -->
@@ -105,7 +106,7 @@
                                                 class="text-purple-100 text-xs font-semibold uppercase tracking-wide mb-2">
                                                 Booking Hari Ini</p>
                                             <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
-                                                {{ $stats['today'] }}</h3>
+                                                {{ $stats['today'] ?? 0 }}</h3>
                                             <p class="text-purple-200 text-sm">Kedatangan</p>
                                         </div>
                                     </div>
@@ -132,8 +133,14 @@
                                                 class="text-green-100 text-xs font-semibold uppercase tracking-wide mb-2">
                                                 Check-In</p>
                                             <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
-                                                {{ $stats['checkin'] }}</h3>
-                                            <p class="text-green-200 text-sm">Sedang Menginap</p>
+                                                {{ $stats['checkin'] ?? 0 }}</h3>
+                                            <p class="text-green-200 text-sm">
+                                                @if ($isSite && $propertyName)
+                                                    Menginap di {{ $propertyName }}
+                                                @else
+                                                    Sedang Menginap
+                                                @endif
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -159,7 +166,7 @@
                                                 class="text-yellow-100 text-xs font-semibold uppercase tracking-wide mb-2">
                                                 Check-Out</p>
                                             <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
-                                                {{ $stats['checkout'] }}</h3>
+                                                {{ $stats['checkout'] ?? 0 }}</h3>
                                             <p class="text-yellow-200 text-sm">H-3 sebelum tanggal check-out</p>
                                         </div>
                                     </div>
@@ -429,8 +436,10 @@
                                         class="text-xs px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                         <option value="">Semua Property</option>
                                         @foreach ($roomReports ?? [] as $propertyId => $report)
-                                            <option value="{{ $propertyId }}">{{ $report['property']['name'] }}
-                                            </option>
+                                            @if (isset($report['property']['name']))
+                                                <option value="{{ $propertyId }}">{{ $report['property']['name'] }}
+                                                </option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 </div>
@@ -881,11 +890,12 @@
                         @if (is_array($roomReports) && count($roomReports) > 0)
                             <div id="roomAvailabilityContainer">
                                 @foreach ($roomReports as $propertyId => $report)
+                                    @if (isset($report['property']) && isset($report['room_stats']))
                                     <div class="mb-6 last:mb-0 p-4 border border-gray-200 rounded-lg room-availability-item {{ $loop->first ? '' : 'hidden' }}"
                                         data-property-id="{{ $propertyId }}">
                                         <div class="flex justify-between items-start mb-4">
                                             <h3 class="font-semibold text-gray-700">
-                                                {{ $report['property']['name'] }}
+                                                {{ $report['property']['name'] ?? 'N/A' }}
                                             </h3>
                                             <a href="{{ route('room-availability.index') }}"
                                                 class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
@@ -931,7 +941,7 @@
                                         </div>
 
                                         <!-- Room Types Breakdown -->
-                                        @if (count($report['room_types_breakdown']) > 0 && $canViewWidget('rooms_type_breakdown'))
+                                        @if (isset($report['room_types_breakdown']) && count($report['room_types_breakdown']) > 0 && $canViewWidget('rooms_type_breakdown'))
                                             <div class="mt-4">
                                                 <h4 class="font-medium text-gray-700 mb-2">Breakdown Tipe Kamar
                                                 </h4>
@@ -953,6 +963,7 @@
                                             </div>
                                         @endif
                                     </div>
+                                    @endif
                                 @endforeach
                             </div>
 
@@ -1015,10 +1026,11 @@
                             @if (is_array($roomReports) && count($roomReports) > 0)
                                 <div id="durationSalesContainer">
                                     @foreach ($roomReports as $propertyId => $report)
+                                        @if (isset($report['property']) && isset($report['booking_durations']) && isset($report['monthly_sales']))
                                         <div class="mb-6 last:mb-0 duration-sales-item {{ $loop->first ? '' : 'hidden' }}"
                                             data-property-id="{{ $propertyId }}">
                                             <h3 class="font-semibold text-gray-700 mb-3 property-name-sales">
-                                                {{ $report['property']['name'] }}
+                                                {{ $report['property']['name'] ?? 'N/A' }}
                                             </h3>
 
                                             <!-- Durasi Sewa -->
@@ -1048,7 +1060,7 @@
                                             </div>
 
                                             <!-- Breakdown Durasi -->
-                                            @if (count($report['booking_durations']['duration_ranges']) > 0)
+                                            @if (isset($report['booking_durations']['duration_ranges']) && count($report['booking_durations']['duration_ranges']) > 0)
                                                 <div class="mb-4">
                                                     <h4 class="font-medium text-gray-700 mb-2">Distribusi Durasi</h4>
                                                     <div class="space-y-2">
@@ -1090,6 +1102,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        @endif
                                     @endforeach
                                 </div>
 
