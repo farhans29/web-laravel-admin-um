@@ -53,10 +53,20 @@
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $facility->status == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                        {{ $facility->status == 1 ? 'Active' : 'Inactive' }}
-                    </span>
+                    <div class="flex items-center space-x-2">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox"
+                                class="sr-only peer facility-room-status-toggle"
+                                data-id="{{ $facility->idrec }}"
+                                {{ $facility->status == 1 ? 'checked' : '' }}
+                                onchange="toggleFacilityRoomStatus(this)">
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer-checked:bg-blue-600 transition-all duration-300"></div>
+                            <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300 peer-checked:translate-x-5"></div>
+                        </label>
+                        <span class="text-sm font-medium status-label {{ $facility->status == 1 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $facility->status == 1 ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
                     <!-- Edit Button -->

@@ -1032,4 +1032,33 @@ class ManajementRoomsController extends Controller
             ], 500);
         }
     }
+
+    public function toggleFacilityStatus(Request $request)
+    {
+        try {
+            $facility = RoomFacility::find($request->id);
+
+            if (!$facility) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Facility not found'
+                ], 404);
+            }
+
+            $facility->update([
+                'status' => $request->status,
+                'updated_by' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diubah'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status'
+            ], 500);
+        }
+    }
 }

@@ -1,7 +1,12 @@
-<div x-data="{ sidebarOpen: false, sidebarExpanded: false, sidebarPersistent: false, activeMenu: '' }" class="flex">
+<div x-data="{
+    sidebarOpen: false,
+    sidebarExpanded: localStorage.getItem('sidebarPersistent') === 'true',
+    sidebarPersistent: localStorage.getItem('sidebarPersistent') === 'true',
+    activeMenu: ''
+}" class="flex">
     <div class="min-w-fit">
         <!-- Mobile Menu Button -->
-        <button @click="sidebarOpen = true" x-show="!sidebarOpen"
+        <button @click.stop="sidebarOpen = true" x-show="!sidebarOpen"
             class="fixed top-4 left-4 z-[60] lg:hidden p-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all shadow-lg"
             aria-label="Open sidebar" type="button">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -837,9 +842,9 @@
                         <!-- Persistent Mode Toggle -->
                         <button
                             class="flex items-center justify-center gap-2 px-3 py-2 text-indigo-300 hover:text-white transition-colors rounded-lg border border-indigo-300/30 hover:border-indigo-200/50"
-                            @click="sidebarPersistent = !sidebarPersistent"
+                            @click="sidebarPersistent = !sidebarPersistent; sidebarExpanded = sidebarPersistent; localStorage.setItem('sidebarPersistent', sidebarPersistent)"
                             :class="sidebarPersistent ? 'bg-indigo-900/30 text-white border-indigo-400' : ''"
-                            title="Toggle persistent sidebar" aria-pressed="false">
+                            title="Toggle persistent sidebar" :aria-pressed="sidebarPersistent.toString()">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

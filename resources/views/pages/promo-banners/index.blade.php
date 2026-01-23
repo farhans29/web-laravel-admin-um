@@ -484,7 +484,44 @@
                 });
             }
 
-            // Toggle status
+            // Toggle status with inline switch (no confirmation, no page reload)
+            function toggleBannerStatus(checkbox) {
+                const bannerId = $(checkbox).data('id');
+                const newStatus = checkbox.checked ? 1 : 0;
+                const row = $(checkbox).closest('tr');
+                const statusLabel = row.find('.status-label');
+
+                $.ajax({
+                    url: '{{ route('promo-banners.toggle-status') }}',
+                    method: 'POST',
+                    data: {
+                        id: bannerId,
+                        status: newStatus,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Update the status label
+                            statusLabel.text(newStatus == 1 ? 'Active' : 'Inactive');
+                            statusLabel.removeClass('text-green-600 text-red-600 dark:text-green-400 dark:text-red-400');
+                            statusLabel.addClass(newStatus == 1 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400');
+
+                            showToast(response.message || 'Status berhasil diubah', 'success');
+                        } else {
+                            // Revert checkbox state
+                            checkbox.checked = !checkbox.checked;
+                            showToast(response.message || 'Gagal mengubah status', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        // Revert checkbox state
+                        checkbox.checked = !checkbox.checked;
+                        showToast('Gagal mengubah status', 'error');
+                    }
+                });
+            }
+
+            // Legacy toggle status function (keeping for backward compatibility)
             function toggleStatus(id, currentStatus) {
                 const newStatus = currentStatus == 1 ? 0 : 1;
                 const statusText = newStatus == 1 ? 'mengaktifkan' : 'menonaktifkan';

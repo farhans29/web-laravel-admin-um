@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Models\Booking;
+use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -17,18 +18,24 @@ class CustomerController extends Controller
     {
         $search = $request->input('search');
         $registrationStatus = $request->input('registration_status');
+        $propertyId = $request->input('property_id');
         $perPage = $request->input('per_page', 8);
 
+        // Get properties for filter dropdown
+        $properties = Property::select('idrec', 'name')->orderBy('name')->get();
+
         // Build the customer query by combining registered users and guest transactions
-        $customers = $this->getCustomersQuery($search, $registrationStatus)->paginate($perPage)->appends([
+        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId)->paginate($perPage)->appends([
             'search' => $search,
             'registration_status' => $registrationStatus,
+            'property_id' => $propertyId,
             'per_page' => $perPage
         ]);
 
         return view('pages.customers.index', [
             'customers' => $customers,
-            'perPage' => $perPage
+            'perPage' => $perPage,
+            'properties' => $properties
         ]);
     }
 
@@ -36,9 +43,10 @@ class CustomerController extends Controller
     {
         $search = $request->input('search');
         $registrationStatus = $request->input('registration_status');
+        $propertyId = $request->input('property_id');
         $perPage = $request->input('per_page', 8);
 
-        $customers = $this->getCustomersQuery($search, $registrationStatus)->paginate($perPage);
+        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId)->paginate($perPage);
 
         return view('pages.customers.partials.customer_table', [
             'customers' => $customers,
@@ -46,7 +54,7 @@ class CustomerController extends Controller
         ])->render();
     }
 
-    private function getCustomersQuery($search = null, $registrationStatus = null)
+    private function getCustomersQuery($search = null, $registrationStatus = null, $propertyId = null)
     {
         // Get registered users with their booking statistics
         $registeredUsers = User::select([
@@ -57,7 +65,9 @@ class CustomerController extends Controller
             DB::raw('CAST("registered" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
             DB::raw('COALESCE(COUNT(DISTINCT t_transactions.order_id), 0) as total_bookings'),
             DB::raw('COALESCE(SUM(t_transactions.grandtotal_price), 0) as total_spent'),
-            DB::raw('MAX(t_transactions.transaction_date) as last_booking_date')
+            DB::raw('MAX(t_transactions.transaction_date) as last_booking_date'),
+            DB::raw('(SELECT property_name FROM t_transactions t2 WHERE t2.user_id = users.id ORDER BY t2.transaction_date DESC LIMIT 1) as last_property_name'),
+            DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_id = users.id ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name')
         ])
             ->leftJoin('t_transactions', 'users.id', '=', 't_transactions.user_id')
             ->where(function ($query) {
@@ -77,10 +87,27 @@ class CustomerController extends Controller
             DB::raw('CAST("guest" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
             DB::raw('COUNT(DISTINCT order_id) as total_bookings'),
             DB::raw('SUM(grandtotal_price) as total_spent'),
-            DB::raw('MAX(transaction_date) as last_booking_date')
+            DB::raw('MAX(transaction_date) as last_booking_date'),
+            DB::raw('(SELECT property_name FROM t_transactions t2 WHERE t2.user_email = t_transactions.user_email AND t2.user_id IS NULL ORDER BY t2.transaction_date DESC LIMIT 1) as last_property_name'),
+            DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_email = t_transactions.user_email AND t3.user_id IS NULL ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name')
         ])
             ->whereNull('user_id')
             ->groupBy('user_name', 'user_email', 'user_phone_number');
+
+        // Apply property filter to registered users - only show users who have booked at this property
+        if ($propertyId) {
+            $registeredUsers->whereExists(function ($query) use ($propertyId) {
+                $query->select(DB::raw(1))
+                    ->from('t_transactions as t_prop')
+                    ->whereColumn('t_prop.user_id', 'users.id')
+                    ->where('t_prop.property_id', $propertyId);
+            });
+        }
+
+        // Apply property filter to guest customers
+        if ($propertyId) {
+            $guestCustomers->where('property_id', $propertyId);
+        }
 
         // Apply search filter to registered users
         if ($search) {

@@ -244,14 +244,49 @@
                                         x-transition:enter-start="opacity-0 translate-x-4"
                                         x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                         <div class="space-y-6">
-                                            <div>
+                                            <div class="relative">
                                                 <label for="full_address"
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                     Alamat Lengkap <span class="text-red-500">*</span>
+                                                    <span class="text-xs font-normal text-gray-500 ml-2">(Ketik untuk mencari alamat)</span>
                                                 </label>
-                                                <textarea id="full_address" name="full_address" rows="3" required
-                                                    class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                    placeholder="Masukkan alamat lengkap properti"></textarea>
+                                                <div class="relative">
+                                                    <textarea id="full_address" name="full_address" rows="3" required
+                                                        class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                        placeholder="Masukkan alamat lengkap properti"
+                                                        @input="searchAddress($event.target.value)"
+                                                        @focus="showAddressSuggestions = addressSuggestions.length > 0"
+                                                        @click.outside="showAddressSuggestions = false"></textarea>
+                                                    <!-- Loading indicator -->
+                                                    <div x-show="isAddressSearching" class="absolute right-3 top-3">
+                                                        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <!-- Address Suggestions Dropdown -->
+                                                <div x-show="showAddressSuggestions && addressSuggestions.length > 0"
+                                                    x-transition:enter="transition ease-out duration-200"
+                                                    x-transition:enter-start="opacity-0 translate-y-1"
+                                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                                    x-transition:leave="transition ease-in duration-150"
+                                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                                    x-transition:leave-end="opacity-0 translate-y-1"
+                                                    class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                                    <template x-for="(suggestion, index) in addressSuggestions" :key="index">
+                                                        <div @click="selectAddressSuggestion(suggestion)"
+                                                            class="px-4 py-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-600 border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors duration-150">
+                                                            <div class="flex items-start">
+                                                                <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                </svg>
+                                                                <span class="text-sm text-gray-700 dark:text-gray-200" x-text="suggestion.display_name"></span>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
                                             </div>
 
                                             <div>
@@ -928,11 +963,11 @@
             perPageSelect.addEventListener('change', loadPropertiesData);
         });
 
-        function toggleStatus(checkbox) {
+        function togglePropertyStatus(checkbox) {
             const propertyId = checkbox.getAttribute('data-id');
             const newStatus = checkbox.checked ? 1 : 0;
-
-            const statusLabel = checkbox.closest('label').querySelector('span');
+            const row = checkbox.closest('tr');
+            const statusLabel = row.querySelector('.status-label');
 
             fetch(`/properties/m-properties/${propertyId}/status`, {
                     method: 'PUT',
@@ -949,37 +984,34 @@
                     return res.json();
                 })
                 .then(() => {
-                    // Animasi perubahan label status
-                    statusLabel.classList.add('opacity-0');
+                    // Update label status
+                    statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
+                    statusLabel.classList.remove('text-green-600', 'text-red-600', 'dark:text-green-400', 'dark:text-red-400');
+                    statusLabel.classList.add(newStatus === 1 ? 'text-green-600' : 'text-red-600');
+                    statusLabel.classList.add(newStatus === 1 ? 'dark:text-green-400' : 'dark:text-red-400');
 
-                    setTimeout(() => {
-                        statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
-                        statusLabel.classList.remove('opacity-0');
-                        statusLabel.classList.add('opacity-100');
-                    }, 200);
-
-                    // Notifikasi Toastify lebih menarik
-                    Toastify({
-                        text: newStatus === 1 ?
-                            "✓ Properti berhasil diaktifkan" : "⚠ Properti berhasil dinonaktifkan",
-                        duration: 3500,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        stopOnFocus: true,
-                        className: "shadow-lg rounded-md",
-                        style: {
-                            background: newStatus === 1 ?
-                                "linear-gradient(to right, #4CAF50, #2E7D32)" :
-                                "linear-gradient(to right, #F44336, #C62828)"
-                        }
-                    }).showToast();
+                    // Show success toast
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: newStatus === 1 ? 'Properti berhasil diaktifkan' : 'Properti berhasil dinonaktifkan',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
                 })
                 .catch(err => {
                     console.error(err);
                     checkbox.checked = !checkbox.checked;
 
-                    alert("Gagal memperbarui status properti");
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Gagal memperbarui status properti',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 });
         }
 
@@ -997,6 +1029,11 @@
                 searchResults: [],
                 isSearching: false,
                 thumbnailIndex: null,
+                // Address autocomplete properties
+                addressSuggestions: [],
+                showAddressSuggestions: false,
+                addressSearchTimeout: null,
+                isAddressSearching: false,
 
                 openModal(property) {
                     this.selectedProperty = property;
@@ -1129,7 +1166,7 @@
                             zoomControl: true
                         }).setView([defaultLat, defaultLng], 13);
 
-                        // Add tile layer with error handling
+                        // Add OpenStreetMap tile layer
                         const tileLayer = L.tileLayer(
                             'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -1223,7 +1260,7 @@
 
                     try {
                         const response = await fetch(
-                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.searchQuery)}&limit=5&countrycodes=id`
+                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.searchQuery)}&limit=5&countrycodes=id&addressdetails=1`
                         );
 
                         if (!response.ok) throw new Error('Search failed');
@@ -1248,7 +1285,10 @@
                             lng
                         });
                         this.map.setView([lat, lng], 15);
-                        this.reverseGeocode(lat, lng);
+
+                        // Parse Nominatim result to fill address fields
+                        this.parseNominatimResult(result);
+
                         this.searchResults = [];
                         this.searchQuery = result.display_name;
                     }
@@ -1263,15 +1303,15 @@
                         if (!response.ok) throw new Error('Reverse geocoding failed');
 
                         const data = await response.json();
-                        if (data.address) {
-                            this.updateAddressFields(data.address);
+                        if (data) {
+                            this.parseNominatimResult(data);
                         }
                     } catch (error) {
                         console.error('Reverse geocoding error:', error);
                     }
                 },
 
-                updateAddressFields(address) {
+                parseNominatimResult(result) {
                     // Helper function to safely update form fields
                     const updateField = (id, value) => {
                         const element = document.getElementById(id);
@@ -1280,16 +1320,87 @@
                         }
                     };
 
-                    // Update form fields based on reverse geocoding results
-                    updateField('full_address',
-                        address.road || address.hamlet || address.village ||
-                        address.town || address.city || '');
+                    const address = result.address || {};
+
+                    // Build full address from display_name or components
+                    const fullAddress = result.display_name ||
+                        [address.road, address.hamlet, address.village, address.town, address.city]
+                        .filter(Boolean).join(', ');
+                    updateField('full_address', fullAddress);
+
+                    // Update form fields based on Nominatim response
                     updateField('province', address.state || address.region || '');
-                    updateField('city', address.city || address.town || address.county || '');
-                    updateField('district', address.suburb || address.city_district || '');
-                    updateField('village',
-                        address.village || address.hamlet || address.neighbourhood || '');
+                    updateField('city', address.city || address.town || address.county || address.regency || '');
+                    updateField('district', address.suburb || address.city_district || address.district || '');
+                    updateField('village', address.village || address.hamlet || address.neighbourhood || address.subdistrict || '');
                     updateField('postal_code', address.postcode || '');
+                },
+
+                // Address autocomplete with debounce
+                searchAddress(query) {
+                    // Clear previous timeout
+                    if (this.addressSearchTimeout) {
+                        clearTimeout(this.addressSearchTimeout);
+                    }
+
+                    // Don't search if query is too short
+                    if (!query || query.length < 3) {
+                        this.addressSuggestions = [];
+                        this.showAddressSuggestions = false;
+                        return;
+                    }
+
+                    // Debounce 500ms
+                    this.addressSearchTimeout = setTimeout(async () => {
+                        this.isAddressSearching = true;
+                        try {
+                            const response = await fetch(
+                                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=id&addressdetails=1`
+                            );
+
+                            if (!response.ok) throw new Error('Search failed');
+
+                            const results = await response.json();
+                            this.addressSuggestions = results;
+                            this.showAddressSuggestions = this.addressSuggestions.length > 0;
+                        } catch (error) {
+                            console.error('Address search error:', error);
+                            this.addressSuggestions = [];
+                            this.showAddressSuggestions = false;
+                        } finally {
+                            this.isAddressSearching = false;
+                        }
+                    }, 500);
+                },
+
+                selectAddressSuggestion(suggestion) {
+                    const lat = parseFloat(suggestion.lat);
+                    const lng = parseFloat(suggestion.lon);
+
+                    // Update full address field
+                    const fullAddressField = document.getElementById('full_address');
+                    if (fullAddressField) {
+                        fullAddressField.value = suggestion.display_name;
+                    }
+
+                    // Parse and fill other address fields
+                    this.parseNominatimResult(suggestion);
+
+                    // Move map marker if map is initialized
+                    if (this.map && !isNaN(lat) && !isNaN(lng)) {
+                        this.placeMarker({ lat, lng });
+                        this.map.setView([lat, lng], 15);
+                    } else {
+                        // Store coordinates for later when map is initialized
+                        const latInput = document.getElementById('latitude');
+                        const lngInput = document.getElementById('longitude');
+                        if (latInput) latInput.value = lat;
+                        if (lngInput) lngInput.value = lng;
+                    }
+
+                    // Hide suggestions
+                    this.addressSuggestions = [];
+                    this.showAddressSuggestions = false;
                 },
 
                 // Force map resize when step changes or container becomes visible
@@ -1657,6 +1768,11 @@
                 thumbnailIndex: 0,
                 isDragging: false,
                 propertyIdrec: property.idrec || null,
+                // Address autocomplete properties
+                addressSuggestions: [],
+                showAddressSuggestions: false,
+                addressSearchTimeout: null,
+                isAddressSearching: false,
                 propertyData: {
                     name: property.name || '',
                     initial: property.initial || '',
@@ -1818,7 +1934,7 @@
                             zoomControl: true
                         }).setView([initialLat, initialLng], 15);
 
-                        // Add tile layer with error handling
+                        // Add OpenStreetMap tile layer
                         const tileLayer = L.tileLayer(
                             'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -1948,7 +2064,7 @@
 
                     try {
                         const response = await fetch(
-                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.searchQuery)}&limit=5&countrycodes=id`
+                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.searchQuery)}&limit=5&countrycodes=id&addressdetails=1`
                         );
 
                         if (!response.ok) throw new Error('Search failed');
@@ -1973,7 +2089,10 @@
                             lng
                         });
                         this.map.setView([lat, lng], 15);
-                        this.reverseGeocode(lat, lng);
+
+                        // Parse Nominatim result to fill address fields
+                        this.parseNominatimResult(result);
+
                         this.searchResults = [];
                         this.searchQuery = result.display_name;
                     }
@@ -1988,49 +2107,120 @@
                         if (!response.ok) throw new Error('Reverse geocoding failed');
 
                         const data = await response.json();
-                        if (data.address) {
-                            this.updateAddressFields(data.address);
+                        if (data) {
+                            this.parseNominatimResult(data);
                         }
                     } catch (error) {
                         console.error('Reverse geocoding error:', error);
                     }
                 },
 
-                updateAddressFields(address) {
+                parseNominatimResult(result) {
                     // Helper function to safely update form fields
                     const updateField = (id, value) => {
                         const element = document.getElementById(id);
                         if (element) {
                             element.value = value || '';
-                            // Also update the propertyData
-                            if (id === `full_address_edit_${property.idrec}`) this.propertyData
-                                .address = value || '';
-                            if (id === `province_edit_${property.idrec}`) this.propertyData
-                                .province = value || '';
-                            if (id === `city_edit_${property.idrec}`) this.propertyData.city =
-                                value || '';
-                            if (id === `district_edit_${property.idrec}`) this.propertyData
-                                .subdistrict = value || '';
-                            if (id === `village_edit_${property.idrec}`) this.propertyData.village =
-                                value || '';
-                            if (id === `postal_code_edit_${property.idrec}`) this.propertyData
-                                .postal_code = value || '';
                         }
                     };
 
-                    // Update form fields based on reverse geocoding results
-                    updateField(`full_address_edit_${property.idrec}`,
-                        address.road || address.hamlet || address.village ||
-                        address.town || address.city || '');
-                    updateField(`province_edit_${property.idrec}`, address.state || address.region ||
-                        '');
-                    updateField(`city_edit_${property.idrec}`, address.city || address.town || address
-                        .county || '');
-                    updateField(`district_edit_${property.idrec}`, address.suburb || address
-                        .city_district || '');
-                    updateField(`village_edit_${property.idrec}`,
-                        address.village || address.hamlet || address.neighbourhood || '');
-                    updateField(`postal_code_edit_${property.idrec}`, address.postcode || '');
+                    const address = result.address || {};
+
+                    // Build full address from display_name or components
+                    const fullAddress = result.display_name ||
+                        [address.road, address.hamlet, address.village, address.town, address.city]
+                        .filter(Boolean).join(', ');
+                    updateField(`full_address_edit_${property.idrec}`, fullAddress);
+                    this.propertyData.address = fullAddress;
+
+                    // Extract address components
+                    const province = address.state || address.region || '';
+                    const city = address.city || address.town || address.county || address.regency || '';
+                    const district = address.suburb || address.city_district || address.district || '';
+                    const village = address.village || address.hamlet || address.neighbourhood || address.subdistrict || '';
+                    const postalCode = address.postcode || '';
+
+                    // Update form fields and propertyData
+                    updateField(`province_edit_${property.idrec}`, province);
+                    this.propertyData.province = province;
+
+                    updateField(`city_edit_${property.idrec}`, city);
+                    this.propertyData.city = city;
+
+                    updateField(`district_edit_${property.idrec}`, district);
+                    this.propertyData.subdistrict = district;
+
+                    updateField(`village_edit_${property.idrec}`, village);
+                    this.propertyData.village = village;
+
+                    updateField(`postal_code_edit_${property.idrec}`, postalCode);
+                    this.propertyData.postal_code = postalCode;
+                },
+
+                // Address autocomplete with debounce
+                searchAddress(query) {
+                    // Clear previous timeout
+                    if (this.addressSearchTimeout) {
+                        clearTimeout(this.addressSearchTimeout);
+                    }
+
+                    // Don't search if query is too short
+                    if (!query || query.length < 3) {
+                        this.addressSuggestions = [];
+                        this.showAddressSuggestions = false;
+                        return;
+                    }
+
+                    // Debounce 500ms
+                    this.addressSearchTimeout = setTimeout(async () => {
+                        this.isAddressSearching = true;
+                        try {
+                            const response = await fetch(
+                                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=id&addressdetails=1`
+                            );
+
+                            if (!response.ok) throw new Error('Search failed');
+
+                            const results = await response.json();
+                            this.addressSuggestions = results;
+                            this.showAddressSuggestions = this.addressSuggestions.length > 0;
+                        } catch (error) {
+                            console.error('Address search error:', error);
+                            this.addressSuggestions = [];
+                            this.showAddressSuggestions = false;
+                        } finally {
+                            this.isAddressSearching = false;
+                        }
+                    }, 500);
+                },
+
+                selectAddressSuggestion(suggestion) {
+                    const lat = parseFloat(suggestion.lat);
+                    const lng = parseFloat(suggestion.lon);
+
+                    // Update full address field
+                    const fullAddressField = document.getElementById(`full_address_edit_${property.idrec}`);
+                    if (fullAddressField) {
+                        fullAddressField.value = suggestion.display_name;
+                    }
+                    this.propertyData.address = suggestion.display_name;
+
+                    // Parse and fill other address fields
+                    this.parseNominatimResult(suggestion);
+
+                    // Move map marker if map is initialized
+                    if (this.map && !isNaN(lat) && !isNaN(lng)) {
+                        this.placeMarker({ lat, lng });
+                        this.map.setView([lat, lng], 15);
+                    } else {
+                        // Store coordinates for later
+                        this.propertyData.latitude = lat;
+                        this.propertyData.longitude = lng;
+                    }
+
+                    // Hide suggestions
+                    this.addressSuggestions = [];
+                    this.showAddressSuggestions = false;
                 },
 
                 resizeMap() {

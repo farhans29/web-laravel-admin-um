@@ -716,22 +716,17 @@ class DashboardController extends Controller
 
         $dataFeed = new DataFeed();
 
-        // Get today's check-ins (paid bookings with today's check-in date, not checked in yet)
+        // Get current check-ins (guests currently staying - checked in but not checked out yet)
         $checkIns = Booking::with(['user', 'room', 'property', 'transaction'])
             ->when($userPropertyId, function ($q) use ($userPropertyId) {
                 $q->where('property_id', $userPropertyId);
             })
             ->whereHas('transaction', function ($q) {
-                $q->where('transaction_status', 'paid')
-                    ->whereDate('check_in', now()->toDateString());
+                $q->where('transaction_status', 'paid');
             })
-            ->whereNull('check_in_at')
+            ->whereNotNull('check_in_at')
             ->whereNull('check_out_at')
-            ->orderBy(
-                Transaction::select('check_in')
-                    ->whereColumn('t_transactions.order_id', 't_booking.order_id')
-                    ->limit(1)
-            )
+            ->orderBy('check_in_at', 'desc')
             ->limit(4)
             ->get();
 
@@ -848,8 +843,8 @@ class DashboardController extends Controller
             ];
         }
 
-        // Get room reports - PERBAIKAN DI SINI
-        $roomReports = $this->getPropertyRoomReportData(); // Langsung panggil method data, bukan API
+        // Get room reports - Pass userPropertyId untuk filter berdasarkan user_type
+        $roomReports = $this->getPropertyRoomReportData($userPropertyId);
 
         // Get new dashboard data
         $occupiedRooms = $this->getOccupiedRoomsDetails($userPropertyId);

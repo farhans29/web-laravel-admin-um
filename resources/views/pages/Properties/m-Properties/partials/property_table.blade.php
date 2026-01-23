@@ -73,16 +73,17 @@
                         {{ $property->creator->username ?? 'Unknown' }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" value="" class="sr-only peer" data-id="{{ $property->idrec }}"
-                            {{ $property->status ? 'checked' : '' }} onchange="toggleStatus(this)">
-                        <div
-                            class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                        </div>
-                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white">
+                    <div class="flex items-center justify-center space-x-2">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer property-status-toggle" data-id="{{ $property->idrec }}"
+                                {{ $property->status ? 'checked' : '' }} onchange="togglePropertyStatus(this)">
+                            <div class="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer-checked:bg-blue-600 transition-all duration-300"></div>
+                            <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300 peer-checked:translate-x-5"></div>
+                        </label>
+                        <span class="text-sm font-medium status-label {{ $property->status ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
                             {{ $property->status ? 'Active' : 'Inactive' }}
                         </span>
-                    </label>
+                    </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                     <div class="flex justify-center items-left space-x-3">
@@ -718,15 +719,50 @@
                                                 x-transition:enter-start="opacity-0 translate-x-4"
                                                 x-transition:enter-end="opacity-100 translate-x-0" x-cloak>
                                                 <div class="space-y-6">
-                                                    <div>
+                                                    <div class="relative">
                                                         <label for="full_address_edit_{{ $property->idrec }}"
                                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                             Alamat Lengkap <span class="text-red-500">*</span>
+                                                            <span class="text-xs font-normal text-gray-500 ml-2">(Ketik untuk mencari alamat)</span>
                                                         </label>
-                                                        <textarea id="full_address_edit_{{ $property->idrec }}" name="full_address" rows="3" required
-                                                            x-model="propertyData.address"
-                                                            class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                            placeholder="Masukkan alamat lengkap properti"></textarea>
+                                                        <div class="relative">
+                                                            <textarea id="full_address_edit_{{ $property->idrec }}" name="full_address" rows="3" required
+                                                                x-model="propertyData.address"
+                                                                @input="searchAddress($event.target.value)"
+                                                                @focus="showAddressSuggestions = addressSuggestions.length > 0"
+                                                                @click.outside="showAddressSuggestions = false"
+                                                                class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                                                placeholder="Masukkan alamat lengkap properti"></textarea>
+                                                            <!-- Loading indicator -->
+                                                            <div x-show="isAddressSearching" class="absolute right-3 top-3">
+                                                                <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Address Suggestions Dropdown -->
+                                                        <div x-show="showAddressSuggestions && addressSuggestions.length > 0"
+                                                            x-transition:enter="transition ease-out duration-200"
+                                                            x-transition:enter-start="opacity-0 translate-y-1"
+                                                            x-transition:enter-end="opacity-100 translate-y-0"
+                                                            x-transition:leave="transition ease-in duration-150"
+                                                            x-transition:leave-start="opacity-100 translate-y-0"
+                                                            x-transition:leave-end="opacity-0 translate-y-1"
+                                                            class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                                            <template x-for="(suggestion, index) in addressSuggestions" :key="index">
+                                                                <div @click="selectAddressSuggestion(suggestion)"
+                                                                    class="px-4 py-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-600 border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors duration-150">
+                                                                    <div class="flex items-start">
+                                                                        <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                        </svg>
+                                                                        <span class="text-sm text-gray-700 dark:text-gray-200" x-text="suggestion.display_name"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </template>
+                                                        </div>
                                                     </div>
 
                                                     <div>

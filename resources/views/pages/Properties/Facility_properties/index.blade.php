@@ -181,6 +181,70 @@
     </div>
 
     <script>
+        // Toggle status function for facility property
+        function toggleFacilityPropertyStatus(checkbox) {
+            const facilityId = checkbox.dataset.id;
+            const newStatus = checkbox.checked ? 1 : 0;
+            const row = checkbox.closest('tr');
+            const statusLabel = row.querySelector('.status-label');
+
+            fetch('/properties/m-properties/facility/toggle-status', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: facilityId,
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the status label
+                    statusLabel.textContent = newStatus == 1 ? 'Active' : 'Inactive';
+                    statusLabel.classList.remove('text-green-600', 'text-red-600');
+                    statusLabel.classList.add(newStatus == 1 ? 'text-green-600' : 'text-red-600');
+
+                    // Show success toast
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message || 'Status berhasil diubah',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                } else {
+                    // Revert checkbox state
+                    checkbox.checked = !checkbox.checked;
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: data.message || 'Gagal mengubah status',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert checkbox state
+                checkbox.checked = !checkbox.checked;
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Terjadi kesalahan',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        }
+
         // Function untuk melakukan filtering dengan AJAX (global scope)
         function applyFilters() {
             const searchInput = document.getElementById('searchInput');

@@ -2637,13 +2637,13 @@
         //     }
         // });
 
-        function toggleStatus(checkbox) {
-            const propertyId = checkbox.getAttribute('data-id');
+        function toggleRoomStatus(checkbox) {
+            const roomId = checkbox.getAttribute('data-id');
             const newStatus = checkbox.checked ? 1 : 0;
+            const row = checkbox.closest('tr');
+            const statusLabel = row.querySelector('.status-label');
 
-            const statusLabel = checkbox.closest('label').querySelector('span');
-
-            fetch(`/properties/rooms/${propertyId}/status`, {
+            fetch(`/properties/rooms/${roomId}/status`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2658,38 +2658,33 @@
                     return res.json();
                 })
                 .then(() => {
-                    // Animasi perubahan label status
-                    statusLabel.classList.add('opacity-0');
+                    // Update label status
+                    statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
+                    statusLabel.classList.remove('text-green-600', 'text-red-600');
+                    statusLabel.classList.add(newStatus === 1 ? 'text-green-600' : 'text-red-600');
 
-                    setTimeout(() => {
-                        statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
-                        statusLabel.classList.remove('opacity-0');
-                        statusLabel.classList.add('opacity-100');
-                    }, 200);
-
-                    // Notifikasi Toastify lebih menarik
-                    Toastify({
-                        text: newStatus === 1 ?
-                            "✓ Kamar berhasil diaktifkan" : "⚠ Kamar berhasil dinonaktifkan",
-                        duration: 3500,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        stopOnFocus: true,
-                        className: "shadow-lg rounded-md",
-                        style: {
-                            background: newStatus === 1 ?
-                                "linear-gradient(to right, #4CAF50, #2E7D32)" :
-                                "linear-gradient(to right, #F44336, #C62828)"
-                        }
-                    }).showToast();
+                    // Show success toast
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: newStatus === 1 ? 'Kamar berhasil diaktifkan' : 'Kamar berhasil dinonaktifkan',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
                 })
-
                 .catch(err => {
                     console.error(err);
                     checkbox.checked = !checkbox.checked;
 
-                    alert("Gagal memperbarui status properti");
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Gagal memperbarui status kamar',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 });
         }
 
