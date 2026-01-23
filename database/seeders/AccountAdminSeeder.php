@@ -170,6 +170,60 @@ class AccountAdminSeeder extends Seeder
                 'status' => 1,
                 'created_at' => now(),
             ],
+
+            // ===============================
+            // HO User (Non-Admin, user_type = 0)
+            // Dapat melihat semua property
+            // ===============================
+            [
+                'first_name' => 'Staff',
+                'last_name' => 'HO',
+                'username' => 'staff_ho',
+                'email' => 'staff-ho@ulinmahoni.com',
+                'password' => bcrypt('DigitaLL24$$'),
+                'role_id' => 1, // Manager HO
+                'is_admin' => 0,
+                'user_type' => 0, // HO
+                'property_id' => null,
+                'status' => 1,
+                'created_at' => now(),
+            ],
+
+            // ===============================
+            // Site User (Non-Admin, user_type = 1)
+            // Hanya melihat data property_id = 1
+            // ===============================
+            [
+                'first_name' => 'Staff',
+                'last_name' => 'Site 1',
+                'username' => 'staff_site1',
+                'email' => 'staff-site1@ulinmahoni.com',
+                'password' => bcrypt('DigitaLL24$$'),
+                'role_id' => 4, // Receptionist
+                'is_admin' => 0,
+                'user_type' => 1, // Site
+                'property_id' => 1, // Property ID 1
+                'status' => 1,
+                'created_at' => now(),
+            ],
+
+            // ===============================
+            // Site User (Non-Admin, user_type = 1)
+            // Hanya melihat data property_id = 2
+            // ===============================
+            [
+                'first_name' => 'Staff',
+                'last_name' => 'Site 2',
+                'username' => 'staff_site2',
+                'email' => 'staff-site2@ulinmahoni.com',
+                'password' => bcrypt('DigitaLL24$$'),
+                'role_id' => 4, // Receptionist
+                'is_admin' => 0,
+                'user_type' => 1, // Site
+                'property_id' => 2, // Property ID 2
+                'status' => 1,
+                'created_at' => now(),
+            ],
         ]);
     }
 }

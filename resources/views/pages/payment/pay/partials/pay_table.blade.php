@@ -148,7 +148,38 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                     @if ($payment->transaction && in_array($payment->transaction->transaction_status, ['waiting']))
-                        <div x-data="attachmentModal()" class="relative group">
+                        <div x-data="{
+                            isOpen: false,
+                            isLoading: true,
+                            attachmentData: '',
+                            attachmentType: 'unknown',
+                            orderId: '',
+                            openModal(base64Data, orderId) {
+                                this.isOpen = true;
+                                this.isLoading = true;
+                                this.orderId = orderId;
+                                document.body.style.overflow = 'hidden';
+                                this.$nextTick(() => {
+                                    this.attachmentData = base64Data;
+                                    const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
+                                    if (imageSignatures.some(sig => base64Data.startsWith(sig))) {
+                                        this.attachmentType = 'image';
+                                    } else if (base64Data.startsWith('JVBERi0')) {
+                                        this.attachmentType = 'pdf';
+                                    } else {
+                                        this.attachmentType = 'unknown';
+                                    }
+                                    setTimeout(() => { this.isLoading = false; }, 500);
+                                });
+                            },
+                            closeModal() {
+                                this.isOpen = false;
+                                this.attachmentData = '';
+                                this.attachmentType = 'unknown';
+                                this.orderId = '';
+                                document.body.style.overflow = '';
+                            }
+                        }" class="relative group">
                             <button type="button"
                                 class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
                                 @click="openModal('{{ $payment->transaction->attachment }}', '{{ $payment->order_id }}')"
