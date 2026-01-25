@@ -28,16 +28,21 @@ class ManajementRoomsController extends Controller
             ->with(['property', 'creator'])
             ->orderBy('created_at', 'desc');
 
-        // Filter by property based on user access
-        if ($user->isSuperAdmin()) {
-            // Super admin: can filter by any property or see all
-            if ($request->has('property_id') && $request->property_id != '') {
-                $query->where('property_id', $request->property_id);
-            }
-        } else {
-            // Non-super admin: automatically filter by their property
+        // Filter by property based on user_type
+        // user_type = 0 (HO): can see all rooms
+        // user_type = 1 (Site): can only see rooms from their property_id
+        if ($user->user_type == 1) {
+            // Site user: must filter by their property_id
             if ($user->property_id) {
                 $query->where('property_id', $user->property_id);
+            } else {
+                // Site user tanpa property_id tidak bisa melihat room apapun
+                $query->whereRaw('1 = 0');
+            }
+        } else {
+            // HO user (user_type = 0): can see all, but can filter by property if requested
+            if ($request->has('property_id') && $request->property_id != '') {
+                $query->where('property_id', $request->property_id);
             }
         }
 
@@ -62,13 +67,17 @@ class ManajementRoomsController extends Controller
             ? $query->get()
             : $query->paginate((int) $perPage)->withQueryString();
 
-        // Filter properties based on user access
-        if ($user->isSuperAdmin()) {
-            $properties = Property::orderBy('name', 'asc')->get();
-        } else {
+        // Filter properties based on user_type
+        // user_type = 0 (HO): can see all properties
+        // user_type = 1 (Site): can only see their assigned property
+        if ($user->user_type == 1) {
+            // Site user: only show their assigned property
             $properties = Property::where('idrec', $user->property_id)
                 ->orderBy('name', 'asc')
                 ->get();
+        } else {
+            // HO user (user_type = 0): can see all properties
+            $properties = Property::orderBy('name', 'asc')->get();
         }
 
         // Pastikan ini mengembalikan Collection, bukan string
@@ -961,6 +970,7 @@ class ManajementRoomsController extends Controller
         // Validate the request data
         $validatedData = $request->validate([
             'facility' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|boolean', // Changed to boolean
         ]);
@@ -969,6 +979,7 @@ class ManajementRoomsController extends Controller
             // Create a new facility record
             $facility = RoomFacility::create([
                 'facility' => $validatedData['facility'],
+                'icon' => $validatedData['icon'] ?? null,
                 'description' => $validatedData['description'] ?? null,
                 'status' => $validatedData['status'] ? 1 : 0, // Convert to 1/0
                 'created_by' => Auth::id(),
@@ -995,6 +1006,7 @@ class ManajementRoomsController extends Controller
         // Validasi input
         $validatedData = $request->validate([
             'facility' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|boolean'
         ]);
@@ -1013,6 +1025,7 @@ class ManajementRoomsController extends Controller
             // Update data facility
             $facility->update([
                 'facility' => $validatedData['facility'],
+                'icon' => $validatedData['icon'] ?? null,
                 'description' => $validatedData['description'] ?? null,
                 'status' => $validatedData['status'] ? 1 : 0,
                 'updated_by' => Auth::id(),
