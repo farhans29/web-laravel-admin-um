@@ -77,9 +77,6 @@
                                                     <i class="fas fa-search"></i>
                                                 </div>
                                             </div>
-                                            <button id="clearSearch" class="mt-3 hidden inline-flex items-center text-sm text-gray-600 hover:text-gray-800">
-                                                <i class="fas fa-times mr-1"></i> Clear search
-                                            </button>
                                         </div>
 
                                         <!-- Konten Tabel dengan margin top -->
@@ -453,7 +450,6 @@
         // Live search functionality
         let searchTimeout;
         const searchInput = document.getElementById('searchInput');
-        const clearSearchBtn = document.getElementById('clearSearch');
         const bookingResultsContainer = document.getElementById('bookingResultsContainer');
         const paginationContainer = document.getElementById('paginationContainer');
 
@@ -461,23 +457,10 @@
             clearTimeout(searchTimeout);
             const searchValue = this.value.trim();
 
-            // Show/hide clear button
-            if (searchValue) {
-                clearSearchBtn.classList.remove('hidden');
-            } else {
-                clearSearchBtn.classList.add('hidden');
-            }
-
             // Debounce search - wait 500ms after user stops typing
             searchTimeout = setTimeout(function() {
                 performSearch(searchValue);
             }, 500);
-        });
-
-        clearSearchBtn.addEventListener('click', function() {
-            searchInput.value = '';
-            clearSearchBtn.classList.add('hidden');
-            performSearch('');
         });
 
         function performSearch(query, page = 1) {
