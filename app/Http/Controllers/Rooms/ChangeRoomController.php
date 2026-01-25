@@ -22,11 +22,15 @@ class ChangeRoomController extends Controller
         $historySearch = $request->input('history_search');
         $currentDate = now()->format('Y-m-d');
 
-        // Set property_id based on user access
-        if ($user->isSuperAdmin()) {
-            $propertyId = $request->input('property_id');
-        } else {
+        // Set property_id based on user_type
+        // user_type = 0 (HO): can see all rooms, can filter by property if requested
+        // user_type = 1 (Site): can only see rooms from their property_id
+        if ($user->user_type == 1) {
+            // Site user: must filter by their property_id
             $propertyId = $user->property_id;
+        } else {
+            // HO user (user_type = 0): can see all, but can filter by property if requested
+            $propertyId = $request->input('property_id');
         }
 
         // Get all bookings that are eligible for room transfer
@@ -144,10 +148,19 @@ class ChangeRoomController extends Controller
 
     public function getAvailableRooms(Request $request)
     {
-        $propertyId = $request->input('property_id');
+        $user = Auth::user();
         $roomId     = $request->input('room_id');
         $checkIn    = $request->input('check_in');
         $checkOut   = $request->input('check_out');
+
+        // Set property_id based on user_type
+        // user_type = 1 (Site): must use their property_id
+        // user_type = 0 (HO): can use requested property_id
+        if ($user->user_type == 1) {
+            $propertyId = $user->property_id;
+        } else {
+            $propertyId = $request->input('property_id');
+        }
 
         if (!$checkIn || !$checkOut || !$propertyId) {
             return response()->json(['error' => 'Missing required fields.'], 400);
@@ -241,6 +254,13 @@ class ChangeRoomController extends Controller
                 ->withErrors($validator)
                 ->withInput()
                 ->with('error', 'Please fill all required fields.');
+        }
+
+        // Validate Site user can only transfer rooms within their property
+        $user = Auth::user();
+        if ($user->user_type == 1 && $user->property_id != $request->current_property_id) {
+            return redirect()->back()
+                ->with('error', 'Anda tidak memiliki akses untuk memindahkan kamar di properti ini.');
         }
 
         try {
