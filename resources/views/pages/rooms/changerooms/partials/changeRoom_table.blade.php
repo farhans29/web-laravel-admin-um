@@ -3,8 +3,8 @@
         data-booking="{{ json_encode([
             'room_number' => $booking->room->name ?? 'N/A',
             'room_type' => $booking->room->type ?? 'N/A',
-            'check_in' => $booking->transaction->check_in,
-            'check_out' => $booking->transaction->check_out,
+            'check_in' => $booking->transaction?->check_in ?? $booking->check_in_at,
+            'check_out' => $booking->transaction?->check_out ?? $booking->check_out_at,
             'rate' => $booking->room->price ?? 'N/A',
             'guest_name' => $booking->user->username ?? 'N/A',
             'order_id' => $booking->order_id,
