@@ -77,13 +77,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             const defaultStartDate = new Date();
             const defaultEndDate = new Date();
-            defaultEndDate.setMonth(defaultEndDate.getMonth() + 1);
+            defaultEndDate.setMonth(defaultEndDate.getMonth() + 3);
 
             // Initialize Flatpickr with persistence
             const datePicker = DateFilterPersistence.initFlatpickr('pending', {
                 defaultStartDate: defaultStartDate,
                 defaultEndDate: defaultEndDate,
-                maxRangeDays: 31,
+                maxRangeDays: 92,
                 onChange: function(selectedDates, dateStr, instance) {
                     fetchFilteredBookings();
                 },

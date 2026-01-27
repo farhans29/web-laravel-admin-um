@@ -97,14 +97,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date();
-            const oneMonthLater = new Date();
-            oneMonthLater.setMonth(today.getMonth() + 1);
+            const threeMonthsLater = new Date();
+            threeMonthsLater.setMonth(today.getMonth() + 3);
 
             // Initialize Flatpickr with persistence
             const datePicker = DateFilterPersistence.initFlatpickr('allbookings', {
                 defaultStartDate: today,
-                defaultEndDate: oneMonthLater,
-                maxRangeDays: 31,
+                defaultEndDate: threeMonthsLater,
+                maxRangeDays: 92,
                 onChange: function(selectedDates, dateStr, instance) {
                     fetchFilteredBookings();
                 },

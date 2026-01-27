@@ -51,10 +51,10 @@ class CheckOutController extends Controller
                 Carbon::parse($endDate)->endOfDay()
             ]);
         } else {
-            // Default filter: from today to 1 month ahead
+            // Default filter: from today to 3 months ahead
             $query->whereBetween('check_in_at', [
                 now()->startOfDay(),
-                now()->addMonth()->endOfDay()
+                now()->addMonths(3)->endOfDay()
             ]);
         }
 
@@ -108,10 +108,10 @@ class CheckOutController extends Controller
                 ]);
             });
         } else {
-            // Default filter: from today to 1 month ahead
+            // Default filter: from today to 3 months ahead
             $query->whereBetween('check_in_at', [
                 now()->startOfDay(),
-                now()->addMonth()->endOfDay()
+                now()->addMonths(3)->endOfDay()
             ]);
         }
 

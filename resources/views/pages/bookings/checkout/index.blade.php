@@ -371,7 +371,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const defaultStartDate = new Date();
             const defaultEndDate = new Date();
-            defaultEndDate.setMonth(defaultEndDate.getMonth() + 1);
+            defaultEndDate.setMonth(defaultEndDate.getMonth() + 3);
 
             // Initialize Flatpickr with default range
             const datePicker = flatpickr("#date_picker", {
@@ -383,7 +383,6 @@
                 static: true,
                 monthSelectorType: 'static',
                 defaultDate: [defaultStartDate, defaultEndDate],
-                minDate: "today",
                 maxDate: new Date().fp_incr(365),
                 onOpen: function(selectedDates, dateStr, instance) {
                     instance.set('minDate', null);
@@ -396,13 +395,13 @@
                         // Hitung selisih hari (inklusif)
                         const diffInDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
-                        // Batasi maksimal 30 hari
-                        if (diffInDays > 31) {
+                        // Batasi maksimal 92 hari (3 bulan)
+                        if (diffInDays > 92) {
                             Swal.fire({
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'warning',
-                                title: 'Maximum date range is 30 days',
+                                title: 'Maximum date range is 3 months',
                                 showConfirmButton: false,
                                 timer: 3000,
                                 timerProgressBar: true,

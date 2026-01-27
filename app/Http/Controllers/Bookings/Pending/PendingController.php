@@ -36,28 +36,30 @@ class PendingController extends Controller
             });
         }
 
-        // Filter rentang tanggal
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $startDate = $request->start_date;
-            $endDate   = $request->end_date;
+        // Set default date range (today to 3 months ahead)
+        $defaultStartDate = now()->format('Y-m-d');
+        $defaultEndDate = now()->addMonths(3)->format('Y-m-d');
 
-            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-                if ($startDate === $endDate) {
-                    // Jika tanggal sama → cocokkan persis tanggal check_in
-                    $q->whereDate('check_in', $startDate);
-                } else {
-                    // Jika berbeda → rentang tanggal
-                    $q->whereBetween('check_in', [
-                        $startDate . ' 00:00:00',
-                        $endDate   . ' 23:59:59',
-                    ]);
-                }
-            });
-        }
+        // Apply date filter (use request if available, otherwise use default)
+        $startDate = $request->filled('start_date') ? $request->start_date : $defaultStartDate;
+        $endDate = $request->filled('end_date') ? $request->end_date : $defaultEndDate;
+
+        $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+            if ($startDate === $endDate) {
+                // Jika tanggal sama → cocokkan persis tanggal check_in
+                $q->whereDate('check_in', $startDate);
+            } else {
+                // Jika berbeda → rentang tanggal
+                $q->whereBetween('check_in', [
+                    $startDate . ' 00:00:00',
+                    $endDate   . ' 23:59:59',
+                ]);
+            }
+        });
 
         $bookings = $query->paginate($request->input('per_page', 8));
 
-        return view('pages.bookings.pending.index', compact('bookings'));
+        return view('pages.bookings.pending.index', compact('bookings', 'startDate', 'endDate'));
     }
 
     public function filter(Request $request)
@@ -87,22 +89,20 @@ class PendingController extends Controller
             });
         }
 
-        // Date range filter
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $startDate = $request->start_date;
-            $endDate   = $request->end_date;
+        // Set default date range if not provided - dari hari ini sampai 3 bulan ke depan
+        $startDate = $request->filled('start_date') ? $request->start_date : now()->format('Y-m-d');
+        $endDate = $request->filled('end_date') ? $request->end_date : now()->addMonths(3)->format('Y-m-d');
 
-            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-                if ($startDate === $endDate) {
-                    $q->whereDate('check_in', $startDate);
-                } else {
-                    $q->whereBetween('check_in', [
-                        $startDate . ' 00:00:00',
-                        $endDate   . ' 23:59:59',
-                    ]);
-                }
-            });
-        }
+        $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+            if ($startDate === $endDate) {
+                $q->whereDate('check_in', $startDate);
+            } else {
+                $q->whereBetween('check_in', [
+                    $startDate . ' 00:00:00',
+                    $endDate   . ' 23:59:59',
+                ]);
+            }
+        });
 
         $bookings = $query->paginate($request->input('per_page', 8));
 

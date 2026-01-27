@@ -170,6 +170,16 @@ class CheckPermission
      */
     private function getParentRoute(string $route): ?string
     {
+        // Specific route mappings (checked first, before prefix mappings)
+        $exactRouteMap = [
+            'users.show' => 'users.show', // Settings page - uses its own permission (manage_settings)
+        ];
+
+        // Check exact route mapping first
+        if (isset($exactRouteMap[$route])) {
+            return $exactRouteMap[$route];
+        }
+
         // Map of route prefixes to their index routes
         $routeMap = [
             'bookings.' => 'bookings.index',

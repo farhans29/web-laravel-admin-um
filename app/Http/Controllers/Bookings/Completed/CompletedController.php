@@ -31,10 +31,11 @@ class CompletedController extends Controller
             $query->where('property_id', $user->property_id);
         }
 
-        // ✅ Default: tampilkan data hari ini
+        // ✅ Default: tampilkan data dari hari ini hingga 3 bulan ke depan
         if (!$request->filled('start_date') && !$request->filled('end_date')) {
-            $today = now()->toDateString();
-            $query->whereDate('created_at', '>=', $today);
+            $startDate = now()->startOfDay();
+            $endDate = now()->addMonths(3)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         // Pencarian berdasarkan order_id atau nama user
@@ -98,9 +99,10 @@ class CompletedController extends Controller
                 $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
             }
         } else {
-            // Jika filter kosong → default ke hari ini
-            $today = now()->toDateString();
-            $query->whereDate('created_at', '>=', $today);
+            // Jika filter kosong → default ke hari ini hingga 3 bulan ke depan
+            $startDate = now()->startOfDay();
+            $endDate = now()->addMonths(3)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         $bookings = $query->orderByDesc('created_at')

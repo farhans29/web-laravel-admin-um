@@ -21,9 +21,9 @@ class AllBookingController extends Controller
             $query->where('property_id', $user->property_id);
         }
 
-        // Set default date range (1 month back to 1 month ahead)
-        $defaultStartDate = now()->subMonth()->format('Y-m-d');
-        $defaultEndDate = now()->addMonth()->format('Y-m-d');
+        // Set default date range (today to 3 months ahead)
+        $defaultStartDate = now()->format('Y-m-d');
+        $defaultEndDate = now()->addMonths(3)->format('Y-m-d');
 
         // Apply date filter (use request if available, otherwise use default)
         $startDate = $request->filled('start_date') ? $request->start_date : $defaultStartDate;
@@ -112,9 +112,9 @@ class AllBookingController extends Controller
             $query->where('property_id', $user->property_id);
         }
 
-        // Set default date range if not provided - menggunakan jarak 1 bulan
-        $startDate = $request->filled('start_date') ? $request->start_date : now()->subMonth()->format('Y-m-d');
-        $endDate = $request->filled('end_date') ? $request->end_date : now()->addMonth()->format('Y-m-d');
+        // Set default date range if not provided - dari hari ini sampai 3 bulan ke depan
+        $startDate = $request->filled('start_date') ? $request->start_date : now()->format('Y-m-d');
+        $endDate = $request->filled('end_date') ? $request->end_date : now()->addMonths(3)->format('Y-m-d');
 
         $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
             if ($startDate === $endDate) {

@@ -55,11 +55,11 @@ class CheckInController extends Controller
                 ]);
             });
         } else {
-            // Default filter: from today to 1 month ahead
+            // Default filter: from today to 3 months ahead
             $query->whereHas('transaction', function ($q) {
                 $q->whereBetween('check_out', [
                     now()->startOfDay(),
-                    now()->addMonth()->endOfDay()
+                    now()->addMonths(3)->endOfDay()
                 ]);
             });
         }
@@ -114,11 +114,11 @@ class CheckInController extends Controller
                 ]);
             });
         } else {
-            // Default filter: from today to 1 month ahead
+            // Default filter: from today to 3 months ahead
             $query->whereHas('transaction', function ($q) {
                 $q->whereBetween('check_out', [
                     now()->startOfDay(),
-                    now()->addMonth()->endOfDay()
+                    now()->addMonths(3)->endOfDay()
                 ]);
             });
         }

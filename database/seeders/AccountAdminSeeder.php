@@ -21,6 +21,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('DigitaLL24$$'),
                 'role_id' => 165, // Administrator (Full Access)
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -32,6 +34,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('5uAtAAQWgd9QcEQFYe'),
                 'role_id' => 165, // Administrator (Full Access)
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -47,6 +51,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('DigitaLL24$$'),
                 'role_id' => 1, // Manager HO
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -62,6 +68,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('DigitaLL24$$'),
                 'role_id' => 2, // Manager Hotel
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -77,6 +85,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('DigitaLL24$$'),
                 'role_id' => 3, // Site Admin
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -92,6 +102,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('DigitaLL24$$'),
                 'role_id' => 4, // Receptionist
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -107,6 +119,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('DigitaLL24$$'),
                 'role_id' => 5, // Housekeeping
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -122,6 +136,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('DigitaLL24$$'),
                 'role_id' => 6,
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -137,6 +153,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('DigitaLL24$$'),
                 'role_id' => 7,
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -152,6 +170,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('6zwBGfvAjBYGGd99wq'),
                 'role_id' => 164, // Creative
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
@@ -167,6 +187,8 @@ class AccountAdminSeeder extends Seeder
                 'password' => bcrypt('XMDvAP9Xce8g6wy7Yy'),
                 'role_id' => 166, // Finance
                 'is_admin' => 1,
+                'user_type' => 0, // tambahkan ini
+                'property_id' => null, // tambahkan ini
                 'status' => 1,
                 'created_at' => now(),
             ],
