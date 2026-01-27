@@ -45,7 +45,7 @@ class PaymentReportExport
             'textColor' => 'FFFFFF',
             'fontSize' => 20,
             'height' => 40,
-            'endColumn' => 'AB', // 28 columns
+            'endColumn' => 'AC', // 29 columns
         ]);
 
         // Add subtitle with generation info
@@ -54,7 +54,7 @@ class PaymentReportExport
             'textColor' => '6B7280',
             'italic' => true,
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AB',
+            'endColumn' => 'AC',
         ]);
 
         $excel->addEmptyRow();
@@ -66,7 +66,7 @@ class PaymentReportExport
         // Add separator
         $excel->addInfoRow('', []);
 
-        // Headers with enhanced styling (28 columns)
+        // Headers with enhanced styling (29 columns)
         $headers = [
             'No',
             'Invoice Number',
@@ -76,6 +76,7 @@ class PaymentReportExport
             'Room Type',
             'Room Number',
             'Tenant Name',
+            'NIK',
             'Mobile Number',
             'Email',
             'Check In',
@@ -102,7 +103,7 @@ class PaymentReportExport
 
         // Style header row with custom colors
         $actualHeaderRow = $excel->getCurrentRow() - 1;
-        $sheet->getStyle('A' . $actualHeaderRow . ':AB' . $actualHeaderRow)->applyFromArray([
+        $sheet->getStyle('A' . $actualHeaderRow . ':AC' . $actualHeaderRow)->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 10,
@@ -126,7 +127,7 @@ class PaymentReportExport
         ]);
         $sheet->getRowDimension($actualHeaderRow)->setRowHeight(35);
 
-        // Column widths (28 columns: A-AB)
+        // Column widths (29 columns: A-AC)
         $columnWidths = [
             'A' => 6,   // No
             'B' => 28,  // Invoice Number
@@ -136,26 +137,27 @@ class PaymentReportExport
             'F' => 15,  // Room Type
             'G' => 12,  // Room Number
             'H' => 20,  // Tenant Name
-            'I' => 16,  // Mobile Number
-            'J' => 25,  // Email
-            'K' => 14,  // Check In
-            'L' => 14,  // Check Out
-            'M' => 10,  // Duration
-            'N' => 18,  // Price Kamar Per Unit
-            'O' => 18,  // DPP Kamar Per Unit
-            'P' => 18,  // Subtotal
-            'Q' => 15,  // Diskon
-            'R' => 15,  // DPP Diskon
-            'S' => 15,  // Parkir
-            'T' => 15,  // DPP Parkir
-            'U' => 15,  // VATT 11%
-            'V' => 18,  // Grand Total
-            'W' => 15,  // Deposit
-            'X' => 15,  // Service Fee
-            'Y' => 14,  // Payment Status
-            'Z' => 18,  // Verified By
-            'AA' => 18, // Verified Date
-            'AB' => 35, // Notes
+            'I' => 18,  // NIK
+            'J' => 16,  // Mobile Number
+            'K' => 25,  // Email
+            'L' => 14,  // Check In
+            'M' => 14,  // Check Out
+            'N' => 10,  // Duration
+            'O' => 18,  // Price Kamar Per Unit
+            'P' => 18,  // DPP Kamar Per Unit
+            'Q' => 18,  // Subtotal
+            'R' => 15,  // Diskon
+            'S' => 15,  // DPP Diskon
+            'T' => 15,  // Parkir
+            'U' => 15,  // DPP Parkir
+            'V' => 15,  // VATT 11%
+            'W' => 18,  // Grand Total
+            'X' => 15,  // Deposit
+            'Y' => 15,  // Service Fee
+            'Z' => 14,  // Payment Status
+            'AA' => 18, // Verified By
+            'AB' => 18, // Verified Date
+            'AC' => 35, // Notes
         ];
 
         foreach ($columnWidths as $col => $width) {
@@ -175,7 +177,7 @@ class PaymentReportExport
             // Highlight refunds with red background
             $isRefund = $transaction->booking && $transaction->booking->refund;
             if ($isRefund) {
-                $sheet->getStyle('A' . $currentDataRow . ':AB' . $currentDataRow)->applyFromArray([
+                $sheet->getStyle('A' . $currentDataRow . ':AC' . $currentDataRow)->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => ['rgb' => 'FEE2E2'] // Light red
@@ -184,7 +186,7 @@ class PaymentReportExport
             } else {
                 // Add zebra striping for non-refund rows
                 if ($index % 2 == 0) {
-                    $sheet->getStyle('A' . $currentDataRow . ':AB' . $currentDataRow)->applyFromArray([
+                    $sheet->getStyle('A' . $currentDataRow . ':AC' . $currentDataRow)->applyFromArray([
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => ['rgb' => 'F9FAFB']
@@ -193,8 +195,8 @@ class PaymentReportExport
                 }
             }
 
-            // Format as currency for price columns (N, O, P, Q, R, S, T, U, V, W, X)
-            $currencyColumns = ['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
+            // Format as currency for price columns (O, P, Q, R, S, T, U, V, W, X, Y)
+            $currencyColumns = ['O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'];
             foreach ($currencyColumns as $col) {
                 $sheet->getStyle($col . $currentDataRow)->getNumberFormat()->setFormatCode('#,##0');
             }
@@ -204,7 +206,7 @@ class PaymentReportExport
 
         // Style data rows with borders
         if ($payments->count() > 0) {
-            $sheet->getStyle('A' . $dataStartRow . ':AB' . $dataEndRow)->applyFromArray([
+            $sheet->getStyle('A' . $dataStartRow . ':AC' . $dataEndRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -224,7 +226,7 @@ class PaymentReportExport
             'textColor' => '059669',
             'fontSize' => 12,
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AB',
+            'endColumn' => 'AC',
         ]);
 
         $excel->addEmptyRow();
@@ -232,15 +234,15 @@ class PaymentReportExport
         // Total Revenue using new method
         $excel->addSummaryRow('TOTAL REVENUE:', $totalRevenue, [
             'labelColumn' => 'A',
-            'valueColumn' => 'V',
-            'labelEndColumn' => 'U',
+            'valueColumn' => 'W',
+            'labelEndColumn' => 'V',
             'bgColor' => 'D1FAE5',
             'textColor' => '059669',
         ]);
 
         // Format revenue as currency
         $summaryRowNum = $excel->getCurrentRow() - 1;
-        $sheet->getStyle('V' . $summaryRowNum)->getNumberFormat()->setFormatCode('Rp #,##0');
+        $sheet->getStyle('W' . $summaryRowNum)->getNumberFormat()->setFormatCode('Rp #,##0');
 
         // Total Records
         $excel->addInfoRow('Total Payments: ' . $payments->count() . ' | Refunds: ' . $totalRefunds, [
@@ -248,7 +250,7 @@ class PaymentReportExport
             'fontSize' => 10,
             'textColor' => '6B7280',
             'align' => Alignment::HORIZONTAL_RIGHT,
-            'endColumn' => 'AB',
+            'endColumn' => 'AC',
         ]);
 
         // Add footer
@@ -258,7 +260,7 @@ class PaymentReportExport
             'italic' => true,
             'textColor' => '9CA3AF',
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AB',
+            'endColumn' => 'AC',
         ]);
 
         // Freeze panes at header row
@@ -274,7 +276,8 @@ class PaymentReportExport
                 'payment',
                 'property',
                 'room',
-                'booking.refund'
+                'booking.refund',
+                'user'
             ])
             ->whereHas('payment')
             ->where('transaction_status', 'paid')
@@ -384,6 +387,9 @@ class PaymentReportExport
             $notes = $notes ? $notes . " | " . $refundText : $refundText;
         }
 
+        // Get NIK from user if registered
+        $nik = $transaction->user ? ($transaction->user->nik ?? '-') : '-';
+
         return [
             $no,                                                                                    // No
             $invoiceNumber,                                                                         // Invoice Number
@@ -393,6 +399,7 @@ class PaymentReportExport
             $roomType,                                                                              // Room Type
             $transaction->room ? $transaction->room->name : '-',                                    // Room Number
             $transaction->user_name ?? '-',                                                         // Tenant Name
+            $nik,                                                                                   // NIK
             $transaction->user_phone_number ?? '-',                                                 // Mobile Number
             $transaction->user_email ?? '-',                                                        // Email
             $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-', // Check In

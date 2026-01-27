@@ -28,7 +28,9 @@ class PaymentController extends Controller
             }
         ])->whereHas('transaction', function ($q) use ($user) {
             // Filter by property based on user access
-            if (!$user->isSuperAdmin() && $user->property_id) {
+            // Site users (user_type = 1) only see their property
+            // HO users (user_type = 0) and Super Admin see all
+            if ($user->isSite() && $user->property_id) {
                 $q->where('property_id', $user->property_id);
             }
         })
@@ -60,7 +62,9 @@ class PaymentController extends Controller
             }
         ])->whereHas('transaction', function ($q) use ($user) {
             // Filter by property based on user access
-            if (!$user->isSuperAdmin() && $user->property_id) {
+            // Site users (user_type = 1) only see their property
+            // HO users (user_type = 0) and Super Admin see all
+            if ($user->isSite() && $user->property_id) {
                 $q->where('property_id', $user->property_id);
             }
         })

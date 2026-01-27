@@ -58,8 +58,8 @@
                         </div>
                     </div>
 
-                    <!-- Property Filter (only for super admin and HO roles) -->
-                    @if(auth()->user()->isSuperAdmin() || auth()->user()->isHORole())
+                    <!-- Property Filter (only for super admin and HO users) -->
+                    @if(auth()->user()->isSuperAdmin() || auth()->user()->isHO())
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Properti</label>
                         <select id="property_id" name="property_id"
@@ -105,6 +105,7 @@
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Type</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Number</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tenant Name</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">NIK</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Mobile Number</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Check In</th>
@@ -129,7 +130,7 @@
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200">
                         <tr>
-                            <td colspan="28" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="29" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
                                     <svg class="animate-spin h-8 w-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -218,7 +219,7 @@
             const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="28" class="px-4 py-8 text-center text-gray-500">
+                    <td colspan="29" class="px-4 py-8 text-center text-gray-500">
                         <div class="flex justify-center items-center gap-2">
                             <svg class="animate-spin h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -243,7 +244,7 @@
                     console.error('Error:', error);
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="28" class="px-4 py-8 text-center text-red-500">
+                            <td colspan="29" class="px-4 py-8 text-center text-red-500">
                                 Gagal memuat data. Silakan coba lagi.
                             </td>
                         </tr>
@@ -257,7 +258,7 @@
             if (data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="28" class="px-4 py-8 text-center text-gray-500">
+                        <td colspan="29" class="px-4 py-8 text-center text-gray-500">
                             <div class="flex flex-col items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -285,6 +286,7 @@
                     <td class="px-3 py-3 text-xs text-gray-900">${row.room_type}</td>
                     <td class="px-3 py-3 text-xs text-gray-900">${row.room_number}</td>
                     <td class="px-3 py-3 text-xs text-gray-900">${row.tenant_name}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.nik}</td>
                     <td class="px-3 py-3 text-xs text-gray-700">${row.mobile_number}</td>
                     <td class="px-3 py-3 text-xs text-gray-700">${row.email}</td>
                     <td class="px-3 py-3 text-xs text-gray-900">${row.check_in}</td>
@@ -425,6 +427,7 @@
                             <td>${row.room_type}</td>
                             <td>${row.room_number}</td>
                             <td>${row.tenant_name}</td>
+                            <td>${row.nik}</td>
                             <td>${row.mobile_number}</td>
                             <td>${row.email}</td>
                             <td>${row.check_in}</td>
@@ -583,6 +586,7 @@
                                 <th>Room Type</th>
                                 <th>Room No</th>
                                 <th>Tenant</th>
+                                <th>NIK</th>
                                 <th>Mobile</th>
                                 <th>Email</th>
                                 <th>Check In</th>

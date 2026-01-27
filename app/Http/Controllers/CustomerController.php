@@ -209,6 +209,7 @@ class CustomerController extends Controller
             'username' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone_number' => 'required|string|max:20',
+            'nik' => 'nullable|string|max:20',
             'password' => 'required|string|min:6',
         ]);
 
@@ -224,14 +225,20 @@ class CustomerController extends Controller
             $mainAppUrl = env('MAIN_APP_URL');
             $apiUrl = rtrim($mainAppUrl, '/') . '/auth/register-without-verification';
 
-            $response = Http::timeout(30)->post($apiUrl, [
+            $postData = [
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'username' => $request->username,
                 'email' => $request->email,
                 'phone_number' => $request->phone_number,
                 'password' => $request->password,
-            ]);
+            ];
+
+            if ($request->filled('nik')) {
+                $postData['nik'] = $request->nik;
+            }
+
+            $response = Http::timeout(30)->post($apiUrl, $postData);
 
             $responseData = $response->json();
 
