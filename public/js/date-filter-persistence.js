@@ -58,7 +58,7 @@ const DateFilterPersistence = {
      * Clear all stored date filters for booking pages
      */
     clearAllBookingFilters: function() {
-        const bookingPages = ['allbookings', 'pending', 'newreservations', 'checkin', 'checkout', 'completed'];
+        const bookingPages = ['allbookings', 'pending', 'newreservations', 'checkin', 'checkout', 'completed', 'changerooms'];
         bookingPages.forEach(page => {
             this.clear(page);
         });
@@ -73,9 +73,9 @@ const DateFilterPersistence = {
     initFlatpickr: function(pageIdentifier, options = {}) {
         const self = this;
 
-        // If disablePersistence is true, clear stored dates and don't load them
+        // If disablePersistence is true, clear ALL booking stored dates
         if (options.disablePersistence) {
-            this.clear(pageIdentifier);
+            this.clearAllBookingFilters();
         }
 
         const stored = options.disablePersistence ? null : this.load(pageIdentifier);
@@ -111,6 +111,9 @@ const DateFilterPersistence = {
             defaultDate: initialDates.length > 0 ? initialDates : null,
             minDate: options.minDate || null, // No min date restriction
             maxDate: options.maxDate || null, // No max date restriction
+            locale: {
+                rangeSeparator: ' to '
+            }
             onOpen: function(selectedDates, dateStr, instance) {
                 if (options.onOpen) {
                     options.onOpen(selectedDates, dateStr, instance);
