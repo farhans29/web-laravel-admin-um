@@ -41,7 +41,7 @@ class CheckOutController extends Controller
             });
         }
 
-        // Date range filter - using check_in_at from booking table
+        // Date range filter - using check_in_at from booking table (only if user provides dates)
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = $request->start_date;
             $endDate = $request->end_date;
@@ -49,12 +49,6 @@ class CheckOutController extends Controller
             $query->whereBetween('check_in_at', [
                 $startDate,
                 Carbon::parse($endDate)->endOfDay()
-            ]);
-        } else {
-            // Default filter: from today to 1 month ahead
-            $query->whereBetween('check_in_at', [
-                now()->startOfDay(),
-                now()->addMonth()->endOfDay()
             ]);
         }
 
@@ -96,7 +90,7 @@ class CheckOutController extends Controller
             });
         }
 
-        // Date range filter - using check_in_at from booking table
+        // Date range filter - using check_in_at from booking table (only if user provides dates)
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = $request->start_date;
             $endDate = $request->end_date;
@@ -107,12 +101,6 @@ class CheckOutController extends Controller
                     Carbon::parse($endDate)->endOfDay()
                 ]);
             });
-        } else {
-            // Default filter: from today to 1 month ahead
-            $query->whereBetween('check_in_at', [
-                now()->startOfDay(),
-                now()->addMonth()->endOfDay()
-            ]);
         }
 
         $bookings = $query->paginate($request->input('per_page', 8));

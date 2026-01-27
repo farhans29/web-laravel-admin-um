@@ -55,42 +55,49 @@ const DateFilterPersistence = {
     },
 
     /**
+     * Clear all stored date filters for booking pages
+     */
+    clearAllBookingFilters: function() {
+        const bookingPages = ['allbookings', 'pending', 'newreservations', 'checkin', 'checkout', 'completed'];
+        bookingPages.forEach(page => {
+            this.clear(page);
+        });
+    },
+
+    /**
      * Initialize flatpickr with persistence
      * @param {string} pageIdentifier - Unique identifier for the page
-     * @param {object} options - Flatpickr options
+     * @param {object} options - Flatpickr options (includes disablePersistence to ignore stored dates)
      * @returns {object} Flatpickr instance
      */
     initFlatpickr: function(pageIdentifier, options = {}) {
-        const stored = this.load(pageIdentifier);
         const self = this;
 
-        // Determine initial dates
-        let initialStartDate, initialEndDate;
+        // If disablePersistence is true, clear stored dates and don't load them
+        if (options.disablePersistence) {
+            this.clear(pageIdentifier);
+        }
+
+        const stored = options.disablePersistence ? null : this.load(pageIdentifier);
+
+        // Determine initial dates - only use stored dates if persistence is enabled
+        let initialDates = [];
 
         if (stored && stored.start_date && stored.end_date) {
-            // Use stored dates
-            initialStartDate = new Date(stored.start_date);
-            initialEndDate = new Date(stored.end_date);
-        } else if (options.defaultStartDate && options.defaultEndDate) {
-            // Use provided defaults
-            initialStartDate = options.defaultStartDate;
-            initialEndDate = options.defaultEndDate;
-        } else {
-            // Use today and one month ahead as fallback
-            initialStartDate = new Date();
-            initialEndDate = new Date();
-            initialEndDate.setMonth(initialEndDate.getMonth() + 1);
-        }
+            // Use stored dates if available
+            initialDates = [new Date(stored.start_date), new Date(stored.end_date)];
 
-        // Set hidden input values
-        const startDateEl = document.getElementById('start_date');
-        if (startDateEl) {
-            startDateEl.value = this.formatDate(initialStartDate);
+            // Set hidden input values from stored dates
+            const startDateEl = document.getElementById('start_date');
+            if (startDateEl) {
+                startDateEl.value = stored.start_date;
+            }
+            const endDateEl = document.getElementById('end_date');
+            if (endDateEl) {
+                endDateEl.value = stored.end_date;
+            }
         }
-        const endDateEl = document.getElementById('end_date');
-        if (endDateEl) {
-            endDateEl.value = this.formatDate(initialEndDate);
-        }
+        // No default dates - show all data by default
 
         // Merge default options with user options
         const flatpickrOptions = {
@@ -101,51 +108,18 @@ const DateFilterPersistence = {
             allowInput: true,
             static: true,
             monthSelectorType: 'static',
-            defaultDate: [initialStartDate, initialEndDate],
-            minDate: options.minDate || "today",
-            maxDate: options.maxDate || new Date().fp_incr(365),
+            defaultDate: initialDates.length > 0 ? initialDates : null,
+            minDate: options.minDate || null, // No min date restriction
+            maxDate: options.maxDate || null, // No max date restriction
             onOpen: function(selectedDates, dateStr, instance) {
                 if (options.onOpen) {
                     options.onOpen(selectedDates, dateStr, instance);
-                } else {
-                    instance.set('minDate', null);
                 }
             },
             onChange: function(selectedDates, dateStr, instance) {
                 if (selectedDates.length > 0) {
                     const startDate = selectedDates[0];
                     const endDate = selectedDates[1] || selectedDates[0];
-
-                    // Check max range if specified
-                    if (options.maxRangeDays) {
-                        const diffInDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-
-                        if (diffInDays > options.maxRangeDays) {
-                            if (window.Swal) {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top-end',
-                                    icon: 'warning',
-                                    title: `Maximum date range is ${options.maxRangeDays - 1} days`,
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true,
-                                    didOpen: (toast) => {
-                                        toast.addEventListener('mouseenter', Swal.stopTimer);
-                                        toast.addEventListener('mouseleave', Swal.resumeTimer);
-                                    }
-                                });
-                            }
-
-                            instance.clear();
-                            const startDateEl = document.getElementById('start_date');
-                            const endDateEl = document.getElementById('end_date');
-                            if (startDateEl) startDateEl.value = '';
-                            if (endDateEl) endDateEl.value = '';
-                            self.clear(pageIdentifier);
-                            return;
-                        }
-                    }
 
                     // Format and save dates
                     const formattedStart = self.formatDate(startDate);

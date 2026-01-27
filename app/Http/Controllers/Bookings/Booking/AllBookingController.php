@@ -21,26 +21,22 @@ class AllBookingController extends Controller
             $query->where('property_id', $user->property_id);
         }
 
-        // Set default date range (1 month back to 1 month ahead)
-        $defaultStartDate = now()->subMonth()->format('Y-m-d');
-        $defaultEndDate = now()->addMonth()->format('Y-m-d');
+        // Apply date filter only if user provides dates
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
 
-        // Apply date filter (use request if available, otherwise use default)
-        $startDate = $request->filled('start_date') ? $request->start_date : $defaultStartDate;
-        $endDate = $request->filled('end_date') ? $request->end_date : $defaultEndDate;
-
-        $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-            if ($startDate === $endDate) {
-                // Jika tanggal sama → cocokkan persis tanggal check_in
-                $q->whereDate('check_in', $startDate);
-            } else {
-                // Jika berbeda → rentang tanggal dengan format waktu yang benar
-                $q->whereBetween('check_in', [
-                    $startDate . ' 00:00:00',
-                    $endDate . ' 23:59:59'
-                ]);
-            }
-        });
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                if ($startDate === $endDate) {
+                    $q->whereDate('check_in', $startDate);
+                } else {
+                    $q->whereBetween('check_in', [
+                        $startDate . ' 00:00:00',
+                        $endDate . ' 23:59:59'
+                    ]);
+                }
+            });
+        }
 
         // Pencarian berdasarkan order_id atau nama user
         if ($request->filled('search')) {
@@ -112,22 +108,22 @@ class AllBookingController extends Controller
             $query->where('property_id', $user->property_id);
         }
 
-        // Set default date range if not provided - menggunakan jarak 1 bulan
-        $startDate = $request->filled('start_date') ? $request->start_date : now()->subMonth()->format('Y-m-d');
-        $endDate = $request->filled('end_date') ? $request->end_date : now()->addMonth()->format('Y-m-d');
+        // Apply date filter only if user provides dates
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
 
-        $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-            if ($startDate === $endDate) {
-                // Jika tanggal sama → cocokkan persis tanggal check_in
-                $q->whereDate('check_in', $startDate);
-            } else {
-                // Jika berbeda → rentang tanggal dengan format waktu yang benar
-                $q->whereBetween('check_in', [
-                    $startDate . ' 00:00:00',
-                    $endDate . ' 23:59:59'
-                ]);
-            }
-        });
+            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
+                if ($startDate === $endDate) {
+                    $q->whereDate('check_in', $startDate);
+                } else {
+                    $q->whereBetween('check_in', [
+                        $startDate . ' 00:00:00',
+                        $endDate . ' 23:59:59'
+                    ]);
+                }
+            });
+        }
 
         // Search by order_id or user name
         if ($request->filled('search')) {

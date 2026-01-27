@@ -459,6 +459,7 @@
                 </div>
         @endif
 
+        {{-- HIDDEN: Tren Pendapatan section
         @if ($canViewWidget('report_sales_chart'))
             <!-- Revenue Trend Chart - Full Width -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
@@ -488,6 +489,7 @@
                 </div>
             </div>
         @endif
+        --}}
     </div>
     @endif
 
@@ -751,6 +753,7 @@
             @endif
         @endif
 
+        {{-- HIDDEN: Tren Okupansi 30 Hari section
         @if ($canViewWidget('rooms_occupancy_history'))
             <!-- Occupancy History Chart (Only for Super Admin and HO roles) -->
             <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -769,6 +772,7 @@
                 </div>
             </div>
         @endif
+        --}}
 
         <!-- Main Content -->
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-1 gap-8">
@@ -857,7 +861,7 @@
 
         @if ($canViewWidget('rooms_availability'))
             <!-- Multi-Property Reports -->
-            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="mt-8 grid grid-cols-1 gap-8">
                 <!-- Room Availability Report -->
                 <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -994,6 +998,7 @@
                     </div>
                 </div>
 
+                {{-- HIDDEN: Detail Durasi Sewa & Penjualan section
                 @if ($canViewWidget('report_rental_duration'))
                     <!-- Detailed Duration & Sales Report -->
                     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -1128,6 +1133,7 @@
                         </div>
                     </div>
                 @endif
+                --}}
             </div>
         @endif
     @endif

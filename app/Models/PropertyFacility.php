@@ -17,6 +17,7 @@ class PropertyFacility extends Model
 
     protected $fillable = [
         'facility',
+        'icon',
         'description',
         'category',
         'status',

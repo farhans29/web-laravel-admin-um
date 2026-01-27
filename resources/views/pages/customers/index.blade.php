@@ -395,6 +395,17 @@
                                 <p class="text-red-500 text-xs mt-1 hidden" id="pre_phone_number_error"></p>
                             </div>
 
+                            <!-- NIK -->
+                            <div>
+                                <label for="pre_nik" class="block text-sm font-medium text-gray-700 mb-1">
+                                    NIK
+                                </label>
+                                <input type="text" name="nik" id="pre_nik"
+                                    placeholder="e.g., 3201234567890001" maxlength="16"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="pre_nik_error"></p>
+                            </div>
+
                             <!-- Password -->
                             <div>
                                 <label for="pre_password" class="block text-sm font-medium text-gray-700 mb-1">
@@ -571,11 +582,13 @@
             const details = document.getElementById('preRegisterSuccessDetails');
 
             if (data && data.user) {
+                let nikHtml = data.user.nik ? `<p class="mb-2"><span class="font-medium">NIK:</span> ${data.user.nik}</p>` : '';
                 details.innerHTML = `
                     <div class="bg-gray-50 rounded-lg p-4 text-left mb-4">
                         <p class="mb-2"><span class="font-medium">Username:</span> ${data.user.username}</p>
                         <p class="mb-2"><span class="font-medium">Email:</span> ${data.user.email}</p>
                         <p class="mb-2"><span class="font-medium">Name:</span> ${data.user.first_name} ${data.user.last_name}</p>
+                        ${nikHtml}
                         <p><span class="font-medium">Status:</span>
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                 Active & Verified

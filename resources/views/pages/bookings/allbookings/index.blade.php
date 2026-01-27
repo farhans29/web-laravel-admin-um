@@ -52,7 +52,7 @@
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-50">
-                                <input type="text" id="date_picker" placeholder="Select date range (Max 30 days)"
+                                <input type="text" id="date_picker" placeholder="Select date range"
                                     data-input
                                     class="w-full min-w-[320px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
@@ -96,15 +96,9 @@
     <script src="{{ asset('js/date-filter-persistence.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date();
-            const oneMonthLater = new Date();
-            oneMonthLater.setMonth(today.getMonth() + 1);
-
-            // Initialize Flatpickr with persistence
+            // Initialize Flatpickr - no default dates, disable persistence to start fresh
             const datePicker = DateFilterPersistence.initFlatpickr('allbookings', {
-                defaultStartDate: today,
-                defaultEndDate: oneMonthLater,
-                maxRangeDays: 31,
+                disablePersistence: true,
                 onChange: function(selectedDates, dateStr, instance) {
                     fetchFilteredBookings();
                 },
@@ -181,6 +175,11 @@
                     .then(data => {
                         document.querySelector('.overflow-x-auto').innerHTML = data.table;
                         document.getElementById('paginationContainer').innerHTML = data.pagination;
+
+                        // Re-initialize Alpine.js components for new DOM elements
+                        if (typeof Alpine !== 'undefined') {
+                            Alpine.initTree(document.querySelector('.overflow-x-auto'));
+                        }
                     })
                     .catch(error => {
                         console.error('Error:', error);

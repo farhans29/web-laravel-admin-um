@@ -36,17 +36,15 @@ class PendingController extends Controller
             });
         }
 
-        // Filter rentang tanggal
+        // Apply date filter only if user provides dates
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = $request->start_date;
-            $endDate   = $request->end_date;
+            $endDate = $request->end_date;
 
             $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
                 if ($startDate === $endDate) {
-                    // Jika tanggal sama → cocokkan persis tanggal check_in
                     $q->whereDate('check_in', $startDate);
                 } else {
-                    // Jika berbeda → rentang tanggal
                     $q->whereBetween('check_in', [
                         $startDate . ' 00:00:00',
                         $endDate   . ' 23:59:59',
@@ -87,10 +85,10 @@ class PendingController extends Controller
             });
         }
 
-        // Date range filter
+        // Apply date filter only if user provides dates
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = $request->start_date;
-            $endDate   = $request->end_date;
+            $endDate = $request->end_date;
 
             $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
                 if ($startDate === $endDate) {

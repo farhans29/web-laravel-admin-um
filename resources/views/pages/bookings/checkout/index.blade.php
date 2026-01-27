@@ -32,7 +32,7 @@
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-10">
-                                <input type="text" id="date_picker" placeholder="Select date range (Max 30 days)"
+                                <input type="text" id="date_picker" placeholder="Select date range"
                                     data-input
                                     class="w-full min-w-[320px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
@@ -369,11 +369,7 @@
         // });
 
         document.addEventListener('DOMContentLoaded', function() {
-            const defaultStartDate = new Date();
-            const defaultEndDate = new Date();
-            defaultEndDate.setMonth(defaultEndDate.getMonth() + 1);
-
-            // Initialize Flatpickr with default range
+            // Initialize Flatpickr without default dates - show all data by default
             const datePicker = flatpickr("#date_picker", {
                 mode: "range",
                 dateFormat: "Y-m-d",
@@ -382,41 +378,10 @@
                 allowInput: true,
                 static: true,
                 monthSelectorType: 'static',
-                defaultDate: [defaultStartDate, defaultEndDate],
-                minDate: "today",
-                maxDate: new Date().fp_incr(365),
-                onOpen: function(selectedDates, dateStr, instance) {
-                    instance.set('minDate', null);
-                },
                 onChange: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length > 0) {
                         const startDate = selectedDates[0];
                         const endDate = selectedDates[1] || selectedDates[0];
-
-                        // Hitung selisih hari (inklusif)
-                        const diffInDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-
-                        // Batasi maksimal 30 hari
-                        if (diffInDays > 31) {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'warning',
-                                title: 'Maximum date range is 30 days',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                                }
-                            });
-
-                            instance.clear();
-                            document.getElementById('start_date').value = '';
-                            document.getElementById('end_date').value = '';
-                            return;
-                        }
 
                         // Format tanggal ke YYYY-MM-DD
                         document.getElementById('start_date').value = formatDate(startDate);
@@ -432,11 +397,6 @@
                     }
                 }
             });
-
-            // Set initial hidden input values
-            document.getElementById('start_date').value = formatDate(defaultStartDate);
-            document.getElementById('end_date').value = formatDate(defaultEndDate);
-
 
             // Fungsi format tanggal
             function formatDate(date) {
@@ -519,12 +479,18 @@
                         return response.json();
                     })
                     .then(data => {
-                        document.querySelector('.overflow-x-auto').innerHTML = data.table;
+                        const tableContainer = document.querySelector('.overflow-x-auto');
+                        tableContainer.innerHTML = data.table;
                         document.getElementById('paginationContainer').innerHTML = data.pagination;
+
+                        // Re-initialize Alpine.js components for new DOM elements
+                        if (typeof Alpine !== 'undefined') {
+                            Alpine.initTree(tableContainer);
+                        }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        tableContainer.innerHTML = `
+                        document.querySelector('.overflow-x-auto').innerHTML = `
                                                         <div class="text-center py-8 text-red-500">
                                                             Error loading data. Please try again.
                                                         </div>

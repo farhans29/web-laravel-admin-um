@@ -18,7 +18,9 @@ class PaymentReportController extends Controller
         $user = Auth::user();
 
         // Get properties for filter based on user access
-        if ($user->isSuperAdmin()) {
+        // Super Admin and HO users can see all properties
+        // Site users only see their assigned property
+        if ($user->isSuperAdmin() || $user->isHO()) {
             $properties = Property::where('status', 1)
                 ->orderBy('name')
                 ->get();
@@ -38,7 +40,9 @@ class PaymentReportController extends Controller
         $endDate = $request->filled('end_date') ? $request->end_date : $defaultEndDate;
 
         // Set property_id based on user access
-        if ($user->isSuperAdmin()) {
+        // Super Admin and HO users can select any property
+        // Site users are restricted to their assigned property
+        if ($user->isSuperAdmin() || $user->isHO()) {
             $propertyId = $request->input('property_id');
         } else {
             $propertyId = $user->property_id;
@@ -60,7 +64,8 @@ class PaymentReportController extends Controller
                 'payment',
                 'property',
                 'room',
-                'booking.refund'
+                'booking.refund',
+                'user'
             ])
             ->whereHas('payment')
             ->where('transaction_status', 'paid')
@@ -78,12 +83,14 @@ class PaymentReportController extends Controller
         }
 
         // Property filter based on user access
-        if ($user->isSuperAdmin()) {
+        // Site users (user_type = 1) only see their property
+        // HO users (user_type = 0) and Super Admin can filter by any property
+        if ($user->isSuperAdmin() || $user->isHO()) {
             if ($request->filled('property_id')) {
                 $query->where('property_id', $request->property_id);
             }
         } else {
-            // Non-super admin: automatically filter by their property
+            // Site users: automatically filter by their property
             if ($user->property_id) {
                 $query->where('property_id', $user->property_id);
             }
@@ -161,6 +168,9 @@ class PaymentReportController extends Controller
                 $roomType = $transaction->room->type ?? '-';
             }
 
+            // Get NIK from user if registered, otherwise null
+            $nik = $transaction->user ? ($transaction->user->nik ?? '-') : '-';
+
             return [
                 'no' => $offset + $index + 1,
                 'invoice_number' => $invoiceNumber,
@@ -171,6 +181,7 @@ class PaymentReportController extends Controller
                 'room_number' => $transaction->room ? $transaction->room->name : '-',
                 'room_name' => $transaction->room ? $transaction->room->name : '-',
                 'tenant_name' => $transaction->user_name ?? '-',
+                'nik' => $nik,
                 'mobile_number' => $transaction->user_phone_number ?? '-',
                 'email' => $transaction->user_email ?? '-',
                 'check_in' => $transaction->check_in ? Carbon::parse($transaction->check_in)->format('d M Y') : '-',
@@ -216,7 +227,9 @@ class PaymentReportController extends Controller
         $user = Auth::user();
 
         // Set property_id based on user access
-        $propertyId = $user->isSuperAdmin()
+        // Super Admin and HO users can select any property
+        // Site users are restricted to their assigned property
+        $propertyId = ($user->isSuperAdmin() || $user->isHO())
             ? $request->input('property_id')
             : $user->property_id;
 

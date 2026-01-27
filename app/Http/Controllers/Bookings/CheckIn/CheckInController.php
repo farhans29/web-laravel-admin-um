@@ -43,7 +43,7 @@ class CheckInController extends Controller
             });
         }
 
-        // Date range filter - using check_out from transaction table
+        // Date range filter - using check_out from transaction table (only if user provides dates)
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = $request->start_date;
             $endDate = $request->end_date;
@@ -52,14 +52,6 @@ class CheckInController extends Controller
                 $q->whereBetween('check_out', [
                     $startDate,
                     Carbon::parse($endDate)->endOfDay()
-                ]);
-            });
-        } else {
-            // Default filter: from today to 1 month ahead
-            $query->whereHas('transaction', function ($q) {
-                $q->whereBetween('check_out', [
-                    now()->startOfDay(),
-                    now()->addMonth()->endOfDay()
                 ]);
             });
         }
@@ -102,7 +94,7 @@ class CheckInController extends Controller
             });
         }
 
-        // Date range filter - using check_out from transaction table
+        // Date range filter - using check_out from transaction table (only if user provides dates)
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $startDate = $request->start_date;
             $endDate = $request->end_date;
@@ -111,14 +103,6 @@ class CheckInController extends Controller
                 $q->whereBetween('check_out', [
                     $startDate,
                     Carbon::parse($endDate)->endOfDay()
-                ]);
-            });
-        } else {
-            // Default filter: from today to 1 month ahead
-            $query->whereHas('transaction', function ($q) {
-                $q->whereBetween('check_out', [
-                    now()->startOfDay(),
-                    now()->addMonth()->endOfDay()
                 ]);
             });
         }

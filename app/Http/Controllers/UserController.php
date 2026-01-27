@@ -23,7 +23,6 @@ class UserController extends Controller
         $perPage = $request->input('per_page', 8); // Default to 10 if not specified
 
         $users = User::with('role')
-            ->where('is_admin', 1)
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%')
@@ -49,18 +48,15 @@ class UserController extends Controller
         ]);
     }
 
-    public function show(User $user)
+    public function show()
     {
-        $loggedInUser = Auth::user();
+        $user = Auth::user();
 
-        // Pastikan hanya menampilkan user dengan is_admin = 1
-        $adminUser = User::where('is_admin', 1)->find($user->id);
-
-        if (!$adminUser) {
+        // Pastikan user adalah admin
+        if (!$user || !$user->is_admin) {
             abort(403, 'Access denied. User is not an admin.');
         }
 
-        $user = $adminUser;
         $roles = Role::where('name', '!=', 'Admin')->get();
 
         return view('pages.settings.user-account-settings', compact('user', 'roles'));
@@ -73,7 +69,6 @@ class UserController extends Controller
         $statusFilter = $request->input('status', '1'); // Default menampilkan hanya yang aktif
 
         $users = User::with(['role', 'property'])
-            ->where('is_admin', 1)
             ->when($statusFilter !== 'all', function ($query) use ($statusFilter) {
                 return $query->where('status', $statusFilter);
             })
@@ -120,6 +115,7 @@ class UserController extends Controller
             'last_name'  => 'required|string|max:255',
             'username'   => 'required|string|max:255|unique:users,username',
             'email'      => 'required|string|email|max:255|unique:users,email',
+            'nik'        => 'nullable|string|max:20',
             'password'   => [
                 'required',
                 'string',
@@ -150,6 +146,7 @@ class UserController extends Controller
             'last_name'  => $validatedData['last_name'],
             'username'   => $validatedData['username'],
             'email'      => $validatedData['email'],
+            'nik'        => $validatedData['nik'] ?? null,
             'password'   => Hash::make($validatedData['password']),
             'is_admin'   => 1,
             'role_id'    => $validatedData['role'],
@@ -229,6 +226,7 @@ class UserController extends Controller
             'last_name'  => 'required|string|max:255',
             'name'       => 'required|string|max:255|unique:users,username,' . $id,
             'email'      => 'required|email|unique:users,email,' . $id,
+            'nik'        => 'nullable|string|max:20',
         ];
 
         // Jika ada field role dan status (untuk admin management)
@@ -266,6 +264,7 @@ class UserController extends Controller
             'last_name'  => $request->last_name,
             'username'   => $request->name,
             'email'      => $request->email,
+            'nik'        => $request->nik,
             'updated_by' => Auth::id(),
             'updated_at' => now()
         ];
@@ -502,8 +501,7 @@ class UserController extends Controller
 
         // Get only users with is_admin = 1 and status = 1
         if ($perPage === 'all') {
-            $adminUsers = User::with('role')
-                ->where('is_admin', 1)
+            $adminUsers = User::with('role') 
                 ->where('status', 1)
                 ->when($search, function ($query, $search) {
                     return $query->where(function ($q) use ($search) {
@@ -521,7 +519,6 @@ class UserController extends Controller
                 ->get();
         } else {
             $adminUsers = User::with('role')
-                ->where('is_admin', 1)
                 ->where('status', 1)
                 ->when($search, function ($query, $search) {
                     return $query->where(function ($q) use ($search) {
@@ -570,7 +567,6 @@ class UserController extends Controller
         // Get only users with is_admin = 1 and status = 1
         if ($perPage === 'all') {
             $adminUsers = User::with('role')
-                ->where('is_admin', 1)
                 ->where('status', 1)
                 ->when($search, function ($query, $search) {
                     return $query->where(function ($q) use ($search) {
@@ -595,7 +591,6 @@ class UserController extends Controller
             ]);
         } else {
             $adminUsers = User::with('role')
-                ->where('is_admin', 1)
                 ->where('status', 1)
                 ->when($search, function ($query, $search) {
                     return $query->where(function ($q) use ($search) {
@@ -641,13 +636,13 @@ class UserController extends Controller
 
             $user = User::findOrFail($userId);
 
-            // Check if user is admin
-            if ($user->is_admin != 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User is not an admin user'
-                ], 403);
-            }
+            // // Check if user is admin
+            // if ($user->is_admin != 1) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'User is not an admin user'
+            //     ], 403);
+            // }
 
             $user->update([
                 'role_id' => $request->role_id,
@@ -675,14 +670,14 @@ class UserController extends Controller
         try {
             $user = User::findOrFail($userId);
 
-            // Check if user is admin
-            if ($user->is_admin != 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User is not an admin user',
-                    'permissions' => []
-                ], 403);
-            }
+            // // Check if user is admin
+            // if ($user->is_admin != 1) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'User is not an admin user',
+            //         'permissions' => []
+            //     ], 403);
+            // }
 
             $userPermissions = DB::table('role_permission')
                 ->where('user_id', $userId)
@@ -710,13 +705,13 @@ class UserController extends Controller
         try {
             $user = User::findOrFail($userId);
 
-            // Check if user is admin
-            if ($user->is_admin != 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User is not an admin user'
-                ], 403);
-            }
+            // // Check if user is admin
+            // if ($user->is_admin != 1) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'User is not an admin user'
+            //     ], 403);
+            // }
 
             // Clear existing permissions
             DB::table('role_permission')->where('user_id', $userId)->delete();

@@ -544,6 +544,7 @@ class ManajementPropertiesController extends Controller
         // Validate the request data
         $validatedData = $request->validate([
             'facility' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|in:general,security,amenities',
             'status' => 'required|boolean', // Changed to boolean
@@ -553,6 +554,7 @@ class ManajementPropertiesController extends Controller
             // Create a new facility record
             $facility = PropertyFacility::create([
                 'facility' => $validatedData['facility'],
+                'icon' => $validatedData['icon'] ?? null,
                 'description' => $validatedData['description'] ?? null,
                 'category' => $validatedData['category'],
                 'status' => $validatedData['status'] ? 1 : 0, // Convert to 1/0
@@ -579,6 +581,7 @@ class ManajementPropertiesController extends Controller
         // Validasi input
         $validatedData = $request->validate([
             'facility' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|in:general,security,amenities',
             'status' => 'required|boolean'
@@ -598,6 +601,7 @@ class ManajementPropertiesController extends Controller
             // Update data facility
             $facility->update([
                 'facility' => $validatedData['facility'],
+                'icon' => $validatedData['icon'] ?? null,
                 'description' => $validatedData['description'] ?? null,
                 'category' => $validatedData['category'],
                 'status' => $validatedData['status'] ? 1 : 0,
