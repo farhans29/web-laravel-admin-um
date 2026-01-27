@@ -14,14 +14,10 @@ class NewReservController extends Controller
 {
     public function index()
     {
-        // Set default date range (today to 1 month ahead)
-        $defaultStartDate = now()->format('Y-m-d');
-        $defaultEndDate = now()->addMonth()->format('Y-m-d');
-
         $perPage = request('per_page', 8);
 
         // Use the filterBookings method to get the base query
-        $query = $this->filterBookings($defaultStartDate, $defaultEndDate);
+        $query = $this->filterBookings();
 
         // Get paginated results
         $checkIns = $query->paginate($perPage);
@@ -30,7 +26,7 @@ class NewReservController extends Controller
         return view('pages.bookings.newreservations.index', compact('checkIns', 'showActions'));
     }
 
-    protected function filterBookings($startDate = null, $endDate = null)
+    protected function filterBookings()
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
             ->whereHas('transaction', function ($q) {
@@ -47,31 +43,20 @@ class NewReservController extends Controller
             $query->where('t_booking.property_id', $user->property_id);
         }
 
-        // Apply date filter if provided in request
+        // Apply date filter only if user provides dates
         if (request()->filled('start_date') && request()->filled('end_date')) {
             $startDate = request('start_date');
             $endDate   = request('end_date');
 
             $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
                 if ($startDate === $endDate) {
-                    // Jika tanggal sama → cek persis tanggal itu
                     $q->whereDate('check_in', $startDate);
                 } else {
-                    // Jika rentang tanggal → pastikan endDate full hari
                     $q->whereBetween('check_in', [
                         $startDate . ' 00:00:00',
                         $endDate . ' 23:59:59'
                     ]);
                 }
-            });
-        } else {
-            // DEFAULT YANG DIPERBAIKI: Filter dari tanggal hari ini ke depan
-            $startDate = now()->format('Y-m-d'); // Mulai dari hari ini
-            $endDate   = now()->addMonth()->format('Y-m-d'); // Sampai 1 bulan ke depan
-
-            $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-                $q->whereDate('check_in', '>=', $startDate) // Check-in dari hari ini ke depan
-                    ->whereDate('check_in', '<=', $endDate); // Sampai batas akhir
             });
         }
 
@@ -94,11 +79,7 @@ class NewReservController extends Controller
 
     public function filter(Request $request)
     {
-        // Set default date range if not provided
-        $startDate = $request->filled('start_date') ? $request->start_date : now()->format('Y-m-d');
-        $endDate = $request->filled('end_date') ? $request->end_date : now()->addMonth()->format('Y-m-d');
-
-        $query = $this->filterBookings($startDate, $endDate);
+        $query = $this->filterBookings();
 
         $checkIns = $query->paginate($request->input('per_page', 8));
 

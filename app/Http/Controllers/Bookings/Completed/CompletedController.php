@@ -31,11 +31,13 @@ class CompletedController extends Controller
             $query->where('property_id', $user->property_id);
         }
 
-        // ✅ Default: tampilkan data dari hari ini hingga 3 bulan ke depan
-        if (!$request->filled('start_date') && !$request->filled('end_date')) {
-            $startDate = now()->startOfDay();
-            $endDate = now()->addMonths(3)->endOfDay();
-            $query->whereBetween('created_at', [$startDate, $endDate]);
+        // Apply date filter only if user provides dates
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            if ($request->start_date === $request->end_date) {
+                $query->whereDate('created_at', $request->start_date);
+            } else {
+                $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+            }
         }
 
         // Pencarian berdasarkan order_id atau nama user
@@ -91,18 +93,13 @@ class CompletedController extends Controller
             });
         }
 
-        // ✅ Filter tanggal
+        // Apply date filter only if user provides dates
         if ($request->filled('start_date') && $request->filled('end_date')) {
             if ($request->start_date === $request->end_date) {
                 $query->whereDate('created_at', $request->start_date);
             } else {
                 $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
             }
-        } else {
-            // Jika filter kosong → default ke hari ini hingga 3 bulan ke depan
-            $startDate = now()->startOfDay();
-            $endDate = now()->addMonths(3)->endOfDay();
-            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         $bookings = $query->orderByDesc('created_at')
