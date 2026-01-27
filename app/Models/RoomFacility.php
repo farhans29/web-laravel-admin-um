@@ -15,7 +15,6 @@ class RoomFacility extends Model
 
     protected $fillable = [
         'facility',
-        'icon',
         'description',
         'status',
         'created_by',
