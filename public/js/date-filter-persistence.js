@@ -113,7 +113,7 @@ const DateFilterPersistence = {
             maxDate: options.maxDate || null, // No max date restriction
             locale: {
                 rangeSeparator: ' to '
-            }
+            },
             onOpen: function(selectedDates, dateStr, instance) {
                 if (options.onOpen) {
                     options.onOpen(selectedDates, dateStr, instance);

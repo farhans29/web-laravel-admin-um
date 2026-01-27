@@ -1,20 +1,124 @@
+<div x-data="{
+    sortColumn: 'tanggal',
+    sortDirection: 'desc',
+    sortTable(column) {
+        if (this.sortColumn === column) {
+            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sortColumn = column;
+            this.sortDirection = 'desc';
+        }
+        this.performSort();
+    },
+    performSort() {
+        const tbody = document.getElementById('transactionTableBody');
+        const rows = Array.from(tbody.querySelectorAll('tr[data-sortable]'));
+
+        rows.sort((a, b) => {
+            let aVal = a.dataset[this.sortColumn] || '';
+            let bVal = b.dataset[this.sortColumn] || '';
+
+            // Handle date sorting
+            if (this.sortColumn === 'tanggal' || this.sortColumn === 'checkin') {
+                aVal = aVal ? new Date(aVal).getTime() : 0;
+                bVal = bVal ? new Date(bVal).getTime() : 0;
+            } else {
+                aVal = aVal.toLowerCase();
+                bVal = bVal.toLowerCase();
+            }
+
+            if (this.sortDirection === 'asc') {
+                return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+            } else {
+                return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+            }
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    },
+    init() {
+        this.$nextTick(() => this.performSort());
+    }
+}">
 <table class="min-w-full divide-y divide-gray-200">
     <thead class="bg-gray-50">
         <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                @click="sortTable('tanggal')">
+                <div class="flex items-center gap-1">
+                    Tanggal
+                    <span class="text-gray-400">
+                        <template x-if="sortColumn === 'tanggal' && sortDirection === 'asc'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                        </template>
+                        <template x-if="sortColumn === 'tanggal' && sortDirection === 'desc'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </template>
+                        <template x-if="sortColumn !== 'tanggal'">
+                            <svg class="w-4 h-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                        </template>
+                    </span>
+                </div>
+            </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 ID Pesanan</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Pelanggan</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Properti</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                @click="sortTable('pelanggan')">
+                <div class="flex items-center gap-1">
+                    Pelanggan
+                    <span class="text-gray-400">
+                        <template x-if="sortColumn === 'pelanggan' && sortDirection === 'asc'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                        </template>
+                        <template x-if="sortColumn === 'pelanggan' && sortDirection === 'desc'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </template>
+                        <template x-if="sortColumn !== 'pelanggan'">
+                            <svg class="w-4 h-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                        </template>
+                    </span>
+                </div>
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                @click="sortTable('property')">
+                <div class="flex items-center gap-1">
+                    Property
+                    <span class="text-gray-400">
+                        <template x-if="sortColumn === 'property' && sortDirection === 'asc'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                        </template>
+                        <template x-if="sortColumn === 'property' && sortDirection === 'desc'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </template>
+                        <template x-if="sortColumn !== 'property'">
+                            <svg class="w-4 h-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                        </template>
+                    </span>
+                </div>
+            </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Jumlah</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                @click="sortTable('metode')">
+                <div class="flex items-center gap-1">
+                    Metode
+                    <span class="text-gray-400">
+                        <template x-if="sortColumn === 'metode' && sortDirection === 'asc'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                        </template>
+                        <template x-if="sortColumn === 'metode' && sortDirection === 'desc'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </template>
+                        <template x-if="sortColumn !== 'metode'">
+                            <svg class="w-4 h-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                        </template>
+                    </span>
+                </div>
+            </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Metode Pembayaran</th>
+                Tgl Pembayaran</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tanggal Pembayaran</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tanggal Check-in</th>
+                Tgl Check in</th>
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status</th>
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -23,14 +127,22 @@
     </thead>
     <tbody class="bg-white divide-y divide-gray-200" id="transactionTableBody">
         @forelse ($payments as $payment)
-            @if(!$payment->transaction)
+            @if (!$payment->transaction || $payment->transaction->transaction_status === 'expired')
                 @continue
             @endif
-            <tr>
+            <tr data-sortable
+                data-tanggal="{{ optional($payment->transaction?->created_at)->format('Y-m-d') }}"
+                data-pelanggan="{{ $payment->transaction?->user?->username ?? '' }}"
+                data-property="{{ $payment->transaction?->property?->name ?? '' }}"
+                data-metode="{{ $payment->transaction?->transaction_type ?? '' }}">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <div class="text-sm text-gray-500">
+                        {{ optional($payment->transaction?->created_at)->format('Y-m-d') ?? '-' }}
+                    </div>
+                </td>
+
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div class="text-sm font-medium text-indigo-600">{{ $payment->order_id }}</div>
-                    <div class="text-sm text-gray-500">{{ $payment->transaction?->check_in ?? '-' }}
-                    </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div class="flex items-center">
@@ -65,15 +177,9 @@
                     <div class="flex items-center gap-2">
                         <div>
                             @if ($payment?->transaction?->paid_at)
-                                <div>{{ $payment->transaction->paid_at->format('d M Y') }}</div>
-                                <div class="text-xs text-gray-400">
-                                    {{ $payment->transaction->paid_at->format('H:i') }}
-                                </div>
+                                {{ $payment->transaction->paid_at->format('Y-m-d') }}
                             @elseif ($payment?->verified_at)
-                                <div>{{ $payment->verified_at->format('d M Y') }}</div>
-                                <div class="text-xs text-gray-400">
-                                    {{ $payment->verified_at->format('H:i') }}
-                                </div>
+                                {{ $payment->verified_at->format('Y-m-d') }}
                             @else
                                 -
                             @endif
@@ -83,8 +189,10 @@
                                 onclick="showEditPaymentDateModal({{ $payment->idrec }}, '{{ ($payment->transaction?->paid_at ?? $payment->verified_at)->format('Y-m-d\TH:i') }}', '{{ $payment->transaction?->check_in ? $payment->transaction->check_in->format('Y-m-d\TH:i') : '' }}')"
                                 class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
                                 title="Edit Tanggal Pembayaran">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </button>
                         @endif
@@ -95,9 +203,7 @@
                     <div class="flex items-center gap-2">
                         <div>
                             @if ($payment->transaction?->check_in)
-                                <div>{{ $payment->transaction->check_in->format('d M Y') }}</div>
-                                <div class="text-xs text-gray-400">
-                                    {{ $payment->transaction->check_in->format('H:i') }}</div>
+                                {{ $payment->transaction->check_in->format('Y-m-d') }}
                             @else
                                 -
                             @endif
@@ -107,8 +213,10 @@
                                 onclick="showEditCheckInOutModal({{ $payment->idrec }}, '{{ $payment->transaction->check_in->format('Y-m-d\TH:i') }}', '{{ $payment->transaction->check_out ? $payment->transaction->check_out->format('Y-m-d\TH:i') : '' }}')"
                                 class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
                                 title="Edit Tanggal Check-in/Check-out">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </button>
                         @endif
@@ -324,7 +432,9 @@
                             Menunggu
                         </span>
                         <!-- Tambahkan di bagian aksi untuk status terverifikasi -->
-                    @elseif ($payment->transaction && in_array($payment->transaction->transaction_status, ['paid', 'completed']) &&
+                    @elseif (
+                        $payment->transaction &&
+                            in_array($payment->transaction->transaction_status, ['paid', 'completed']) &&
                             empty($payment->booking?->check_out_at))
                         <div class="flex flex-col items-center text-center space-y-2">
                             <!-- Tombol Batalkan Booking -->
@@ -359,20 +469,20 @@
                         <!-- Modal Pembatalan Booking - Improved Design -->
                         <div id="cancelModal-{{ $payment->idrec }}"
                             class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-[70]"
-                            style="display: none;"
-                            onclick="hideCancelModal({{ $payment->idrec }})">
+                            style="display: none;" onclick="hideCancelModal({{ $payment->idrec }})">
                             <div class="flex items-center justify-center min-h-screen px-4 py-8">
                                 <div class="relative mx-auto w-full max-w-2xl" onclick="event.stopPropagation()">
                                     <div class="relative bg-white rounded-lg shadow-2xl transform transition-all">
                                         <!-- Modal header -->
-                                        <div class="px-6 py-4 border-b rounded-t bg-gradient-to-r from-orange-50 to-red-50">
+                                        <div
+                                            class="px-6 py-4 border-b rounded-t bg-gradient-to-r from-orange-50 to-red-50">
                                             <h3 class="text-xl font-semibold text-gray-900">
                                                 Batalkan Booking
                                             </h3>
                                             <button type="button" onclick="hideCancelModal({{ $payment->idrec }})"
                                                 class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                    viewBox="0 0 14 14">
+                                                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none" viewBox="0 0 14 14">
                                                     <path stroke="currentColor" stroke-linecap="round"
                                                         stroke-linejoin="round" stroke-width="2"
                                                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -381,145 +491,153 @@
                                             </button>
                                         </div>
 
-                                    <!-- Modal body (dipertahankan dari versi sebelumnya) -->
-                                    <form id="cancel-form-{{ $payment->idrec }}"
-                                        action="{{ route('admin.bookings.cancel', $payment->idrec) }}" method="POST"
-                                        onsubmit="return validateCancelForm(event, {{ $payment->idrec }})"
-                                        class="max-w-full overflow-hidden">
-                                        @csrf
-                                        @method('PUT')
+                                        <!-- Modal body (dipertahankan dari versi sebelumnya) -->
+                                        <form id="cancel-form-{{ $payment->idrec }}"
+                                            action="{{ route('admin.bookings.cancel', $payment->idrec) }}"
+                                            method="POST"
+                                            onsubmit="return validateCancelForm(event, {{ $payment->idrec }})"
+                                            class="max-w-full overflow-hidden">
+                                            @csrf
+                                            @method('PUT')
 
-                                        <div class="p-6 space-y-4 break-words whitespace-normal">
-                                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                                <div class="flex">
-                                                    <div class="flex-shrink-0">
-                                                        <svg class="h-5 w-5 text-yellow-400"
-                                                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                            fill="currentColor">
-                                                            <path fill-rule="evenodd"
-                                                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                                clip-rule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                    <div class="ml-3">
-                                                        <h3 class="text-sm font-medium text-yellow-800">
-                                                            Peringatan
-                                                        </h3>
-                                                        <div class="mt-2 text-sm text-yellow-700">
-                                                            <p>Pembatalan booking akan mengembalikan dana kepada
-                                                                pelanggan dan membatalkan reservasi.</p>
+                                            <div class="p-6 space-y-4 break-words whitespace-normal">
+                                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                                    <div class="flex">
+                                                        <div class="flex-shrink-0">
+                                                            <svg class="h-5 w-5 text-yellow-400"
+                                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                                fill="currentColor">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                                    clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                        <div class="ml-3">
+                                                            <h3 class="text-sm font-medium text-yellow-800">
+                                                                Peringatan
+                                                            </h3>
+                                                            <div class="mt-2 text-sm text-yellow-700">
+                                                                <p>Pembatalan booking akan mengembalikan dana kepada
+                                                                    pelanggan dan membatalkan reservasi.</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div class="border border-gray-200 rounded-lg p-4">
-                                                <h4 class="text-sm font-medium text-gray-900 mb-2">Detail Booking</h4>
-                                                <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                                                    <div>Order ID:</div>
-                                                    <div class="font-medium">{{ $payment->order_id }}</div>
+                                                <div class="border border-gray-200 rounded-lg p-4">
+                                                    <h4 class="text-sm font-medium text-gray-900 mb-2">Detail Booking
+                                                    </h4>
+                                                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                                                        <div>Order ID:</div>
+                                                        <div class="font-medium">{{ $payment->order_id }}</div>
 
-                                                    <div>Pelanggan:</div>
-                                                    <div class="font-medium">
-                                                        {{ $payment->transaction?->user?->username ?? '-' }}</div>
+                                                        <div>Pelanggan:</div>
+                                                        <div class="font-medium">
+                                                            {{ $payment->transaction?->user?->username ?? '-' }}</div>
 
-                                                    <div>Properti:</div>
-                                                    <div class="font-medium">
-                                                        {{ $payment->transaction?->property?->name ?? 'N/A' }}</div>
+                                                        <div>Properti:</div>
+                                                        <div class="font-medium">
+                                                            {{ $payment->transaction?->property?->name ?? 'N/A' }}
+                                                        </div>
 
-                                                    <div>Total:</div>
-                                                    <div class="font-medium">
-                                                        Rp{{ number_format($payment->grandtotal_price, 0, ',', '.') }}
+                                                        <div>Total:</div>
+                                                        <div class="font-medium">
+                                                            Rp{{ number_format($payment->grandtotal_price, 0, ',', '.') }}
+                                                        </div>
+
+                                                        <div>Check-in:</div>
+                                                        <div class="font-medium">
+                                                            {{ $payment->transaction?->check_in?->format('d M Y') ?? '-' }}
+                                                        </div>
                                                     </div>
+                                                </div>
 
-                                                    <div>Check-in:</div>
-                                                    <div class="font-medium">
-                                                        {{ $payment->transaction?->check_in?->format('d M Y') ?? '-' }}
+                                                <div class="w-full">
+                                                    <label for="cancelReason-{{ $payment->idrec }}"
+                                                        class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Alasan Pembatalan <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <select id="cancelReason-{{ $payment->idrec }}"
+                                                        name="cancelReason"
+                                                        class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200"
+                                                        onchange="toggleCustomReason({{ $payment->idrec }})" required>
+                                                        <option value="">Pilih alasan pembatalan</option>
+                                                        <option value="pelanggan_request">Permintaan Pelanggan</option>
+                                                        <option value="ketersediaan_properti">Ketersediaan Properti
+                                                            Berubah
+                                                        </option>
+                                                        <option value="masalah_teknis">Masalah Teknis</option>
+                                                        <option value="pelanggan_melanggar_kebijakan">Pelanggan
+                                                            Melanggar
+                                                            Kebijakan</option>
+                                                        <option value="other">Lainnya</option>
+                                                    </select>
+                                                </div>
+
+                                                <div id="customReasonContainer-{{ $payment->idrec }}"
+                                                    class="hidden w-full">
+                                                    <label for="customCancelReason-{{ $payment->idrec }}"
+                                                        class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Jelaskan Alasan Lainnya <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <textarea id="customCancelReason-{{ $payment->idrec }}" name="customCancelReason" rows="3"
+                                                        class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200 resize-none break-words whitespace-normal"
+                                                        placeholder="Jelaskan alasan pembatalan secara detail..."></textarea>
+                                                </div>
+
+                                                <div class="w-full">
+                                                    <label for="refundAmount-{{ $payment->idrec }}"
+                                                        class="block text-sm font-medium text-gray-700 mb-2">
+                                                        Jumlah Pengembalian Dana
+                                                    </label>
+                                                    <div class="mt-1">
+                                                        <div class="flex rounded-md shadow-sm">
+                                                            <span
+                                                                class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                                                Rp
+                                                            </span>
+                                                            <input type="text"
+                                                                id="refundAmount-{{ $payment->idrec }}"
+                                                                name="refundAmount"
+                                                                value="{{ number_format($payment->grandtotal_price, 0, ',', '.') }}"
+                                                                class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                                                        </div>
                                                     </div>
+                                                    <p class="mt-1 text-xs text-gray-500">Atur jumlah yang akan
+                                                        dikembalikan
+                                                        kepada pelanggan</p>
+                                                </div>
+
+                                                <div class="flex items-center">
+                                                    <input id="sendNotification-{{ $payment->idrec }}"
+                                                        name="sendNotification" type="checkbox" checked
+                                                        class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                                    <label for="sendNotification-{{ $payment->idrec }}"
+                                                        class="ml-2 block text-sm text-gray-700">
+                                                        Kirim notifikasi pembatalan ke pelanggan
+                                                    </label>
                                                 </div>
                                             </div>
 
-                                            <div class="w-full">
-                                                <label for="cancelReason-{{ $payment->idrec }}"
-                                                    class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Alasan Pembatalan <span class="text-red-500">*</span>
-                                                </label>
-                                                <select id="cancelReason-{{ $payment->idrec }}" name="cancelReason"
-                                                    class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200"
-                                                    onchange="toggleCustomReason({{ $payment->idrec }})" required>
-                                                    <option value="">Pilih alasan pembatalan</option>
-                                                    <option value="pelanggan_request">Permintaan Pelanggan</option>
-                                                    <option value="ketersediaan_properti">Ketersediaan Properti Berubah
-                                                    </option>
-                                                    <option value="masalah_teknis">Masalah Teknis</option>
-                                                    <option value="pelanggan_melanggar_kebijakan">Pelanggan Melanggar
-                                                        Kebijakan</option>
-                                                    <option value="other">Lainnya</option>
-                                                </select>
+                                            <!-- Modal footer -->
+                                            <div
+                                                class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
+                                                <button type="button"
+                                                    onclick="hideCancelModal({{ $payment->idrec }})"
+                                                    class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors duration-200">
+                                                    Batal
+                                                </button>
+                                                <button type="submit"
+                                                    class="px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200 flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                    Konfirmasi Pembatalan
+                                                </button>
                                             </div>
-
-                                            <div id="customReasonContainer-{{ $payment->idrec }}"
-                                                class="hidden w-full">
-                                                <label for="customCancelReason-{{ $payment->idrec }}"
-                                                    class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Jelaskan Alasan Lainnya <span class="text-red-500">*</span>
-                                                </label>
-                                                <textarea id="customCancelReason-{{ $payment->idrec }}" name="customCancelReason" rows="3"
-                                                    class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200 resize-none break-words whitespace-normal"
-                                                    placeholder="Jelaskan alasan pembatalan secara detail..."></textarea>
-                                            </div>
-
-                                            <div class="w-full">
-                                                <label for="refundAmount-{{ $payment->idrec }}"
-                                                    class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Jumlah Pengembalian Dana
-                                                </label>
-                                                <div class="mt-1">
-                                                    <div class="flex rounded-md shadow-sm">
-                                                        <span
-                                                            class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                                            Rp
-                                                        </span>
-                                                        <input type="text" id="refundAmount-{{ $payment->idrec }}"
-                                                            name="refundAmount"
-                                                            value="{{ number_format($payment->grandtotal_price, 0, ',', '.') }}"
-                                                            class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
-                                                    </div>
-                                                </div>
-                                                <p class="mt-1 text-xs text-gray-500">Atur jumlah yang akan
-                                                    dikembalikan
-                                                    kepada pelanggan</p>
-                                            </div>
-
-                                            <div class="flex items-center">
-                                                <input id="sendNotification-{{ $payment->idrec }}"
-                                                    name="sendNotification" type="checkbox" checked
-                                                    class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                                                <label for="sendNotification-{{ $payment->idrec }}"
-                                                    class="ml-2 block text-sm text-gray-700">
-                                                    Kirim notifikasi pembatalan ke pelanggan
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <!-- Modal footer -->
-                                        <div
-                                            class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
-                                            <button type="button" onclick="hideCancelModal({{ $payment->idrec }})"
-                                                class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors duration-200">
-                                                Batal
-                                            </button>
-                                            <button type="submit"
-                                                class="px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200 flex items-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                                Konfirmasi Pembatalan
-                                            </button>
-                                        </div>
-                                    </form>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -545,21 +663,21 @@
             </tr>
         @empty
             <tr>
-                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
                     Belum ada pembayaran terbaru
                 </td>
             </tr>
         @endforelse
     </tbody>
 </table>
+</div>
 
 <!-- Reject Modals - Outside table for proper z-index handling -->
 @foreach ($payments as $payment)
     @if ($payment->transaction && in_array($payment->transaction->transaction_status, ['waiting']))
         <div id="rejectModal-{{ $payment->idrec }}"
             class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-[70]"
-            style="display: none;"
-            onclick="hideRejectModal({{ $payment->idrec }})">
+            style="display: none;" onclick="hideRejectModal({{ $payment->idrec }})">
             <div class="flex items-center justify-center min-h-screen px-4 py-8">
                 <div class="relative mx-auto w-full max-w-md" onclick="event.stopPropagation()">
                     <div class="relative bg-white rounded-lg shadow-2xl transform transition-all">
@@ -570,12 +688,10 @@
                             </h3>
                             <button type="button" onclick="hideRejectModal({{ $payment->idrec }})"
                                 class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
-                                <svg class="w-3 h-3" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 14 14">
-                                    <path stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="2"
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 14 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                                 </svg>
                                 <span class="sr-only">Tutup modal</span>
                             </button>
@@ -615,10 +731,10 @@
                                 </button>
                                 <button type="submit"
                                     class="px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                     Konfirmasi Penolakan
                                 </button>
@@ -646,8 +762,10 @@
                         </h3>
                         <button type="button" onclick="hideEditPaymentDateModal({{ $payment->idrec }})"
                             class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
-                            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                             </svg>
                         </button>
                     </div>
@@ -660,29 +778,35 @@
 
                         <div class="p-6 space-y-4">
                             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
-                                <svg class="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                <svg class="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd" />
                                 </svg>
-                                <p class="text-sm text-yellow-800">Tanggal pembayaran harus sebelum atau sama dengan tanggal check-in</p>
+                                <p class="text-sm text-yellow-800">Tanggal pembayaran harus sebelum atau sama dengan
+                                    tanggal check-in</p>
                             </div>
 
                             <div>
-                                <label for="payment_date-{{ $payment->idrec }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="payment_date-{{ $payment->idrec }}"
+                                    class="block text-sm font-medium text-gray-700 mb-2">
                                     Tanggal Pembayaran <span class="text-red-500">*</span>
                                 </label>
-                                <input type="datetime-local"
-                                    id="payment_date-{{ $payment->idrec }}"
+                                <input type="datetime-local" id="payment_date-{{ $payment->idrec }}"
                                     name="payment_date"
                                     class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     required>
                                 @if ($payment->transaction?->check_in)
-                                    <p class="mt-1 text-xs text-gray-500">Maksimal: {{ $payment->transaction->check_in->format('d M Y H:i') }}</p>
+                                    <p class="mt-1 text-xs text-gray-500">Maksimal:
+                                        {{ $payment->transaction->check_in->format('d M Y H:i') }}</p>
                                 @endif
                             </div>
                         </div>
 
                         <!-- Modal footer -->
-                        <div class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
+                        <div
+                            class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
                             <button type="button" onclick="hideEditPaymentDateModal({{ $payment->idrec }})"
                                 class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                                 Batal
@@ -712,8 +836,10 @@
                         </h3>
                         <button type="button" onclick="hideEditCheckInOutModal({{ $payment->idrec }})"
                             class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-200">
-                            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                             </svg>
                         </button>
                     </div>
@@ -726,40 +852,44 @@
 
                         <div class="p-6 space-y-4">
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
-                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
                                 </svg>
-                                <p class="text-sm text-blue-800">Tanggal check-in harus sebelum atau sama dengan tanggal check-in saat ini. Tanggal check-out dapat dipilih bebas.</p>
+                                <p class="text-sm text-blue-800">Tanggal check-in harus sebelum atau sama dengan
+                                    tanggal check-in saat ini. Tanggal check-out dapat dipilih bebas.</p>
                             </div>
 
                             <div>
-                                <label for="check_in-{{ $payment->idrec }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="check_in-{{ $payment->idrec }}"
+                                    class="block text-sm font-medium text-gray-700 mb-2">
                                     Tanggal Check-in <span class="text-red-500">*</span>
                                 </label>
-                                <input type="datetime-local"
-                                    id="check_in-{{ $payment->idrec }}"
-                                    name="check_in"
+                                <input type="datetime-local" id="check_in-{{ $payment->idrec }}" name="check_in"
                                     class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                     required>
                                 @if ($payment->transaction?->check_in)
-                                    <p class="mt-1 text-xs text-gray-500">Maksimal: {{ $payment->transaction->check_in->format('d M Y H:i') }}</p>
+                                    <p class="mt-1 text-xs text-gray-500">Maksimal:
+                                        {{ $payment->transaction->check_in->format('d M Y H:i') }}</p>
                                 @endif
                             </div>
 
                             <div>
-                                <label for="check_out-{{ $payment->idrec }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <label for="check_out-{{ $payment->idrec }}"
+                                    class="block text-sm font-medium text-gray-700 mb-2">
                                     Tanggal Check-out
                                 </label>
-                                <input type="datetime-local"
-                                    id="check_out-{{ $payment->idrec }}"
-                                    name="check_out"
+                                <input type="datetime-local" id="check_out-{{ $payment->idrec }}" name="check_out"
                                     class="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                                 <p class="mt-1 text-xs text-gray-500">Dapat memilih tanggal kapan saja</p>
                             </div>
                         </div>
 
                         <!-- Modal footer -->
-                        <div class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
+                        <div
+                            class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 rounded-b bg-gray-50">
                             <button type="button" onclick="hideEditCheckInOutModal({{ $payment->idrec }})"
                                 class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                                 Batal
