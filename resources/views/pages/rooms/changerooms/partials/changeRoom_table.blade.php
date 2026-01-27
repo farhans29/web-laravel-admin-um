@@ -6,7 +6,7 @@
             'check_in' => $booking->transaction?->check_in ?? $booking->check_in_at,
             'check_out' => $booking->transaction?->check_out ?? $booking->check_out_at,
             'rate' => $booking->room->price ?? 'N/A',
-            'guest_name' => $booking->user->username ?? 'N/A',
+            'guest_name' => $booking->transaction->user_name ?? 'N/A',
             'order_id' => $booking->order_id,
             'propertyName' => $booking->property->name ?? 'N/A',
             'property_id' => $booking->property->idrec ?? 'N/A',
@@ -20,10 +20,12 @@
         <div class="flex items-start justify-between mb-2">
             <div class="flex items-center space-x-2">
                 <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                    {{ strtoupper(substr($booking->user->username ?? '?', 0, 1)) }}
+                    {{ strtoupper(substr($booking->transaction->user_name ?? '?', 0, 1)) }}
                 </div>
                 <div>
-                    <div class="font-semibold text-gray-800 text-sm">{{ $booking->user->username ?? 'N/A' }}</div>
+                    <div class="font-semibold text-gray-800 text-sm">{{ $booking->transaction->user_name ?? 'N/A' }}</div>
+                    <div class="text-xs text-gray-500">{{ $booking->transaction->user_email ?? '-' }}</div>
+                    <div class="text-xs text-gray-500">{{ $booking->transaction->user_phone_number ?? '-' }}</div>
                     <div class="text-xs text-gray-500 font-mono">{{ $booking->order_id }}</div>
                 </div>
             </div>

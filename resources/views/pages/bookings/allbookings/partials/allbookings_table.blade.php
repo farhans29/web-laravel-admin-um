@@ -69,9 +69,7 @@
                             <div class="text-sm font-medium text-gray-900">
                                 {{ $booking->transaction->user_name ?? 'N/A' }}</div>
                             <div class="text-sm text-gray-500">{{ $booking->transaction->user_email ?? '-' }}</div>
-                            @if($booking->transaction && $booking->transaction->user_phone)
-                                <div class="text-sm text-gray-500">{{ $booking->transaction->user_phone }}</div>
-                            @endif
+                            <div class="text-sm text-gray-500">{{ $booking->transaction->user_phone_number ?? '-' }}</div>
                         </div>
                     </div>
                 </td>

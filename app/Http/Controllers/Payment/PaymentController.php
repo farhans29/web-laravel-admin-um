@@ -33,6 +33,8 @@ class PaymentController extends Controller
             if ($user->isSite() && $user->property_id) {
                 $q->where('property_id', $user->property_id);
             }
+            // Exclude expired transactions
+            $q->where('transaction_status', '!=', 'expired');
         })
             ->orderBy('idrec', 'desc');
 
@@ -67,6 +69,8 @@ class PaymentController extends Controller
             if ($user->isSite() && $user->property_id) {
                 $q->where('property_id', $user->property_id);
             }
+            // Exclude expired transactions
+            $q->where('transaction_status', '!=', 'expired');
         })
             ->orderBy('idrec', 'desc');
 

@@ -160,21 +160,27 @@
                                     <!-- Modal header -->
                                     <div
                                         class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
-                                        <div class="text-left">
-                                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1"
-                                                x-text="selectedProperty.name"></h3>
-                                            <p class="text-gray-600 dark:text-gray-300 flex items-center">
-                                                <svg class="w-4 h-4 mr-1 text-gray-400 dark:text-gray-500"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                <span
-                                                    x-text="selectedProperty.city + ', ' + selectedProperty.province"></span>
-                                            </p>
+                                        <div class="flex items-center gap-4">
+                                            <div class="flex-shrink-0 h-14 w-14 rounded-full bg-indigo-500 flex items-center justify-center shadow-lg">
+                                                <span class="text-white font-bold text-xl"
+                                                    x-text="selectedProperty.name ? selectedProperty.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'"></span>
+                                            </div>
+                                            <div class="text-left">
+                                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1"
+                                                    x-text="selectedProperty.name"></h3>
+                                                <p class="text-gray-600 dark:text-gray-300 flex items-center">
+                                                    <svg class="w-4 h-4 mr-1 text-gray-400 dark:text-gray-500"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                    <span
+                                                        x-text="selectedProperty.city + ', ' + selectedProperty.province"></span>
+                                                </p>
+                                            </div>
                                         </div>
                                         <button type="button"
                                             class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 p-2 hover:bg-white dark:hover:bg-gray-700 rounded-full"

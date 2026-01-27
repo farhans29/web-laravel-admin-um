@@ -43,14 +43,13 @@
                         <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>Canceled
                         </option>
                         <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
-                        <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
                     </select>
 
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-10">
                                 <input type="text" id="date_picker"
-                                    placeholder="Pilih rentang tanggal (Maks 30 hari)" data-input
+                                    placeholder="Pilih rentang tanggal" data-input
                                     class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
                                     value="{{ request('start_date') }}">
@@ -417,14 +416,10 @@
             // local reference for convenience
             const fetchFilteredBookings = window.fetchFilteredBookings;
 
-            const defaultStartDate = new Date('{{ $startDate ?? now()->format('Y-m-d') }}');
-            const defaultEndDate = new Date('{{ $endDate ?? now()->addMonth()->format('Y-m-d') }}');
-
-            // Initialize Flatpickr with persistence
+            // Initialize Flatpickr with persistence disabled (no default dates)
             const datePicker = DateFilterPersistence.initFlatpickr('payment-pay', {
-                defaultStartDate: defaultStartDate,
-                defaultEndDate: defaultEndDate,
-                maxRangeDays: 31,
+                disablePersistence: true,
+                maxRangeDays: null,
                 onChange: function(selectedDates, dateStr, instance) {
                     fetchFilteredBookings();
                 },

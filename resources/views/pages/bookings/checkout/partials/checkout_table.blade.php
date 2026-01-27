@@ -57,9 +57,9 @@
                         </div>
                         <div class="ml-4">
                             <div class="text-sm font-medium text-gray-900">
-                                {{ $booking->transaction->user_name }}</div>
-                            <div class="text-sm text-gray-500">{{ $booking->transaction->user_email }}
-                            </div>
+                                {{ $booking->transaction->user_name ?? 'N/A' }}</div>
+                            <div class="text-sm text-gray-500">{{ $booking->transaction->user_email ?? '-' }}</div>
+                            <div class="text-sm text-gray-500">{{ $booking->transaction->user_phone_number ?? '-' }}</div>
                         </div>
                     </div>
                 </td>
