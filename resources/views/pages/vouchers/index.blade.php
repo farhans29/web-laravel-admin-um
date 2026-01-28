@@ -135,10 +135,10 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Maksimal Diskon (Rp) <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" id="max_discount_amount" name="max_discount_amount" required
-                                min="0" step="1000"
-                                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                placeholder="100000">
+                            <input type="text" id="max_discount_amount" name="max_discount_amount" required
+                                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white currency-input"
+                                placeholder="100.000">
+                            <input type="hidden" id="max_discount_amount_raw" name="max_discount_amount_raw">
                         </div>
 
                         <!-- Max Total Usage -->
@@ -179,10 +179,10 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Minimal Transaksi (Rp)
                             </label>
-                            <input type="number" id="min_transaction_amount" name="min_transaction_amount"
-                                min="0" step="1000"
-                                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                placeholder="500000" value="0">
+                            <input type="text" id="min_transaction_amount" name="min_transaction_amount"
+                                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white currency-input"
+                                placeholder="500.000" value="0">
+                            <input type="hidden" id="min_transaction_amount_raw" name="min_transaction_amount_raw">
                         </div>
 
                         <!-- Scope Type -->
@@ -366,9 +366,40 @@
                 }
             }
 
+            // Format number with thousand separator (dot)
+            function formatNumber(num) {
+                if (num === null || num === undefined || num === '') return '';
+                // Remove all non-digit characters
+                const cleanNum = String(num).replace(/\D/g, '');
+                if (cleanNum === '') return '';
+                // Format with dots as thousand separators
+                return cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            // Parse formatted number back to raw number
+            function parseNumber(formattedNum) {
+                if (formattedNum === null || formattedNum === undefined || formattedNum === '') return 0;
+                // Remove all dots and return as integer
+                return parseInt(String(formattedNum).replace(/\./g, ''), 10) || 0;
+            }
+
             // Initialize immediately since scripts are loaded in correct order now
             $(document).ready(function() {
                 initDateRangePicker();
+
+                // Currency input formatting
+                $('.currency-input').on('input', function() {
+                    const cursorPos = this.selectionStart;
+                    const oldLength = $(this).val().length;
+                    const rawValue = parseNumber($(this).val());
+                    const formattedValue = formatNumber(rawValue);
+                    $(this).val(formattedValue);
+
+                    // Adjust cursor position after formatting
+                    const newLength = formattedValue.length;
+                    const diff = newLength - oldLength;
+                    this.setSelectionRange(cursorPos + diff, cursorPos + diff);
+                });
 
                 // Status toggle handler
                 $('#status_toggle').on('change', function() {
@@ -456,7 +487,7 @@
                         $('#name').val(voucher.name);
                         $('#description').val(voucher.description);
                         $('#discount_percentage').val(voucher.discount_percentage);
-                        $('#max_discount_amount').val(voucher.max_discount_amount);
+                        $('#max_discount_amount').val(formatNumber(voucher.max_discount_amount));
                         $('#max_total_usage').val(voucher.max_total_usage);
                         $('#max_usage_per_user').val(voucher.max_usage_per_user);
 
@@ -470,7 +501,7 @@
                         $('#valid_from').val(voucher.valid_from);
                         $('#valid_to').val(voucher.valid_to);
 
-                        $('#min_transaction_amount').val(voucher.min_transaction_amount);
+                        $('#min_transaction_amount').val(formatNumber(voucher.min_transaction_amount));
                         $('#scope_type').val(voucher.scope_type);
 
                         if (voucher.scope_type === 'property') {
@@ -514,12 +545,12 @@
                     name: $('#name').val(),
                     description: $('#description').val(),
                     discount_percentage: $('#discount_percentage').val(),
-                    max_discount_amount: $('#max_discount_amount').val(),
+                    max_discount_amount: parseNumber($('#max_discount_amount').val()),
                     max_total_usage: $('#max_total_usage').val(),
                     max_usage_per_user: $('#max_usage_per_user').val(),
                     valid_from: $('#valid_from').val(),
                     valid_to: $('#valid_to').val(),
-                    min_transaction_amount: $('#min_transaction_amount').val(),
+                    min_transaction_amount: parseNumber($('#min_transaction_amount').val()),
                     scope_type: $('#scope_type').val(),
                     property_id: $('#property_id').val(),
                     status: $('#status').val(),
