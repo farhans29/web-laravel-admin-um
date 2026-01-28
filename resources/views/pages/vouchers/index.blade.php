@@ -317,6 +317,8 @@
                             '14 Hari Kedepan': [moment().startOf('day'), moment().add(13, 'days').endOf('day')],
                             '1 Bulan Kedepan': [moment().startOf('day'), moment().add(1, 'months').endOf('day')],
                             '3 Bulan Kedepan': [moment().startOf('day'), moment().add(3, 'months').endOf('day')],
+                            '6 Bulan Kedepan': [moment().startOf('day'), moment().add(6, 'months').endOf('day')],
+                            '1 Tahun Kedepan': [moment().startOf('day'), moment().add(1, 'years').endOf('day')],
                         },
                         locale: {
                             format: 'DD/MM/YYYY HH:mm',
