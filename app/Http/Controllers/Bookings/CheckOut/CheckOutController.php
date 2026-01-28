@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Bookings\CheckOut;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\RoomItemCondition;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 class CheckOutController extends Controller
@@ -114,18 +116,48 @@ class CheckOutController extends Controller
         ]);
     }
 
-    public function checkOut($order_id)
+    public function checkOut(Request $request, $order_id)
     {
-        // Cari booking berdasarkan order_id
-        $booking = Booking::where('order_id', $order_id)->firstOrFail();
+        try {
+            DB::beginTransaction();
 
-        $booking->check_out_at = now();
-        $booking->save();
+            // Cari booking berdasarkan order_id
+            $booking = Booking::where('order_id', $order_id)->firstOrFail();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Guest successfully checked out.'
-        ]);
+            $booking->check_out_at = now();
+            $booking->save();
+
+            // Simpan kondisi barang
+            $itemConditions = $request->input('item_conditions', []);
+            $additionalNotes = $request->input('additional_notes', '');
+            $damageCharges = $request->input('damage_charges', 0);
+
+            foreach ($itemConditions as $item) {
+                RoomItemCondition::create([
+                    'order_id' => $order_id,
+                    'booking_id' => $booking->idrec,
+                    'item_name' => $item['name'],
+                    'condition' => $item['condition'],
+                    'custom_text' => $item['customText'] ?? null,
+                    'notes' => $additionalNotes,
+                    'damage_charge' => $item['name'] === 'Total' ? $damageCharges : 0,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Guest successfully checked out.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to check out: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getBookingDetails($orderId)

@@ -15,6 +15,14 @@
         const rows = Array.from(tbody.querySelectorAll('tr[data-sortable]'));
 
         rows.sort((a, b) => {
+            // Always place 'waiting' status at the top
+            const aIsWaiting = a.dataset.status === 'waiting';
+            const bIsWaiting = b.dataset.status === 'waiting';
+
+            if (aIsWaiting && !bIsWaiting) return -1;
+            if (!aIsWaiting && bIsWaiting) return 1;
+
+            // If both have same waiting status, sort by column
             let aVal = a.dataset[this.sortColumn] || '';
             let bVal = b.dataset[this.sortColumn] || '';
 
@@ -134,7 +142,8 @@
                 data-tanggal="{{ optional($payment->transaction?->created_at)->format('Y-m-d') }}"
                 data-pelanggan="{{ $payment->transaction?->user?->username ?? '' }}"
                 data-property="{{ $payment->transaction?->property?->name ?? '' }}"
-                data-metode="{{ $payment->transaction?->transaction_type ?? '' }}">
+                data-metode="{{ $payment->transaction?->transaction_type ?? '' }}"
+                data-status="{{ $payment->transaction?->transaction_status ?? '' }}">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div class="text-sm text-gray-500">
                         {{ optional($payment->transaction?->created_at)->format('Y-m-d') ?? '-' }}
@@ -158,6 +167,8 @@
                                 {{ $payment->transaction?->user?->username ?? '-' }}</div>
                             <div class="text-sm text-gray-500">{{ $payment->transaction?->user?->email ?? '-' }}
                             </div>
+                            <div class="text-sm text-gray-500">{{ $payment->transaction?->user_phone_number ?? '-' }}
+                            </div>
                         </div>
                     </div>
                 </td>
@@ -168,7 +179,7 @@
                     <span class="text-xs text-gray-400">{{ $payment->transaction?->room?->name ?? '-' }}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    Rp{{ number_format($payment->grandtotal_price, 0, ',', '.') }}
+                    Rp{{ number_format($payment->transaction?->grandtotal_price ?? 0, 0, ',', '.') }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {{ $payment->transaction?->transaction_type ?? '-' }}
@@ -462,7 +473,7 @@
                             <!-- Informasi Verifikasi -->
                             <div class="text-xs text-gray-500">
                                 Oleh:
-                                {{ $payment->verifiedBy->name ?? 'Sistem' }}
+                                {{ $payment->verifiedBy->username ?? 'Sistem' }}
                             </div>
                         </div>
 
@@ -542,7 +553,7 @@
 
                                                         <div>Total:</div>
                                                         <div class="font-medium">
-                                                            Rp{{ number_format($payment->grandtotal_price, 0, ',', '.') }}
+                                                            Rp{{ number_format($payment->transaction?->grandtotal_price ?? 0, 0, ',', '.') }}
                                                         </div>
 
                                                         <div>Check-in:</div>
@@ -599,7 +610,7 @@
                                                             <input type="text"
                                                                 id="refundAmount-{{ $payment->idrec }}"
                                                                 name="refundAmount"
-                                                                value="{{ number_format($payment->grandtotal_price, 0, ',', '.') }}"
+                                                                value="{{ number_format($payment->transaction?->grandtotal_price ?? 0, 0, ',', '.') }}"
                                                                 class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
                                                         </div>
                                                     </div>

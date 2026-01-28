@@ -92,58 +92,47 @@
                 },
                 roomInventory: [{
                         name: 'TV',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Air Conditioner',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Bed',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Wardrobe',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Desk',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Chair',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Lamp',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Bathroom Mirror',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Shower',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Toilet',
-                        missingOrDamaged: false,
-                        condition: ''
+                        condition: 'good'
                     },
                     {
                         name: 'Lain-lain',
-                        missingOrDamaged: false,
-                        condition: '',
+                        condition: 'good',
                         customText: ''
                     }
                 ],
@@ -162,14 +151,9 @@
                     }, 1000);
                 },
 
-                toggleSelectAll(checked) {
+                setAllCondition(condition) {
                     this.roomInventory.forEach(item => {
-                        item.missingOrDamaged = checked;
-                        // You might want to set a default condition when selecting all
-                        if (checked && !item.condition) {
-                            item.condition =
-                                'damaged'; // or 'missing' depending on your preference
-                        }
+                        item.condition = condition;
                     });
                 },
 
@@ -203,8 +187,7 @@
                     this.isOpen = false;
                     // Reset form when closing
                     this.roomInventory.forEach(item => {
-                        item.missingOrDamaged = false;
-                        item.condition = '';
+                        item.condition = 'good';
                         if (item.customText !== undefined) {
                             item.customText = '';
                         }
@@ -276,7 +259,7 @@
                 },
 
                 get hasDamagedItems() {
-                    return this.roomInventory.some(item => item.missingOrDamaged);
+                    return this.roomInventory.some(item => item.condition === 'damaged' || item.condition === 'missing');
                 },
 
                 submitCheckOut() {
@@ -292,19 +275,17 @@
                         cancelButtonText: 'Cancel'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Prepare damaged items data
-                            const damagedItems = this.roomInventory
-                                .filter(item => item.missingOrDamaged)
-                                .map(item => ({
-                                    name: item.name,
-                                    condition: item.condition,
-                                    customText: item.customText || ''
-                                }));
+                            // Prepare all items with their conditions
+                            const itemConditions = this.roomInventory.map(item => ({
+                                name: item.name,
+                                condition: item.condition,
+                                customText: item.customText || ''
+                            }));
 
                             // Prepare payload
                             const payload = {
                                 check_out_time: new Date().toISOString(),
-                                damaged_items: damagedItems,
+                                item_conditions: itemConditions,
                                 additional_notes: this.additionalNotes,
                                 damage_charges: this.damageCharges,
                                 is_late_checkout: this.isLateCheckout

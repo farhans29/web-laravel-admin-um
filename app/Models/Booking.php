@@ -124,6 +124,11 @@ class Booking extends Model
         return $this->hasOne(Refund::class, 'id_booking', 'order_id');
     }
 
+    public function itemConditions()
+    {
+        return $this->hasMany(RoomItemCondition::class, 'order_id', 'order_id');
+    }
+
     public function getInvoiceData()
     {
         return [
