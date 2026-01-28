@@ -167,6 +167,8 @@
                                 {{ $payment->transaction?->user?->username ?? '-' }}</div>
                             <div class="text-sm text-gray-500">{{ $payment->transaction?->user?->email ?? '-' }}
                             </div>
+                            <div class="text-sm text-gray-500">{{ $payment->transaction?->user_phone_number ?? '-' }}
+                            </div>
                         </div>
                     </div>
                 </td>
