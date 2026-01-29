@@ -28,7 +28,7 @@ class InvoiceNumberService
 
     /**
      * Generate invoice number based on paid_at date
-     * Format: 0001/PK1/KGA-INV/XXI/2026
+     * Format: 0001/{property_initial}/KGA-INV/XXI/2026
      *
      * @param Transaction $transaction
      * @param int|null $sequenceNumber Optional override for sequence number
@@ -45,11 +45,17 @@ class InvoiceNumberService
             $sequenceNumber = self::getSequenceNumber($transaction, $year);
         }
 
-        // Format: 0001/PK1/KGA-INV/XXI/2026
+        // Get property initial from transaction's property relationship (uppercase)
+        $propertyInitial = 'PK1'; // Default fallback
+        if ($transaction->property && $transaction->property->initial) {
+            $propertyInitial = strtoupper($transaction->property->initial);
+        }
+
+        // Format: 0001/{property_initial}/KGA-INV/XXI/2026
         $formattedSequence = str_pad($sequenceNumber, 4, '0', STR_PAD_LEFT);
         $romanMonth = self::$romanMonths[$month];
 
-        return "{$formattedSequence}/PK1/KGA-INV/{$romanMonth}/{$year}";
+        return "{$formattedSequence}/{$propertyInitial}/KGA-INV/{$romanMonth}/{$year}";
     }
 
     /**
