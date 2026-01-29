@@ -243,70 +243,79 @@
             </div>
         </div>
 
-        <!-- Rest of your code remains the same -->
-        <div id="containerAccount" class="bg-white shadow-md rounded-lg overflow-hidden mt-8">
-            <div class="flex justify-between items-center px-6 py-4 bg-gray-50">
-                <h2 class="text-lg font-semibold text-gray-900">Daftar Akun</h2>
-                <div class="flex items-center gap-6">
-                    <!-- Search Form -->
-                    <form method="GET" action="{{ route('users-newManagement') }}" class="flex items-center gap-6">
-                        <div class="relative">
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Cari pengguna..."
-                                class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-56">
-                            <div class="absolute left-3 top-2.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
+        <!-- Users Table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Search and Filter Section -->
+            <div class="p-4 border-b border-gray-200">
+                <form id="searchForm" method="GET" action="{{ route('users-newManagement') }}">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <!-- Search Input -->
+                        <div class="w-full md:w-1/3">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <input type="text" name="search" id="searchInput"
+                                    value="{{ request('search') }}"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900"
+                                    placeholder="Cari pengguna...">
                             </div>
                         </div>
 
-                        <!-- Status Filter -->
-                        <div class="flex items-center">
-                            <label for="statusFilter" class="mr-2 text-sm font-medium text-gray-600">Status:</label>
-                            <select name="status" id="statusFilter" onchange="this.form.submit()"
-                                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 w-36">
-                                <option value="1" {{ $statusFilter == '1' ? 'selected' : '' }}>Aktif</option>
-                                <option value="0" {{ $statusFilter == '0' ? 'selected' : '' }}>Tidak Aktif</option>
-                                <option value="all" {{ $statusFilter == 'all' ? 'selected' : '' }}>Semua</option>
-                            </select>
-                        </div>
+                        <!-- Filters -->
+                        <div class="flex flex-wrap items-center gap-4">
+                            <!-- Status Filter -->
+                            <div class="flex items-center">
+                                <span class="text-sm text-gray-600 mr-2">Status:</span>
+                                <select name="status" id="statusFilter"
+                                    class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-white text-gray-900">
+                                    <option value="1" {{ $statusFilter == '1' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="0" {{ $statusFilter == '0' ? 'selected' : '' }}>Tidak Aktif</option>
+                                    <option value="all" {{ $statusFilter == 'all' ? 'selected' : '' }}>Semua</option>
+                                </select>
+                            </div>
 
-                        <!-- Per Page Select -->
-                        <div class="flex items-center">
-                            <label for="perPageSelect" class="mr-2 text-sm font-medium text-gray-600">Tampilkan:</label>
-                            <select name="per_page" id="perPageSelect" onchange="this.form.submit()"
-                                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 w-32">
-                                <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
-                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                                <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15</option>
-                                <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
-                            </select>
-                        </div>
+                            <!-- Per Page -->
+                            <div class="flex items-center">
+                                <span class="text-sm text-gray-600 mr-2">Show:</span>
+                                <select name="per_page" id="perPageSelect"
+                                    class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-white text-gray-900">
+                                    <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
+                                    <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15</option>
+                                    <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                                </select>
+                            </div>
 
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
-                </div>
+                            <!-- Reset Button -->
+                            @if(request('search') || request('status') != '1' || request('per_page'))
+                                <a href="{{ route('users-newManagement') }}"
+                                    class="inline-flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition"
+                                    title="Reset Filter">
+                                    <i class="fas fa-undo mr-1"></i> Reset
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
             </div>
-        </div>
 
-        <div class="p-6">
-            <div class="overflow-x-auto rounded-lg">
-                <table class="w-full border border-gray-200 rounded-lg overflow-hidden">
-                    <thead>
-                        <tr class="bg-gray-200 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider">
-                            <th class="px-4 py-3">Nama</th>
-                            <th class="px-4 py-3">Email</th>
-                            <th class="px-4 py-3 text-center">Tipe</th>
-                            <th class="px-4 py-3 text-center">Peran</th>
-                            <th class="px-4 py-3">Properti</th>
-                            <th class="px-4 py-3 text-center">Status</th>
-                            <th class="px-4 py-3">Dibuat Pada</th>
-                            <th class="px-4 py-3">Aksi</th>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Peran</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Properti</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody" class="divide-y divide-gray-200 bg-white text-sm text-gray-700">
@@ -795,11 +804,10 @@
                     </tbody>
                 </table>
             </div>
-        </div>
 
-        <div class="bg-gray-50 rounded p-4" id="paginationContainer">
-            <div class="px-6 py-4" id="paginationSection">
-                {{ $users->links() }}
+            <!-- Pagination -->
+            <div class="bg-gray-50 rounded p-4" id="paginationContainer">
+                {{ $users->appends(request()->input())->links() }}
             </div>
         </div>
     </div>
@@ -1057,6 +1065,37 @@
                         fontWeight: "bold"
                     }
                 }).showToast();
+            }
+        });
+
+        // Auto-search functionality with debounce
+        document.addEventListener('DOMContentLoaded', function() {
+            let searchTimeout;
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const perPageSelect = document.getElementById('perPageSelect');
+            const searchForm = document.getElementById('searchForm');
+
+            if (searchInput && searchForm) {
+                // Event listener untuk search input dengan debounce
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        searchForm.submit();
+                    }, 500);
+                });
+            }
+
+            if (statusFilter && searchForm) {
+                statusFilter.addEventListener('change', function() {
+                    searchForm.submit();
+                });
+            }
+
+            if (perPageSelect && searchForm) {
+                perPageSelect.addEventListener('change', function() {
+                    searchForm.submit();
+                });
             }
         });
 
