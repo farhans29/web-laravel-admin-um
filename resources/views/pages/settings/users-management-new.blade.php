@@ -1068,7 +1068,7 @@
             }
         });
 
-        // Auto-search functionality with debounce
+        // Auto-search with page refresh
         document.addEventListener('DOMContentLoaded', function() {
             let searchTimeout;
             const searchInput = document.getElementById('searchInput');
@@ -1077,7 +1077,6 @@
             const searchForm = document.getElementById('searchForm');
 
             if (searchInput && searchForm) {
-                // Event listener untuk search input dengan debounce
                 searchInput.addEventListener('input', function() {
                     clearTimeout(searchTimeout);
                     searchTimeout = setTimeout(function() {
