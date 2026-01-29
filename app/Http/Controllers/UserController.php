@@ -106,6 +106,64 @@ class UserController extends Controller
         return response()->json(['exists' => $emailExists]);
     }
 
+    /**
+     * Search users (AJAX endpoint) for users-management-new
+     * Returns HTML for AJAX table refresh
+     */
+    public function searchUsers(Request $request)
+    {
+        try {
+            $search = $request->input('search');
+            $perPage = $request->input('per_page', 8);
+            $statusFilter = $request->input('status', '1');
+
+            $users = User::with(['role', 'property'])
+                ->when($statusFilter !== 'all', function ($query) use ($statusFilter) {
+                    return $query->where('status', $statusFilter);
+                })
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($q) use ($search) {
+                        $q->where('first_name', 'like', '%' . $search . '%')
+                            ->orWhere('last_name', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                            ->orWhere('username', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%')
+                            ->orWhereHas('role', function ($roleQuery) use ($search) {
+                                $roleQuery->where('name', 'like', '%' . $search . '%');
+                            });
+                    });
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage);
+
+            // Render pagination safely
+            $paginationHtml = '';
+            if ($users->hasPages()) {
+                $paginationHtml = $users->links()->toHtml();
+            }
+
+            return response()->json([
+                'html' => view('pages.settings.partials.users-table', [
+                    'users' => $users,
+                ])->render(),
+                'pagination' => $paginationHtml,
+                'debug' => [
+                    'search' => $search,
+                    'status' => $statusFilter,
+                    'per_page' => $perPage,
+                    'total_users' => $users->total(),
+                    'current_count' => $users->count(),
+                    'timestamp' => now()->toDateTimeString(),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
     public function store(Request $request)
     {
@@ -558,69 +616,77 @@ class UserController extends Controller
 
     /**
      * Search admin users (AJAX endpoint)
+     * Returns HTML for AJAX table refresh
      */
     public function searchMasterRoleUsers(Request $request)
     {
-        $perPage = $request->input('per_page', 8);
-        $search = $request->input('search');
+        try {
+            $perPage = $request->input('per_page', 8);
+            $search = $request->input('search');
 
-        // Get only users with is_admin = 1 and status = 1
-        if ($perPage === 'all') {
-            $adminUsers = User::with('role')
-                ->where('status', 1)
-                ->when($search, function ($query, $search) {
-                    return $query->where(function ($q) use ($search) {
-                        $q->where('first_name', 'like', '%' . $search . '%')
-                            ->orWhere('last_name', 'like', '%' . $search . '%')
-                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
-                            ->orWhere('username', 'like', '%' . $search . '%')
-                            ->orWhere('email', 'like', '%' . $search . '%')
-                            ->orWhereHas('role', function ($roleQuery) use ($search) {
-                                $roleQuery->where('name', 'like', '%' . $search . '%');
-                            });
-                    });
-                })
-                ->orderBy('created_at', 'desc')
-                ->get();
+            // Get only users with status = 1
+            if ($perPage === 'all') {
+                $adminUsers = User::with('role')
+                    ->where('status', 1)
+                    ->when($search, function ($query, $search) {
+                        return $query->where(function ($q) use ($search) {
+                            $q->where('first_name', 'like', '%' . $search . '%')
+                                ->orWhere('last_name', 'like', '%' . $search . '%')
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                                ->orWhere('username', 'like', '%' . $search . '%')
+                                ->orWhere('email', 'like', '%' . $search . '%')
+                                ->orWhereHas('role', function ($roleQuery) use ($search) {
+                                    $roleQuery->where('name', 'like', '%' . $search . '%');
+                                });
+                        });
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->get();
 
+                return response()->json([
+                    'html' => view('pages.settings.partials.master-role-table', [
+                        'adminUsers' => $adminUsers,
+                        'perPage' => 'all',
+                    ])->render(),
+                    'pagination' => '',
+                ]);
+            } else {
+                $adminUsers = User::with('role')
+                    ->where('status', 1)
+                    ->when($search, function ($query, $search) {
+                        return $query->where(function ($q) use ($search) {
+                            $q->where('first_name', 'like', '%' . $search . '%')
+                                ->orWhere('last_name', 'like', '%' . $search . '%')
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                                ->orWhere('username', 'like', '%' . $search . '%')
+                                ->orWhere('email', 'like', '%' . $search . '%')
+                                ->orWhereHas('role', function ($roleQuery) use ($search) {
+                                    $roleQuery->where('name', 'like', '%' . $search . '%');
+                                });
+                        });
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($perPage);
+
+                // Render pagination safely
+                $paginationHtml = '';
+                if ($adminUsers->hasPages()) {
+                    $paginationHtml = $adminUsers->links()->toHtml();
+                }
+
+                return response()->json([
+                    'html' => view('pages.settings.partials.master-role-table', [
+                        'adminUsers' => $adminUsers,
+                        'perPage' => $perPage,
+                    ])->render(),
+                    'pagination' => $paginationHtml,
+                ]);
+            }
+        } catch (\Exception $e) {
             return response()->json([
-                'success' => true,
-                'users' => $adminUsers,
-                'pagination' => null,
-                'perPage' => 'all'
-            ]);
-        } else {
-            $adminUsers = User::with('role')
-                ->where('status', 1)
-                ->when($search, function ($query, $search) {
-                    return $query->where(function ($q) use ($search) {
-                        $q->where('first_name', 'like', '%' . $search . '%')
-                            ->orWhere('last_name', 'like', '%' . $search . '%')
-                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
-                            ->orWhere('username', 'like', '%' . $search . '%')
-                            ->orWhere('email', 'like', '%' . $search . '%')
-                            ->orWhereHas('role', function ($roleQuery) use ($search) {
-                                $roleQuery->where('name', 'like', '%' . $search . '%');
-                            });
-                    });
-                })
-                ->orderBy('created_at', 'desc')
-                ->paginate($perPage);
-
-            return response()->json([
-                'success' => true,
-                'users' => $adminUsers->items(),
-                'pagination' => [
-                    'current_page' => $adminUsers->currentPage(),
-                    'last_page' => $adminUsers->lastPage(),
-                    'per_page' => $adminUsers->perPage(),
-                    'total' => $adminUsers->total(),
-                    'from' => $adminUsers->firstItem(),
-                    'to' => $adminUsers->lastItem(),
-                    'links' => $adminUsers->links()->render()
-                ],
-                'perPage' => $perPage
-            ]);
+                'error' => true,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 

@@ -249,11 +249,9 @@
                 <h2 class="text-lg font-semibold text-gray-900">Daftar Akun</h2>
                 <div class="flex items-center gap-6">
                     <!-- Search Form -->
-                    <div class="relative">
-                        <form method="GET" action="{{ route('users-newManagement') }}" id="searchForm">
-                            <input type="hidden" name="status" value="{{ $statusFilter }}">
-                            <input type="hidden" name="per_page" value="{{ $perPage }}">
-                            <input type="text" name="search" id="searchInput" value="{{ request('search') }}"
+                    <form method="GET" action="{{ route('users-newManagement') }}" class="flex items-center gap-6">
+                        <div class="relative">
+                            <input type="text" name="search" value="{{ request('search') }}"
                                 placeholder="Cari pengguna..."
                                 class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-56">
                             <div class="absolute left-3 top-2.5">
@@ -263,31 +261,23 @@
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                        </form>
-                    </div>
+                        </div>
 
-                    <!-- Status Filter -->
-                    <form method="GET" action="{{ route('users-newManagement') }}" id="statusFilterForm">
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                        <input type="hidden" name="per_page" value="{{ $perPage }}">
+                        <!-- Status Filter -->
                         <div class="flex items-center">
-                            <label for="status" class="mr-2 text-sm font-medium text-gray-600">Status:</label>
-                            <select name="status" id="status" onchange="this.form.submit()"
+                            <label for="statusFilter" class="mr-2 text-sm font-medium text-gray-600">Status:</label>
+                            <select name="status" id="statusFilter" onchange="this.form.submit()"
                                 class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 w-36">
                                 <option value="1" {{ $statusFilter == '1' ? 'selected' : '' }}>Aktif</option>
                                 <option value="0" {{ $statusFilter == '0' ? 'selected' : '' }}>Tidak Aktif</option>
                                 <option value="all" {{ $statusFilter == 'all' ? 'selected' : '' }}>Semua</option>
                             </select>
                         </div>
-                    </form>
 
-                    <!-- Per Page Form -->
-                    <form method="GET" action="{{ route('users-newManagement') }}" id="perPageForm">
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                        <input type="hidden" name="status" value="{{ $statusFilter }}">
+                        <!-- Per Page Select -->
                         <div class="flex items-center">
-                            <label for="per_page" class="mr-2 text-sm font-medium text-gray-600">Tampilkan:</label>
-                            <select name="per_page" id="per_page" onchange="this.form.submit()"
+                            <label for="perPageSelect" class="mr-2 text-sm font-medium text-gray-600">Tampilkan:</label>
+                            <select name="per_page" id="perPageSelect" onchange="this.form.submit()"
                                 class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 w-32">
                                 <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
                                 <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
@@ -295,6 +285,10 @@
                                 <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
                             </select>
                         </div>
+
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -315,7 +309,7 @@
                             <th class="px-4 py-3">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white text-sm text-gray-700">
+                    <tbody id="usersTableBody" class="divide-y divide-gray-200 bg-white text-sm text-gray-700">
                         @foreach ($users as $user)
                             <tr class="hover:bg-gray-50/80 transition-colors duration-150">
                                 @php
@@ -803,8 +797,8 @@
             </div>
         </div>
 
-        <div class="bg-gray-50 rounded p-4">
-            <div class="px-6 py-4">
+        <div class="bg-gray-50 rounded p-4" id="paginationContainer">
+            <div class="px-6 py-4" id="paginationSection">
                 {{ $users->links() }}
             </div>
         </div>
@@ -1064,30 +1058,6 @@
                     }
                 }).showToast();
             }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const searchForm = document.getElementById('searchForm');
-            let searchTimeout;
-
-            // Fungsi untuk submit form
-            function submitSearchForm() {
-                clearTimeout(searchTimeout);
-                searchForm.submit();
-            }
-
-            // Event listener untuk input
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(submitSearchForm, 500); // Debounce 500ms
-            });
-
-            // Optional: Prevent form submission on enter to avoid page reload
-            searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitSearchForm();
-            });
         });
 
         // Toggle User Status Function
