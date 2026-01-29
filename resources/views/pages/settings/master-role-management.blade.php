@@ -19,48 +19,53 @@
         </div>
 
         <!-- Role Assignment Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div
-                class="master-role-header px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <!-- Judul tetap di kiri atas -->
-                <h3 class="text-lg font-semibold text-gray-800 w-full sm:w-auto">Daftar User Admin</h3>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Search and Filter Section -->
+            <div class="p-4 border-b border-gray-200">
+                <form id="searchForm" method="GET" action="{{ route('master-role-management') }}">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <!-- Search Input -->
+                        <div class="w-full md:w-1/3">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <input type="text" name="search" id="searchInput"
+                                    value="{{ request('search') }}"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900"
+                                    placeholder="Cari nama, username, email, atau role...">
+                            </div>
+                        </div>
 
-                <!-- Container untuk Search + Show Selector -->
-                <form method="GET" action="{{ route('master-role-management') }}" class="w-full sm:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                    <!-- Search Input -->
-                    <div class="relative w-full sm:w-auto">
-                        <input type="text" name="search" id="searchInput" placeholder="Search by name, username, email, or role..."
-                            value="{{ request('search') }}"
-                            class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <!-- Filters -->
+                        <div class="flex flex-wrap items-center gap-4">
+                            <!-- Per Page -->
+                            <div class="flex items-center">
+                                <span class="text-sm text-gray-600 mr-2">Show:</span>
+                                <select name="per_page" id="perPageSelect"
+                                    class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm bg-white text-gray-900">
+                                    <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                                    <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
+                                    <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="all" {{ $perPage === 'all' ? 'selected' : '' }}>All</option>
+                                </select>
+                            </div>
+
+                            <!-- Reset Button -->
+                            @if(request('search') || request('per_page'))
+                                <a href="{{ route('master-role-management') }}"
+                                    class="inline-flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition"
+                                    title="Reset Filter">
+                                    <i class="fas fa-undo mr-1"></i> Reset
+                                </a>
+                            @endif
+                        </div>
                     </div>
-
-                    <!-- Show selector -->
-                    <div class="flex items-center gap-2">
-                        <label for="perPageSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-                            Show:
-                        </label>
-                        <select name="per_page" id="perPageSelect" onchange="this.form.submit()"
-                            class="border border-gray-300 rounded-lg text-sm px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 w-24 md:w-32 lg:w-40">
-                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
-                            <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
-                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                            <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
-                            <option value="all" {{ $perPage === 'all' ? 'selected' : '' }}>All</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" title="Search">
-                        <i class="fas fa-search"></i>
-                    </button>
-
-                    @if(request('search') || request('per_page'))
-                        <a href="{{ route('master-role-management') }}"
-                            class="px-3 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
-                            title="Reset Filter">
-                            <i class="fas fa-undo text-sm"></i>
-                        </a>
-                    @endif
                 </form>
             </div>
 
@@ -89,14 +94,12 @@
                 </table>
             </div>
 
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50"
-                style="{{ $perPage !== 'all' && $adminUsers->hasPages() ? '' : 'display: none;' }}">
-                <div id="paginationSection" class="ml-4">
-                    @if ($perPage !== 'all' && $adminUsers->hasPages())
-                        {{ $adminUsers->links() }}
-                    @endif
+            <!-- Pagination -->
+            @if ($perPage !== 'all' && $adminUsers->hasPages())
+                <div class="bg-gray-50 rounded p-4" id="paginationContainer">
+                    {{ $adminUsers->appends(request()->input())->links() }}
                 </div>
-            </div>
+            @endif
 
         </div>
 
@@ -570,6 +573,30 @@
         console.log('=== Master Role Management Script Loaded ===');
 
         let currentUserId = null;
+
+        // Auto-search functionality with debounce
+        document.addEventListener('DOMContentLoaded', function() {
+            let searchTimeout;
+            const searchInput = document.getElementById('searchInput');
+            const perPageSelect = document.getElementById('perPageSelect');
+            const searchForm = document.getElementById('searchForm');
+
+            if (searchInput && searchForm) {
+                // Event listener untuk search input dengan debounce
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        searchForm.submit();
+                    }, 500);
+                });
+            }
+
+            if (perPageSelect && searchForm) {
+                perPageSelect.addEventListener('change', function() {
+                    searchForm.submit();
+                });
+            }
+        });
 
         // New Role Modal Functions
         function openNewRoleModal() {
