@@ -276,9 +276,9 @@
 
                         <!-- Per Page Select -->
                         <div class="flex items-center">
-                            <label for="perPageSelect" class="mr-2 text-sm font-medium text-gray-600">Tampilkan:</label>
+                            <label for="perPageSelect" class="mr-2 text-sm font-medium text-gray-600">Show:</label>
                             <select name="per_page" id="perPageSelect" onchange="this.form.submit()"
-                                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 w-32">
+                                class="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-indigo-500 w-16">
                                 <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
                                 <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
                                 <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15</option>
@@ -286,9 +286,17 @@
                             </select>
                         </div>
 
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition" title="Cari">
                             <i class="fas fa-search"></i>
                         </button>
+
+                        @if(request('search') || request('status') != '1' || request('per_page'))
+                            <a href="{{ route('users-newManagement') }}"
+                                class="px-3 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
+                                title="Reset Filter">
+                                <i class="fas fa-undo text-sm"></i>
+                            </a>
+                        @endif
                     </form>
                 </div>
             </div>

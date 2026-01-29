@@ -50,9 +50,17 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" title="Search">
                         <i class="fas fa-search"></i>
                     </button>
+
+                    @if(request('search') || request('per_page'))
+                        <a href="{{ route('master-role-management') }}"
+                            class="px-3 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
+                            title="Reset Filter">
+                            <i class="fas fa-undo text-sm"></i>
+                        </a>
+                    @endif
                 </form>
             </div>
 
