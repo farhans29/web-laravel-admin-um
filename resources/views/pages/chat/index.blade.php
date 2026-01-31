@@ -405,7 +405,10 @@
                         if (message.attachments && message.attachments.length > 0) {
                             attachmentHtml = message.attachments.map(att => {
                                 if (att.file_type && att.file_type.startsWith('image/')) {
-                                    const fileUrl = att.file_url || '/storage/' + att.file_path;
+                                    let fileUrl = att.file_url || '/storage/' + att.file_path;
+                                    if (fileUrl && !fileUrl.startsWith('/') && !fileUrl.startsWith('http')) {
+                                        fileUrl = '/' + fileUrl;
+                                    }
                                     return `<div class="mt-2">
                                         <a href="${this.escapeHtml(fileUrl)}" target="_blank">
                                             <img src="${this.escapeHtml(fileUrl)}" alt="${this.escapeHtml(att.file_name || 'Image')}"
