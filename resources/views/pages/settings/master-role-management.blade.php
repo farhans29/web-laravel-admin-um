@@ -5,15 +5,15 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Master Role Management
+                    {{ __('ui.master_role_management') }}
                 </h1>
-                <p class="text-sm text-gray-600 mt-2">Kelola role untuk setiap user admin</p>
+                <p class="text-sm text-gray-600 mt-2">{{ __('ui.manage_roles_desc') }}</p>
             </div>
             <div>
                 <button onclick="openNewRoleModal()"
                     class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 shadow-md hover:shadow-lg">
                     <i class="fas fa-plus mr-2"></i>
-                    New Role
+                    {{ __('ui.new_role') }}
                 </button>
             </div>
         </div>
@@ -37,7 +37,7 @@
                                 <input type="text" name="search" id="searchInput"
                                     value="{{ request('search') }}"
                                     class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900"
-                                    placeholder="Cari nama, username, email, atau role...">
+                                    placeholder="{{ __('ui.search_role_placeholder') }}">
                             </div>
                         </div>
 
@@ -45,7 +45,7 @@
                         <div class="flex flex-wrap items-center gap-4">
                             <!-- Per Page -->
                             <div class="flex items-center">
-                                <span class="text-sm text-gray-600 mr-2">Show:</span>
+                                <span class="text-sm text-gray-600 mr-2">{{ __('ui.show') }}:</span>
                                 <select name="per_page" id="perPageSelect"
                                     class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm bg-white text-gray-900">
                                     <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
@@ -61,7 +61,7 @@
                                 <a href="{{ route('master-role-management') }}"
                                     class="inline-flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition"
                                     title="Reset Filter">
-                                    <i class="fas fa-undo mr-1"></i> Reset
+                                    <i class="fas fa-undo mr-1"></i> {{ __('ui.reset') }}
                                 </a>
                             @endif
                         </div>
@@ -77,15 +77,15 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 No</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                User Info</th>
+                                {{ __('ui.user_info') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Email</th>
+                                {{ __('ui.email') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Current Role</th>
+                                {{ __('ui.current_role') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Sidebar Access</th>
+                                {{ __('ui.sidebar_access') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Dashboard Widgets</th>
+                                {{ __('ui.dashboard_widgets') }}</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
@@ -108,10 +108,10 @@
             <div class="flex items-start">
                 <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
                 <div>
-                    <h4 class="text-sm font-semibold text-blue-800 mb-1">Information</h4>
+                    <h4 class="text-sm font-semibold text-blue-800 mb-1">{{ __('ui.information') }}</h4>
                     <ul class="text-sm text-blue-700 space-y-1">
-                        <li>Klik <b>"<i>Access Rights</i>"</b> untuk mengelola izin menu untuk setiap pengguna</li>
-                        <li>Setiap pengguna hanya dapat memiliki satu peran yang ditetapkan</li>
+                        <li>{{ __('ui.info_access_rights') }}</li>
+                        <li>{{ __('ui.info_one_role') }}</li>
                     </ul>
                 </div>
             </div>
@@ -123,7 +123,7 @@
         <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-md shadow-lg rounded-md bg-white">
             <div class="flex justify-between items-center pb-3 border-b">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Create New Role
+                    {{ __('ui.create_new_role') }}
                 </h3>
                 <button onclick="closeNewRoleModal()" class="text-gray-400 hover:text-gray-500 transition duration-150">
                     <i class="fas fa-times text-xl"></i>

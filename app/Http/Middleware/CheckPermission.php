@@ -35,6 +35,7 @@ class CheckPermission
             'logout',
             'user.password.update',
             'user.activity',
+            'user.locale.update',
             'room.updateStatus',
         ];
 

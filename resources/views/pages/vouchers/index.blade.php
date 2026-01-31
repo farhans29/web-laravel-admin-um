@@ -4,7 +4,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1
                 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400">
-                Master Vouchers
+                {{ __('ui.master_vouchers') }}
             </h1>
             <div class="mt-4 md:mt-0">
                 <button
@@ -15,7 +15,7 @@
                             d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                             clip-rule="evenodd" />
                     </svg>
-                    Tambah Voucher
+                    {{ __('ui.add_voucher') }}
                 </button>
             </div>
         </div>
@@ -26,22 +26,22 @@
                 <!-- Search Input -->
                 <div>
                     <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Cari Voucher
+                        {{ __('ui.search_voucher') }}
                     </label>
-                    <input type="text" id="search" placeholder="Cari kode atau nama voucher..."
+                    <input type="text" id="search" placeholder="{{ __('ui.search_voucher_placeholder') }}"
                         class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                 </div>
 
                 <!-- Status Filter -->
                 <div>
                     <label for="status_filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Status
+                        {{ __('ui.status') }}
                     </label>
                     <select id="status_filter"
                         class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="">Semua Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="">{{ __('ui.all_status') }}</option>
+                        <option value="active">{{ __('ui.active') }}</option>
+                        <option value="inactive">{{ __('ui.inactive') }}</option>
                     </select>
                 </div>
 
@@ -50,7 +50,7 @@
                     <div class="flex items-center justify-end gap-3">
                         <label for="per_page"
                             class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                            Tampilkan :
+                            {{ __('ui.show') }} :
                         </label>
                         <select id="per_page"
                             class="min-w-[120px] border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
@@ -74,7 +74,7 @@
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h3 id="modalTitle" class="text-xl font-bold text-gray-800 dark:text-white">Tambah Voucher</h3>
+                    <h3 id="modalTitle" class="text-xl font-bold text-gray-800 dark:text-white">{{ __('ui.add_voucher') }}</h3>
                     <button type="button" onclick="closeModal()"
                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,8 +91,8 @@
                         <!-- Code -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Kode Voucher <span class="text-red-500">*</span>
-                                <span class="text-xs text-gray-500">(8-12 karakter)</span>
+                                {{ __('ui.voucher_code') }} <span class="text-red-500">*</span>
+                                <span class="text-xs text-gray-500">{{ __('ui.voucher_code_chars') }}</span>
                             </label>
                             <input type="text" id="code" name="code" required minlength="8" maxlength="12"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase"
@@ -102,7 +102,7 @@
                         <!-- Name -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Nama Voucher <span class="text-red-500">*</span>
+                                {{ __('ui.voucher_name') }} <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="name" name="name" required
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -112,7 +112,7 @@
                         <!-- Description -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Deskripsi
+                                {{ __('ui.description') }}
                             </label>
                             <textarea id="description" name="description" rows="2"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -122,7 +122,7 @@
                         <!-- Discount Percentage -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Diskon (%) <span class="text-red-500">*</span>
+                                {{ __('ui.discount_percent') }} <span class="text-red-500">*</span>
                             </label>
                             <input type="number" id="discount_percentage" name="discount_percentage" required
                                 min="0" max="100" step="0.01"
@@ -133,7 +133,7 @@
                         <!-- Max Discount Amount -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Maksimal Diskon (Rp) <span class="text-red-500">*</span>
+                                {{ __('ui.max_discount') }} <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="max_discount_amount" name="max_discount_amount" required
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white currency-input"
@@ -144,7 +144,7 @@
                         <!-- Max Total Usage -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Maksimal Penggunaan Total <span class="text-gray-500 text-xs">(0 = unlimited)</span>
+                                {{ __('ui.max_total_usage') }} <span class="text-gray-500 text-xs">{{ __('ui.unlimited') }}</span>
                             </label>
                             <input type="number" id="max_total_usage" name="max_total_usage" min="0"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"

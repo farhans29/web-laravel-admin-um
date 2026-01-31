@@ -32,14 +32,14 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
                             <h1 class="text-2xl md:text-3xl text-white font-bold mb-1 drop-shadow-lg">
-                                DASHBOARD
+                                {{ __('ui.dashboard') }}
                                 @if (Auth::user()->isSiteRole() && Auth::user()->property)
                                     - {{ Auth::user()->property->name ?? 'Unknown' }}
                                 @else
                                     {{ Auth::user()->role->name ?? 'Ulin Mahoni' }}
                                 @endif
                             </h1>
-                            <p class="text-blue-100 font-medium drop-shadow">Selamat datang kembali,
+                            <p class="text-blue-100 font-medium drop-shadow">{{ __('ui.welcome_back') }}
                                 {{ Auth::user()->first_name }}
                                 {{ Auth::user()->last_name }}
                                 @if (Auth::user()->role)
@@ -63,7 +63,7 @@
                                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
                                         clip-rule="evenodd" />
                                 </svg>
-                                <span class="text-white text-sm font-medium">Terakhir diperbarui:
+                                <span class="text-white text-sm font-medium">{{ __('ui.last_updated') }}
                                     {{ now()->format('d M, Y H:i') }}</span>
                             </div>
                         </div>
@@ -104,10 +104,10 @@
                                         <div class="flex-1">
                                             <p
                                                 class="text-purple-100 text-xs font-semibold uppercase tracking-wide mb-2">
-                                                Booking Hari Ini</p>
+                                                {{ __('ui.booking_today') }}</p>
                                             <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
                                                 {{ $stats['today'] ?? 0 }}</h3>
-                                            <p class="text-purple-200 text-sm">Kedatangan</p>
+                                            <p class="text-purple-200 text-sm">{{ __('ui.arrivals') }}</p>
                                         </div>
                                     </div>
                                 </div>

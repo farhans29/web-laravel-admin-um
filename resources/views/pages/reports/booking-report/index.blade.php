@@ -5,9 +5,9 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Laporan Pemesanan
+                    {{ __('ui.booking_report') }}
                 </h1>
-                <p class="text-gray-600 mt-1">Lihat dan ekspor laporan pemesanan dengan filter</p>
+                <p class="text-gray-600 mt-1">{{ __('ui.booking_report') }}</p>
             </div>
             <div class="mt-4 md:mt-0 flex gap-2">
                 <button onclick="printReport()"
@@ -26,7 +26,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Ekspor ke Excel
+                    {{ __('ui.export_excel') }}
                 </button>
             </div>
         </div>
@@ -37,7 +37,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     <!-- Search -->
                     <div class="relative">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cari</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.search') }}</label>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-9"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -49,9 +49,9 @@
 
                     <!-- Date Range -->
                     <div class="lg:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Rentang Tanggal Pemesanan</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.select_date_range') }}</label>
                         <div class="relative">
-                            <input type="text" id="date_picker" placeholder="Pilih rentang tanggal" data-input
+                            <input type="text" id="date_picker" placeholder="{{ __('ui.select_date_range') }}" data-input
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                             <input type="hidden" id="start_date" name="start_date" value="{{ $startDate }}">
                             <input type="hidden" id="end_date" name="end_date" value="{{ $endDate }}">
@@ -61,10 +61,10 @@
                     <!-- Property Filter (only for super admin and HO roles) -->
                     @if(auth()->user()->isSuperAdmin() || auth()->user()->isHORole())
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.property') }}</label>
                         <select id="property_id" name="property_id"
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Semua Alamat</option>
+                            <option value="">{{ __('ui.all_properties') }}</option>
                             @foreach ($properties as $property)
                                 <option value="{{ $property->idrec }}"
                                     {{ $propertyId == $property->idrec ? 'selected' : '' }}>
@@ -77,22 +77,22 @@
 
                     <!-- Status Filter -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.status') }}</label>
                         <select id="status" name="status"
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Semua Status</option>
-                            <option value="pending" {{ $status == 'pending' ? 'selected' : '' }}>Menunggu Pembayaran
+                            <option value="">{{ __('ui.all_status') }}</option>
+                            <option value="pending" {{ $status == 'pending' ? 'selected' : '' }}>{{ __('ui.pending_payment') }}
                             </option>
-                            <option value="waiting" {{ $status == 'waiting' ? 'selected' : '' }}>Menunggu Konfirmasi
+                            <option value="waiting" {{ $status == 'waiting' ? 'selected' : '' }}>{{ __('ui.waiting_confirmation') }}
                             </option>
                             <option value="waiting-check-in" {{ $status == 'waiting-check-in' ? 'selected' : '' }}>
-                                Menunggu Check-In</option>
-                            <option value="checked-in" {{ $status == 'checked-in' ? 'selected' : '' }}>Sudah Check-In
+                                {{ __('ui.ready_for_checkin') }}</option>
+                            <option value="checked-in" {{ $status == 'checked-in' ? 'selected' : '' }}>{{ __('ui.checked_in') }}
                             </option>
-                            <option value="checked-out" {{ $status == 'checked-out' ? 'selected' : '' }}>Sudah Check-Out
+                            <option value="checked-out" {{ $status == 'checked-out' ? 'selected' : '' }}>{{ __('ui.checked_out') }}
                             </option>
-                            <option value="canceled" {{ $status == 'canceled' ? 'selected' : '' }}>Dibatalkan</option>
-                            <option value="expired" {{ $status == 'expired' ? 'selected' : '' }}>Kadaluarsa</option>
+                            <option value="canceled" {{ $status == 'canceled' ? 'selected' : '' }}>{{ __('ui.canceled') }}</option>
+                            <option value="expired" {{ $status == 'expired' ? 'selected' : '' }}>{{ __('ui.expired') }}</option>
                         </select>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                 <!-- Per Page -->
                 <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
                     <div class="flex items-center gap-2">
-                        <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
+                        <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                         <select name="per_page" id="per_page"
                             class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                             <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
@@ -257,7 +257,7 @@
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="10" class="px-4 py-8 text-center text-red-500">
-                                Error loading data. Please try again.
+                                {{ __('ui.error_loading') }}
                             </td>
                         </tr>
                     `;

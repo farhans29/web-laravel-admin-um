@@ -6,9 +6,9 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Refund Pembayaran
+                    {{ __('ui.refunds') }}
                 </h1>
-                <p class="text-gray-600 mt-2">Kelola permintaan refund pembayaran dari pelanggan</p>
+                <p class="text-gray-600 mt-2">{{ __('ui.manage_refunds_desc') }}</p>
             </div>
         </div>
 
@@ -26,24 +26,23 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" id="search" name="search" placeholder="ID Pesanan atau Nama Tamu"
+                        <input type="text" id="search" name="search" placeholder="{{ __('ui.order_id_or_guest_payment') }}"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value="{{ request('search') }}">
                     </div>
 
                     <!-- Status -->
                     <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md">
-                        <option value="all">All Status</option>
-                        <option value="pending" {{ request('status') == 'refund' ? 'selected' : '' }}>Refund</option>
-                        <option value="waiting" {{ request('status') == 'refunded' ? 'selected' : '' }}>Refunded
-                        </option>
+                        <option value="all">{{ __('ui.all_status') }}</option>
+                        <option value="pending" {{ request('status') == 'refund' ? 'selected' : '' }}>{{ __('ui.refund') }}</option>
+                        <option value="waiting" {{ request('status') == 'refunded' ? 'selected' : '' }}>{{ __('ui.refunded') }}</option>
                     </select>
 
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-10">
                                 <input type="text" id="date_picker"
-                                    placeholder="Pilih rentang tanggal (Maks 30 hari)" data-input
+                                    placeholder="{{ __('ui.select_date_range') }}" data-input
                                     class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
                                     value="{{ request('start_date') }}">
@@ -55,7 +54,7 @@
                     <!-- Tampilkan Per Halaman (rata kanan) -->
                     <div class="md:col-span-1 flex justify-end items-end">
                         <div class="flex items-center gap-2">
-                            <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
+                            <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                             <select name="per_page" id="per_page"
                                 class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
@@ -76,25 +75,25 @@
                         <tr>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                ID Pesanan</th>
+                                {{ __('ui.order_id') }}</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nama Tamu</th>
+                                {{ __('ui.guest_name') }}</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Properti</th>
+                                {{ __('ui.property') }}</th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Jumlah Refund</th>
+                                {{ __('ui.refund_amount') }}</th>
                             <th scope="col"
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Tanggal Refund</th>
+                                {{ __('ui.refund_date') }}</th>
                             <th scope="col"
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th>
+                                {{ __('ui.status') }}</th>
                             <th scope="col"
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Aksi</th>
+                                {{ __('ui.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -122,7 +121,7 @@
                                         {{ number_format($refund->transaction->grandtotal_price ?? 0, 0, ',', '.') }}
                                     </div>
                                     <div class="text-xs text-gray-500">{{ $refund->transaction->booking_days ?? 0 }}
-                                        hari</div>
+                                        {{ __('ui.days') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                     {{ \Carbon\Carbon::parse($refund->refund_date)->format('d M Y') }}
@@ -152,7 +151,7 @@
                                             <button type="button"
                                                 class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
                                                 @click="openModal('{{ $refund->id_booking }}')"
-                                                title="Konfirmasi Pengembalian Dana">
+                                                title="{{ __('ui.confirm_refund') }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2.5" stroke-linecap="round"
@@ -160,7 +159,7 @@
                                                     <path d="M20 6L9 17l-5-5" />
                                                     <circle cx="12" cy="12" r="10" />
                                                 </svg>
-                                                <span class="text-sm font-semibold">Refund</span>
+                                                <span class="text-sm font-semibold">{{ __('ui.refund') }}</span>
                                             </button>
 
                                             <!-- Modal -->
@@ -189,7 +188,7 @@
                                                     <div
                                                         class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
                                                         <h3 class="text-lg font-semibold text-gray-800">
-                                                            Bukti Pengembalian Dana #{{ $refund->id_booking }}<span x-text="orderId"></span>
+                                                            {{ __('ui.refund_proof') }} #{{ $refund->id_booking }}<span x-text="orderId"></span>
                                                         </h3>
                                                         <button @click="closeModal"
                                                             class="text-gray-500 hover:text-gray-700">
@@ -216,7 +215,7 @@
                                                             <div class="mb-6">
                                                                 <label
                                                                     class="block text-sm font-medium text-gray-700 mb-2">
-                                                                    Upload Bukti Refund
+                                                                    {{ __('ui.upload_refund_proof') }}
                                                                 </label>
 
                                                                 <!-- Upload Area -->
@@ -238,14 +237,14 @@
                                                                             class="flex text-sm text-gray-600 justify-center">
                                                                             <label :for="'refund_image-' + orderId"
                                                                                 class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                                                                <span>Upload foto</span>
+                                                                                <span>{{ __('ui.upload_photo') }}</span>
                                                                                 <input :id="'refund_image-' + orderId"
                                                                                     name="refund_image" type="file"
                                                                                     accept="image/*"
                                                                                     @change="handleFileSelect($event)"
                                                                                     class="sr-only">
                                                                             </label>
-                                                                            <p class="pl-1">atau drag and drop</p>
+                                                                            <p class="pl-1">{{ __('ui.or_drag_drop') }}</p>
                                                                         </div>
                                                                         <p class="text-xs text-gray-500">PNG, JPG, JPEG
                                                                             up to 5MB</p>
@@ -295,7 +294,7 @@
                                                                             class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                                                                             <h4
                                                                                 class="text-sm font-medium text-gray-700">
-                                                                                Preview</h4>
+                                                                                {{ __('ui.preview') }}</h4>
                                                                         </div>
                                                                         <div class="p-4 bg-white">
                                                                             <div class="flex justify-center">
@@ -314,8 +313,7 @@
                                                                                             stroke-width="2"
                                                                                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                                                     </svg>
-                                                                                    <p class="mt-2 text-sm">Gagal
-                                                                                        memuat preview gambar</p>
+                                                                                    <p class="mt-2 text-sm">{{ __('ui.failed_load_preview') }}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -329,13 +327,13 @@
                                                     <div
                                                         class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
                                                         <div class="text-sm text-gray-500">
-                                                            <span>Tekan ESC atau klik di luar untuk menutup</span>
+                                                            <span>{{ __('ui.press_esc_to_close') }}</span>
                                                         </div>
                                                         <div class="flex space-x-3">
                                                             <button type="button"
                                                                 class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
                                                                 @click="submitRefund" :disabled="!selectedFile">
-                                                                <span x-show="!isLoading">Konfirmasi Refund</span>
+                                                                <span x-show="!isLoading">{{ __('ui.confirm_refund') }}</span>
                                                                 <span x-show="isLoading" class="flex items-center">
                                                                     <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
                                                                         xmlns="http://www.w3.org/2000/svg"
@@ -348,7 +346,7 @@
                                                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                                                         </path>
                                                                     </svg>
-                                                                    Memproses...
+                                                                    {{ __('ui.processing') }}
                                                                 </span>
                                                             </button>
                                                         </div>
@@ -368,8 +366,8 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        <p class="text-lg font-medium text-gray-600">Belum ada permintaan refund</p>
-                                        <p class="text-gray-500 mt-1">Semua permintaan refund akan muncul di sini</p>
+                                        <p class="text-lg font-medium text-gray-600">{{ __('ui.no_refund_requests') }}</p>
+                                        <p class="text-gray-500 mt-1">{{ __('ui.refund_requests_appear_here') }}</p>
                                     </div>
                                 </td>
                             </tr>
@@ -449,7 +447,7 @@
                     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                     if (!allowedTypes.includes(file.type)) {
                         this.showAlert('error',
-                            'Tipe file tidak didukung. Harap upload file JPEG, PNG, atau JPG.');
+                            '{{ __('ui.unsupported_file_type') }}');
                         this.selectedFile = null;
                         this.imagePreviewUrl = null;
                         return;
@@ -458,7 +456,7 @@
                     // Validasi ukuran file (max 5MB)
                     const maxSize = 5 * 1024 * 1024;
                     if (file.size > maxSize) {
-                        this.showAlert('error', 'Ukuran file terlalu besar. Maksimal 5MB.');
+                        this.showAlert('error', '{{ __('ui.file_too_large') }}');
                         this.selectedFile = null;
                         this.imagePreviewUrl = null;
                         return;
@@ -493,12 +491,12 @@
 
                 async submitRefund() {
                     if (!this.selectedFile) {
-                        this.showAlert('error', 'Harap pilih file bukti refund terlebih dahulu.');
+                        this.showAlert('error', '{{ __('ui.select_refund_file') }}');
                         return;
                     }
 
                     if (!this.idBooking) {
-                        this.showAlert('error', 'ID Booking tidak ditemukan.');
+                        this.showAlert('error', '{{ __('ui.booking_id_not_found') }}');
                         return;
                     }
 
@@ -526,21 +524,20 @@
 
                         if (response.ok) {
                             this.showAlert('success', data.message ||
-                                'Refund berhasil dikonfirmasi!');
+                                '{{ __('ui.refund_confirmed_success') }}');
                             this.closeModal();
 
-                            // Reload halaman setelah 2 detik
                             setTimeout(() => {
                                 window.location.reload();
                             }, 2000);
                         } else {
                             throw new Error(data.message ||
-                                'Terjadi kesalahan saat memproses refund.');
+                                '{{ __('ui.error_processing_refund') }}');
                         }
                     } catch (error) {
                         console.error('Error:', error);
                         this.showAlert('error', error.message ||
-                            'Terjadi kesalahan saat memproses refund.');
+                            '{{ __('ui.error_processing_refund') }}');
                     } finally {
                         this.isLoading = false;
                     }

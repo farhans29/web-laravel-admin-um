@@ -67,7 +67,7 @@
                         <span class="inline-block transition-all duration-300"
                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                             :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                'opacity-0 max-w-0'">Management</span>
+                                'opacity-0 max-w-0'">{{ __('ui.sidebar_management') }}</span>
                     </h3>
                     <ul class="space-y-1">
                         <!-- Dashboard -->
@@ -83,12 +83,12 @@
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                            'lg:opacity-0 lg:max-w-0'">Dashboard</span>
+                                            'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_dashboard') }}</span>
                                     <!-- Tooltip for collapsed state -->
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Dashboard
+                                        {{ __('ui.sidebar_dashboard') }}
                                     </div>
                                 </a>
                             </li>
@@ -127,7 +127,7 @@
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
                                                 'lg:opacity-0 lg:max-w-0'">
-                                            Bookings
+                                            {{ __('ui.sidebar_bookings') }}
                                         </span>
                                     </div>
 
@@ -149,7 +149,7 @@
                                     <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Bookings
+                                        {{ __('ui.sidebar_bookings') }}
                                     </div>
                                 </a>
 
@@ -164,8 +164,7 @@
                                             <li>
                                                 <a href="{{ route('bookings.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('bookings.index')) bg-indigo-900 @endif">
-                                                    <span class="text-xs transition-all duration-300 hover:translate-x-1">All
-                                                        Bookings</span>
+                                                    <span class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_all_bookings') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -176,7 +175,7 @@
                                                 <a href="{{ route('pendings.index') }}"
                                                     class="flex items-center justify-between px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('pendings.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Pending</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_pending') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -187,8 +186,7 @@
                                                 <a href="{{ route('newReserv.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('newReserv.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Confirmed
-                                                        Bookings</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_confirmed_bookings') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -199,7 +197,7 @@
                                                 <a href="{{ route('checkin.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('checkin.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Checked-ins</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_checked_ins') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -210,7 +208,7 @@
                                                 <a href="{{ route('checkout.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('checkout.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Checked-outs</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_checked_outs') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -221,7 +219,7 @@
                                                 <a href="{{ route('completed.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('completed.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Completed</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_completed') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -232,8 +230,7 @@
                                                 <a href="{{ route('changerooom.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('changerooom.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Change
-                                                        Room</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_change_room') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -264,7 +261,7 @@
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
                                                 'lg:opacity-0 lg:max-w-0'">
-                                            Properties
+                                            {{ __('ui.sidebar_properties') }}
                                         </span>
                                     </div>
 
@@ -286,7 +283,7 @@
                                     <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Properties
+                                        {{ __('ui.sidebar_properties') }}
                                     </div>
                                 </a>
 
@@ -302,8 +299,7 @@
                                                 <a href="{{ route('properties.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('properties.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Master
-                                                        Properties</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_master_properties') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -314,8 +310,7 @@
                                                 <a href="{{ route('facilityProperty.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('facilityProperty.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Master
-                                                        Facilities</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_master_facilities') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -346,7 +341,7 @@
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
                                                 'lg:opacity-0 lg:max-w-0'">
-                                            Rooms/Units
+                                            {{ __('ui.sidebar_rooms_units') }}
                                         </span>
                                     </div>
 
@@ -368,7 +363,7 @@
                                     <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Rooms/Units
+                                        {{ __('ui.sidebar_rooms_units') }}
                                     </div>
                                 </a>
 
@@ -384,8 +379,7 @@
                                                 <a href="{{ route('rooms.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('rooms.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Master
-                                                        Rooms</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_master_rooms') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -396,8 +390,7 @@
                                                 <a href="{{ route('facilityRooms.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('facilityRooms.index')) bg-indigo-900 @endif">
                                                     <span
-                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Master
-                                                        Facilities</span>
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_master_facilities') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -420,12 +413,12 @@
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                            'lg:opacity-0 lg:max-w-0'">Customers</span>
+                                            'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_customers') }}</span>
                                     <!-- Tooltip for collapsed state -->
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Customers
+                                        {{ __('ui.sidebar_customers') }}
                                     </div>
                                 </a>
                             </li>
@@ -446,13 +439,12 @@
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                            'lg:opacity-0 lg:max-w-0'">Room
-                                        Availability</span>
+                                            'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_room_availability') }}</span>
 
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Room Availability
+                                        {{ __('ui.sidebar_room_availability') }}
                                     </div>
                                 </a>
                             </li>
@@ -471,12 +463,12 @@
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                            'lg:opacity-0 lg:max-w-0'">Vouchers</span>
+                                            'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_vouchers') }}</span>
 
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Vouchers
+                                        {{ __('ui.sidebar_vouchers') }}
                                     </div>
                                 </a>
                             </li>
@@ -495,12 +487,12 @@
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                            'lg:opacity-0 lg:max-w-0'">Promo Banners</span>
+                                            'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_promo_banners') }}</span>
 
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Promo Banners
+                                        {{ __('ui.sidebar_promo_banners') }}
                                     </div>
                                 </a>
                             </li>
@@ -561,7 +553,7 @@
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
                                             'lg:opacity-0 lg:max-w-0'">
-                                        Chat
+                                        {{ __('ui.sidebar_chat') }}
                                         <!-- Unread Badge (expanded state) -->
                                         <span x-show="unreadCount > 0"
                                             class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-red-500 rounded-full min-w-[20px]"
@@ -572,7 +564,7 @@
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 flex items-center gap-2"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Chat
+                                        {{ __('ui.sidebar_chat') }}
                                         <span x-show="unreadCount > 0"
                                             class="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold text-white bg-red-500 rounded-full min-w-[18px]"
                                             x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
@@ -590,7 +582,7 @@
                             <span x-show="!sidebarExpanded && window.innerWidth >= 1024" class="text-center w-6"
                                 aria-hidden="true">•••</span>
                             <span x-show="sidebarExpanded || window.innerWidth < 1024"
-                                class="transition-opacity duration-200">Financial</span>
+                                class="transition-opacity duration-200">{{ __('ui.sidebar_financial') }}</span>
                         </h3>
                         <ul class="space-y-1">
                             <!-- Payments -->
@@ -606,12 +598,12 @@
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                                'lg:opacity-0 lg:max-w-0'">Payments</span>
+                                                'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_payments') }}</span>
                                         <!-- Tooltip for collapsed state -->
                                         <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                            Payments
+                                            {{ __('ui.sidebar_payments') }}
                                         </div>
                                     </a>
                                 </li>
@@ -629,12 +621,12 @@
                                     <span class="whitespace-nowrap transition-all duration-300"
                                         style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                            'lg:opacity-0 lg:max-w-0'">Refunds</span>
+                                            'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_refunds') }}</span>
                                     <!-- Tooltip for collapsed state -->
                                     <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                         style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                         :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                        Refunds
+                                        {{ __('ui.sidebar_refunds') }}
                                     </div>
                                 </a>
                             </li>
@@ -664,7 +656,7 @@
                                                 style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                                 :class="sidebarExpanded || window.innerWidth < 1024 ?
                                                     'opacity-100 max-w-[200px]' : 'lg:opacity-0 lg:max-w-0'">
-                                                Reports
+                                                {{ __('ui.sidebar_reports') }}
                                             </span>
                                         </div>
 
@@ -686,7 +678,7 @@
                                         <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                            Reports
+                                            {{ __('ui.sidebar_reports') }}
                                         </div>
                                     </a>
 
@@ -702,8 +694,7 @@
                                                     <a href="{{ route('reports.booking.index') }}"
                                                         class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.booking.*')) bg-indigo-900 @endif">
                                                         <span
-                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Booking
-                                                            Report</span>
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_booking_report') }}</span>
                                                     </a>
                                                 </li>
                                             @endcan
@@ -714,8 +705,7 @@
                                                     <a href="{{ route('reports.payment.index') }}"
                                                         class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.payment.*')) bg-indigo-900 @endif">
                                                         <span
-                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Payment
-                                                            Report</span>
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_payment_report') }}</span>
                                                     </a>
                                                 </li>
                                             @endcan
@@ -726,8 +716,7 @@
                                                     <a href="{{ route('reports.rented-rooms.index') }}"
                                                         class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.rented-rooms.*')) bg-indigo-900 @endif">
                                                         <span
-                                                            class="text-xs transition-all duration-300 hover:translate-x-1">Rented
-                                                            Rooms Report</span>
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_rented_rooms_report') }}</span>
                                                     </a>
                                                 </li>
                                             @endcan
@@ -748,7 +737,7 @@
                             <span x-show="!sidebarExpanded && window.innerWidth >= 1024" class="text-center w-6"
                                 aria-hidden="true">•••</span>
                             <span x-show="sidebarExpanded || window.innerWidth < 1024"
-                                class="transition-opacity duration-200">Settings</span>
+                                class="transition-opacity duration-200">{{ __('ui.sidebar_settings') }}</span>
                         </h3>
                         <ul class="space-y-1">
                             <!-- Users -->
@@ -764,12 +753,12 @@
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                                'lg:opacity-0 lg:max-w-0'">Users</span>
+                                                'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_users') }}</span>
                                         <!-- Tooltip for collapsed state -->
                                         <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                            Users
+                                            {{ __('ui.sidebar_users') }}
                                         </div>
                                     </a>
                                 </li>
@@ -793,13 +782,12 @@
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                                'lg:opacity-0 lg:max-w-0'">Role
-                                            &amp; Permission</span>
+                                                'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_role_permission') }}</span>
                                         <!-- Tooltip for collapsed state -->
                                         <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                            Role &amp; Permission
+                                            {{ __('ui.sidebar_role_permission') }}
                                         </div>
                                     </a>
                                 </li>
@@ -820,12 +808,12 @@
                                         <span class="whitespace-nowrap transition-all duration-300"
                                             style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                                'lg:opacity-0 lg:max-w-0'">Settings</span>
+                                                'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_settings') }}</span>
                                         <!-- Tooltip for collapsed state -->
                                         <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
-                                            Settings
+                                            {{ __('ui.sidebar_settings') }}
                                         </div>
                                     </a>
                                 </li>

@@ -29,7 +29,7 @@
             <li>
                 <a class="font-medium text-sm text-violet-500 hover:text-violet-600 dark:hover:text-violet-400 flex items-center py-1 px-3"
                     href="{{ route('profile.show') }}" @click="open = false" @focus="open = true"
-                    @focusout="open = false">Settings</a>
+                    @focusout="open = false">{{ __('ui.settings') }}</a>
             </li>
             <li>
                 <form method="POST" action="{{ route('logout') }}" x-data="{ submitting: false }">
@@ -38,7 +38,7 @@
                         href="{{ route('logout') }}"
                         @click.prevent="if (!submitting) { submitting = true; $root.submit(); }" @focus="open = true"
                         @focusout="open = false">
-                        {{ __('Sign Out') }}
+                        {{ __('ui.sign_out') }}
                     </a>
                 </form>
             </li>
