@@ -403,9 +403,9 @@ class ChatController extends Controller
             $file = $request->file('image');
             $filename = 'chat_img_' . $message->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-            // Store in public/chat-attachments/{conversation_id}/images/
+            // Store in public/chat-attachments/{conversation_id}/
             $path = $file->storeAs(
-                "chat-attachments/{$conversation->id}/images",
+                "chat-attachments/{$conversation->id}",
                 $filename,
                 'public'
             );
