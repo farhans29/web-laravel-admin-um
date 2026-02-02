@@ -73,7 +73,6 @@
         </div>
     </div>
 
-    <script src="{{ asset('js/date-filter-persistence.js') }}"></script>
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('checkOutModal', (orderId) => ({
@@ -361,14 +360,32 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Flatpickr - no default dates, disable persistence to start fresh
-            const datePicker = DateFilterPersistence.initFlatpickr('checkin', {
-                disablePersistence: true,
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            const datePicker = flatpickr("#date_picker", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j M Y",
+                allowInput: true,
+                static: true,
+                monthSelectorType: 'static',
                 onChange: function(selectedDates, dateStr, instance) {
-                    fetchFilteredBookings();
+                    if (selectedDates.length > 0) {
+                        document.getElementById('start_date').value = formatDate(selectedDates[0]);
+                        document.getElementById('end_date').value = formatDate(selectedDates[1] || selectedDates[0]);
+                        fetchFilteredBookings();
+                    }
                 },
                 onClose: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 0) {
+                        document.getElementById('start_date').value = '';
+                        document.getElementById('end_date').value = '';
                         fetchFilteredBookings();
                     }
                 }
