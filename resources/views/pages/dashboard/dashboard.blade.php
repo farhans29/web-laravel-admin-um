@@ -660,7 +660,7 @@
                                                     {{ $occupied['guest_name'] }}
                                                 </h4>
                                                 <p class="text-sm text-gray-600">{{ $occupied['room_name'] }} •
-                                                    {{ $occupied['room_type'] }}</p>
+                                                    {{ $occupied['room_number'] }}</p>
                                                 <p class="text-xs text-gray-500">{{ $occupied['property_name'] }}
                                                 </p>
                                             </div>
