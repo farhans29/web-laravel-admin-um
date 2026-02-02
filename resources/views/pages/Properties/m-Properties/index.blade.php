@@ -4,7 +4,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1
                 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400">
-                Manajemen Properti
+                {{ __('ui.property_management') }}
             </h1>
             <div class="mt-4 md:mt-0">
                 {{-- New Input Property --}}
@@ -19,7 +19,7 @@
                                 d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                                 clip-rule="evenodd" />
                         </svg>
-                        Tambah Properti
+                        {{ __('ui.add_property') }}
                     </button>
 
                     <!-- Modal backdrop -->
@@ -47,12 +47,12 @@
                             <div
                                 class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
                                 <div class="flex justify-between items-center mb-4">
-                                    <div class="font-bold text-xl text-gray-800 dark:text-white">Tambahkan Properti
+                                    <div class="font-bold text-xl text-gray-800 dark:text-white">{{ __('ui.add_property') }}
                                     </div>
                                     <button type="button"
                                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
                                         @click="modalOpenDetail = false">
-                                        <div class="sr-only">Close</div>
+                                        <div class="sr-only">{{ __('ui.close') }}</div>
                                         <svg class="w-6 h-6 fill-current">
                                             <path
                                                 d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
@@ -79,7 +79,7 @@
                                             <p class="font-medium transition-colors duration-300"
                                                 :class="step >= 1 ? 'text-blue-600 dark:text-blue-400' :
                                                     'text-gray-500 dark:text-gray-400'">
-                                                Informasi Dasar
+                                                {{ __('ui.basic_information') }}
                                             </p>
                                         </div>
                                     </div>
@@ -105,7 +105,7 @@
                                             <p class="font-medium transition-colors duration-300"
                                                 :class="step >= 2 ? 'text-blue-600 dark:text-blue-400' :
                                                     'text-gray-500 dark:text-gray-400'">
-                                                Detail Lokasi</p>
+                                                {{ __('ui.location_details') }}</p>
                                         </div>
                                     </div>
 
@@ -130,7 +130,7 @@
                                             <p class="font-medium transition-colors duration-300"
                                                 :class="step >= 3 ? 'text-blue-600 dark:text-blue-400' :
                                                     'text-gray-500 dark:text-gray-400'">
-                                                Fasilitas</p>
+                                                {{ __('ui.facilities') }}</p>
                                         </div>
                                     </div>
 
@@ -149,7 +149,7 @@
                                             <p class="font-medium transition-colors duration-300"
                                                 :class="step >= 4 ? 'text-blue-600 dark:text-blue-400' :
                                                     'text-gray-500 dark:text-gray-400'">
-                                                Foto</p>
+                                                {{ __('ui.photos') }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -172,12 +172,12 @@
                                                 <div class="col-span-10">
                                                     <label for="property_name"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        Nama Properti <span class="text-red-500">*</span>
+                                                        {{ __('ui.property_name') }} <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="property_name" name="property_name"
                                                         required
                                                         class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                        placeholder="Masukkan nama properti">
+                                                        placeholder="{{ __('ui.enter_property_name') }}">
                                                 </div>
 
                                                 <!-- Initial -->
@@ -193,8 +193,7 @@
                                                             placeholder="ABC"
                                                             oninput="this.value = this.value.toUpperCase()">
                                                     </div>
-                                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Maks. 3
-                                                        karakter</p>
+                                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('ui.max_3_chars') }}</p>
                                                 </div>
                                             </div>
 
@@ -202,7 +201,7 @@
                                             <div>
                                                 <label
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                                                    Jenis Properti <span class="text-red-500">*</span>
+                                                    {{ __('ui.property_type') }} <span class="text-red-500">*</span>
                                                 </label>
                                                 <div class="grid grid-cols-2 gap-4" x-data="{
                                                     types: [
@@ -230,11 +229,11 @@
                                             <div>
                                                 <label for="description"
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                    Deskripsi <span class="text-red-500">*</span>
+                                                    {{ __('ui.description') }} <span class="text-red-500">*</span>
                                                 </label>
                                                 <textarea id="description" name="description" rows="4" required
                                                     class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                    placeholder="Deskripsikan properti Anda..."></textarea>
+                                                    placeholder="{{ __('ui.describe_your_property') }}"></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -247,13 +246,13 @@
                                             <div class="relative">
                                                 <label for="full_address"
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                    Alamat Lengkap <span class="text-red-500">*</span>
-                                                    <span class="text-xs font-normal text-gray-500 ml-2">(Ketik untuk mencari alamat)</span>
+                                                    {{ __('ui.full_address') }} <span class="text-red-500">*</span>
+                                                    <span class="text-xs font-normal text-gray-500 ml-2">({{ __('ui.type_to_search_address') }})</span>
                                                 </label>
                                                 <div class="relative">
                                                     <textarea id="full_address" name="full_address" rows="3" required
                                                         class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                        placeholder="Masukkan alamat lengkap properti"
+                                                        placeholder="{{ __('ui.enter_full_address') }}"
                                                         @input="searchAddress($event.target.value)"
                                                         @focus="showAddressSuggestions = addressSuggestions.length > 0"
                                                         @click.outside="showAddressSuggestions = false"></textarea>
@@ -292,11 +291,9 @@
                                             <div>
                                                 <label
                                                     class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                    Pinpoint Lokasi <span class="text-red-500 ml-1">*</span>
+                                                    {{ __('ui.pinpoint_location') }} <span class="text-red-500 ml-1">*</span>
                                                     <span
-                                                        class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(Klik
-                                                        untuk
-                                                        menandai langsung pada peta)</span>
+                                                        class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">({{ __('ui.click_to_mark_on_map') }})</span>
                                                 </label>
                                                 <div id="map"
                                                     class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center">
@@ -311,7 +308,7 @@
                                                                 stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
                                                             </path>
                                                         </svg>
-                                                        <p>Klik untuk menentukan lokasi</p>
+                                                        <p>{{ __('ui.click_to_set_location') }}</p>
                                                     </div>
                                                 </div>
                                                 <div id="coordinates"
@@ -324,20 +321,20 @@
                                                 <div>
                                                     <label for="province"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        Provinsi <span class="text-red-500">*</span>
+                                                        {{ __('ui.province') }} <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="province" name="province" required
-                                                        placeholder="Masukkan Provinsi"
+                                                        placeholder="{{ __('ui.enter_province') }}"
                                                         class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                                                 </div>
 
                                                 <div>
                                                     <label for="city"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        Kota/Kabupaten <span class="text-red-500">*</span>
+                                                        {{ __('ui.city_regency') }} <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="city" name="city" required
-                                                        placeholder="Masukkan Kota atau Kabupaten"
+                                                        placeholder="{{ __('ui.enter_city_regency') }}"
                                                         class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                                                 </div>
                                             </div>
@@ -346,21 +343,21 @@
                                                 <div>
                                                     <label for="district"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        Kecamatan <span class="text-red-500">*</span>
+                                                        {{ __('ui.district') }} <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="district" name="district" required
                                                         class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                        placeholder="Masukkan kecamatan">
+                                                        placeholder="{{ __('ui.enter_district') }}">
                                                 </div>
 
                                                 <div>
                                                     <label for="village"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        Kelurahan <span class="text-red-500">*</span>
+                                                        {{ __('ui.village') }} <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="village" name="village" required
                                                         class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                        placeholder="Masukkan kelurahan">
+                                                        placeholder="{{ __('ui.enter_village') }}">
                                                 </div>
                                             </div>
 
@@ -368,11 +365,11 @@
                                                 <div>
                                                     <label for="postal_code"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        Kode Pos
+                                                        {{ __('ui.postal_code') }}
                                                     </label>
                                                     <input type="text" id="postal_code" name="postal_code"
                                                         class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                        placeholder="Masukkan kode pos">
+                                                        placeholder="{{ __('ui.enter_postal_code') }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -392,7 +389,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                     </svg>
-                                                    Fasilitas Umum
+                                                    {{ __('ui.general_facilities') }}
                                                 </h3>
                                                 <div
                                                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
@@ -427,8 +424,7 @@
                                                                 stroke-width="2"
                                                                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak
-                                                            ada fasilitas umum tersedia</p>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ __('ui.no_general_facilities') }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -443,7 +439,7 @@
                                                             stroke-width="2"
                                                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                                     </svg>
-                                                    Fasilitas Keamanan
+                                                    {{ __('ui.security_facilities') }}
                                                 </h3>
                                                 <div
                                                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
@@ -478,8 +474,7 @@
                                                                 stroke-width="2"
                                                                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak
-                                                            ada fasilitas keamanan tersedia</p>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ __('ui.no_security_facilities') }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -494,7 +489,7 @@
                                                             stroke-width="2"
                                                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                                     </svg>
-                                                    Layanan Tambahan
+                                                    {{ __('ui.additional_services') }}
                                                 </h3>
                                                 <div
                                                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
@@ -529,8 +524,7 @@
                                                                 stroke-width="2"
                                                                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tidak
-                                                            ada layanan tambahan tersedia</p>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ __('ui.no_additional_services') }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -545,10 +539,10 @@
                                             <div>
                                                 <label
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                                                    Foto Properti <span class="text-red-500">*</span>
+                                                    {{ __('ui.property_photos') }} <span class="text-red-500">*</span>
                                                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                                                        (Minimal 3 foto, maksimal 10 foto - <span
-                                                            x-text="remainingSlots"></span> slot tersisa)
+                                                        ({{ __('ui.min_3_max_10_photos') }} - <span
+                                                            x-text="remainingSlots"></span> {{ __('ui.slots_remaining') }})
                                                     </span>
                                                 </label>
 
@@ -556,11 +550,9 @@
                                                 <div class="mb-6">
                                                     <h4
                                                         class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        Pilih Thumbnail <span class="text-red-500">*</span>
+                                                        {{ __('ui.select_thumbnail') }} <span class="text-red-500">*</span>
                                                         <span
-                                                            class="text-xs font-normal text-gray-500 dark:text-gray-400">(Foto
-                                                            utama
-                                                            yang akan ditampilkan)</span>
+                                                            class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ __('ui.main_photo_displayed') }})</span>
                                                     </h4>
 
                                                     <div class="flex items-center space-x-4">
@@ -588,17 +580,13 @@
                                                         <div class="flex-1">
                                                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                                 <span x-show="thumbnailIndex === null"
-                                                                    class="font-medium text-red-500">Belum ada
-                                                                    thumbnail dipilih!</span>
+                                                                    class="font-medium text-red-500">{{ __('ui.no_thumbnail_selected') }}</span>
                                                                 <span x-show="thumbnailIndex !== null"
-                                                                    class="font-medium text-green-600">Thumbnail sudah
-                                                                    dipilih.</span>
-                                                                Klik salah satu foto di bawah untuk memilih sebagai
-                                                                thumbnail.
+                                                                    class="font-medium text-green-600">{{ __('ui.thumbnail_selected') }}</span>
+                                                                {{ __('ui.click_photo_for_thumbnail') }}
                                                             </p>
                                                             <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                                Pastikan memilih foto terbaik sebagai thumbnail karena
-                                                                ini akan menjadi gambar utama properti Anda.
+                                                                {{ __('ui.choose_best_thumbnail_property') }}
                                                             </p>
                                                         </div>
                                                     </div>

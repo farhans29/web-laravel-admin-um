@@ -22,14 +22,18 @@ class ChatController extends Controller
         $user = Auth::user();
 
         // Get conversations with property scoping
-        $conversations = $this->filterConversations($request)->paginate(20);
+        $conversations = $this->filterConversations($request)->paginate(
+            $request->input('per_page', 20)
+        );
 
         // Add unread count to each conversation
         $conversations->each(function($conversation) use ($user) {
             $conversation->unread_count = $conversation->getUnreadCountForUser($user->id);
         });
 
-        return view('pages.chat.index', compact('conversations'));
+        $openConversationId = $request->input('open');
+
+        return view('pages.chat.index', compact('conversations', 'openConversationId'));
     }
 
     /**
@@ -90,7 +94,8 @@ class ChatController extends Controller
             ]);
         }
 
-        return view('pages.chat.show', compact('conversation', 'messages', 'booking'));
+        // For direct browser navigation, redirect to index with ?open=id
+        return redirect()->route('chat.index', ['open' => $id]);
     }
 
     /**
@@ -98,14 +103,26 @@ class ChatController extends Controller
      */
     public function getConversationsJson(Request $request)
     {
+        $user = Auth::user();
+
         $conversations = $this->filterConversations($request)
+            ->with(['messages' => function($q) {
+                $q->latest()->limit(1);
+            }, 'messages.sender'])
             ->limit(50)
             ->get();
+
+        // Add unread count to each conversation
+        $conversations->each(function($conversation) use ($user) {
+            $conversation->unread_count = $conversation->getUnreadCountForUser($user->id);
+        });
+
+        $totalUnread = $conversations->sum('unread_count');
 
         return response()->json([
             'success' => true,
             'data' => $conversations,
-            'total_unread' => 0 // TODO: Implement unread count
+            'total_unread' => $totalUnread
         ]);
     }
 
@@ -145,7 +162,7 @@ class ChatController extends Controller
                     'already_exists' => true
                 ]);
             }
-            return redirect()->route('chat.show', $existingConversation->id)
+            return redirect()->route('chat.index', ['open' => $existingConversation->id])
                 ->with('info', 'Conversation untuk booking ini sudah ada.');
         }
 
@@ -190,7 +207,7 @@ class ChatController extends Controller
             ]);
         }
 
-        return redirect()->route('chat.show', $conversation->id)
+        return redirect()->route('chat.index', ['open' => $conversation->id])
             ->with('success', 'Conversation berhasil dibuat.');
     }
 
@@ -252,7 +269,14 @@ class ChatController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('order_id', 'like', "%{$search}%")
-                  ->orWhere('title', 'like', "%{$search}%");
+                  ->orWhere('title', 'like', "%{$search}%")
+                  ->orWhereHas('booking', function ($bq) use ($search) {
+                      $bq->where('user_name', 'like', "%{$search}%")
+                         ->orWhere('user_email', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('transaction.user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -379,9 +403,9 @@ class ChatController extends Controller
             $file = $request->file('image');
             $filename = 'chat_img_' . $message->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-            // Store in public/chat-attachments/{conversation_id}/images/
+            // Store in public/chat-attachments/{conversation_id}/
             $path = $file->storeAs(
-                "chat-attachments/{$conversation->id}/images",
+                "chat-attachments/{$conversation->id}",
                 $filename,
                 'public'
             );

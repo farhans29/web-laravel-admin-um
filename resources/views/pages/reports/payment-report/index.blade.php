@@ -5,9 +5,9 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
-                    Laporan Keuangan Pembayaran
+                    {{ __('ui.payment_report') }}
                 </h1>
-                <p class="text-gray-600 mt-1">Laporan pemasukan berdasarkan tanggal pembayaran diterima</p>
+                <p class="text-gray-600 mt-1">{{ __('ui.payment_report_desc') }}</p>
             </div>
             <div class="mt-4 md:mt-0 flex gap-2">
                 <button onclick="printReport()"
@@ -17,7 +17,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
-                    Print
+                    {{ __('ui.print') }}
                 </button>
                 <button onclick="exportReport()"
                     class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2">
@@ -26,7 +26,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Ekspor ke Excel
+                    {{ __('ui.export_excel') }}
                 </button>
             </div>
         </div>
@@ -37,21 +37,21 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                     <!-- Search -->
                     <div class="relative">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cari</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.search') }}</label>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-9"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" id="search" name="search" placeholder="Order ID, Kode Transaksi, Nama..."
+                        <input type="text" id="search" name="search" placeholder="{{ __('ui.search_payment_placeholder') }}"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
 
                     <!-- Date Range -->
                     <div class="lg:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Rentang Tanggal Pembayaran</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.payment_date_range') }}</label>
                         <div class="relative">
-                            <input type="text" id="date_picker" placeholder="Pilih rentang tanggal" data-input
+                            <input type="text" id="date_picker" placeholder="{{ __('ui.select_date_range') }}" data-input
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
                             <input type="hidden" id="start_date" name="start_date" value="{{ $startDate }}">
                             <input type="hidden" id="end_date" name="end_date" value="{{ $endDate }}">
@@ -61,10 +61,10 @@
                     <!-- Property Filter (only for super admin and HO users) -->
                     @if(auth()->user()->isSuperAdmin() || auth()->user()->isHO())
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Properti</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.property') }}</label>
                         <select id="property_id" name="property_id"
                             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="">Semua Properti</option>
+                            <option value="">{{ __('ui.all_properties') }}</option>
                             @foreach ($properties as $property)
                                 <option value="{{ $property->idrec }}"
                                     {{ $propertyId == $property->idrec ? 'selected' : '' }}>
@@ -79,7 +79,7 @@
                 <!-- Per Page -->
                 <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
                     <div class="flex items-center gap-2">
-                        <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
+                        <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                         <select name="per_page" id="per_page"
                             class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                             <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
@@ -98,34 +98,34 @@
                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                         <tr>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Invoice Number</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Invoice Date</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Transaction Code</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Property Name</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Type</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room Number</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tenant Name</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">NIK</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Mobile Number</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Check In</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Check Out</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Duration</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Price Kamar Per Unit</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">DPP Kamar Per Unit</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Subtotal</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Diskon</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">DPP Diskon</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Parkir</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">DPP Parkir</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">VATT 11%</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Grand Total</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Deposit</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Service Fee</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Status</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Verified By</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Verified Date</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Notes</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.invoice_number') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.invoice_date') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.transaction_code') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.property_name') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.room_type') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.room_number') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.tenant_name') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.nik') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.mobile_number') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.email') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.check_in') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.check_out') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.duration') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.price_per_unit') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.dpp_per_unit') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.subtotal') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.discount') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.dpp_discount') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.parking') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.dpp_parking') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.vatt') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.grand_total') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.deposit') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.service_fee') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.payment_status') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.verified_by') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.verified_date') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.notes') }}</th>
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200">
@@ -136,7 +136,7 @@
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span>Memuat data laporan pembayaran...</span>
+                                    <span>{{ __('ui.loading') }}</span>
                                 </div>
                             </td>
                         </tr>
@@ -225,7 +225,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Memuat data...
+                            {{ __('ui.loading') }}
                         </div>
                     </td>
                 </tr>
@@ -245,7 +245,7 @@
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="29" class="px-4 py-8 text-center text-red-500">
-                                Gagal memuat data. Silakan coba lagi.
+                                {{ __('ui.error_loading') }}
                             </td>
                         </tr>
                     `;
@@ -263,7 +263,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
-                                <span>Tidak ada data pembayaran</span>
+                                <span>{{ __('ui.no_data') }}</span>
                             </div>
                         </td>
                     </tr>
@@ -317,7 +317,7 @@
             if (pagination.last_page <= 1) {
                 container.innerHTML = `
                     <div class="text-sm text-gray-700">
-                        Menampilkan ${pagination.total} data
+                        {{ __('ui.showing') }} ${pagination.total} {{ __('ui.entries') }}
                     </div>
                 `;
                 return;
@@ -326,7 +326,7 @@
             let paginationHTML = `
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Menampilkan halaman ${pagination.current_page} dari ${pagination.last_page} (${pagination.total} total data)
+                        {{ __('ui.showing') }} ${pagination.current_page} {{ __('ui.of') }} ${pagination.last_page} (${pagination.total} {{ __('ui.entries') }})
                     </div>
                     <div class="flex gap-2">
             `;
@@ -336,7 +336,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page - 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Sebelumnya
+                        {{ __('ui.previous') }}
                     </button>
                 `;
             }
@@ -370,7 +370,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page + 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Selanjutnya
+                        {{ __('ui.next') }}
                     </button>
                 `;
             }
@@ -384,7 +384,7 @@
         }
 
         function printReport() {
-            const reportTitle = 'Laporan Keuangan Pembayaran';
+            const reportTitle = '{{ __('ui.payment_report') }}';
 
             // Get filter info
             let filterInfo = '';
@@ -393,7 +393,7 @@
             const startDate = document.getElementById('start_date').value;
             const endDate = document.getElementById('end_date').value;
             if (startDate && endDate) {
-                filterInfo += `<p><strong>Periode:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}</p>`;
+                filterInfo += `<p><strong>{{ __('ui.period') }}:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}</p>`;
             }
 
             // Property filter
@@ -401,14 +401,14 @@
             if (propertySelect) {
                 const selectedProperty = propertySelect.options[propertySelect.selectedIndex].text;
                 if (propertySelect.value) {
-                    filterInfo += `<p><strong>Properti:</strong> ${selectedProperty}</p>`;
+                    filterInfo += `<p><strong>{{ __('ui.property') }}:</strong> ${selectedProperty}</p>`;
                 }
             }
 
             // Search filter
             const searchValue = document.getElementById('search').value;
             if (searchValue) {
-                filterInfo += `<p><strong>Pencarian:</strong> ${searchValue}</p>`;
+                filterInfo += `<p><strong>{{ __('ui.search') }}:</strong> ${searchValue}</p>`;
             }
 
             // Build table rows from reportData
@@ -574,39 +574,39 @@
                             minute: '2-digit'
                         })}</p>
                     </div>
-                    ${filterInfo ? '<div class="filter-info"><strong>Filter yang Diterapkan:</strong>' + filterInfo + '</div>' : ''}
+                    ${filterInfo ? '<div class="filter-info"><strong>{{ __('ui.filter') }}:</strong>' + filterInfo + '</div>' : ''}
                     <table>
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Invoice Number</th>
-                                <th>Invoice Date</th>
-                                <th>Trx Code</th>
-                                <th>Property</th>
-                                <th>Room Type</th>
-                                <th>Room No</th>
-                                <th>Tenant</th>
-                                <th>NIK</th>
-                                <th>Mobile</th>
-                                <th>Email</th>
-                                <th>Check In</th>
-                                <th>Check Out</th>
-                                <th>Duration</th>
-                                <th>Price/Unit</th>
-                                <th>DPP/Unit</th>
-                                <th>Subtotal</th>
-                                <th>Diskon</th>
-                                <th>DPP Diskon</th>
-                                <th>Parkir</th>
-                                <th>DPP Parkir</th>
-                                <th>VATT 11%</th>
-                                <th>Grand Total</th>
-                                <th>Deposit</th>
-                                <th>Service Fee</th>
-                                <th>Status</th>
-                                <th>Verified By</th>
-                                <th>Verified Date</th>
-                                <th>Notes</th>
+                                <th>{{ __('ui.invoice_number') }}</th>
+                                <th>{{ __('ui.invoice_date') }}</th>
+                                <th>{{ __('ui.transaction_code') }}</th>
+                                <th>{{ __('ui.property') }}</th>
+                                <th>{{ __('ui.room_type') }}</th>
+                                <th>{{ __('ui.room_number') }}</th>
+                                <th>{{ __('ui.tenant_name') }}</th>
+                                <th>{{ __('ui.nik') }}</th>
+                                <th>{{ __('ui.mobile_number') }}</th>
+                                <th>{{ __('ui.email') }}</th>
+                                <th>{{ __('ui.check_in') }}</th>
+                                <th>{{ __('ui.check_out') }}</th>
+                                <th>{{ __('ui.duration') }}</th>
+                                <th>{{ __('ui.price_per_unit') }}</th>
+                                <th>{{ __('ui.dpp_per_unit') }}</th>
+                                <th>{{ __('ui.subtotal') }}</th>
+                                <th>{{ __('ui.discount') }}</th>
+                                <th>{{ __('ui.dpp_discount') }}</th>
+                                <th>{{ __('ui.parking') }}</th>
+                                <th>{{ __('ui.dpp_parking') }}</th>
+                                <th>{{ __('ui.vatt') }}</th>
+                                <th>{{ __('ui.grand_total') }}</th>
+                                <th>{{ __('ui.deposit') }}</th>
+                                <th>{{ __('ui.service_fee') }}</th>
+                                <th>{{ __('ui.status') }}</th>
+                                <th>{{ __('ui.verified_by') }}</th>
+                                <th>{{ __('ui.verified_date') }}</th>
+                                <th>{{ __('ui.notes') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -614,7 +614,7 @@
                         </tbody>
                     </table>
                     <div class="footer">
-                        <p>Booking Management System - Laporan Keuangan Pembayaran</p>
+                        <p>Booking Management System - {{ __('ui.payment_report') }}</p>
                     </div>
                 </body>
                 </html>
@@ -652,7 +652,7 @@
                 toast: true,
                 position: 'top-end',
                 icon: 'success',
-                title: 'Mengekspor laporan pembayaran...',
+                title: '{{ __('ui.exporting_report') }}',
                 showConfirmButton: false,
                 timer: 2000,
                 timerProgressBar: true

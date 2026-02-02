@@ -41,6 +41,7 @@ class User extends Authenticatable
         'updated_by',
         'profile_picture',
         'profile_photo_path',
+        'locale',
     ];
 
     /**

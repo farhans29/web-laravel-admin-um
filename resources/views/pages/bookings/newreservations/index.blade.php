@@ -5,7 +5,7 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Confirm Reservations
+                    {{ __('ui.confirm_reservations') }}
                 </h1>
             </div>
         </div>
@@ -24,7 +24,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" id="search" name="search" placeholder="Order ID or Guest Name"
+                        <input type="text" id="search" name="search" placeholder="{{ __('ui.order_id_or_guest') }}"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value="{{ request('search') }}">
                     </div>
@@ -32,7 +32,7 @@
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-10">
-                                <input type="text" id="date_picker" placeholder="Select date range"
+                                <input type="text" id="date_picker" placeholder="{{ __('ui.select_date_range') }}"
                                     data-input
                                     class="w-full min-w-[320px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
@@ -45,7 +45,7 @@
                     <!-- Show Per Page (aligned to the right) -->
                     <div class="md:col-span-1 md:col-start-5 flex justify-end items-end">
                         <div class="flex items-center gap-2">
-                            <label for="per_page" class="text-sm text-gray-600">Show:</label>
+                            <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                             <select name="per_page" id="per_page"
                                 class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
@@ -201,7 +201,7 @@
                     } catch (error) {
                         console.error('Error accessing webcam:', error);
                         this.showErrorToast(
-                            'Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.'
+                            '{{ __('ui.camera_access_error') }}'
                         );
                     }
                 },
@@ -224,7 +224,7 @@
 
                 capturePhoto() {
                     if (!this.webcamStream || !this.$refs.webcamVideo) {
-                        this.showErrorToast('Webcam tidak tersedia');
+                        this.showErrorToast('{{ __('ui.webcam_unavailable') }}');
                         return;
                     }
 
@@ -247,10 +247,10 @@
                         // Stop webcam setelah mengambil foto
                         this.stopWebcam();
 
-                        this.showSuccessToast('Foto berhasil diambil');
+                        this.showSuccessToast('{{ __('ui.photo_captured') }}');
                     } catch (error) {
                         console.error('Error capturing photo:', error);
-                        this.showErrorToast('Gagal mengambil foto');
+                        this.showErrorToast('{{ __('ui.photo_capture_failed') }}');
                     }
                 },
 
@@ -270,7 +270,7 @@
 
                         this.webcamPhoto = null;
                         this.showSuccessToast(
-                            'Foto berhasil diambil dan akan digunakan sebagai dokumen identifikasi.'
+                            '{{ __('ui.photo_used_as_id') }}'
                         );
                     }
                 },
@@ -402,7 +402,7 @@
 
                     } catch (error) {
                         console.error('Error fetching booking details:', error);
-                        this.showErrorToast('Failed to load booking details: ' + error.message);
+                        this.showErrorToast('{{ __('ui.failed_load_booking_details') }} ' + error.message);
                     }
                 },
 
@@ -415,14 +415,14 @@
                         switch (bookingType.toLowerCase()) {
                             case 'daily':
                                 if (bookingDays && !isNaN(bookingDays)) {
-                                    return `${bookingDays} hari`;
+                                    return `${bookingDays} {{ __('ui.days') }}`;
                                 }
                                 // Fallback ke perhitungan normal jika bookingDays tidak tersedia
                                 break;
 
                             case 'monthly':
                                 if (bookingMonths && !isNaN(bookingMonths)) {
-                                    return `${bookingMonths} bulan`;
+                                    return `${bookingMonths} {{ __('ui.months') }}`;
                                 }
                                 // Fallback ke perhitungan normal jika bookingMonths tidak tersedia
                                 break;
@@ -439,7 +439,7 @@
                     const diffTime = Math.abs(end - start);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    return `${diffDays} malam`;
+                    return `${diffDays} {{ __('ui.nights') }}`;
                 },
 
                 getDocumentImageUrl() {
@@ -479,7 +479,7 @@
 
                 previewDoc(file) {
                     if (file.size > 5 * 1024 * 1024) {
-                        this.showErrorToast('File size should be less than 5MB');
+                        this.showErrorToast('{{ __('ui.file_size_limit') }}');
                         return;
                     }
 
@@ -505,13 +505,13 @@
                     // Validasi informasi kontak
                     if (!this.guestContact.name || !this.guestContact.email || !this.guestContact
                         .phone) {
-                        this.showErrorToast('Harap lengkapi semua informasi kontak');
+                        this.showErrorToast('{{ __('ui.complete_contact_info') }}');
                         return;
                     }
 
                     // Validasi dokumen identifikasi (hanya jika docRequired = true)
                     if (this.docRequired && !this.profilePhotoUrl && !this.docFile) {
-                        this.showErrorToast('Harap unggah dokumen identifikasi');
+                        this.showErrorToast('{{ __('ui.upload_id_document') }}');
                         return;
                     }
 
@@ -547,7 +547,7 @@
                         }
 
                         if (data.success) {
-                            this.showSuccessToast('Check-in berhasil!');
+                            this.showSuccessToast('{{ __('ui.checkin_success') }}');
 
                             // Jika perlu print agreement, buka di tab baru
                             if (data.need_print_agreement && data.print_url) {
@@ -564,12 +564,12 @@
                                 this.closeModal();
                             }, 1500);
                         } else {
-                            this.showErrorToast(data.message || 'Check-in gagal');
+                            this.showErrorToast(data.message || '{{ __('ui.checkin_failed') }}');
                         }
 
                     } catch (error) {
                         console.error("Check-in error:", error);
-                        this.showErrorToast(error.message || 'Terjadi kesalahan saat check-in');
+                        this.showErrorToast(error.message || '{{ __('ui.checkin_error') }}');
                     }
                 },
 
@@ -618,7 +618,7 @@
                         newWindow.focus();
                     } else {
                         // Fallback: jika popup diblokir, redirect di tab saat ini
-                        this.showErrorToast('Popup diblokir. Membuka form di tab ini...');
+                        this.showErrorToast('{{ __('ui.popup_blocked') }}');
                         window.location.href = url;
                     }
                 },
@@ -774,7 +774,7 @@
                         console.error('Error:', error);
                         tableContainer.innerHTML = `
                                                         <div class="text-center py-8 text-red-500">
-                                                            Error loading data. Please try again.
+                                                            {{ __('ui.error_loading') }}
                                                         </div>
                                                     `;
                     });

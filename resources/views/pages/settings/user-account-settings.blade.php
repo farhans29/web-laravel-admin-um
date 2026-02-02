@@ -4,7 +4,7 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Account Settings
+                    {{ __('ui.account_settings') }}
                 </h1>
             </div>
         </div>
@@ -12,7 +12,7 @@
         <div id="containerAccount" class="bg-white shadow-md rounded-lg overflow-hidden mt-8">
             <!-- Header -->
             <div class="flex justify-between items-center px-6 py-4 bg-gray-50">
-                <h3 class="text-lg font-medium text-gray-900">User Profile</h3>
+                <h3 class="text-lg font-medium text-gray-900">{{ __('ui.user_profile') }}</h3>
                 <!-- Tabs -->
                 <div class="flex items-center gap-4">
                     <!-- Account -->
@@ -27,7 +27,7 @@
                             <circle cx="12" cy="7" r="4" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.5 21a7.5 7.5 0 0113 0" />
                         </svg>
-                        Account
+                        {{ __('ui.account') }}
                     </button>
 
                     @if (auth()->user()->is_admin == 1)
@@ -43,7 +43,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M12 15v2m-6-6h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7a2 2 0 012-2zm10-4V7a4 4 0 00-8 0v4h8z" />
                             </svg>
-                            Security
+                            {{ __('ui.security') }}
                         </button>
                     @endif
 
@@ -59,7 +59,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        History
+                        {{ __('ui.history') }}
                     </button>
                 </div>
             </div>
@@ -110,7 +110,7 @@
                                 <span
                                     class="w-2.5 h-2.5 rounded-full mr-2 animate-pulse {{ $user->status == 1 ? 'bg-green-500' : 'bg-red-500' }}">
                                 </span>
-                                {{ $user->status == 1 ? 'Active' : 'Inactive' }}
+                                {{ $user->status == 1 ? __('ui.active') : __('ui.inactive') }}
                             </div>
 
 
@@ -130,7 +130,7 @@
                                                 d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z">
                                             </path>
                                         </svg>
-                                        Edit Profile
+                                        {{ __('ui.edit_profile') }}
                                     </button>
 
                                     <!-- Modal backdrop -->
@@ -155,7 +155,7 @@
                                                             d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z">
                                                         </path>
                                                     </svg>
-                                                    Edit Profile
+                                                    {{ __('ui.edit_profile') }}
                                                 </h2>
                                                 <button
                                                     class="text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-full hover:bg-gray-100"
@@ -172,8 +172,8 @@
                                             <!-- Body -->
                                             <div class="p-6">
                                                 <form id="userForm" method="POST"
-                                                    action="{{ route('users.update', $user->id) }}" enctype="multipart/form-data"
-                                                    autocomplete="off">
+                                                    action="{{ route('users.update', $user->id) }}"
+                                                    enctype="multipart/form-data" autocomplete="off">
                                                     @csrf
                                                     @method('PUT')
 
@@ -182,7 +182,7 @@
                                                         <div class="group/input">
                                                             <label
                                                                 class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                                First Name <span class="text-red-500 ml-1">*</span>
+                                                                {{ __('ui.first_name') }} <span class="text-red-500 ml-1">*</span>
                                                             </label>
                                                             <input type="text" name="first_name" id="first_name"
                                                                 required
@@ -197,7 +197,7 @@
                                                         <div class="group/input">
                                                             <label
                                                                 class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                                Last Name <span class="text-red-500 ml-1">*</span>
+                                                                {{ __('ui.last_name') }} <span class="text-red-500 ml-1">*</span>
                                                             </label>
                                                             <input type="text" name="last_name" id="last_name"
                                                                 required
@@ -215,11 +215,12 @@
                                                     <div class="mb-5 group/input">
                                                         <label
                                                             class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                            Username <span class="text-red-500 ml-1">*</span>
+                                                            {{ __('ui.username') }} <span class="text-red-500 ml-1">*</span>
                                                         </label>
                                                         <input type="text" name="username" id="username" required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                            placeholder="Username" value="{{ old('username', $user->username) }}">
+                                                            placeholder="Username"
+                                                            value="{{ old('username', $user->username) }}">
                                                         @error('username')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
@@ -229,11 +230,12 @@
                                                     <div class="mb-5 group/input">
                                                         <label
                                                             class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                            Email <span class="text-red-500 ml-1">*</span>
+                                                            {{ __('ui.email') }} <span class="text-red-500 ml-1">*</span>
                                                         </label>
                                                         <input type="email" name="email" id="email" required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                            placeholder="Email address" value="{{ old('email', $user->email) }}">
+                                                            placeholder="Email address"
+                                                            value="{{ old('email', $user->email) }}">
                                                         @error('email')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
@@ -243,23 +245,22 @@
                                                     <div class="mb-5 group/input">
                                                         <label
                                                             class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                            Contact <span class="text-red-500 ml-1">*</span>
+                                                            {{ __('ui.contact') }} <span class="text-red-500 ml-1">*</span>
                                                         </label>
                                                         <input type="text" name="phone_number" id="phone_number"
                                                             required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
                                                             placeholder="Phone number"
-                                                            value="{{ old('phone_number', $user->phone_number) }}">
+                                                            value="{{ old('phone_number', $user->phone_number ?? 'Belum ada nomor') }}">
                                                         @error('phone_number')
-                                                            <p class="text-red-500 text-xs mt-2">{{ $message }}
-                                                            </p>
+                                                            <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
                                                     </div>
                                                     <!-- Footer -->
                                                     <div class="mt-6 flex justify-end gap-3">
                                                         <button type="button" @click="modalOpenDetail = false"
                                                             class="px-5 py-2.5 rounded-xl border text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all duration-200">
-                                                            Cancel
+                                                            {{ __('ui.cancel') }}
                                                         </button>
                                                         <button type="submit"
                                                             class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl shadow hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 flex items-center gap-2 hover:shadow-md">
@@ -270,7 +271,7 @@
                                                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                                                     clip-rule="evenodd"></path>
                                                             </svg>
-                                                            <span>Save Changes</span>
+                                                            <span>{{ __('ui.save_changes') }}</span>
                                                         </button>
                                                     </div>
                                                 </form>
@@ -294,7 +295,7 @@
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            Account Details
+                            {{ __('ui.account_details') }}
                         </h2>
 
                         @if (session('success'))
@@ -334,7 +335,7 @@
                                             d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    Username
+                                    {{ __('ui.username') }}
                                 </label>
                                 <div
                                     class="flex items-center text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
@@ -354,7 +355,7 @@
                                         </path>
                                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
                                     </svg>
-                                    Email
+                                    {{ __('ui.email') }}
                                 </label>
                                 <div
                                     class="flex items-center text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
@@ -362,12 +363,12 @@
                                     @if ($user->email_verified_at)
                                         <span
                                             class="ml-2 px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full">
-                                            Verified
+                                            {{ __('ui.verified') }}
                                         </span>
                                     @else
                                         <span
                                             class="ml-2 px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                                            Not Verified
+                                            {{ __('ui.not_verified') }}
                                         </span>
                                     @endif
                                 </div>
@@ -382,7 +383,7 @@
                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    Role
+                                    {{ __('ui.role') }}
                                 </label>
                                 <div
                                     class="text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
@@ -401,7 +402,7 @@
                                             d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z">
                                         </path>
                                     </svg>
-                                    Contact
+                                    {{ __('ui.contact') }}
                                 </label>
                                 <div
                                     class="flex items-center text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
@@ -409,22 +410,72 @@
                                 </div>
                             </div>
 
-                            <div class="group">
+                            <div class="group" x-data="{ showLangDropdown: false }">
                                 <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-gray-500" fill="currentColor" viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd"
-                                            d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.917 1.026a1 1 0 11-1.44 1.389 21.034 21.034 0 01-.02-.02 19.879 19.879 0 01-3.155 3.564 1 1 0 01-1.325-1.504 17.919 17.919 0 013.057-2.897c.027-.024.053-.049.079-.074a19.088 19.088 0 01-1.73-3.617c-.317.07-.65.108-.989.108A1 1 0 013 8V7a1 1 0 011-1h1V5a1 1 0 012 0v1h3a1 1 0 110 2H6.422a18.87 18.87 0 001.724 4.78 10.141 10.141 0 00-.917-1.026 1 1 0 111.44-1.389c.007.008.014.015.02.02A19.879 19.879 0 0012.6 8.566a1 1 0 111.325 1.504 17.919 17.919 0 01-3.057 2.897l-.079.074a19.088 19.088 0 011.73 3.617c.317-.07.65-.108.989-.108a1 1 0 01.108 2l-.108.001c-.45 0-.882-.1-1.275-.28a21.037 21.037 0 01-4.434-2.716 1 1 0 01-1.325-1.504 17.919 17.919 0 013.057-2.897c.027-.024.053-.049.079-.074A19.088 19.088 0 015 8.001c0-.34.038-.672.108-.989A1 1 0 015 6V5a1 1 0 011-1h1V3a1 1 0 012 0v1h3a1 1 0 110 2H8a1 1 0 01-1-1V5H5v2a19 19 0 002.4 2.566 1 1 0 11-1.325 1.504A17.919 17.919 0 013.018 6.93l-.079-.074a19.088 19.088 0 013.617-1.73c0 .339.038.672.108.989A1 1 0 016 8v1a1 1 0 01-2 0V8H3v2a1 1 0 01-2 0V8a1 1 0 010-2h1V5a1 1 0 012 0v1h2a1 1 0 011 1v1h2a1 1 0 110 2H7a1 1 0 01-1-1V7h2a1 1 0 011-1h3a1 1 0 000-2H9V3a1 1 0 00-2 0v1H5a1 1 0 00-1 1v1H2a1 1 0 000 2h1v1a1 1 0 002 0V8h1a1 1 0 011-1h3a1 1 0 010 2H7v1a1 1 0 01-1 1H4a1 1 0 000 2h2a1 1 0 011 1v1a1 1 0 002 0v-1h2a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1v-1H8a1 1 0 01-1-1V9h2a1 1 0 110 2H7v1a1 1 0 01-1 1H4a1 1 0 000 2h2a1 1 0 011-1h3a1 1 0 110 2H7a1 1 0 01-1-1v-1H4a1 1 0 01-1-1v-2a1 1 0 012 0v2h2a1 1 0 011 1v1h2a1 1 0 01-1 1H7z"
-                                            clip-rule="evenodd"></path>
+                                    <svg class="w-4 h-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                                     </svg>
-                                    Languages
+                                    {{ __('ui.languages') }}
                                 </label>
-                                <div
-                                    class="text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        English
-                                    </span>
+                                <div class="relative">
+                                    <button type="button"
+                                        @click="showLangDropdown = !showLangDropdown"
+                                        class="w-full text-left text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors cursor-pointer flex items-center justify-between">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ app()->getLocale() === 'id' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' }}">
+                                            {{ app()->getLocale() === 'id' ? __('ui.lang_indonesian') : __('ui.lang_english') }}
+                                        </span>
+                                        <svg class="w-4 h-4 text-gray-400 transition-transform" :class="showLangDropdown ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    <div x-show="showLangDropdown"
+                                        @click.away="showLangDropdown = false"
+                                        x-transition:enter="transition ease-out duration-200"
+                                        x-transition:enter-start="opacity-0 translate-y-1"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-150"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 translate-y-1"
+                                        class="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
+                                        x-cloak>
+
+                                        <form method="POST" action="{{ route('user.locale.update') }}">
+                                            @csrf
+                                            <input type="hidden" name="locale" value="en">
+                                            <button type="submit"
+                                                class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-indigo-50 transition-colors {{ app()->getLocale() === 'en' ? 'bg-blue-50' : '' }}">
+                                                <div class="flex items-center gap-3">
+                                                    <span class="fi fi-gb w-5 h-4 rounded shadow-sm"></span>
+                                                    <span class="font-medium text-gray-700">English</span>
+                                                </div>
+                                                @if(app()->getLocale() === 'en')
+                                                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                    </svg>
+                                                @endif
+                                            </button>
+                                        </form>
+
+                                        <div class="border-t border-gray-100"></div>
+
+                                        <form method="POST" action="{{ route('user.locale.update') }}">
+                                            @csrf
+                                            <input type="hidden" name="locale" value="id">
+                                            <button type="submit"
+                                                class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-indigo-50 transition-colors {{ app()->getLocale() === 'id' ? 'bg-red-50' : '' }}">
+                                                <div class="flex items-center gap-3">
+                                                    <span class="fi fi-id w-5 h-4 rounded shadow-sm"></span>
+                                                    <span class="font-medium text-gray-700">Bahasa Indonesia</span>
+                                                </div>
+                                                @if(app()->getLocale() === 'id')
+                                                    <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                    </svg>
+                                                @endif
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
 
@@ -436,7 +487,7 @@
                                             d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    Country
+                                    {{ __('ui.country') }}
                                 </label>
                                 <div
                                     class="flex items-center text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
@@ -453,7 +504,7 @@
                                             d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    Joined Date
+                                    {{ __('ui.joined_date') }}
                                 </label>
                                 <div
                                     class="flex items-center text-sm text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
@@ -473,7 +524,7 @@
                                             d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    Security
+                                    {{ __('ui.security') }}
                                 </label>
 
                                 <div
@@ -495,7 +546,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M12 15v2m-6-6h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7a2 2 0 012-2zm10-4V7a4 4 0 00-8 0v4h8z" />
                                         </svg>
-                                        Change Password
+                                        {{ __('ui.change_password') }}
                                     </button>
                                 </div>
 
@@ -512,7 +563,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                                     </svg>
-                                    <span class="text-sm font-medium">Hanya admin yang dapat merubah password!</span>
+                                    <span class="text-sm font-medium">{{ __('ui.admin_only_password') }}</span>
                                 </div>
                             </div>
 
@@ -572,13 +623,13 @@
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <h3 class="text-sm font-medium text-blue-800">Password Requirements</h3>
+                                        <h3 class="text-sm font-medium text-blue-800">{{ __('ui.password_requirements') }}</h3>
                                         <div class="mt-2 text-sm text-blue-700">
                                             <ul class="list-disc pl-5 space-y-1">
-                                                <li>Minimum 8 characters long</li>
-                                                <li>At least one uppercase letter</li>
-                                                <li>At least one symbol (e.g. !@#$%^&*)</li>
-                                                <li>At least one number</li>
+                                                <li>{{ __('ui.password_min_chars') }}</li>
+                                                <li>{{ __('ui.password_uppercase') }}</li>
+                                                <li>{{ __('ui.password_symbol') }}</li>
+                                                <li>{{ __('ui.password_number') }}</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -600,7 +651,7 @@
                                                 d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                                 clip-rule="evenodd"></path>
                                         </svg>
-                                        Current Password <span class="text-red-500 ml-1">*</span>
+                                        {{ __('ui.current_password') }} <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
                                         <input type="password" id="current-password" name="current_password" required
@@ -637,7 +688,7 @@
                                                 d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                                 clip-rule="evenodd"></path>
                                         </svg>
-                                        New Password <span class="text-red-500 ml-1">*</span>
+                                        {{ __('ui.new_password') }} <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
                                         <input type="password" id="new-password" name="password" required
@@ -678,7 +729,7 @@
                                                 d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                                 clip-rule="evenodd"></path>
                                         </svg>
-                                        Confirm New Password <span class="text-red-500 ml-1">*</span>
+                                        {{ __('ui.confirm_new_password') }} <span class="text-red-500 ml-1">*</span>
                                     </label>
                                     <div class="relative">
                                         <input type="password" id="confirm-password" name="password_confirmation"
@@ -703,7 +754,7 @@
                                         </button>
                                     </div>
                                     <p x-show="!passwordMatch && document.getElementById('confirm-password').value.length > 0"
-                                        class="text-red-500 text-xs mt-2">Passwords do not match</p>
+                                        class="text-red-500 text-xs mt-2">{{ __('ui.passwords_do_not_match') }}</p>
                                     @error('password_confirmation')
                                         <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                     @enderror
@@ -731,6 +782,45 @@
                             loading: false,
                             error: null,
                             initialized: false,
+                            expandedDays: {},
+                            translations: {
+                                today: '{{ __("ui.today") }}',
+                                yesterday: '{{ __("ui.yesterday") }}',
+                                activities_count: '{{ __("ui.activities_count") }}',
+                            },
+                            get todayKey() {
+                                return new Date().toISOString().split('T')[0];
+                            },
+                            get groupedActivities() {
+                                const groups = {};
+                                this.activities.forEach(activity => {
+                                    const dateKey = new Date(activity.timestamp).toISOString().split('T')[0];
+                                    if (!groups[dateKey]) {
+                                        const d = new Date(activity.timestamp);
+                                        const today = new Date();
+                                        const yesterday = new Date();
+                                        yesterday.setDate(yesterday.getDate() - 1);
+                                        let label = '';
+                                        if (dateKey === today.toISOString().split('T')[0]) {
+                                            label = this.translations.today;
+                                        } else if (dateKey === yesterday.toISOString().split('T')[0]) {
+                                            label = this.translations.yesterday;
+                                        } else {
+                                            label = d.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                                        }
+                                        groups[dateKey] = { label: label, dateKey: dateKey, activities: [] };
+                                    }
+                                    groups[dateKey].activities.push(activity);
+                                });
+                                return Object.values(groups).sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+                            },
+                            isExpanded(dateKey) {
+                                if (dateKey === this.todayKey) return true;
+                                return this.expandedDays[dateKey] || false;
+                            },
+                            toggleDay(dateKey) {
+                                this.expandedDays[dateKey] = !this.expandedDays[dateKey];
+                            },
                             async fetchActivities() {
                                 try {
                                     this.loading = true;
@@ -749,156 +839,254 @@
                                     this.loading = false;
                                 }
                             }
-                        }" x-init="$watch('activeTab', value => { if (value === 'history' && !initialized) { initialized = true;
-                                fetchActivities(); } });
-                        if (activeTab === 'history' && !initialized) { initialized = true;
-                            fetchActivities(); }">
+                        }" x-init="$watch('activeTab', value => {
+                            if (value === 'history' && !initialized) {
+                                initialized = true;
+                                fetchActivities();
+                            }
+                        });
+                        if (activeTab === 'history' && !initialized) {
+                            initialized = true;
+                            fetchActivities();
+                        }">
 
-                        <!-- ... kode sebelumnya ... -->
+                        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ __('ui.activity_history') }}
+                        </h2>
 
-                        <!-- Activities Timeline -->
-                        <div x-show="!loading && !error && activities.length > 0"
-                            class="space-y-6 relative border-l border-gray-200 ml-3">
-                            <template x-for="(activity, index) in activities" :key="index">
-                                <div class="ml-6 relative group">
-                                    <!-- Timeline Dot -->
-                                    <div class="absolute -left-3.5 top-1.5 w-4 h-4 rounded-full ring-2 ring-white shadow-md flex items-center justify-center"
-                                        :class="{
-                                            'bg-gradient-to-r from-purple-500 to-indigo-600': activity
-                                                .type === 'reservation',
-                                            'bg-gradient-to-r from-green-500 to-emerald-600': activity
-                                                .type === 'checkin',
-                                            'bg-gradient-to-r from-red-500 to-rose-600': activity.type === 'checkout',
-                                            'bg-gradient-to-r from-sky-500 to-blue-600': activity.type === 'payment',
-                                            'bg-gradient-to-r from-orange-500 to-amber-600': activity
-                                                .type === 'print_registration'
-                                        }">
-                                        <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path
-                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
-                                        </svg>
-                                    </div>
+                        <!-- Loading State -->
+                        <div x-show="loading" class="flex items-center justify-center py-12">
+                            <svg class="animate-spin h-8 w-8 text-indigo-500" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <span class="ml-3 text-gray-500 text-sm">{{ __('ui.loading_history') }}</span>
+                        </div>
 
-                                    <!-- Activity Card -->
-                                    <div class="p-4 rounded-xl border transition-all duration-300"
-                                        :class="{
-                                            'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-100 hover:border-purple-200': activity
-                                                .type === 'reservation',
-                                            'bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 hover:border-green-200': activity
-                                                .type === 'checkin',
-                                            'bg-gradient-to-r from-red-50 to-rose-50 border-red-100 hover:border-red-200': activity
-                                                .type === 'checkout',
-                                            'bg-gradient-to-r from-sky-50 to-blue-50 border-sky-100 hover:border-sky-200': activity
-                                                .type === 'payment',
-                                            'bg-gradient-to-r from-orange-50 to-amber-50 border-orange-100 hover:border-orange-200': activity
-                                                .type === 'print_registration'
-                                        }">
-                                        <div class="flex justify-between items-start">
-                                            <div class="flex-1">
-                                                <h3 class="text-base font-semibold text-gray-900 transition-colors"
-                                                    :class="{
-                                                        'group-hover:text-indigo-700': activity.type === 'reservation',
-                                                        'group-hover:text-emerald-700': activity.type === 'checkin',
-                                                        'group-hover:text-rose-700': activity.type === 'checkout',
-                                                        'group-hover:text-blue-700': activity.type === 'payment',
-                                                        'group-hover:text-amber-700': activity
-                                                            .type === 'print_registration'
-                                                    }"
-                                                    x-text="activity.title"></h3>
-                                                <p class="text-sm text-gray-600 mt-1" x-text="activity.description">
-                                                </p>
+                        <!-- Error State -->
+                        <div x-show="!loading && error" class="text-center py-12">
+                            <svg class="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-500" x-text="error"></p>
+                        </div>
 
-                                                <!-- Activity Details -->
-                                                <div class="mt-3" x-show="activity.data">
-                                                    <template
-                                                        x-if="activity.type === 'reservation' || activity.type === 'checkin' || activity.type === 'checkout' || activity.type === 'print_registration'">
-                                                        <div class="flex flex-wrap gap-2">
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
-                                                                x-show="activity.data.room_name"
-                                                                x-text="activity.data.room_name"></span>
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
-                                                                x-show="activity.data.guest_name"
-                                                                x-text="'Guest: ' + activity.data.guest_name"></span>
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
-                                                                x-show="activity.data.printed_by"
-                                                                x-text="'Printed by: ' + activity.data.printed_by"></span>
-                                                        </div>
-                                                    </template>
+                        <!-- Empty State -->
+                        <div x-show="!loading && !error && activities.length === 0" class="text-center py-12">
+                            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-500">Belum ada aktivitas</p>
+                        </div>
 
-                                                    <template x-if="activity.type === 'payment'">
-                                                        <div class="flex items-center gap-2">
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
-                                                                x-show="activity.data.order_id"
-                                                                x-text="'Order: ' + activity.data.order_id"></span>
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                                                                x-show="activity.data.status"
-                                                                :class="{
-                                                                    'bg-green-100 text-green-800': activity.data
-                                                                        .status === 'paid',
-                                                                    'bg-yellow-100 text-yellow-800': activity.data
-                                                                        .status === 'pending',
-                                                                    'bg-red-100 text-red-800': activity.data
-                                                                        .status === 'failed'
-                                                                }"
-                                                                x-text="activity.data.status"></span>
-                                                        </div>
-                                                    </template>
-                                                </div>
+                        <!-- Grouped Activities by Date -->
+                        <div x-show="!loading && !error && activities.length > 0" class="space-y-4">
+                            <template x-for="(group, groupIndex) in groupedActivities" :key="group.dateKey">
+                                <div class="rounded-xl border border-gray-200 overflow-hidden">
+                                    <!-- Date Header -->
+                                    <button @click="toggleDay(group.dateKey)"
+                                        class="w-full flex items-center justify-between px-5 py-3 transition-colors"
+                                        :class="group.dateKey === todayKey ? 'bg-gradient-to-r from-indigo-50 to-blue-50' :
+                                            'bg-gray-50 hover:bg-gray-100'">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                                :class="group.dateKey === todayKey ? 'bg-indigo-500 text-white' :
+                                                    'bg-gray-300 text-white'">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
                                             </div>
-
-                                            <!-- Badge untuk print status -->
-                                            <div x-show="activity.type === 'print_registration' && activity.data && activity.data.is_printed == 1"
-                                                class="ml-2">
-                                                <span
-                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="currentColor"
-                                                        viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd"
-                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    Printed
-                                                </span>
+                                            <div class="text-left">
+                                                <h3 class="text-sm font-semibold"
+                                                    :class="group.dateKey === todayKey ? 'text-indigo-700' : 'text-gray-700'"
+                                                    x-text="group.label"></h3>
+                                                <p class="text-xs text-gray-500">
+                                                    <span x-text="group.activities.length"></span> aktivitas
+                                                </p>
                                             </div>
                                         </div>
+                                        <div class="flex items-center gap-2">
+                                            <span x-show="group.dateKey === todayKey"
+                                                class="px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
+                                                Live
+                                            </span>
+                                            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200"
+                                                :class="isExpanded(group.dateKey) ? 'rotate-180' : ''" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </button>
 
-                                        <div class="mt-3 flex justify-between items-center">
-                                            <!-- Print timestamp atau last print attempt -->
-                                            <div
-                                                x-show="activity.type === 'print_registration' && activity.data.printed_at">
-                                                <span
-                                                    class="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-200">
-                                                    Printed at: <span
-                                                        x-text="new Date(activity.data.printed_at).toLocaleString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })"></span>
-                                                </span>
-                                            </div>
+                                    <!-- Activities for this date -->
+                                    <div x-show="isExpanded(group.dateKey)"
+                                        x-transition:enter="transition ease-out duration-200"
+                                        x-transition:enter-start="opacity-0 -translate-y-2"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-150"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-2"
+                                        class="px-5 py-4 border-t border-gray-100">
+                                        <div class="space-y-4 relative border-l-2 border-gray-200 ml-2">
+                                            <template x-for="(activity, index) in group.activities"
+                                                :key="index">
+                                                <div class="ml-6 relative group/item">
+                                                    <!-- Timeline Dot -->
+                                                    <div class="absolute -left-[1.05rem] top-1.5 w-4 h-4 rounded-full ring-2 ring-white shadow-md flex items-center justify-center"
+                                                        :class="{
+                                                            'bg-gradient-to-r from-purple-500 to-indigo-600': activity
+                                                                .type === 'reservation',
+                                                            'bg-gradient-to-r from-green-500 to-emerald-600': activity
+                                                                .type === 'checkin',
+                                                            'bg-gradient-to-r from-red-500 to-rose-600': activity
+                                                                .type === 'checkout',
+                                                            'bg-gradient-to-r from-sky-500 to-blue-600': activity
+                                                                .type === 'payment',
+                                                            'bg-gradient-to-r from-orange-500 to-amber-600': activity
+                                                                .type === 'print_registration'
+                                                        }">
+                                                        <svg class="w-2 h-2 text-white" fill="currentColor"
+                                                            viewBox="0 0 20 20">
+                                                            <path
+                                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                                                        </svg>
+                                                    </div>
 
-                                            <!-- Activity timestamp -->
-                                            <span
-                                                class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200 ml-auto"
-                                                x-text="new Date(activity.timestamp).toLocaleString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                          })"></span>
+                                                    <!-- Activity Card -->
+                                                    <div class="p-4 rounded-xl border transition-all duration-300"
+                                                        :class="{
+                                                            'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-100 hover:border-purple-200': activity
+                                                                .type === 'reservation',
+                                                            'bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 hover:border-green-200': activity
+                                                                .type === 'checkin',
+                                                            'bg-gradient-to-r from-red-50 to-rose-50 border-red-100 hover:border-red-200': activity
+                                                                .type === 'checkout',
+                                                            'bg-gradient-to-r from-sky-50 to-blue-50 border-sky-100 hover:border-sky-200': activity
+                                                                .type === 'payment',
+                                                            'bg-gradient-to-r from-orange-50 to-amber-50 border-orange-100 hover:border-orange-200': activity
+                                                                .type === 'print_registration'
+                                                        }">
+                                                        <div class="flex justify-between items-start">
+                                                            <div class="flex-1">
+                                                                <h3 class="text-base font-semibold text-gray-900 transition-colors"
+                                                                    :class="{
+                                                                        'group-hover/item:text-indigo-700': activity
+                                                                            .type === 'reservation',
+                                                                        'group-hover/item:text-emerald-700': activity
+                                                                            .type === 'checkin',
+                                                                        'group-hover/item:text-rose-700': activity
+                                                                            .type === 'checkout',
+                                                                        'group-hover/item:text-blue-700': activity
+                                                                            .type === 'payment',
+                                                                        'group-hover/item:text-amber-700': activity
+                                                                            .type === 'print_registration'
+                                                                    }"
+                                                                    x-text="activity.title"></h3>
+                                                                <p class="text-sm text-gray-600 mt-1"
+                                                                    x-text="activity.description"></p>
+
+                                                                <!-- Activity Details -->
+                                                                <div class="mt-3" x-show="activity.data">
+                                                                    <template
+                                                                        x-if="activity.type === 'reservation' || activity.type === 'checkin' || activity.type === 'checkout' || activity.type === 'print_registration'">
+                                                                        <div class="flex flex-wrap gap-2">
+                                                                            <span
+                                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
+                                                                                x-show="activity.data.room_name"
+                                                                                x-text="activity.data.room_name"></span>
+                                                                            <span
+                                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
+                                                                                x-show="activity.data.guest_name"
+                                                                                x-text="'Guest: ' + activity.data.guest_name"></span>
+                                                                            <span
+                                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
+                                                                                x-show="activity.data.printed_by"
+                                                                                x-text="'Printed by: ' + activity.data.printed_by"></span>
+                                                                        </div>
+                                                                    </template>
+
+                                                                    <template x-if="activity.type === 'payment'">
+                                                                        <div class="flex items-center gap-2">
+                                                                            <span
+                                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
+                                                                                x-show="activity.data.order_id"
+                                                                                x-text="'Order: ' + activity.data.order_id"></span>
+                                                                            <span
+                                                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                                                                                x-show="activity.data.status"
+                                                                                :class="{
+                                                                                    'bg-green-100 text-green-800': activity
+                                                                                        .data.status === 'paid',
+                                                                                    'bg-yellow-100 text-yellow-800': activity
+                                                                                        .data.status === 'pending',
+                                                                                    'bg-red-100 text-red-800': activity
+                                                                                        .data.status === 'failed'
+                                                                                }"
+                                                                                x-text="activity.data.status"></span>
+                                                                        </div>
+                                                                    </template>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Badge untuk print status -->
+                                                            <div x-show="activity.type === 'print_registration' && activity.data && activity.data.is_printed == 1"
+                                                                class="ml-2">
+                                                                <span
+                                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                                    <svg class="w-3 h-3 mr-1" fill="currentColor"
+                                                                        viewBox="0 0 20 20">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                    Printed
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mt-3 flex justify-between items-center">
+                                                            <!-- Print timestamp -->
+                                                            <div
+                                                                x-show="activity.type === 'print_registration' && activity.data.printed_at">
+                                                                <span
+                                                                    class="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-200">
+                                                                    Printed at: <span
+                                                                        x-text="new Date(activity.data.printed_at).toLocaleString('en-US', {
+                                                                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                                    })"></span>
+                                                                </span>
+                                                            </div>
+
+                                                            <!-- Activity timestamp (time only since date is in the group header) -->
+                                                            <span
+                                                                class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200 ml-auto"
+                                                                x-text="new Date(activity.timestamp).toLocaleString('id-ID', {
+                                                                    hour: '2-digit', minute: '2-digit'
+                                                                })"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
                             </template>
                         </div>
-
-                        <!-- ... kode setelahnya ... -->
                     </div>
 
                 </div>

@@ -1,17 +1,17 @@
 <x-app-layout>
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
         <div class="flex items-center justify-between">
-            <h2 class="text-3xl font-semibold">Account Management</h2>
+            <h2 class="text-3xl font-semibold">{{ __('ui.account_management') }}</h2>
         </div>
 
         <div id="containerAccount" class="bg-white shadow-md rounded-lg overflow-hidden mt-8">
             <div class="flex justify-between items-center px-6 py-4 bg-gray-50">
-                <h2 class="text-lg font-semibold text-gray-900">Account List</h2>
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('ui.account_list') }}</h2>
                 <div class="flex items-center">
                     <div class="relative">
                         <form method="GET" action="{{ route('users-management') }}" id="searchForm">
                             <input type="text" name="search" id="searchInput" value="{{ request('search') }}"
-                                placeholder="Search users..."
+                                placeholder="{{ __('ui.search_users') }}"
                                 class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48">
                             <div class="absolute left-3 top-2.5">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
@@ -30,17 +30,17 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Name</th>
+                                {{ __('ui.name') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Email</th>
+                                {{ __('ui.email') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Role</th>
+                                {{ __('ui.role') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th>
+                                {{ __('ui.status') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Created At</th>
+                                {{ __('ui.created_at') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Updated By</th>
+                                {{ __('ui.updated_by') }}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -72,7 +72,7 @@
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                     <form method="GET" action="{{ route('users-management') }}">
                         <div class="flex items-center">
-                            <label for="per_page" class="mr-2">Show:</label>
+                            <label for="per_page" class="mr-2">{{ __('ui.show') }}:</label>
                             <select name="per_page" id="per_page" onchange="this.form.submit()"
                                 class="border border-gray-300 rounded px-4 py-2 w-32">
                                 <option value="5" {{ $perPage == 8 ? 'selected' : '' }}>8</option>

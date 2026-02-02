@@ -6,7 +6,7 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Bukti Pembayaran
+                    {{ __('ui.payment_proof') }}
                 </h1>
             </div>
         </div>
@@ -24,32 +24,28 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" id="search" name="search" placeholder="ID Pesanan atau Nama Tamu"
+                        <input type="text" id="search" name="search" placeholder="{{ __('ui.order_id_or_guest_payment') }}"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value="{{ request('search') }}">
                     </div>
 
                     <!-- Status -->
                     <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md">
-                        <option value="all">All Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }}>Waiting
-                            Verification</option>
-                        <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
-                        </option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected
-                        </option>
-                        <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>Canceled
-                        </option>
-                        <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
+                        <option value="all">{{ __('ui.all_status') }}</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('ui.pending_payment') }}</option>
+                        <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }}>{{ __('ui.waiting_verification') }}</option>
+                        <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>{{ __('ui.paid') }}</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('ui.completed') }}</option>
+                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('ui.rejected') }}</option>
+                        <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>{{ __('ui.canceled') }}</option>
+                        <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>{{ __('ui.failed') }}</option>
                     </select>
 
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-10">
                                 <input type="text" id="date_picker"
-                                    placeholder="Pilih rentang tanggal" data-input
+                                    placeholder="{{ __('ui.select_date_range') }}" data-input
                                     class="w-full min-w-[280px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
                                     value="{{ request('start_date') }}">
@@ -61,7 +57,7 @@
                     <!-- Tampilkan Per Halaman (rata kanan) -->
                     <div class="md:col-span-1 flex justify-end items-end">
                         <div class="flex items-center gap-2">
-                            <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
+                            <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                             <select name="per_page" id="per_page"
                                 class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
@@ -93,14 +89,14 @@
         // Fungsi untuk Approve Payment
         function confirmApprove(paymentId) {
             Swal.fire({
-                title: 'Konfirmasi Persetujuan',
-                text: "Apakah Anda yakin ingin menyetujui pembayaran ini?",
+                title: '{{ __('ui.confirm_approve') }}',
+                text: '{{ __('ui.confirm_approve_msg') }}',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#16a34a',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Setujui!',
-                cancelButtonText: 'Batal',
+                confirmButtonText: '{{ __('ui.yes_approve') }}',
+                cancelButtonText: '{{ __('ui.cancel') }}',
                 reverseButtons: true,
                 customClass: {
                     confirmButton: 'mr-2',
@@ -116,7 +112,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Memproses...
+                {{ __('ui.processing') }}
             `;
                     approveBtn.disabled = true;
 
@@ -136,22 +132,21 @@
                     .then(data => {
                         if (data.success) {
                             Swal.fire({
-                                title: 'Berhasil!',
+                                title: '{{ __('ui.success') }}',
                                 text: data.message,
                                 icon: 'success',
                                 confirmButtonColor: '#16a34a'
                             }).then(() => {
-                                // Reload hanya tabel
                                 fetchFilteredBookings();
                             });
                         } else {
-                            throw new Error(data.message || 'Terjadi kesalahan');
+                            throw new Error(data.message || '{{ __('ui.error_loading') }}');
                         }
                     })
                     .catch(error => {
                         Swal.fire({
-                            title: 'Gagal!',
-                            text: error.message || 'Terjadi kesalahan saat menyetujui pembayaran',
+                            title: '{{ __('ui.failed') }}',
+                            text: error.message || '{{ __('ui.error_loading') }}',
                             icon: 'error',
                             confirmButtonColor: '#dc2626'
                         });
@@ -217,35 +212,35 @@
 
             if (!note) {
                 Swal.fire({
-                    title: 'Peringatan!',
-                    text: 'Silakan masukkan alasan penolakan.',
+                    title: '{{ __('ui.warning') }}',
+                    text: '{{ __('ui.enter_rejection_reason') }}',
                     icon: 'warning',
                     confirmButtonColor: '#3b82f6',
-                    confirmButtonText: 'Mengerti'
+                    confirmButtonText: 'OK'
                 });
                 return false;
             }
 
             if (note.length < 10) {
                 Swal.fire({
-                    title: 'Peringatan!',
-                    text: 'Alasan penolakan minimal 10 karakter.',
+                    title: '{{ __('ui.warning') }}',
+                    text: '{{ __('ui.min_10_chars') }}',
                     icon: 'warning',
                     confirmButtonColor: '#3b82f6',
-                    confirmButtonText: 'Mengerti'
+                    confirmButtonText: 'OK'
                 });
                 return false;
             }
 
             Swal.fire({
-                title: 'Konfirmasi Penolakan',
-                text: 'Apakah Anda yakin ingin menolak pembayaran ini?',
+                title: '{{ __('ui.confirm_reject') }}',
+                text: '{{ __('ui.confirm_reject_msg') }}',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc2626',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Tolak!',
-                cancelButtonText: 'Batal',
+                confirmButtonText: '{{ __('ui.yes_reject') }}',
+                cancelButtonText: '{{ __('ui.cancel') }}',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -258,7 +253,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Memproses...
+                        {{ __('ui.processing') }}
                     `;
 
                     // Submit via AJAX
@@ -280,22 +275,21 @@
                             hideRejectModal(paymentId);
 
                             Swal.fire({
-                                title: 'Berhasil!',
+                                title: '{{ __('ui.success') }}',
                                 text: data.message,
                                 icon: 'success',
                                 confirmButtonColor: '#16a34a'
                             }).then(() => {
-                                // Reload hanya tabel
                                 fetchFilteredBookings();
                             });
                         } else {
-                            throw new Error(data.message || 'Terjadi kesalahan');
+                            throw new Error(data.message || '{{ __('ui.error_loading') }}');
                         }
                     })
                     .catch(error => {
                         Swal.fire({
-                            title: 'Gagal!',
-                            text: error.message || 'Terjadi kesalahan saat menolak pembayaran',
+                            title: '{{ __('ui.failed') }}',
+                            text: error.message || '{{ __('ui.error_loading') }}',
                             icon: 'error',
                             confirmButtonColor: '#dc2626'
                         });
@@ -407,7 +401,7 @@
                         console.error('Error:', error);
                         tableContainer.innerHTML = `
                             <div class="text-center py-8 text-red-500">
-                                Gagal memuat data. Silakan coba lagi.
+                                {{ __('ui.error_loading') }}
                             </div>
                         `;
                     });
@@ -537,11 +531,11 @@
 
             if (!reasonSelect.value) {
                 Swal.fire({
-                    title: 'Peringatan!',
-                    text: 'Silakan pilih alasan pembatalan.',
+                    title: '{{ __('ui.warning') }}',
+                    text: '{{ __('ui.select_cancel_reason') }}',
                     icon: 'warning',
                     confirmButtonColor: '#3b82f6',
-                    confirmButtonText: 'Mengerti'
+                    confirmButtonText: 'OK'
                 });
                 reasonSelect.focus();
                 return false;
@@ -549,11 +543,11 @@
 
             if (reasonSelect.value === 'other' && !customReason.value.trim()) {
                 Swal.fire({
-                    title: 'Peringatan!',
-                    text: 'Silakan jelaskan alasan pembatalan.',
+                    title: '{{ __('ui.warning') }}',
+                    text: '{{ __('ui.enter_custom_reason') }}',
                     icon: 'warning',
                     confirmButtonColor: '#3b82f6',
-                    confirmButtonText: 'Mengerti'
+                    confirmButtonText: 'OK'
                 });
                 customReason.focus();
                 return false;
@@ -563,26 +557,25 @@
             const refundValue = refundAmount.value.replace(/[^\d]/g, '');
             if (!refundValue || parseInt(refundValue) <= 0) {
                 Swal.fire({
-                    title: 'Peringatan!',
-                    text: 'Silakan masukkan jumlah pengembalian dana yang valid.',
+                    title: '{{ __('ui.warning') }}',
+                    text: '{{ __('ui.enter_valid_refund_amount') }}',
                     icon: 'warning',
                     confirmButtonColor: '#3b82f6',
-                    confirmButtonText: 'Mengerti'
+                    confirmButtonText: 'OK'
                 });
                 refundAmount.focus();
                 return false;
             }
 
-            // Konfirmasi akhir
             Swal.fire({
-                title: 'Konfirmasi Pembatalan',
-                text: 'Apakah Anda yakin ingin membatalkan booking ini? Tindakan ini tidak dapat dibatalkan.',
+                title: '{{ __('ui.confirm_cancel') }}',
+                text: '{{ __('ui.confirm_cancel_msg') }}',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc2626',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Batalkan!',
-                cancelButtonText: 'Batal',
+                confirmButtonText: '{{ __('ui.yes_cancel') }}',
+                cancelButtonText: '{{ __('ui.cancel') }}',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -595,7 +588,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Memproses...
+                        {{ __('ui.processing') }}
                     `;
 
                     // Submit via AJAX
@@ -617,22 +610,21 @@
                             hideCancelModal(paymentId);
 
                             Swal.fire({
-                                title: 'Berhasil!',
+                                title: '{{ __('ui.success') }}',
                                 text: data.message,
                                 icon: 'success',
                                 confirmButtonColor: '#16a34a'
                             }).then(() => {
-                                // Reload hanya tabel
                                 fetchFilteredBookings();
                             });
                         } else {
-                            throw new Error(data.message || 'Terjadi kesalahan');
+                            throw new Error(data.message || '{{ __('ui.error_loading') }}');
                         }
                     })
                     .catch(error => {
                         Swal.fire({
-                            title: 'Gagal!',
-                            text: error.message || 'Terjadi kesalahan saat membatalkan booking',
+                            title: '{{ __('ui.failed') }}',
+                            text: error.message || '{{ __('ui.error_loading') }}',
                             icon: 'error',
                             confirmButtonColor: '#dc2626'
                         });

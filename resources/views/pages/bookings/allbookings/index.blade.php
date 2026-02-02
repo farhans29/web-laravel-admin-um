@@ -5,7 +5,7 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    All Bookings
+                    {{ __('ui.all_bookings') }}
                 </h1>
             </div>
         </div>
@@ -24,35 +24,33 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" id="search" name="search" placeholder="Order ID or Guest Name"
+                        <input type="text" id="search" name="search" placeholder="{{ __('ui.order_id_or_guest') }}"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value="{{ request('search') }}">
                     </div>
 
                     <!-- Status -->
                     <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md">
-                        <option value="">All Status</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Payment
+                        <option value="">{{ __('ui.all_status') }}</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('ui.pending_payment') }}
                         </option>
-                        <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }}>Waiting
-                            Confirmation</option>
-                        <option value="waiting-check-in" {{ request('status') == 'ready' ? 'selected' : '' }}>Ready for
-                            Check-In
+                        <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }}>{{ __('ui.waiting_confirmation') }}</option>
+                        <option value="waiting-check-in" {{ request('status') == 'ready' ? 'selected' : '' }}>{{ __('ui.ready_for_checkin') }}
                         </option>
-                        <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>Checked-In
+                        <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>{{ __('ui.checked_in') }}
                         </option>
-                        <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>Completed
+                        <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>{{ __('ui.completed') }}
                         </option>
-                        <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>Canceled
+                        <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>{{ __('ui.canceled') }}
                         </option>
-                        <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired
+                        <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>{{ __('ui.expired') }}
                         </option>
                     </select>
 
                     <div class="md:col-span-2 flex gap-2">
                         <div class="flex-1">
                             <div class="relative z-50">
-                                <input type="text" id="date_picker" placeholder="Select date range"
+                                <input type="text" id="date_picker" placeholder="{{ __('ui.select_date_range') }}"
                                     data-input
                                     class="w-full min-w-[320px] px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <input type="hidden" id="start_date" name="start_date"
@@ -65,7 +63,7 @@
                     <!-- Show Per Page (aligned to the right) -->
                     <div class="md:col-span-1 flex justify-end items-end">
                         <div class="flex items-center gap-2">
-                            <label for="per_page" class="text-sm text-gray-600">Show:</label>
+                            <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                             <select name="per_page" id="per_page"
                                 class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
@@ -185,7 +183,7 @@
                         console.error('Error:', error);
                         tableContainer.innerHTML = `
                         <div class="text-center py-8 text-red-500">
-                            Error loading data. Please try again.
+                            {{ __('ui.error_loading') }}
                         </div>
                     `;
                     });

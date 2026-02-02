@@ -5,9 +5,9 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Customer Management
+                    {{ __('ui.customer_management') }}
                 </h1>
-                <p class="text-gray-600 mt-2">Manage customer information and booking history</p>
+                <p class="text-gray-600 mt-2">{{ __('ui.manage_customers_desc') }}</p>
             </div>
             <div class="mt-4 md:mt-0">
                 <button type="button" onclick="openPreRegisterModal()"
@@ -17,7 +17,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
-                    Pre-Register Account
+                    {{ __('ui.pre_register_account') }}
                 </button>
             </div>
         </div>
@@ -30,11 +30,11 @@
                     <!-- Search Input -->
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
-                            Search
+                            {{ __('ui.search') }}
                         </label>
                         <div class="relative">
                             <input type="text" name="search" id="search" value="{{ request('search') }}"
-                                placeholder="Search by name, email, or phone..."
+                                placeholder="{{ __('ui.search_placeholder_customer') }}"
                                 class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                             <div class="absolute left-3 top-1/2 -translate-y-1/2">
@@ -50,30 +50,27 @@
                     <!-- Registration Status Filter -->
                     <div>
                         <label for="registration_status" class="block text-sm font-medium text-gray-700 mb-1">
-                            Registration Status
+                            {{ __('ui.registration_status') }}
                         </label>
                         <select name="registration_status" id="registration_status"
                             class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                            <option value="all" {{ request('registration_status') == 'all' ? 'selected' : '' }}>All
-                                Customers</option>
+                            <option value="all" {{ request('registration_status') == 'all' ? 'selected' : '' }}>{{ __('ui.all_customers') }}</option>
                             <option value="registered"
-                                {{ request('registration_status') == 'registered' ? 'selected' : '' }}>Registered Only
-                            </option>
-                            <option value="guest" {{ request('registration_status') == 'guest' ? 'selected' : '' }}>
-                                Guest Only</option>
+                                {{ request('registration_status') == 'registered' ? 'selected' : '' }}>{{ __('ui.registered_only') }}</option>
+                            <option value="guest" {{ request('registration_status') == 'guest' ? 'selected' : '' }}>{{ __('ui.guest_only') }}</option>
                         </select>
                     </div>
 
                     <!-- Property Filter -->
                     <div>
                         <label for="property_id" class="block text-sm font-medium text-gray-700 mb-1">
-                            Property
+                            {{ __('ui.property') }}
                         </label>
                         <select name="property_id" id="property_id"
                             class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                            <option value="">All Properties</option>
+                            <option value="">{{ __('ui.all_properties') }}</option>
                             @foreach ($properties as $property)
                                 <option value="{{ $property->idrec }}"
                                     {{ request('property_id') == $property->idrec ? 'selected' : '' }}>
@@ -84,7 +81,7 @@
                     </div>
                     <!-- Per Page -->
                     <div class="flex items-center gap-2 justify-end">
-                        <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
+                        <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                         <select name="per_page" id="per_page"
                             class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                             <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
@@ -124,7 +121,7 @@
                 <div
                     class="px-6 py-5 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
                     <h2 class="text-xl font-semibold text-gray-900">
-                        <span x-text="customerName"></span> - Booking History
+                        <span x-text="customerName"></span> - {{ __('ui.booking_history') }}
                     </h2>
                     <button class="text-gray-500 text-xl hover:text-gray-700 transition-colors"
                         @click="modalOpen = false">
@@ -144,7 +141,7 @@
                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                             </path>
                         </svg>
-                        <p class="text-gray-600 mt-2">Loading bookings...</p>
+                        <p class="text-gray-600 mt-2">{{ __('ui.loading_bookings') }}</p>
                     </div>
 
                     <!-- Bookings List -->
@@ -169,7 +166,7 @@
 
                                 <div class="grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <p class="text-gray-500">Order ID</p>
+                                        <p class="text-gray-500">{{ __('ui.order_id') }}</p>
                                         <p class="font-medium" x-text="booking.order_id"></p>
                                     </div>
                                     <div>

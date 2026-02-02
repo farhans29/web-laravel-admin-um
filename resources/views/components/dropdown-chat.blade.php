@@ -144,7 +144,7 @@
                     <p class="text-xs opacity-90 truncate" x-text="currentConversation?.order_id"></p>
                 </div>
             </div>
-            <a :href="'/chat/' + currentConversation?.id" class="hover:bg-white/20 rounded-full p-1 transition" title="Open Full Chat">
+            <a :href="'/chat?open=' + currentConversation?.id" class="hover:bg-white/20 rounded-full p-1 transition" title="Open Full Chat">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
@@ -200,8 +200,8 @@
                                             <div class="mt-2 space-y-2">
                                                 <template x-for="attachment in message.attachments" :key="attachment.id">
                                                     <template x-if="attachment.file_type && attachment.file_type.startsWith('image/')">
-                                                        <a :href="attachment.file_url || '/storage/' + attachment.file_path" target="_blank">
-                                                            <img :src="attachment.file_url || '/storage/' + attachment.file_path"
+                                                        <a :href="(attachment.file_url || '/storage/' + attachment.file_path).replace(/^(?!\/)(?!http)/, '/')" target="_blank">
+                                                            <img :src="(attachment.file_url || '/storage/' + attachment.file_path).replace(/^(?!\/)(?!http)/, '/')"
                                                                  :alt="attachment.file_name || 'Image'"
                                                                  class="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
                                                         </a>
@@ -260,18 +260,23 @@ function dropdownChat() {
         searchQuery: '',
         totalUnread: 0,
         pollInterval: null,
+        previousUnreadCounts: {},
+        notifInitialized: false,
 
         init() {
             this.loadConversations();
             // Poll for new messages every 15 seconds
             this.pollInterval = setInterval(() => {
-                if (this.open) {
-                    this.loadConversations();
-                    if (this.chatWindowOpen && this.currentConversation) {
-                        this.loadMessages(this.currentConversation.id);
-                    }
+                this.loadConversations();
+                if (this.open && this.chatWindowOpen && this.currentConversation) {
+                    this.loadMessages(this.currentConversation.id);
                 }
             }, 15000);
+
+            // Request notification permission after a delay
+            if ('Notification' in window && Notification.permission === 'default') {
+                // Will be requested when user interacts with chat
+            }
 
             // Make openChat globally available
             window.openChat = (id) => {
@@ -308,7 +313,7 @@ function dropdownChat() {
                 const data = await response.json();
 
                 if (data.success) {
-                    this.conversations = data.data.map(conv => ({
+                    const newConversations = data.data.map(conv => ({
                         id: conv.id,
                         order_id: conv.order_id,
                         title: conv.title,
@@ -316,9 +321,26 @@ function dropdownChat() {
                         messages_count: conv.messages_count || 0,
                         last_message_at: conv.last_message_at,
                         status: conv.status,
-                        unread_count: conv.unread_count || 0
+                        unread_count: conv.unread_count || 0,
+                        user_name: conv.booking?.user_name || conv.transaction?.user?.name || '',
+                        last_message_text: conv.messages?.[0]?.message_text || '',
+                        last_message_sender: conv.messages?.[0]?.sender?.name || ''
                     }));
 
+                    // Check for new messages and show browser notification
+                    if (this.notifInitialized && !window.__chatPageActive) {
+                        this.checkAndNotify(newConversations);
+                    }
+
+                    // Store unread state
+                    newConversations.forEach(c => {
+                        if (!this.notifInitialized) {
+                            this.previousUnreadCounts[c.id] = c.unread_count;
+                        }
+                    });
+                    this.notifInitialized = true;
+
+                    this.conversations = newConversations;
                     this.totalUnread = data.total_unread || this.conversations.reduce((sum, c) => sum + c.unread_count, 0);
                 }
             } catch (error) {
@@ -467,6 +489,37 @@ function dropdownChat() {
             if (typeof window.openCheckedInModal === 'function') {
                 window.openCheckedInModal();
             }
+        },
+
+        checkAndNotify(newConversations) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+            newConversations.forEach(conv => {
+                const prevCount = this.previousUnreadCounts[conv.id] || 0;
+                if (conv.unread_count > prevCount) {
+                    try {
+                        const senderName = conv.last_message_sender || conv.user_name || 'New message';
+                        const preview = conv.last_message_text?.substring(0, 80) || 'You have a new message';
+
+                        const notification = new Notification(senderName, {
+                            body: preview,
+                            icon: '/images/frist_icon.png',
+                            tag: `chat-${conv.id}`,
+                        });
+
+                        notification.onclick = function() {
+                            window.focus();
+                            window.location.href = `/chat?open=${conv.id}`;
+                            notification.close();
+                        };
+
+                        setTimeout(() => notification.close(), 5000);
+                    } catch (e) {
+                        console.error('Notification error:', e);
+                    }
+                }
+                this.previousUnreadCounts[conv.id] = conv.unread_count;
+            });
         }
     }
 }

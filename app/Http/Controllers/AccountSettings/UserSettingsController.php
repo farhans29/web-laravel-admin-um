@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AccountSettings;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Password;
@@ -42,6 +43,26 @@ class UserSettingsController extends Controller
                 ->withInput()
                 ->with('active_tab', 'security');
         }
+    }
+
+    /**
+     * Update the user's locale preference.
+     */
+    public function updateLocale(Request $request)
+    {
+        $validated = $request->validate([
+            'locale' => ['required', 'string', 'in:en,id'],
+        ]);
+
+        $request->user()->update([
+            'locale' => $validated['locale'],
+        ]);
+
+        App::setLocale($validated['locale']);
+
+        return redirect()->back()
+            ->with('success', __('ui.language_updated'))
+            ->with('active_tab', 'account');
     }
 
     /**

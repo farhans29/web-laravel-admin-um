@@ -120,6 +120,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
     // User Settings Routes
     Route::put('/user/password', [UserSettingsController::class, 'updatePassword'])->name('user.password.update');
     Route::get('/user/activity', [UserSettingsController::class, 'getUserActivity'])->name('user.activity');
+    Route::post('/user/locale', [UserSettingsController::class, 'updateLocale'])->name('user.locale.update');
 
     Route::prefix('bookings')->group(function () {
         Route::get('/bookings', [AllBookingController::class, 'index'])->name('bookings.index');

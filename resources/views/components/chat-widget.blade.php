@@ -175,8 +175,8 @@
                                             <div class="mt-2 space-y-2">
                                                 <template x-for="attachment in message.attachments" :key="attachment.id">
                                                     <template x-if="attachment.file_type && attachment.file_type.startsWith('image/')">
-                                                        <a :href="attachment.file_url || '/storage/' + attachment.file_path" target="_blank">
-                                                            <img :src="attachment.file_url || '/storage/' + attachment.file_path"
+                                                        <a :href="(attachment.file_url || '/storage/' + attachment.file_path).replace(/^(?!\/)(?!http)/, '/')" target="_blank">
+                                                            <img :src="(attachment.file_url || '/storage/' + attachment.file_path).replace(/^(?!\/)(?!http)/, '/')"
                                                                  :alt="attachment.file_name || 'Image'"
                                                                  class="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
                                                         </a>

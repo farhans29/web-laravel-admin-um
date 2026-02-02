@@ -33,9 +33,8 @@ class ChatAttachment extends Model
     public function getFileUrlAttribute()
     {
         if ($this->file_path) {
-            // Remove 'public/' prefix if exists
-            $path = str_replace('public/', '', $this->file_path);
-            return Storage::url($path);
+            $path = $this->normalizePath($this->file_path);
+            return '/storage/' . $path;
         }
         return null;
     }
@@ -43,11 +42,21 @@ class ChatAttachment extends Model
     public function getThumbnailUrlAttribute()
     {
         if ($this->thumbnail_path) {
-            // Remove 'public/' prefix if exists
-            $path = str_replace('public/', '', $this->thumbnail_path);
-            return Storage::url($path);
+            $path = $this->normalizePath($this->thumbnail_path);
+            return '/storage/' . $path;
         }
         return $this->file_url;
+    }
+
+    /**
+     * Normalize file path by stripping common prefixes
+     * Handles paths from both web uploads and mobile uploads
+     */
+    protected function normalizePath(string $path): string
+    {
+        // Remove prefixes: "storage/app/public/", "public/", "storage/"
+        $path = preg_replace('#^(storage/app/public/|public/|storage/)#', '', $path);
+        return $path;
     }
 
     // Helper Methods
