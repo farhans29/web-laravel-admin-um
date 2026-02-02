@@ -205,6 +205,8 @@ return [
     'master_properties' => 'Master Properti',
     'master_rooms' => 'Master Kamar',
     'property_facilities' => 'Fasilitas Properti',
+    'property_management' => 'Manajemen Properti',
+    'add_property' => 'Tambah Properti',
     'room_facilities' => 'Fasilitas Kamar',
     'property_name' => 'Nama Properti',
     'room_name' => 'Nama Kamar',

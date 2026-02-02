@@ -203,6 +203,8 @@ return [
 
     // Properties
     'master_properties' => 'Master Properties',
+    'add_property' => 'Tambah Properti',
+    'property_management' => 'Manajemen Properti',
     'master_rooms' => 'Master Rooms',
     'property_facilities' => 'Property Facilities',
     'room_facilities' => 'Room Facilities',
