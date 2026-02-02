@@ -371,10 +371,11 @@
             // Format number with thousand separator (dot)
             function formatNumber(num) {
                 if (num === null || num === undefined || num === '') return '';
-                // Remove all non-digit characters
-                const cleanNum = String(num).replace(/\D/g, '');
-                if (cleanNum === '') return '';
-                // Format with dots as thousand separators
+                // Parse as float first to handle decimal values from server (e.g., "500000.00")
+                const parsed = parseFloat(String(num));
+                if (isNaN(parsed)) return '';
+                // Round to integer then format with dots as thousand separators
+                const cleanNum = String(Math.round(parsed));
                 return cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
             }
 
