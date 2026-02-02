@@ -859,8 +859,9 @@ class DashboardController extends Controller
             ];
         }
 
-        // Get room reports - Pass userPropertyId untuk filter berdasarkan user_type
-        $roomReports = $this->getPropertyRoomReportData($userPropertyId);
+        // Get room reports - Let the method handle property filtering internally
+        // so it always returns the keyed-by-property-ID format the blade expects
+        $roomReports = $this->getPropertyRoomReportData();
 
         // Get new dashboard data
         $occupiedRooms = $this->getOccupiedRoomsDetails($userPropertyId);
