@@ -268,7 +268,7 @@ class DashboardController extends Controller
                     'booking_id' => $booking->idrec,
                     'guest_name' => $booking->user_name ?? $booking->transaction->user_name ?? 'N/A',
                     'room_name' => $booking->room->name ?? 'N/A',
-                    'room_type' => $booking->room->type ?? 'N/A',
+                    'room_number' => $booking->room->no ?? 'N/A',
                     'property_name' => $booking->property->name ?? 'N/A',
                     'check_in_date' => $checkIn->format('d M Y'),
                     'check_out_date' => $checkOut->format('d M Y'),
