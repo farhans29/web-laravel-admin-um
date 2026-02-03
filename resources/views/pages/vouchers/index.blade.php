@@ -96,7 +96,8 @@
                             </label>
                             <input type="text" id="code" name="code" required minlength="8" maxlength="12"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase"
-                                placeholder="Contoh: HPNY2026" style="text-transform: uppercase;">
+                                placeholder="Contoh: HPNY2026"
+                                oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <!-- Name -->
