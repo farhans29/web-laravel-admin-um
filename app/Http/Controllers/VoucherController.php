@@ -73,6 +73,9 @@ class VoucherController extends Controller
                 'status' => 'required|in:active,inactive',
             ]);
 
+            // Uppercase voucher code
+            $validated['code'] = strtoupper($validated['code']);
+
             // Handle property_id based on scope_type
             if ($validated['scope_type'] === 'property') {
                 $validated['property_id'] = $request->property_id;
@@ -136,6 +139,7 @@ class VoucherController extends Controller
             ]);
 
             $validated['updated_by'] = Auth::id();
+            $validated['code'] = strtoupper($validated['code']);
 
             $voucher->update($validated);
 
