@@ -56,7 +56,8 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $room->property_name }}</div>
+                            <div class="text-sm text-gray-900">{{ $room->property->name ?? '-' }}</div>
+                            <div class="text-sm text-gray-500">{{ $room->property->province ?? '-' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900 capitalize">{{ $room->type }}</div>
