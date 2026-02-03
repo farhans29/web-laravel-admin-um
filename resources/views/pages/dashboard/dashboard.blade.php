@@ -131,14 +131,14 @@
                                         <div class="flex-1">
                                             <p
                                                 class="text-green-100 text-xs font-semibold uppercase tracking-wide mb-2">
-                                                Check-In</p>
+                                                {{ __('ui.check_in') }}</p>
                                             <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
                                                 {{ $stats['checkin'] ?? 0 }}</h3>
                                             <p class="text-green-200 text-sm">
                                                 @if ($isSite && $propertyName)
-                                                    Menginap di {{ $propertyName }}
+                                                    {{ __('ui.staying_at') }} {{ $propertyName }}
                                                 @else
-                                                    Sedang Menginap
+                                                    {{ __('ui.staying_at') }}
                                                 @endif
                                             </p>
                                         </div>
@@ -164,10 +164,10 @@
                                         <div class="flex-1">
                                             <p
                                                 class="text-yellow-100 text-xs font-semibold uppercase tracking-wide mb-2">
-                                                Check-Out</p>
+                                                {{ __('ui.check_out') }}</p>
                                             <h3 class="text-white text-3xl font-bold mb-1 drop-shadow">
                                                 {{ $stats['checkout'] ?? 0 }}</h3>
-                                            <p class="text-yellow-200 text-sm">H-3 sebelum tanggal check-out</p>
+                                            <p class="text-yellow-200 text-sm">{{ __('ui.checkout_reminder') }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -200,7 +200,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h2 class="text-2xl font-bold text-gray-800">Informasi Keuangan</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">{{ __('ui.financial_info') }}</h2>
                 </div>
 
                 <!-- Financial Summary Cards -->
@@ -218,10 +218,11 @@
                                     </svg>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Hari Ini</span>
+                                    <span
+                                        class="text-xs bg-white/20 px-2 py-1 rounded-full">{{ __('ui.today') }}</span>
                                 </div>
                             </div>
-                            <h3 class="text-sm font-medium text-emerald-100 mb-1">Pendapatan Hari Ini</h3>
+                            <h3 class="text-sm font-medium text-emerald-100 mb-1">{{ __('ui.today_revenue') }}</h3>
                             <div class="text-3xl font-bold mb-2">
                                 Rp {{ number_format($financeStats['today_revenue'] ?? 0, 0, ',', '.') }}
                             </div>
@@ -231,7 +232,8 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                 </svg>
-                                <span>{{ $financeStats['today_transactions'] ?? 0 }} transaksi</span>
+                                <span>{{ $financeStats['today_transactions'] ?? 0 }}
+                                    {{ __('ui.transactions') }}</span>
                             </div>
                         </div>
                     @endif
@@ -249,13 +251,62 @@
                                     </svg>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Bulan Ini</span>
+                                    <span
+                                        class="text-xs bg-white/20 px-2 py-1 rounded-full">{{ __('ui.this_month') }}</span>
                                 </div>
                             </div>
-                            <h3 class="text-sm font-medium text-blue-100 mb-1">Pendapatan Bulan Ini</h3>
+                            <h3 class="text-sm font-medium text-blue-100 mb-1">{{ __('ui.monthly_revenue') }}</h3>
                             <div class="text-3xl font-bold mb-2">
                                 Rp {{ number_format($financeStats['monthly_revenue'] ?? 0, 0, ',', '.') }}
                             </div>
+                            @php $revenueChange = $financeStats['revenue_change'] ?? 0; @endphp
+                            <div class="flex items-center gap-2 text-sm">
+                                @php
+                                    $isUp = $revenueChange > 0;
+                                    $isDown = $revenueChange < 0;
+                                @endphp
+
+                                <span
+                                    class="
+                                            inline-flex items-center gap-1.5
+                                            px-2.5 py-1 rounded-full font-medium
+                                            transition-all duration-300
+                                            {{ $isUp ? 'bg-emerald-500/15 text-emerald-400' : '' }}
+                                            {{ $isDown ? 'bg-rose-500/15 text-rose-400' : '' }}
+                                            {{ !$isUp && !$isDown ? 'bg-slate-500/15 text-slate-300' : '' }}
+                                        ">
+                                    @if ($isUp)
+                                        <!-- Arrow Up -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 15l7-7 7 7" />
+                                        </svg>
+                                        +{{ $revenueChange }}%
+                                    @elseif ($isDown)
+                                        <!-- Arrow Down -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                        {{ $revenueChange }}%
+                                    @else
+                                        <!-- Minus -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 12h14" />
+                                        </svg>
+                                        0%
+                                    @endif
+                                </span>
+
+                                <span class="text-xs text-blue-100">
+                                    {{ __('ui.from_last_month') }}
+                                </span>
+                            </div>
+
                         </div>
                     @endif
 
@@ -274,16 +325,17 @@
                                 <div class="text-right">
                                     <span class="text-xs bg-white/20 px-2 py-1 rounded-full flex items-center">
                                         <span class="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></span>
-                                        Pending
+                                        {{ __('ui.pending') }}
                                     </span>
                                 </div>
                             </div>
-                            <h3 class="text-sm font-medium text-amber-100 mb-1">Pembayaran Tertunda</h3>
+                            <h3 class="text-sm font-medium text-amber-100 mb-1">{{ __('ui.pending_payments') }}</h3>
                             <div class="text-3xl font-bold mb-2">
                                 Rp {{ number_format($financeStats['pending_payments'] ?? 0, 0, ',', '.') }}
                             </div>
                             <div class="flex items-center text-sm text-amber-100">
-                                <span>{{ $financeStats['pending_count'] ?? 0 }} invoice menunggu pembayaran</span>
+                                <span>{{ $financeStats['pending_count'] ?? 0 }}
+                                    {{ __('ui.invoice_awaiting_payment') }}</span>
                             </div>
                         </div>
                     @endif
@@ -304,7 +356,7 @@
                                     <span class="text-xs bg-white/20 px-2 py-1 rounded-full">Status</span>
                                 </div>
                             </div>
-                            <h3 class="text-sm font-medium text-purple-100 mb-1">Tingkat Pembayaran</h3>
+                            <h3 class="text-sm font-medium text-purple-100 mb-1">{{ __('ui.payment_rate') }}</h3>
                             <div class="text-3xl font-bold mb-2">
                                 {{ $financeStats['payment_success_rate'] ?? 0 }}%
                             </div>
@@ -329,9 +381,10 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                         </svg>
-                                        <h3 class="font-semibold text-gray-800 text-lg">Metode Pembayaran</h3>
+                                        <h3 class="font-semibold text-gray-800 text-lg">
+                                            {{ __('ui.payment_methods_title') }}</h3>
                                     </div>
-                                    <span class="text-xs text-gray-500">Bulan Ini</span>
+                                    <span class="text-xs text-gray-500">{{ __('ui.this_month') }}</span>
                                 </div>
                             </div>
                             <div class="p-6">
@@ -386,7 +439,8 @@
                                                 </div>
                                                 <div>
                                                     <p class="font-semibold text-gray-800">{{ $method['method'] }}</p>
-                                                    <p class="text-sm text-gray-500">{{ $method['count'] }} transaksi
+                                                    <p class="text-sm text-gray-500">{{ $method['count'] }}
+                                                        {{ __('ui.transactions') }}
                                                     </p>
                                                 </div>
                                             </div>
@@ -398,7 +452,7 @@
                                         </div>
                                     @empty
                                         <div class="text-center py-8 text-gray-500">
-                                            <p>Belum ada data pembayaran bulan ini</p>
+                                            <p>{{ __('ui.no_payment_data_this_month') }}</p>
                                         </div>
                                     @endforelse
                                 </div>
@@ -407,7 +461,7 @@
                                 @if (!empty($financeStats['payment_methods']))
                                     <div class="mt-6 pt-4 border-t-2 border-gray-200">
                                         <div class="flex items-center justify-between">
-                                            <p class="text-lg font-bold text-gray-800">Total Pendapatan</p>
+                                            <p class="text-lg font-bold text-gray-800">{{ __('ui.total_income') }}</p>
                                             <p class="text-2xl font-bold text-blue-600">Rp
                                                 {{ number_format($financeStats['payment_methods_total'] ?? 0, 0, ',', '.') }}
                                             </p>
@@ -430,11 +484,12 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
-                                        <h3 class="font-semibold text-gray-800 text-lg">Pendapatan Per Property</h3>
+                                        <h3 class="font-semibold text-gray-800 text-lg">
+                                            {{ __('ui.revenue_per_property') }}</h3>
                                     </div>
                                     <select id="propertySelect"
                                         class="text-xs px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                        <option value="">Semua Property</option>
+                                        <option value="">{{ __('ui.all_properties') }}</option>
                                         @foreach ($roomReports ?? [] as $propertyId => $report)
                                             @if (isset($report['property']['name']))
                                                 <option value="{{ $propertyId }}">{{ $report['property']['name'] }}
@@ -517,10 +572,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
-                                <h2 class="font-semibold text-gray-800 text-lg">Kamar Terisi Saat Ini</h2>
+                                <h2 class="font-semibold text-gray-800 text-lg">
+                                    {{ __('ui.occupied_rooms_currently') }}</h2>
                                 <span
                                     class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($occupiedRooms) }}
-                                    Aktif</span>
+                                    {{ __('ui.active') }}</span>
                             </div>
                             @if (count($occupiedRooms) > 4)
                                 <div class="flex items-center text-sm text-indigo-600">
@@ -529,7 +585,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
                                     </svg>
-                                    Geser untuk melihat lebih banyak
+                                    {{ __('ui.scroll_to_see_more') }}
                                 </div>
                             @endif
                         </div>
@@ -566,7 +622,7 @@
                                                                     stroke-width="2"
                                                                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                                             </svg>
-                                                            Terlambat
+                                                            {{ __('ui.overdue') }}
                                                         </span>
                                                     @elseif($occupied['is_checkout_today'])
                                                         <span
@@ -578,12 +634,12 @@
                                                                     stroke-width="2"
                                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                             </svg>
-                                                            Check-Out Hari Ini
+                                                            {{ __('ui.checkout_today_label') }}
                                                         </span>
                                                     @else
                                                         <span
                                                             class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                                                            Aktif
+                                                            {{ __('ui.active') }}
                                                         </span>
                                                     @endif
                                                 </div>
@@ -615,9 +671,8 @@
                                                 <!-- Progress Bar -->
                                                 <div class="mb-3">
                                                     <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                                        <span>Hari {{ $occupied['days_stayed'] }} dari
-                                                            {{ $occupied['total_days'] }}</span>
-                                                        <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
+                                                        <span>{{ __('ui.day_of_total', ['current' => $occupied['days_stayed'], 'total' => $occupied['total_days']]) }}</span>
+                                                        <span>{{ __('ui.remaining_days', ['count' => $occupied['days_remaining']]) }}</span>
                                                     </div>
                                                     <div class="w-full bg-gray-200 rounded-full h-2">
                                                         <div class="bg-indigo-600 h-2 rounded-full transition-all"
@@ -630,13 +685,13 @@
                                                 <div
                                                     class="flex justify-between items-center pt-3 border-t border-gray-200">
                                                     <div>
-                                                        <p class="text-xs text-gray-500">Tarif Harian</p>
+                                                        <p class="text-xs text-gray-500">{{ __('ui.daily_rate') }}</p>
                                                         <p class="text-sm font-semibold text-gray-800">Rp
                                                             {{ number_format($occupied['daily_rate'], 0, ',', '.') }}
                                                         </p>
                                                     </div>
                                                     <div class="text-right">
-                                                        <p class="text-xs text-gray-500">Total</p>
+                                                        <p class="text-xs text-gray-500">{{ __('ui.total') }}</p>
                                                         <p class="text-sm font-semibold text-indigo-600">Rp
                                                             {{ number_format($occupied['total_price'], 0, ',', '.') }}
                                                         </p>
@@ -673,7 +728,7 @@
                                                             stroke-width="2"
                                                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                                     </svg>
-                                                    Terlambat
+                                                    {{ __('ui.overdue') }}
                                                 </span>
                                             @elseif($occupied['is_checkout_today'])
                                                 <span
@@ -684,12 +739,12 @@
                                                             stroke-width="2"
                                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    Check-Out Hari Ini
+                                                    {{ __('ui.checkout_today_label') }}
                                                 </span>
                                             @else
                                                 <span
                                                     class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                                                    Aktif
+                                                    {{ __('ui.active') }}
                                                 </span>
                                             @endif
                                         </div>
@@ -721,9 +776,8 @@
                                         <!-- Progress Bar -->
                                         <div class="mb-3">
                                             <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                                <span>Hari {{ $occupied['days_stayed'] }} dari
-                                                    {{ $occupied['total_days'] }}</span>
-                                                <span>{{ $occupied['days_remaining'] }} hari tersisa</span>
+                                                <span>{{ __('ui.day_of_total', ['current' => $occupied['days_stayed'], 'total' => $occupied['total_days']]) }}</span>
+                                                <span>{{ __('ui.remaining_days', ['count' => $occupied['days_remaining']]) }}</span>
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-full h-2">
                                                 <div class="bg-indigo-600 h-2 rounded-full transition-all"
@@ -734,12 +788,12 @@
                                         <!-- Revenue Info -->
                                         <div class="flex justify-between items-center pt-3 border-t border-gray-200">
                                             <div>
-                                                <p class="text-xs text-gray-500">Tarif Harian</p>
+                                                <p class="text-xs text-gray-500">{{ __('ui.daily_rate') }}</p>
                                                 <p class="text-sm font-semibold text-gray-800">Rp
                                                     {{ number_format($occupied['daily_rate'], 0, ',', '.') }}</p>
                                             </div>
                                             <div class="text-right">
-                                                <p class="text-xs text-gray-500">Total</p>
+                                                <p class="text-xs text-gray-500">{{ __('ui.total') }}</p>
                                                 <p class="text-sm font-semibold text-indigo-600">Rp
                                                     {{ number_format($occupied['total_price'], 0, ',', '.') }}</p>
                                             </div>
@@ -790,11 +844,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 10l7-7m0 0l7 7m-7-7v18" />
                                 </svg>
-                                <h2 class="font-semibold text-gray-800 text-lg">Check-in Hari Ini</h2>
+                                <h2 class="font-semibold text-gray-800 text-lg">{{ __('ui.todays_check_in') }}</h2>
                             </div>
-                            <a href="{{ route('newReserv.index') }}"
+                            <a href="{{ route('newReserv.index', ['start_date' => now()->format('Y-m-d'), 'end_date' => now()->format('Y-m-d')]) }}"
                                 class="text-sm font-medium text-green-600 hover:text-green-800 flex items-center">
-                                Lihat Semua
+                                {{ __('ui.view_all') }}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -812,7 +866,7 @@
                             ])
                         </div>
                         <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
-                            Menampilkan {{ min(4, count($checkIns)) }} dari {{ count($checkIns) }} check-in mendatang
+                            {{ __('ui.showing_checkins', ['shown' => min(4, count($checkIns)), 'total' => count($checkIns)]) }}
                         </div>
                     </div>
                 @endif
@@ -829,11 +883,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 17l-4 4m0 0l-4-4m4 4V3" />
                                 </svg>
-                                <h2 class="font-semibold text-gray-800 text-lg">H-3 sebelum tanggal check-out</h2>
+                                <h2 class="font-semibold text-gray-800 text-lg">{{ __('ui.checkout_reminder') }}</h2>
                             </div>
-                            <a href="{{ route('checkin.index') }}"
+                            <a href="{{ route('checkin.index', ['start_date' => now()->format('Y-m-d'), 'end_date' => now()->addDays(3)->format('Y-m-d')]) }}"
                                 class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
-                                Lihat Semua
+                                {{ __('ui.view_all') }}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -851,8 +905,7 @@
                             ])
                         </div>
                         <div class="px-6 py-3 bg-gray-50 text-sm text-gray-500 border-t border-gray-100">
-                            Menampilkan {{ min(4, count($checkOuts)) }} dari {{ count($checkOuts) }} check-out
-                            dalam 3 hari ke depan
+                            {{ __('ui.showing_checkouts', ['shown' => min(4, count($checkOuts)), 'total' => count($checkOuts)]) }}
                         </div>
                     </div>
                 @endif
@@ -873,12 +926,14 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
-                                <h2 class="font-semibold text-gray-800 text-lg">Laporan Ketersediaan Kamar</h2>
+                                <h2 class="font-semibold text-gray-800 text-lg">
+                                    {{ __('ui.room_availability_report') }}</h2>
                             </div>
 
                             <!-- Search Input -->
                             <div class="relative w-full max-w-xs hidden sm:block">
-                                <input id="searchKamar" type="text" placeholder="Cari Properti..."
+                                <input id="searchKamar" type="text"
+                                    placeholder="{{ __('ui.search_property_placeholder') }}"
                                     class="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                     class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none"
@@ -895,78 +950,83 @@
                             <div id="roomAvailabilityContainer">
                                 @foreach ($roomReports as $propertyId => $report)
                                     @if (isset($report['property']) && isset($report['room_stats']))
-                                    <div class="mb-6 last:mb-0 p-4 border border-gray-200 rounded-lg room-availability-item {{ $loop->first ? '' : 'hidden' }}"
-                                        data-property-id="{{ $propertyId }}">
-                                        <div class="flex justify-between items-start mb-4">
-                                            <h3 class="font-semibold text-gray-700">
-                                                {{ $report['property']['name'] ?? 'N/A' }}
-                                            </h3>
-                                            <a href="{{ route('room-availability.index') }}"
-                                                class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
-                                                Lihat Semua
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </a>
-                                        </div>
+                                        <div class="mb-6 last:mb-0 p-4 border border-gray-200 rounded-lg room-availability-item {{ $loop->first ? '' : 'hidden' }}"
+                                            data-property-id="{{ $propertyId }}">
+                                            <div class="flex justify-between items-start mb-4">
+                                                <h3 class="font-semibold text-gray-700">
+                                                    {{ $report['property']['name'] ?? 'N/A' }}
+                                                </h3>
+                                                <a href="{{ route('room-availability.index', ['property_id' => $propertyId]) }}"
+                                                    class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
+                                                    {{ __('ui.view_all') }}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </a>
+                                            </div>
 
-                                        <!-- Room Stats -->
-                                        <div class="grid grid-cols-3 gap-4 mb-4">
-                                            <div class="text-center">
-                                                <div class="text-2xl font-bold text-gray-800">
-                                                    {{ $report['room_stats']['total_rooms'] }}</div>
-                                                <div class="text-sm text-gray-600">Total Kamar</div>
-                                            </div>
-                                            <div class="text-center">
-                                                <div class="text-2xl font-bold text-green-600">
-                                                    {{ $report['room_stats']['available_rooms'] }}</div>
-                                                <div class="text-sm text-gray-600">Tersedia</div>
-                                            </div>
-                                            <div class="text-center">
-                                                <div class="text-2xl font-bold text-orange-600">
-                                                    {{ $report['room_stats']['booked_rooms'] }}</div>
-                                                <div class="text-sm text-gray-600">Terisi</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Occupancy Rate -->
-                                        <div class="mb-4">
-                                            <div class="flex justify-between text-sm text-gray-600 mb-1">
-                                                <span>Tingkat Okupansi</span>
-                                                <span>{{ $report['room_stats']['occupancy_rate'] }}%</span>
-                                            </div>
-                                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                                <div class="bg-blue-600 h-2 rounded-full"
-                                                    style="width: {{ $report['room_stats']['occupancy_rate'] }}%">
+                                            <!-- Room Stats -->
+                                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                                <div class="text-center">
+                                                    <div class="text-2xl font-bold text-gray-800">
+                                                        {{ $report['room_stats']['total_rooms'] }}</div>
+                                                    <div class="text-sm text-gray-600">{{ __('ui.total_rooms') }}
+                                                    </div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-2xl font-bold text-green-600">
+                                                        {{ $report['room_stats']['available_rooms'] }}</div>
+                                                    <div class="text-sm text-gray-600">{{ __('ui.available') }}</div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-2xl font-bold text-orange-600">
+                                                        {{ $report['room_stats']['booked_rooms'] }}</div>
+                                                    <div class="text-sm text-gray-600">{{ __('ui.occupied') }}</div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Room Types Breakdown -->
-                                        @if (isset($report['room_types_breakdown']) && count($report['room_types_breakdown']) > 0 && $canViewWidget('rooms_type_breakdown'))
-                                            <div class="mt-4">
-                                                <h4 class="font-medium text-gray-700 mb-2">Breakdown Tipe Kamar
-                                                </h4>
-                                                <div class="space-y-2">
-                                                    @foreach ($report['room_types_breakdown'] as $roomType)
-                                                        <div class="flex justify-between items-center text-sm">
-                                                            <span class="text-gray-600">{{ $roomType->type }}</span>
-                                                            <div class="flex items-center space-x-2">
+                                            <!-- Occupancy Rate -->
+                                            <div class="mb-4">
+                                                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                                    <span>{{ __('ui.occupancy_rate') }}</span>
+                                                    <span>{{ $report['room_stats']['occupancy_rate'] }}%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-blue-600 h-2 rounded-full"
+                                                        style="width: {{ $report['room_stats']['occupancy_rate'] }}%">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Room Types Breakdown -->
+                                            @if (isset($report['room_types_breakdown']) &&
+                                                    count($report['room_types_breakdown']) > 0 &&
+                                                    $canViewWidget('rooms_type_breakdown'))
+                                                <div class="mt-4">
+                                                    <h4 class="font-medium text-gray-700 mb-2">
+                                                        {{ __('ui.room_type_breakdown') }}
+                                                    </h4>
+                                                    <div class="space-y-2">
+                                                        @foreach ($report['room_types_breakdown'] as $roomType)
+                                                            <div class="flex justify-between items-center text-sm">
                                                                 <span
-                                                                    class="text-gray-500">{{ $roomType->available_rooms }}/{{ $roomType->total_rooms }}</span>
-                                                                <span
-                                                                    class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                                                    {{ $roomType->total_rooms > 0 ? round(($roomType->available_rooms / $roomType->total_rooms) * 100) : 0 }}%
-                                                                </span>
+                                                                    class="text-gray-600">{{ $roomType->type }}</span>
+                                                                <div class="flex items-center space-x-2">
+                                                                    <span
+                                                                        class="text-gray-500">{{ $roomType->available_rooms }}/{{ $roomType->total_rooms }}</span>
+                                                                    <span
+                                                                        class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                                                                        {{ $roomType->total_rooms > 0 ? round(($roomType->available_rooms / $roomType->total_rooms) * 100) : 0 }}%
+                                                                    </span>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    @endforeach
+                                                        @endforeach
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                            @endif
+                                        </div>
                                     @endif
                                 @endforeach
                             </div>
@@ -975,7 +1035,7 @@
                                 <div class="mt-4 text-center">
                                     <button id="toggleRoomAvailability"
                                         class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center justify-center mx-auto bg-blue-50 px-4 py-2 rounded-lg transition-all hover:bg-blue-100">
-                                        <span id="toggleRoomAvailabilityText">Lihat Selengkapnya</span>
+                                        <span id="toggleRoomAvailabilityText">{{ __('ui.show_more') }}</span>
                                         <svg id="toggleRoomAvailabilityIcon" xmlns="http://www.w3.org/2000/svg"
                                             class="h-4 w-4 ml-1 transition-transform" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
@@ -992,7 +1052,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="mt-2">Tidak ada data laporan kamar</p>
+                                <p class="mt-2">{{ __('ui.no_room_report_data') }}</p>
                             </div>
                         @endif
                     </div>
@@ -1153,7 +1213,7 @@
                         data: {
                             labels: occupancyData.map(d => d.date),
                             datasets: [{
-                                    label: 'Kamar Terisi',
+                                    label: '{{ __('ui.chart_rooms_filled') }}',
                                     data: occupancyData.map(d => d.occupied),
                                     borderColor: 'rgb(59, 130, 246)',
                                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -1161,7 +1221,7 @@
                                     fill: true
                                 },
                                 {
-                                    label: 'Tingkat Okupansi (%)',
+                                    label: '{{ __('ui.chart_occupancy_rate') }}',
                                     data: occupancyData.map(d => d.occupancy_rate),
                                     borderColor: 'rgb(16, 185, 129)',
                                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1192,7 +1252,8 @@
                                             if (context.datasetIndex === 1) {
                                                 label += context.parsed.y + '%';
                                             } else {
-                                                label += context.parsed.y + ' kamar';
+                                                label += context.parsed.y +
+                                                    ' {{ __('ui.chart_rooms_unit') }}';
                                             }
                                             return label;
                                         }
@@ -1206,7 +1267,7 @@
                                     position: 'left',
                                     title: {
                                         display: true,
-                                        text: 'Kamar'
+                                        text: '{{ __('ui.chart_room_label') }}'
                                     }
                                 },
                                 y1: {
@@ -1215,7 +1276,7 @@
                                     position: 'right',
                                     title: {
                                         display: true,
-                                        text: 'Tingkat Okupansi (%)'
+                                        text: '{{ __('ui.chart_occupancy_rate') }}'
                                     },
                                     grid: {
                                         drawOnChartArea: false
@@ -1271,7 +1332,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
-                                    <p class="mt-2">Tidak ditemukan properti dengan kata kunci "<span class="search-term">${searchTerm}</span>"</p>
+                                    <p class="mt-2">{{ __('ui.property_not_found_keyword') }} "<span class="search-term">${searchTerm}</span>"</p>
                                 `;
                                     parentContainer.appendChild(noResultsMsg);
                                 } else {
@@ -1322,10 +1383,10 @@
                         });
 
                         if (isExpanded) {
-                            text.textContent = 'Sembunyikan';
+                            text.textContent = '{{ __('ui.show_less') }}';
                             icon.style.transform = 'rotate(180deg)';
                         } else {
-                            text.textContent = 'Lihat Selengkapnya';
+                            text.textContent = '{{ __('ui.show_more') }}';
                             icon.style.transform = 'rotate(0deg)';
                         }
                     });
@@ -1353,10 +1414,10 @@
                         });
 
                         if (isExpanded) {
-                            text.textContent = 'Sembunyikan';
+                            text.textContent = '{{ __('ui.show_less') }}';
                             icon.style.transform = 'rotate(180deg)';
                         } else {
-                            text.textContent = 'Lihat Selengkapnya';
+                            text.textContent = '{{ __('ui.show_more') }}';
                             icon.style.transform = 'rotate(0deg)';
                         }
                     });
@@ -1405,7 +1466,7 @@
                                     data: {
                                         labels: cashFlowData.map(d => d.date),
                                         datasets: [{
-                                            label: 'Pendapatan (Cash In)',
+                                            label: '{{ __('ui.chart_income_cash_in') }}',
                                             data: cashFlowData.map(d => d.cash_in),
                                             borderColor: 'rgb(16, 185, 129)',
                                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1465,7 +1526,8 @@
                                                 ticks: {
                                                     callback: function(value) {
                                                         return 'Rp ' + (value / 1000000).toFixed(
-                                                            1) + 'jt';
+                                                                1) +
+                                                            '{{ __('ui.chart_currency_millions') }}';
                                                     },
                                                     font: {
                                                         size: 11
@@ -1582,8 +1644,9 @@
 
                                             return [
                                                 label,
-                                                'Jumlah: Rp ' + value.toLocaleString('id-ID'),
-                                                'Persentase: ' + percentage + '%'
+                                                '{{ __('ui.amount') }}: Rp ' + value
+                                                .toLocaleString('id-ID'),
+                                                '{{ __('ui.percentage') }}: ' + percentage + '%'
                                             ];
                                         }
                                     },
@@ -1646,7 +1709,7 @@
                             } else {
                                 contentDiv.innerHTML = `
                                             <div class="text-center py-8 text-gray-500">
-                                                <p>Gagal memuat data</p>
+                                                <p>{{ __('ui.failed_to_load_data') }}</p>
                                             </div>
                                         `;
                             }
@@ -1655,7 +1718,7 @@
                             console.error('Error:', error);
                             contentDiv.innerHTML = `
                                         <div class="text-center py-8 text-gray-500">
-                                            <p>Terjadi kesalahan saat memuat data</p>
+                                            <p>{{ __('ui.error_loading_data') }}</p>
                                         </div>
                                     `;
                         });
@@ -1679,7 +1742,7 @@
                                                 onclick="togglePropertyDropdown()"
                                                 id="propertyDropdownBtn"
                                                 class="w-full flex items-center justify-between px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition-colors duration-200 border border-indigo-200">
-                                                <span class="text-sm font-medium">Lihat Selengkapnya (${data.length - 1} property lainnya)</span>
+                                                <span class="text-sm font-medium">${'{{ __('ui.show_more_properties') }}'.replace(':count', data.length - 1)}</span>
                                                 <svg id="dropdownIcon" class="w-5 h-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                 </svg>
@@ -1705,7 +1768,7 @@
                     } else {
                         html = `
                                     <div class="text-center py-8 text-gray-500">
-                                        <p>Tidak ada data pendapatan</p>
+                                        <p>{{ __('ui.no_revenue_data') }}</p>
                                     </div>
                                 `;
                     }
@@ -1738,15 +1801,15 @@
 
                                     <div class="grid grid-cols-3 gap-4 mb-4">
                                         <div class="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                                            <p class="text-xs text-emerald-600 font-medium mb-1">Hari Ini</p>
+                                            <p class="text-xs text-emerald-600 font-medium mb-1">{{ __('ui.today') }}</p>
                                             <p class="text-lg font-bold text-emerald-700">Rp ${formatNumber(todayRevenue)}</p>
                                         </div>
                                         <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                            <p class="text-xs text-blue-600 font-medium mb-1">Bulan Ini</p>
+                                            <p class="text-xs text-blue-600 font-medium mb-1">{{ __('ui.this_month') }}</p>
                                             <p class="text-lg font-bold text-blue-700">Rp ${formatNumber(monthlyRevenue)}</p>
                                         </div>
                                         <div class="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
-                                            <p class="text-xs text-purple-600 font-medium mb-1">Total Booking</p>
+                                            <p class="text-xs text-purple-600 font-medium mb-1">{{ __('ui.total_bookings') }}</p>
                                             <p class="text-lg font-bold text-purple-700">${totalBookings}</p>
                                         </div>
                                     </div>

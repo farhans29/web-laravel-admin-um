@@ -462,13 +462,39 @@ class DashboardController extends Controller
             )
             ->first();
 
+        // Hitung pendapatan bulan lalu untuk perbandingan
+        $lastMonth = now()->subMonth();
+        $lastMonthData = Transaction::where('transaction_status', 'paid')
+            ->whereYear('paid_at', $lastMonth->year)
+            ->whereMonth('paid_at', $lastMonth->month)
+            ->when($propertyId, function ($q) use ($propertyId) {
+                $q->where('property_id', $propertyId);
+            })
+            ->select(
+                DB::raw('SUM(grandtotal_price) as total_revenue')
+            )
+            ->first();
+
+        $currentRevenue = $data->total_revenue ?? 0;
+        $lastMonthRevenue = $lastMonthData->total_revenue ?? 0;
+
+        // Hitung persentase perubahan
+        $revenueChange = 0;
+        if ($lastMonthRevenue > 0) {
+            $revenueChange = round((($currentRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1);
+        } elseif ($currentRevenue > 0) {
+            $revenueChange = 100;
+        }
+
         return [
-            'revenue' => $data->total_revenue ?? 0,
+            'revenue' => $currentRevenue,
             'transactions' => $data->total_transactions ?? 0,
             'target' => 150000000, // Target bisa disesuaikan atau diambil dari setting
-            'percentage' => ($data->total_revenue ?? 0) > 0
-                ? round((($data->total_revenue ?? 0) / 150000000) * 100, 1)
-                : 0
+            'percentage' => $currentRevenue > 0
+                ? round(($currentRevenue / 150000000) * 100, 1)
+                : 0,
+            'last_month_revenue' => $lastMonthRevenue,
+            'revenue_change' => $revenueChange,
         ];
     }
 
@@ -732,15 +758,15 @@ class DashboardController extends Controller
 
         $dataFeed = new DataFeed();
 
-        // Get current check-ins (guests currently staying - checked in but not checked out yet)
+        // Get today's check-ins (guests with scheduled check-in date = today)
         $checkIns = Booking::with(['user', 'room', 'property', 'transaction'])
             ->when($userPropertyId, function ($q) use ($userPropertyId) {
                 $q->where('property_id', $userPropertyId);
             })
             ->whereHas('transaction', function ($q) {
-                $q->where('transaction_status', 'paid');
+                $q->where('transaction_status', 'paid')
+                    ->whereDate('check_in', now()->toDateString());
             })
-            ->whereNotNull('check_in_at')
             ->whereNull('check_out_at')
             ->orderBy('check_in_at', 'desc')
             ->limit(4)
@@ -897,6 +923,8 @@ class DashboardController extends Controller
                 'monthly_transactions' => $monthlyRevenue['transactions'] ?? 0,
                 'monthly_target' => $monthlyRevenue['target'] ?? 150000000,
                 'monthly_percentage' => $monthlyRevenue['percentage'] ?? 0,
+                'last_month_revenue' => $monthlyRevenue['last_month_revenue'] ?? 0,
+                'revenue_change' => $monthlyRevenue['revenue_change'] ?? 0,
                 'pending_payments' => $pendingPayments['amount'] ?? 0,
                 'pending_count' => $pendingPayments['count'] ?? 0,
                 'payment_success_rate' => $paymentSuccessRate ?? 0,

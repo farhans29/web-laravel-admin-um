@@ -133,8 +133,10 @@ const DateFilterPersistence = {
                     if (startDateEl) startDateEl.value = formattedStart;
                     if (endDateEl) endDateEl.value = formattedEnd;
 
-                    // Save to localStorage
-                    self.save(pageIdentifier, formattedStart, formattedEnd);
+                    // Save to localStorage (skip if persistence is disabled)
+                    if (!options.disablePersistence) {
+                        self.save(pageIdentifier, formattedStart, formattedEnd);
+                    }
 
                     // Call custom onChange if provided
                     if (options.onChange) {
@@ -148,7 +150,9 @@ const DateFilterPersistence = {
                     const endDateEl = document.getElementById('end_date');
                     if (startDateEl) startDateEl.value = '';
                     if (endDateEl) endDateEl.value = '';
-                    self.clear(pageIdentifier);
+                    if (!options.disablePersistence) {
+                        self.clear(pageIdentifier);
+                    }
                 }
 
                 // Call custom onClose if provided

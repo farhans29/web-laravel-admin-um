@@ -367,6 +367,10 @@
                 return `${year}-${month}-${day}`;
             }
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlStartDate = urlParams.get('start_date');
+            const urlEndDate = urlParams.get('end_date');
+
             const datePicker = flatpickr("#date_picker", {
                 mode: "range",
                 dateFormat: "Y-m-d",
@@ -375,6 +379,7 @@
                 allowInput: true,
                 static: true,
                 monthSelectorType: 'static',
+                defaultDate: (urlStartDate && urlEndDate) ? [urlStartDate, urlEndDate] : undefined,
                 onChange: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length > 0) {
                         document.getElementById('start_date').value = formatDate(selectedDates[0]);

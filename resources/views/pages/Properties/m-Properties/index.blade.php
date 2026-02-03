@@ -47,7 +47,8 @@
                             <div
                                 class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
                                 <div class="flex justify-between items-center mb-4">
-                                    <div class="font-bold text-xl text-gray-800 dark:text-white">{{ __('ui.add_property') }}
+                                    <div class="font-bold text-xl text-gray-800 dark:text-white">
+                                        {{ __('ui.add_property') }}
                                     </div>
                                     <button type="button"
                                         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
@@ -172,7 +173,8 @@
                                                 <div class="col-span-10">
                                                     <label for="property_name"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        {{ __('ui.property_name') }} <span class="text-red-500">*</span>
+                                                        {{ __('ui.property_name') }} <span
+                                                            class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="property_name" name="property_name"
                                                         required
@@ -193,7 +195,8 @@
                                                             placeholder="ABC"
                                                             oninput="this.value = this.value.toUpperCase()">
                                                     </div>
-                                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('ui.max_3_chars') }}</p>
+                                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                        {{ __('ui.max_3_chars') }}</p>
                                                 </div>
                                             </div>
 
@@ -247,20 +250,25 @@
                                                 <label for="full_address"
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                     {{ __('ui.full_address') }} <span class="text-red-500">*</span>
-                                                    <span class="text-xs font-normal text-gray-500 ml-2">({{ __('ui.type_to_search_address') }})</span>
+                                                    <span
+                                                        class="text-xs font-normal text-gray-500 ml-2">({{ __('ui.type_to_search_address') }})</span>
                                                 </label>
                                                 <div class="relative">
                                                     <textarea id="full_address" name="full_address" rows="3" required
                                                         class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                        placeholder="{{ __('ui.enter_full_address') }}"
-                                                        @input="searchAddress($event.target.value)"
-                                                        @focus="showAddressSuggestions = addressSuggestions.length > 0"
-                                                        @click.outside="showAddressSuggestions = false"></textarea>
+                                                        placeholder="{{ __('ui.enter_full_address') }}" @input="searchAddress($event.target.value)"
+                                                        @focus="showAddressSuggestions = addressSuggestions.length > 0" @click.outside="showAddressSuggestions = false"></textarea>
                                                     <!-- Loading indicator -->
                                                     <div x-show="isAddressSearching" class="absolute right-3 top-3">
-                                                        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        <svg class="animate-spin h-5 w-5 text-blue-500"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12"
+                                                                r="10" stroke="currentColor" stroke-width="4">
+                                                            </circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
                                                         </svg>
                                                     </div>
                                                 </div>
@@ -273,15 +281,24 @@
                                                     x-transition:leave-start="opacity-100 translate-y-0"
                                                     x-transition:leave-end="opacity-0 translate-y-1"
                                                     class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                                    <template x-for="(suggestion, index) in addressSuggestions" :key="index">
+                                                    <template x-for="(suggestion, index) in addressSuggestions"
+                                                        :key="index">
                                                         <div @click="selectAddressSuggestion(suggestion)"
                                                             class="px-4 py-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-600 border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors duration-150">
                                                             <div class="flex items-start">
-                                                                <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0"
+                                                                    fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                                                    </path>
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                                 </svg>
-                                                                <span class="text-sm text-gray-700 dark:text-gray-200" x-text="suggestion.display_name"></span>
+                                                                <span class="text-sm text-gray-700 dark:text-gray-200"
+                                                                    x-text="suggestion.display_name"></span>
                                                             </div>
                                                         </div>
                                                     </template>
@@ -291,7 +308,8 @@
                                             <div>
                                                 <label
                                                     class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                    {{ __('ui.pinpoint_location') }} <span class="text-red-500 ml-1">*</span>
+                                                    {{ __('ui.pinpoint_location') }} <span
+                                                        class="text-red-500 ml-1">*</span>
                                                     <span
                                                         class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">({{ __('ui.click_to_mark_on_map') }})</span>
                                                 </label>
@@ -331,7 +349,8 @@
                                                 <div>
                                                     <label for="city"
                                                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        {{ __('ui.city_regency') }} <span class="text-red-500">*</span>
+                                                        {{ __('ui.city_regency') }} <span
+                                                            class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" id="city" name="city" required
                                                         placeholder="{{ __('ui.enter_city_regency') }}"
@@ -424,7 +443,8 @@
                                                                 stroke-width="2"
                                                                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ __('ui.no_general_facilities') }}</p>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                                            {{ __('ui.no_general_facilities') }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -474,7 +494,8 @@
                                                                 stroke-width="2"
                                                                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ __('ui.no_security_facilities') }}</p>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                                            {{ __('ui.no_security_facilities') }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -524,7 +545,8 @@
                                                                 stroke-width="2"
                                                                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
-                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ __('ui.no_additional_services') }}</p>
+                                                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                                            {{ __('ui.no_additional_services') }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -542,7 +564,8 @@
                                                     {{ __('ui.property_photos') }} <span class="text-red-500">*</span>
                                                     <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
                                                         ({{ __('ui.min_3_max_10_photos') }} - <span
-                                                            x-text="remainingSlots"></span> {{ __('ui.slots_remaining') }})
+                                                            x-text="remainingSlots"></span>
+                                                        {{ __('ui.slots_remaining') }})
                                                     </span>
                                                 </label>
 
@@ -550,7 +573,8 @@
                                                 <div class="mb-6">
                                                     <h4
                                                         class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                        {{ __('ui.select_thumbnail') }} <span class="text-red-500">*</span>
+                                                        {{ __('ui.select_thumbnail') }} <span
+                                                            class="text-red-500">*</span>
                                                         <span
                                                             class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ __('ui.main_photo_displayed') }})</span>
                                                     </h4>
@@ -559,7 +583,8 @@
                                                         <!-- Thumbnail Preview -->
                                                         <div class="w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 overflow-hidden relative"
                                                             x-show="images.length > 0">
-                                                            <template x-if="thumbnailIndex !== null && images[thumbnailIndex]">
+                                                            <template
+                                                                x-if="thumbnailIndex !== null && images[thumbnailIndex]">
                                                                 <img :src="images[thumbnailIndex]?.url"
                                                                     alt="Selected Thumbnail"
                                                                     class="w-full h-full object-cover">
@@ -796,31 +821,44 @@
 
                         <!-- Status Filter -->
                         <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Status:</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('ui.status_filter') }}
+                            </span>
                             <select name="status" id="statusFilter"
                                 class="border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                <option value="1" {{ ($statusFilter ?? '1') == '1' ? 'selected' : '' }}>Active
+                                <option value="1" {{ ($statusFilter ?? '1') == '1' ? 'selected' : '' }}>
+                                    {{ __('ui.active') }}
                                 </option>
-                                <option value="0" {{ ($statusFilter ?? '1') == '0' ? 'selected' : '' }}>Inactive
+                                <option value="0" {{ ($statusFilter ?? '1') == '0' ? 'selected' : '' }}>
+                                    {{ __('ui.inactive') }}
                                 </option>
-                                <option value="all" {{ ($statusFilter ?? '1') == 'all' ? 'selected' : '' }}>Semua
+                                <option value="all" {{ ($statusFilter ?? '1') == 'all' ? 'selected' : '' }}>
+                                    {{ __('ui.all') }}
                                 </option>
                             </select>
                         </div>
 
                         <!-- Items per Page -->
                         <div class="flex items-center">
-                            <span class="text-sm text-gray-600 dark:text-gray-400 mr-2">Per halaman:</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400 mr-2">
+                                {{ __('ui.items_per_page') }}
+                            </span>
                             <select name="per_page" id="perPageSelect"
                                 class="border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                <option value="5" {{ request('per_page', 5) == 5 ? 'selected' : '' }}>5</option>
-                                <option value="10" {{ request('per_page', 5) == 10 ? 'selected' : '' }}>10
+                                <option value="5" {{ request('per_page', 5) == 5 ? 'selected' : '' }}>
+                                    {{ __('ui.5') }}
                                 </option>
-                                <option value="15" {{ request('per_page', 5) == 15 ? 'selected' : '' }}>15
+                                <option value="10" {{ request('per_page', 5) == 10 ? 'selected' : '' }}>
+                                    {{ __('ui.10') }}
                                 </option>
-                                <option value="20" {{ request('per_page', 5) == 20 ? 'selected' : '' }}>20
+                                <option value="15" {{ request('per_page', 5) == 15 ? 'selected' : '' }}>
+                                    {{ __('ui.15') }}
                                 </option>
-                                <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>Semua
+                                <option value="20" {{ request('per_page', 5) == 20 ? 'selected' : '' }}>
+                                    {{ __('ui.20') }}
+                                </option>
+                                <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>
+                                    {{ __('ui.all') }}
                                 </option>
                             </select>
                         </div>
@@ -974,7 +1012,8 @@
                 .then(() => {
                     // Update label status
                     statusLabel.textContent = newStatus === 1 ? 'Active' : 'Inactive';
-                    statusLabel.classList.remove('text-green-600', 'text-red-600', 'dark:text-green-400', 'dark:text-red-400');
+                    statusLabel.classList.remove('text-green-600', 'text-red-600', 'dark:text-green-400',
+                        'dark:text-red-400');
                     statusLabel.classList.add(newStatus === 1 ? 'text-green-600' : 'text-red-600');
                     statusLabel.classList.add(newStatus === 1 ? 'dark:text-green-400' : 'dark:text-red-400');
 
@@ -983,7 +1022,8 @@
                         toast: true,
                         position: 'top-end',
                         icon: 'success',
-                        title: newStatus === 1 ? 'Properti berhasil diaktifkan' : 'Properti berhasil dinonaktifkan',
+                        title: newStatus === 1 ? 'Properti berhasil diaktifkan' :
+                            'Properti berhasil dinonaktifkan',
                         showConfirmButton: false,
                         timer: 2000
                     });
@@ -1311,16 +1351,20 @@
                     const address = result.address || {};
 
                     // Build full address from display_name or components
-                    const fullAddress = result.display_name ||
-                        [address.road, address.hamlet, address.village, address.town, address.city]
+                    const fullAddress = result.display_name || [address.road, address.hamlet, address
+                            .village, address.town, address.city
+                        ]
                         .filter(Boolean).join(', ');
                     updateField('full_address', fullAddress);
 
                     // Update form fields based on Nominatim response
                     updateField('province', address.state || address.region || '');
-                    updateField('city', address.city || address.town || address.county || address.regency || '');
-                    updateField('district', address.suburb || address.city_district || address.district || '');
-                    updateField('village', address.village || address.hamlet || address.neighbourhood || address.subdistrict || '');
+                    updateField('city', address.city || address.town || address.county || address
+                        .regency || '');
+                    updateField('district', address.suburb || address.city_district || address
+                        .district || '');
+                    updateField('village', address.village || address.hamlet || address.neighbourhood ||
+                        address.subdistrict || '');
                     updateField('postal_code', address.postcode || '');
                 },
 
@@ -1350,7 +1394,8 @@
 
                             const results = await response.json();
                             this.addressSuggestions = results;
-                            this.showAddressSuggestions = this.addressSuggestions.length > 0;
+                            this.showAddressSuggestions = this.addressSuggestions.length >
+                            0;
                         } catch (error) {
                             console.error('Address search error:', error);
                             this.addressSuggestions = [];
@@ -1376,7 +1421,10 @@
 
                     // Move map marker if map is initialized
                     if (this.map && !isNaN(lat) && !isNaN(lng)) {
-                        this.placeMarker({ lat, lng });
+                        this.placeMarker({
+                            lat,
+                            lng
+                        });
                         this.map.setView([lat, lng], 15);
                     } else {
                         // Store coordinates for later when map is initialized
@@ -2115,17 +2163,20 @@
                     const address = result.address || {};
 
                     // Build full address from display_name or components
-                    const fullAddress = result.display_name ||
-                        [address.road, address.hamlet, address.village, address.town, address.city]
+                    const fullAddress = result.display_name || [address.road, address.hamlet, address
+                            .village, address.town, address.city
+                        ]
                         .filter(Boolean).join(', ');
                     updateField(`full_address_edit_${property.idrec}`, fullAddress);
                     this.propertyData.address = fullAddress;
 
                     // Extract address components
                     const province = address.state || address.region || '';
-                    const city = address.city || address.town || address.county || address.regency || '';
+                    const city = address.city || address.town || address.county || address.regency ||
+                    '';
                     const district = address.suburb || address.city_district || address.district || '';
-                    const village = address.village || address.hamlet || address.neighbourhood || address.subdistrict || '';
+                    const village = address.village || address.hamlet || address.neighbourhood ||
+                        address.subdistrict || '';
                     const postalCode = address.postcode || '';
 
                     // Update form fields and propertyData
@@ -2171,7 +2222,8 @@
 
                             const results = await response.json();
                             this.addressSuggestions = results;
-                            this.showAddressSuggestions = this.addressSuggestions.length > 0;
+                            this.showAddressSuggestions = this.addressSuggestions.length >
+                            0;
                         } catch (error) {
                             console.error('Address search error:', error);
                             this.addressSuggestions = [];
@@ -2187,7 +2239,8 @@
                     const lng = parseFloat(suggestion.lon);
 
                     // Update full address field
-                    const fullAddressField = document.getElementById(`full_address_edit_${property.idrec}`);
+                    const fullAddressField = document.getElementById(
+                        `full_address_edit_${property.idrec}`);
                     if (fullAddressField) {
                         fullAddressField.value = suggestion.display_name;
                     }
@@ -2198,7 +2251,10 @@
 
                     // Move map marker if map is initialized
                     if (this.map && !isNaN(lat) && !isNaN(lng)) {
-                        this.placeMarker({ lat, lng });
+                        this.placeMarker({
+                            lat,
+                            lng
+                        });
                         this.map.setView([lat, lng], 15);
                     } else {
                         // Store coordinates for later
@@ -2603,10 +2659,10 @@
                             [];
                         const securityArray = Array.isArray(this.propertyData.security) ? this
                             .propertyData.security.map(v => parseInt(v, 10)).filter(v => !isNaN(
-                            v)) : [];
+                                v)) : [];
                         const amenitiesArray = Array.isArray(this.propertyData.amenities) ? this
                             .propertyData.amenities.map(v => parseInt(v, 10)).filter(v => !isNaN(
-                            v)) : [];
+                                v)) : [];
 
                         // Append only if array has items
                         if (generalArray.length > 0) {
