@@ -131,8 +131,9 @@
             }
         });
 
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('modalView', () => ({
+        // Define modalView as a global function so it's available when Alpine initializes new elements after AJAX
+        window.modalView = function() {
+            return {
                 modalOpenDetail: false,
                 loading: false,
                 selectedProperty: {
@@ -195,8 +196,8 @@
                         minimumFractionDigits: 0
                     }).format(amount);
                 }
-            }));
-        });
+            };
+        };
 
         // Fungsi untuk update status kamar
         function updateRoomStatus(roomId, status) {

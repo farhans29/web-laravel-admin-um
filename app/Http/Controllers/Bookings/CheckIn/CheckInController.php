@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Booking;
+use App\Models\Room;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -120,11 +121,27 @@ class CheckInController extends Controller
 
     public function checkOut($order_id)
     {
-        // Cari booking berdasarkan order_id
-        $booking = Booking::where('order_id', $order_id)->firstOrFail();
+        // Cari booking aktif berdasarkan order_id
+        $booking = Booking::where('order_id', $order_id)
+            ->where('is_active', 1)
+            ->firstOrFail();
 
         $booking->check_out_at = now();
+        $booking->is_active = 0; // Mark booking as inactive after checkout
         $booking->save();
+
+        // Reset rental_status on room if no other active bookings
+        if ($booking->room_id) {
+            $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
+                ->where('is_active', 1)
+                ->where('idrec', '!=', $booking->idrec)
+                ->exists();
+
+            if (!$hasOtherActiveBooking) {
+                Room::where('idrec', $booking->room_id)
+                    ->update(['rental_status' => 0]);
+            }
+        }
 
         return response()->json([
             'success' => true,
