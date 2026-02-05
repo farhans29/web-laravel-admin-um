@@ -322,6 +322,27 @@ class ChangeRoomController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
+            // Update rental_status for rooms
+            // Check if this is a monthly booking
+            $isMonthlyBooking = $currentBooking->transaction &&
+                ($currentBooking->transaction->booking_type === 'monthly' ||
+                 ($currentBooking->transaction->booking_months && $currentBooking->transaction->booking_months > 0));
+
+            // Old room (currentRoom): Set to available if no other active bookings
+            $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
+                ->where('is_active', 1)
+                ->where('order_id', '!=', $currentBooking->order_id)
+                ->exists();
+
+            if (!$hasOtherActiveBooking) {
+                $currentRoom->update(['rental_status' => 0]);
+            }
+
+            // New room: Set rental_status based on booking type
+            if ($isMonthlyBooking) {
+                $newRoom->update(['rental_status' => 1]);
+            }
+
             // Prepare transfer details for notification
             $transferDetails = [
                 'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
@@ -450,6 +471,27 @@ class ChangeRoomController extends Controller
                 'is_active' => 0,
                 'updated_by' => Auth::id(),
             ]);
+
+            // Update rental_status for rooms
+            // Check if this is a monthly booking
+            $isMonthlyBooking = $currentBooking->transaction &&
+                ($currentBooking->transaction->booking_type === 'monthly' ||
+                 ($currentBooking->transaction->booking_months && $currentBooking->transaction->booking_months > 0));
+
+            // Current room: Set to available if no other active bookings
+            $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
+                ->where('is_active', 1)
+                ->where('order_id', '!=', $currentBooking->order_id)
+                ->exists();
+
+            if (!$hasOtherActiveBooking) {
+                $currentRoom->update(['rental_status' => 0]);
+            }
+
+            // Previous room (rollback target): Set rental_status based on booking type
+            if ($isMonthlyBooking) {
+                $previousRoom->update(['rental_status' => 1]);
+            }
 
             // Send notification
             try {
