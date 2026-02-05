@@ -473,7 +473,7 @@
                             <!-- Informasi Verifikasi -->
                             <div class="text-xs text-gray-500">
                                 Oleh:
-                                {{ $payment->verifiedBy->username ?? 'Sistem' }}
+                                {{ $payment->verifiedBy->username ?? 'DOKU' }}
                             </div>
                         </div>
 
@@ -666,7 +666,7 @@
                             </span>
                             <div class="text-xs text-gray-500 mt-1">
                                 Oleh:
-                                {{ $payment->verifiedBy->name ?? 'Sistem' }}
+                                {{ $payment->verifiedBy->name ?? 'DOKU' }}
                             </div>
                         </div>
                     @endif

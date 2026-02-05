@@ -115,9 +115,9 @@ class NewReservController extends Controller
 
             // Only require doc_image if booking doesn't have doc_path
             if (is_null($booking->doc_path)) {
-                $rules['doc_image'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120'; // 5MB
+                $rules['doc_image'] = 'required|file|mimes:jpg,jpeg,png|max:5120'; // 5MB
             } else {
-                $rules['doc_image'] = 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:5120'; // Optional
+                $rules['doc_image'] = 'sometimes|file|mimes:jpg,jpeg,png|max:5120'; // Optional
             }
 
             $validated = $request->validate($rules);
@@ -198,10 +198,8 @@ class NewReservController extends Controller
                 ->with(['user', 'property', 'room', 'booking'])
                 ->firstOrFail();
 
-            // Update status cetak berdasarkan order_id
-            Booking::where('order_id', $order_id)->update([
-                'is_printed' => 1
-            ]);
+            // Increment print counter berdasarkan order_id
+            Booking::where('order_id', $order_id)->increment('is_printed');
 
             // Ambil ulang booking setelah update (optional)
             $booking = $transaction->booking;

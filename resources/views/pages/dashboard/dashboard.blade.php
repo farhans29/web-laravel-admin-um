@@ -138,7 +138,7 @@
                                                 @if ($isSite && $propertyName)
                                                     {{ __('ui.staying_at') }} {{ $propertyName }}
                                                 @else
-                                                    {{ __('ui.staying_at') }}
+                                                    {{ __('ui.staying') }}
                                                 @endif
                                             </p>
                                         </div>
@@ -956,7 +956,7 @@
                                                 <h3 class="font-semibold text-gray-700">
                                                     {{ $report['property']['name'] ?? 'N/A' }}
                                                 </h3>
-                                                <a href="{{ route('room-availability.index', ['property_id' => $propertyId]) }}"
+                                                <a href="{{ route('room-availability.index', ['search' => $report['property']['name'] ?? '']) }}"
                                                     class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center bg-blue-50 px-2 py-1 rounded">
                                                     {{ __('ui.view_all') }}
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1"

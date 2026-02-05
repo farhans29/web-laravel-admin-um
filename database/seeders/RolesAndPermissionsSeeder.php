@@ -49,7 +49,10 @@ class RolesAndPermissionsSeeder extends Seeder
             [1, 29],
             [1, 30],
             [1, 31],
-            [1, 32], // view_promo_banners
+            [1, 32],
+            [1, 33],
+            [1, 34],
+            [1, 35],
 
 
             [2, 1],  

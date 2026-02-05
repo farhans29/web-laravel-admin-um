@@ -32,6 +32,8 @@ class PermissionsTableSeeder extends Seeder
             'properties',
             'view_properties',
             'view_property_facilities',
+            'view_deposit_fees',
+            'view_parking_fees', 
 
             // Rooms
             'rooms',
@@ -56,6 +58,7 @@ class PermissionsTableSeeder extends Seeder
             // Payments
             'view_payments',
             'view_refunds',
+            'view_parking_payments',
 
             // Reports
             'view_reports',

@@ -315,7 +315,10 @@
                                                     class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                                     x-model="selectedFacilities">
                                                 <div class="ml-3 flex-1">
-                                                    <span class="block text-sm font-medium text-gray-900">
+                                                    <span class="block text-sm font-medium text-gray-900 flex items-center gap-1.5">
+                                                        @if (!empty($facility->icon))
+                                                            <span class="iconify text-lg" data-icon="{{ $facility->icon }}"></span>
+                                                        @endif
                                                         {{ $facility->facility }}
                                                     </span>
                                                     @if (!empty($facility->description))

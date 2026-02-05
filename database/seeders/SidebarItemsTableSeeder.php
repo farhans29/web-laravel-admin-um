@@ -129,6 +129,22 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 2
         ]);
 
+        SidebarItem::create([
+            'name' => 'Deposit Fee Management',
+            'route' => 'deposit-fees.index',
+            'permission_id' => $permissions['view_deposit_fees'] ?? null,
+            'parent_id' => $properties->id,
+            'order' => 3
+        ]);
+
+        SidebarItem::create([
+            'name' => 'Parking Fee Management',
+            'route' => 'parking-fees.index',
+            'permission_id' => $permissions['view_parking_fees'] ?? null,
+            'parent_id' => $properties->id,
+            'order' => 4
+        ]);
+
         $rooms = SidebarItem::create([
             'name' => 'Rooms/Units',
             'route' => null,
@@ -211,12 +227,20 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 1
         ]);
 
+        SidebarItem::create([
+            'name' => 'Parking Payments',
+            'route' => 'admin.parking-payments.index',
+            'permission_id' => $permissions['view_parking_payments'] ?? null,
+            'parent_id' => $financialSection->id,
+            'order' => 2
+        ]);
+
         $refunds = SidebarItem::create([
             'name' => 'Refunds',
             'route' => 'admin.refunds.index',
             'permission_id' => $permissions['view_refunds'] ?? null,
             'parent_id' => $financialSection->id,
-            'order' => 2
+            'order' => 3
         ]);
 
         $reports = SidebarItem::create([

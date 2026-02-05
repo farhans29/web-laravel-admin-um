@@ -2,30 +2,30 @@
     <thead class="bg-gray-50">
         <tr>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Check-in
+                {{ __('ui.check_in') }}
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Check-out
+                {{ __('ui.check_out') }}
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order ID
+                {{ __('ui.order_id') }}
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+                {{ __('ui.name') }}
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Property/Room
+                {{ __('ui.property_room') }}
             </th>
             @if ($showStatus ?? true)
                 <th scope="col"
                     class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    {{ __('ui.status') }}
                 </th>
             @endif
             @if ($showActions ?? true)
                 <th scope="col"
                     class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {{ __('ui.actions') }}
                 </th>
             @endif
         </tr>
@@ -46,7 +46,7 @@
                     @else
                         <span
                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            Not checked in
+                            {{ __('ui.not_checked_in') }}
                         </span>
                     @endif
                 </td>
@@ -59,7 +59,7 @@
                             {{ $booking->transaction->check_out->format('H:i') }}
                         </div>
                     @else
-                        <div class="text-sm text-gray-500 italic">Not checked out</div>
+                        <div class="text-sm text-gray-500 italic">{{ __('ui.not_checked_out') }}</div>
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -129,7 +129,7 @@
                                                      }
                                                  }, 2000);"
                                         class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-amber-600 rounded hover:bg-amber-700 focus:outline-none">
-                                        Print Regist Form
+                                        {{ __('ui.print_regist_form') }}
                                     </a>
                                 @endif
                                 <div x-data="checkInModal('{{ $booking->order_id }}', {{ is_null($booking->doc_path) ? 'true' : 'false' }})"
@@ -146,7 +146,7 @@
                                             </path>
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h1"></path>
                                         </svg>
-                                        Check-In
+                                        {{ __('ui.check_in') }}
                                     </button>
 
                                     <!-- Backdrop Modal -->
@@ -174,20 +174,18 @@
                                             <div
                                                 class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-green-100">
                                                 <div class="flex justify-between items-center">
-                                                    <div class="font-bold text-xl text-gray-800">Proses Check-In</div>
+                                                    <div class="font-bold text-xl text-gray-800">{{ __('ui.process_checkin') }}</div>
                                                     <button type="button"
                                                         class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
                                                         @click="closeModal">
-                                                        <div class="sr-only">Tutup</div>
+                                                        <div class="sr-only">{{ __('ui.close') }}</div>
                                                         <svg class="w-6 h-6 fill-current">
                                                             <path
                                                                 d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
                                                         </svg>
                                                     </button>
                                                 </div>
-                                                <p class="text-sm text-gray-600 mt-1">Silakan tinjau informasi dan
-                                                    selesaikan
-                                                    proses check-in</p>
+                                                <p class="text-sm text-gray-600 mt-1">{{ __('ui.review_complete_checkin') }}</p>
                                                 <p class="text-lg font-bold text-gray-800 mt-1"
                                                     x-text="currentDateTime">
                                                 </p>
@@ -207,55 +205,50 @@
                                                                     stroke-width="2"
                                                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                                             </svg>
-                                                            Detail Pemesanan
+                                                            {{ __('ui.booking_details') }}
                                                         </h3>
 
                                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                             <div class="flex justify-between">
-                                                                <span class="text-sm font-medium text-gray-600">ID
-                                                                    Pesanan:</span>
+                                                                <span class="text-sm font-medium text-gray-600">{{ __('ui.order_id') }}:</span>
                                                                 <span class="text-sm text-gray-800 font-mono"
                                                                     x-text="bookingDetails.order_id"></span>
                                                             </div>
                                                             <div class="flex justify-between">
-                                                                <span class="text-sm font-medium text-gray-600">Tanggal
-                                                                    Check-In:</span>
+                                                                <span class="text-sm font-medium text-gray-600">{{ __('ui.check_in_date') }}:</span>
                                                                 <span class="text-sm text-gray-800"
                                                                     x-text="bookingDetails.check_in"></span>
                                                             </div>
                                                             <div class="flex justify-between">
-                                                                <span class="text-sm font-medium text-gray-600">Tanggal
-                                                                    Check-Out:</span>
+                                                                <span class="text-sm font-medium text-gray-600">{{ __('ui.check_out_date') }}:</span>
                                                                 <span class="text-sm text-gray-800"
                                                                     x-text="bookingDetails.check_out"></span>
                                                             </div>
                                                             <div class="flex justify-between">
-                                                                <span class="text-sm font-medium text-gray-600">Nama
-                                                                    Tamu:</span>
+                                                                <span class="text-sm font-medium text-gray-600">{{ __('ui.guest_name') }}:</span>
                                                                 <span class="text-sm text-gray-800"
                                                                     x-text="bookingDetails.guest_name"></span>
                                                             </div>
                                                             <div class="flex justify-between">
                                                                 <span
-                                                                    class="text-sm font-medium text-gray-600">Properti:</span>
+                                                                    class="text-sm font-medium text-gray-600">{{ __('ui.property') }}:</span>
                                                                 <span class="text-sm text-gray-800"
                                                                     x-text="bookingDetails.property_name"></span>
                                                             </div>
                                                             <div class="flex justify-between">
                                                                 <span
-                                                                    class="text-sm font-medium text-gray-600">Kamar:</span>
+                                                                    class="text-sm font-medium text-gray-600">{{ __('ui.room') }}:</span>
                                                                 <span class="text-sm text-gray-800"
                                                                     x-text="bookingDetails.room_name"></span>
                                                             </div>
                                                             <div class="flex justify-between">
                                                                 <span
-                                                                    class="text-sm font-medium text-gray-600">Durasi:</span>
+                                                                    class="text-sm font-medium text-gray-600">{{ __('ui.duration') }}:</span>
                                                                 <span class="text-sm text-gray-800"
                                                                     x-text="bookingDetails.duration"></span>
                                                             </div>
                                                             <div class="flex justify-between">
-                                                                <span class="text-sm font-medium text-gray-600">Total
-                                                                    Pembayaran:</span>
+                                                                <span class="text-sm font-medium text-gray-600">{{ __('ui.total_payment') }}:</span>
                                                                 <span class="text-sm text-gray-800"
                                                                     x-text="bookingDetails.total_payment"></span>
                                                             </div>
@@ -275,7 +268,7 @@
                                                                         stroke-linejoin="round" stroke-width="2"
                                                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                                 </svg>
-                                                                Profil Tamu
+                                                                {{ __('ui.guest_profile') }}
                                                             </h3>
 
                                                             <div class="space-y-4">
@@ -285,7 +278,7 @@
                                                                     <template x-if="profilePhotoUrl">
                                                                         <div class="w-full">
                                                                             <img :src="profilePhotoUrl"
-                                                                                alt="Foto Profil"
+                                                                                alt="{{ __('ui.profile_photo') }}"
                                                                                 class="w-full h-48 object-cover rounded-lg">
                                                                             <span
                                                                                 class="mt-2 text-sm text-gray-600 block text-center"
@@ -309,9 +302,7 @@
                                                                             <span class="mt-2 text-sm text-gray-600"
                                                                                 x-text="bookingDetails.guest_name"></span>
                                                                             <span
-                                                                                class="text-xs text-red-500 mt-1">Akun
-                                                                                belum
-                                                                                Terverifikasi</span>
+                                                                                class="text-xs text-red-500 mt-1">{{ __('ui.account_not_verified') }}</span>
                                                                         </div>
                                                                     </template>
                                                                 </div>
@@ -319,40 +310,38 @@
                                                                 <!-- Informasi Kontak -->
                                                                 <div>
                                                                     <h4 class="text-sm font-medium text-gray-700 mb-2">
-                                                                        Informasi Kontak</h4>
+                                                                        {{ __('ui.contact_information') }}</h4>
                                                                     <div class="space-y-3">
                                                                         <!-- Input Nama -->
                                                                         <div>
                                                                             <label for="guestName"
-                                                                                class="block text-sm font-medium text-gray-700 mb-1">Nama
-                                                                                Lengkap</label>
+                                                                                class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.full_name') }}</label>
                                                                             <input type="text" id="guestName"
                                                                                 x-model="guestContact.name"
                                                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                                                placeholder="Masukkan nama lengkap"
+                                                                                placeholder="{{ __('ui.enter_full_name') }}"
                                                                                 required>
                                                                         </div>
 
                                                                         <!-- Input Email -->
                                                                         <div>
                                                                             <label for="guestEmail"
-                                                                                class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                                                                class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.email') }}</label>
                                                                             <input type="email" id="guestEmail"
                                                                                 x-model="guestContact.email"
                                                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                                                placeholder="Masukkan alamat email"
+                                                                                placeholder="{{ __('ui.enter_email') }}"
                                                                                 required>
                                                                         </div>
 
                                                                         <!-- Input Telepon -->
                                                                         <div>
                                                                             <label for="guestPhone"
-                                                                                class="block text-sm font-medium text-gray-700 mb-1">Nomor
-                                                                                Telepon</label>
+                                                                                class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.phone_number') }}</label>
                                                                             <input type="tel" id="guestPhone"
                                                                                 x-model="guestContact.phone"
                                                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                                                placeholder="Masukkan nomor telepon"
+                                                                                placeholder="{{ __('ui.enter_phone_number') }}"
                                                                                 required>
                                                                         </div>
                                                                     </div>
@@ -371,22 +360,21 @@
                                                                         stroke-linejoin="round" stroke-width="2"
                                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                                 </svg>
-                                                                Unggah Identifikasi
+                                                                {{ __('ui.upload_identification') }}
                                                             </h3>
 
                                                             <div class="space-y-4">
                                                                 <!-- Pemilihan Jenis Dokumen -->
                                                                 <div>
                                                                     <label for="documentType"
-                                                                        class="block text-sm font-medium text-gray-700 mb-1">Jenis
-                                                                        Dokumen</label>
+                                                                        class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.document_type') }}</label>
                                                                     <select id="documentType"
                                                                         x-model="selectedDocType"
                                                                         class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
                                                                         <option value="ktp">KTP</option>
-                                                                        <option value="passport">Paspor</option>
+                                                                        <option value="passport">{{ __('ui.passport') }}</option>
                                                                         <option value="sim">SIM</option>
-                                                                        <option value="other">ID Lainnya</option>
+                                                                        <option value="other">{{ __('ui.other_id') }}</option>
                                                                     </select>
                                                                 </div>
 
@@ -399,7 +387,7 @@
                                                                                 'border-green-500 text-green-600' :
                                                                                 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                                                             class="flex-1 py-2 px-4 text-center border-b-2 font-medium text-sm">
-                                                                            Upload File
+                                                                            {{ __('ui.upload_file') }}
                                                                         </button>
                                                                         <button type="button"
                                                                             @click="handleUploadMethodChange('camera')"
@@ -407,7 +395,7 @@
                                                                                 'border-green-500 text-green-600' :
                                                                                 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                                                             class="flex-1 py-2 px-4 text-center border-b-2 font-medium text-sm">
-                                                                            Webcam
+                                                                            {{ __('ui.webcam') }}
                                                                         </button>
                                                                     </div>
 
@@ -422,7 +410,7 @@
                                                                             :class="{ 'border-green-400 bg-green-50': isDragging }"
                                                                             role="button" tabindex="0">
                                                                             <input type="file" id="document"
-                                                                                name="document" accept="image/*,.pdf"
+                                                                                name="document" accept="image/*"
                                                                                 class="hidden" x-ref="docInput"
                                                                                 @change="handleDocUpload($event)">
 
@@ -439,16 +427,9 @@
                                                                                 </svg>
                                                                                 <p class="text-sm text-gray-600">
                                                                                     <span
-                                                                                        class="font-medium text-green-600">Klik
-                                                                                        untuk mengunggah</span> atau
-                                                                                    seret
-                                                                                    dan
-                                                                                    lepas
+                                                                                        class="font-medium text-green-600">{{ __('ui.click_to_upload') }}</span> {{ __('ui.or_drag_and_drop') }}
                                                                                 </p>
-                                                                                <p class="text-xs text-gray-500">JPG,
-                                                                                    PNG,
-                                                                                    PDF
-                                                                                    hingga 5MB</p>
+                                                                                <p class="text-xs text-gray-500">{{ __('ui.file_format_limit') }}</p>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -472,8 +453,7 @@
                                                                                         d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                                                 </svg>
                                                                                 <p class="text-sm text-gray-600 mt-2">
-                                                                                    Klik tombol di bawah untuk mengambil
-                                                                                    foto
+                                                                                    {{ __('ui.click_to_take_photo') }}
                                                                                 </p>
                                                                             </div>
 
@@ -512,7 +492,7 @@
                                                                             <div x-show="webcamPhoto && !isCapturing"
                                                                                 class="relative">
                                                                                 <img :src="webcamPhoto"
-                                                                                    alt="Foto dari webcam"
+                                                                                    alt="{{ __('ui.webcam_photo') }}"
                                                                                     class="w-full h-auto rounded-lg">
                                                                                 <div
                                                                                     class="absolute top-2 right-2 flex space-x-2">
@@ -562,7 +542,7 @@
                                                                                             stroke-width="2"
                                                                                             d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                                                     </svg>
-                                                                                    Buka Kamera
+                                                                                    {{ __('ui.open_camera') }}
                                                                                 </button>
                                                                             </div>
 
@@ -580,7 +560,7 @@
                                                                                             stroke-width="2"
                                                                                             d="M6 18L18 6M6 6l12 12" />
                                                                                     </svg>
-                                                                                    Tutup Kamera
+                                                                                    {{ __('ui.close_camera') }}
                                                                                 </button>
                                                                             </div>
                                                                         </div>
@@ -590,14 +570,14 @@
                                                                 <!-- Pratinjau Dokumen -->
                                                                 <div class="mt-4" x-show="docPreview" x-transition>
                                                                     <h4 class="text-sm font-medium text-gray-700 mb-2">
-                                                                        Pratinjau Dokumen (<span
+                                                                        {{ __('ui.document_preview') }} (<span
                                                                             x-text="selectedDocType.toUpperCase()"></span>):
                                                                     </h4>
                                                                     <div
                                                                         class="border border-gray-200 rounded-lg p-2 bg-white">
                                                                         <template x-if="docPreviewType === 'image'">
                                                                             <img :src="docPreview"
-                                                                                alt="Pratinjau Dokumen"
+                                                                                alt="{{ __('ui.document_preview') }}"
                                                                                 class="w-full h-auto max-h-48 object-contain">
                                                                         </template>
                                                                         <template x-if="docPreviewType === 'pdf'">
@@ -613,16 +593,15 @@
                                                                                     </path>
                                                                                 </svg>
                                                                                 <p class="text-sm text-gray-600 mt-2">
-                                                                                    Dokumen PDF</p>
+                                                                                    {{ __('ui.pdf_document') }}</p>
                                                                             </div>
                                                                         </template>
                                                                         <div
                                                                             class="mt-2 flex justify-between items-center">
-                                                                            <span class="text-xs text-gray-500">Dokumen
-                                                                                terunggah</span>
+                                                                            <span class="text-xs text-gray-500">{{ __('ui.document_uploaded') }}</span>
                                                                             <button type="button" @click="removeDoc"
                                                                                 class="text-red-500 hover:text-red-700 text-xs font-medium">
-                                                                                Hapus
+                                                                                {{ __('ui.remove') }}
                                                                             </button>
                                                                         </div>
                                                                     </div>
@@ -631,9 +610,8 @@
                                                                                 <!-- Pesan Validasi -->
                                                                 <div class="mt-3" x-show="!docPreview">
                                                                     <p class="text-sm text-red-600">
-                                                                        <span class="font-medium">Catatan:</span>
-                                                                        Dokumen
-                                                                        identifikasi diperlukan untuk check-in.
+                                                                        <span class="font-medium">{{ __('ui.note') }}:</span>
+                                                                        {{ __('ui.id_required_for_checkin') }}
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -648,10 +626,10 @@
                                                                     </svg>
                                                                     <div>
                                                                         <p class="text-base font-semibold text-blue-800 mb-1">
-                                                                            Dokumen Identifikasi Sudah Tersimpan
+                                                                            {{ __('ui.id_document_saved') }}
                                                                         </p>
                                                                         <p class="text-sm text-blue-700">
-                                                                            Anda dapat langsung melanjutkan proses check-in tanpa mengunggah dokumen baru.
+                                                                            {{ __('ui.continue_checkin_without_doc') }}
                                                                         </p>
                                                                     </div>
                                                                 </div>
@@ -664,12 +642,12 @@
                                                     class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between">
                                                     <button type="button" @click="closeModal"
                                                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                                        Batal
+                                                        {{ __('ui.cancel') }}
                                                     </button>
                                                     <button type="button" @click="submitCheckIn"
                                                         :disabled="(docRequired && !docPreview && !profilePhotoUrl) || !guestContact.name || !guestContact.email || !guestContact.phone"
                                                         class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                                                        Selesaikan Check-In
+                                                        {{ __('ui.complete_checkin') }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -681,17 +659,34 @@
                         @elseif (!is_null($booking->check_in_at) && is_null($booking->check_out_at))
                             {{-- Sudah check-in, belum check-out --}}
                             <div class="flex flex-col items-center space-y-2">
-                                <span class="text-yellow-600 font-semibold">Currently Staying</span>
+                                <span class="text-yellow-600 font-semibold">{{ __('ui.currently_staying_label') }}</span>
 
-                                <a href="{{ route('newReserv.checkin.invoice', $booking->order_id) }}"
-                                    target="_blank"
-                                    class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none">
-                                    View Invoice
-                                </a>
+                                <div class="flex flex-col items-center space-y-2">
+                                    <a href="{{ route('newReserv.checkin.invoice', $booking->order_id) }}"
+                                        target="_blank"
+                                        class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none">
+                                        {{ __('ui.view_invoice') }}
+                                    </a>
+
+                                    @if ($booking->is_printed < 2)
+                                        <a href="{{ route('newReserv.checkin.regist', $booking->order_id) }}"
+                                            target="_blank"
+                                            class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-amber-600 rounded hover:bg-amber-700 focus:outline-none">
+                                            {{ __('ui.print_regist_form') }}
+                                            <span class="ml-1 px-1 py-0.5 text-[10px] bg-amber-800 rounded">{{ $booking->is_printed }}/2</span>
+                                        </a>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-400 bg-gray-200 rounded cursor-not-allowed"
+                                            title="{{ __('ui.print_limit_reached') }}">
+                                            {{ __('ui.print_regist_form') }}
+                                            <span class="ml-1 px-1 py-0.5 text-[10px] bg-gray-300 text-gray-500 rounded">2/2</span>
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         @elseif (!is_null($booking->check_in_at) && !is_null($booking->check_out_at))
                             {{-- Sudah check-in dan check-out --}}
-                            <span class="text-green-600">Checked-Out</span>
+                            <span class="text-green-600">{{ __('ui.checked_out') }}</span>
                         @endif
                     </td>
                 @endif
@@ -699,7 +694,7 @@
         @empty
             <tr>
                 <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
-                    Tidak ada pemesanan baru.
+                    {{ __('ui.no_new_reservations') }}
                 </td>
             </tr>
         @endforelse

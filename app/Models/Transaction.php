@@ -48,7 +48,9 @@ class Transaction extends Model
         'attachment',
         'status',
         'paid_at',
-        'cancel_at'
+        'cancel_at',
+        'deposit_fee',
+        'parking_fee'
     ];
 
 

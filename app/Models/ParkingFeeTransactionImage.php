@@ -4,22 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 
-class PropertyFacility extends Model
+class ParkingFeeTransactionImage extends Model
 {
     use HasFactory;
 
-    protected $table = 'm_property_facility';
+    protected $table = 't_parking_fee_transaction_image';
     protected $primaryKey = 'idrec';
     protected $keyType = 'int';
     public $incrementing = true;
 
     protected $fillable = [
-        'facility',
-        'icon',
+        'parking_transaction_id',
+        'image',
+        'image_type',
         'description',
-        'category',
         'status',
         'created_by',
         'updated_by',
@@ -30,19 +29,9 @@ class PropertyFacility extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function scopeActive(Builder $query): Builder
+    public function parkingTransaction()
     {
-        return $query->where('status', 'active');
-    }
-
-    public function scopeByCategory(Builder $query, string $category): Builder
-    {
-        return $query->where('category', $category);
-    }
-
-    public function scopeSearch(Builder $query, string $search): Builder
-    {
-        return $query->where('facility', 'like', "%{$search}%");
+        return $this->belongsTo(ParkingFeeTransaction::class, 'parking_transaction_id', 'idrec');
     }
 
     public function createdBy()

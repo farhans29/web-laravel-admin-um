@@ -164,7 +164,8 @@
                                             <li>
                                                 <a href="{{ route('bookings.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-colors @if (Route::is('bookings.index')) bg-indigo-900 @endif">
-                                                    <span class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_all_bookings') }}</span>
+                                                    <span
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_all_bookings') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -242,11 +243,13 @@
                         <!-- Properties Menu Item -->
                         @can('view_properties')
                             <li x-init="if (window.location.href.includes('m-properties') ||
-                                window.location.href.includes('facilityProperty')) { activeMenu = 'properties' }">
+                                window.location.href.includes('facilityProperty') ||
+                                window.location.href.includes('deposit-fees') ||
+                                window.location.href.includes('parking-fees')) { activeMenu = 'properties' }">
 
                                 <!-- Main Menu Button -->
                                 <a @click="activeMenu = activeMenu === 'properties' ? '' : 'properties'"
-                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index')) bg-indigo-900 @endif">
+                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index', 'deposit-fees.index', 'parking-fees.index')) bg-indigo-900 @endif">
 
                                     <div class="flex items-center gap-3 min-w-0">
                                         <!-- Building Icon -->
@@ -311,6 +314,28 @@
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('facilityProperty.index')) bg-indigo-900 @endif">
                                                     <span
                                                         class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_master_facilities') }}</span>
+                                                </a>
+                                            </li>
+                                        @endcan
+
+                                        <!-- Deposit Fee Management -->
+                                        @can('view_deposit_fees')
+                                            <li>
+                                                <a href="{{ route('deposit-fees.index') }}"
+                                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('deposit-fees.index')) bg-indigo-900 @endif">
+                                                    <span
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_deposit_fees') }}</span>
+                                                </a>
+                                            </li>
+                                        @endcan
+
+                                        <!-- Parking Fee Management -->
+                                        @can('view_parking_fees')
+                                            <li>
+                                                <a href="{{ route('parking-fees.index') }}"
+                                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('parking-fees.index')) bg-indigo-900 @endif">
+                                                    <span
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_parking_fees') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
@@ -500,10 +525,24 @@
 
                         <!-- Chat -->
                         @can('manage_chat')
-                            <li x-data="{ unreadCount: 0 }"
-                                x-init="
-                                    // Fetch unread count on init
-                                    fetch('/chat/unread-count', {
+                            <li x-data="{ unreadCount: 0 }" x-init="// Fetch unread count on init
+                            fetch('/chat/unread-count', {
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Accept': 'application/json',
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        unreadCount = data.unread_count;
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching unread count:', error));
+                            
+                            // Refresh every 30 seconds
+                            setInterval(() => {
+                                fetch('/chat/unread-count', {
                                         headers: {
                                             'X-Requested-With': 'XMLHttpRequest',
                                             'Accept': 'application/json',
@@ -516,30 +555,13 @@
                                         }
                                     })
                                     .catch(error => console.error('Error fetching unread count:', error));
-
-                                    // Refresh every 30 seconds
-                                    setInterval(() => {
-                                        fetch('/chat/unread-count', {
-                                            headers: {
-                                                'X-Requested-With': 'XMLHttpRequest',
-                                                'Accept': 'application/json',
-                                            }
-                                        })
-                                        .then(response => response.json())
-                                        .then(data => {
-                                            if (data.success) {
-                                                unreadCount = data.unread_count;
-                                            }
-                                        })
-                                        .catch(error => console.error('Error fetching unread count:', error));
-                                    }, 30000);
-                                ">
+                            }, 30000);">
                                 <a href="{{ route('chat.index') }}"
                                     class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('chat.index')) bg-indigo-900 @endif">
                                     <!-- Chat Icon with Badge -->
                                     <div class="relative">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                         </svg>
@@ -604,6 +626,32 @@
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                             {{ __('ui.sidebar_payments') }}
+                                        </div>
+                                    </a>
+                                </li>
+                            @endcan
+
+                            <!-- Parking Payments -->
+                            @can('view_parking_payments')
+                                <li>
+                                    <a href="{{ route('admin.parking-payments.index') }}"
+                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('admin.parking-payments.index')) bg-indigo-900 @endif">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                            viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="9" stroke="currentColor"
+                                                stroke-width="1.5" />
+                                            <path d="M10 8h3a2 2 0 0 1 0 4h-3m0-4v8" stroke="currentColor" stroke-width="1.5"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_parking_payments') }}</span>
+                                        <!-- Tooltip for collapsed state -->
+                                        <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                                            style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
+                                            {{ __('ui.sidebar_parking_payments') }}
                                         </div>
                                     </a>
                                 </li>
