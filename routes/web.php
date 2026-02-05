@@ -17,7 +17,10 @@ use App\Http\Controllers\Rooms\ChangeRoomController;
 use App\Http\Controllers\Properties\ManajementPropertiesController;
 use App\Http\Controllers\Properties\ManajementRoomsController;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Payment\ParkingPaymentController;
 use App\Http\Controllers\Payment\RefundController;
+use App\Http\Controllers\Properties\DepositFeeController;
+use App\Http\Controllers\Properties\ParkingFeeController;
 use App\Http\Controllers\RoomAvailability\RoomAvailabilityController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Reports\BookingReportController;
@@ -156,6 +159,9 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::get('/change-room', [ChangeRoomController::class, 'index'])->name('changerooom.index');
         Route::get('/change-room/available-rooms', [ChangeRoomController::class, 'getAvailableRooms']);
         Route::post('/change-room/store', [ChangeRoomController::class, 'store'])->name('changeroom.store');
+        Route::post('/change-room/rollback', [ChangeRoomController::class, 'rollback'])->name('changeroom.rollback');
+        Route::get('/change-room/chain', [ChangeRoomController::class, 'getChain'])->name('changeroom.chain');
+        Route::get('/change-room/check-rollback', [ChangeRoomController::class, 'checkRollbackAvailability'])->name('changeroom.check-rollback');
 
         // ---------------------------------------------------------------------------------------------------------------------
 
@@ -200,6 +206,20 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::post('/rooms/facilityRooms/store', [ManajementRoomsController::class, 'storeFacility'])->name('facilityRooms.store');
         Route::put('/rooms/facilityRooms/update/{id}', [ManajementRoomsController::class, 'updateFacility'])->name('facilityRooms.update');
         Route::post('/rooms/facilityRooms/toggle-status', [ManajementRoomsController::class, 'toggleFacilityStatus'])->name('facilityRooms.toggle-status');
+
+        // ------------------------- DEPOSIT FEE MANAGEMENT -------------------------
+        Route::get('/deposit-fees', [DepositFeeController::class, 'index'])->name('deposit-fees.index');
+        Route::post('/deposit-fees/filter', [DepositFeeController::class, 'filter'])->name('deposit-fees.filter');
+        Route::post('/deposit-fees/store', [DepositFeeController::class, 'store'])->name('deposit-fees.store');
+        Route::put('/deposit-fees/update/{idrec}', [DepositFeeController::class, 'update'])->name('deposit-fees.update');
+        Route::post('/deposit-fees/toggle-status', [DepositFeeController::class, 'toggleStatus'])->name('deposit-fees.toggle-status');
+
+        // ------------------------- PARKING FEE MANAGEMENT -------------------------
+        Route::get('/parking-fees', [ParkingFeeController::class, 'index'])->name('parking-fees.index');
+        Route::post('/parking-fees/filter', [ParkingFeeController::class, 'filter'])->name('parking-fees.filter');
+        Route::post('/parking-fees/store', [ParkingFeeController::class, 'store'])->name('parking-fees.store');
+        Route::put('/parking-fees/update/{idrec}', [ParkingFeeController::class, 'update'])->name('parking-fees.update');
+        Route::post('/parking-fees/toggle-status', [ParkingFeeController::class, 'toggleStatus'])->name('parking-fees.toggle-status');
     });
 
     Route::prefix('payment')->group(function () {
@@ -210,6 +230,13 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::put('/cancel/{id}', [PaymentController::class, 'cancel'])->name('admin.bookings.cancel');
         Route::put('/update-payment-date/{id}', [PaymentController::class, 'updatePaymentDate'])->name('admin.payments.update-payment-date');
         Route::put('/update-checkinout/{id}', [PaymentController::class, 'updateCheckInOut'])->name('admin.payments.update-checkinout');
+
+        // ------------------------- PARKING PAYMENTS -------------------------
+        Route::get('/parking', [ParkingPaymentController::class, 'index'])->name('admin.parking-payments.index');
+        Route::post('/parking/filter', [ParkingPaymentController::class, 'filter'])->name('admin.parking-payments.filter');
+        Route::post('/parking/approve/{id}', [ParkingPaymentController::class, 'approve'])->name('admin.parking-payments.approve');
+        Route::post('/parking/reject/{id}', [ParkingPaymentController::class, 'reject'])->name('admin.parking-payments.reject');
+        Route::get('/parking/proof/{id}', [ParkingPaymentController::class, 'viewProof'])->name('admin.parking-payments.proof');
 
         Route::get('/refund', [RefundController::class, 'index'])->name('admin.refunds.index');
         Route::post('/refund/store', [RefundController::class, 'store'])->name('admin.refunds.store');

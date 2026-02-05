@@ -463,15 +463,14 @@
                 handleDocDrop(e) {
                     this.isDragging = false;
                     const files = e.dataTransfer.files;
-                    if (files.length > 0 && (files[0].type.match('image.*') || files[0].type ===
-                            'application/pdf')) {
+                    if (files.length > 0 && files[0].type.match('image.*')) {
                         this.previewDoc(files[0]);
                     }
                 },
 
                 handleDocUpload(e) {
                     const file = e.target.files[0];
-                    if (file && (file.type.match('image.*') || file.type === 'application/pdf')) {
+                    if (file && file.type.match('image.*')) {
                         this.previewDoc(file);
                     }
                 },
@@ -485,7 +484,7 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         this.docPreview = e.target.result;
-                        this.docPreviewType = file.type === 'application/pdf' ? 'pdf' : 'image';
+                        this.docPreviewType = 'image';
                         this.docFile = file; // Simpan file object
                     };
                     reader.readAsDataURL(file);

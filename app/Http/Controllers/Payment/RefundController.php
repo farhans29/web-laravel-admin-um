@@ -104,11 +104,14 @@ class RefundController extends Controller
                 'refund_date' => now()->format('Y-m-d H:i:s'),
             ]);
 
-            // Update status booking
-            $booking = Booking::where('order_id', $request->order_id)->first();
+            // Update booking to inactive after refund
+            $booking = Booking::where('order_id', $request->order_id)
+                ->where('is_active', 1)
+                ->first();
             if ($booking) {
                 $booking->update([
-                    'status' => 'refunded'
+                    'is_active' => 0,
+                    'reason' => 'refunded'
                 ]);
             }
 

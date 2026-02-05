@@ -34,7 +34,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                     <!-- Pencarian Booking -->
-                    <div class="md:col-span-1 relative">
+                    <div class="md:col-span-2 relative">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -44,17 +44,6 @@
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value="{{ request('search') }}">
                     </div>
-
-                    <!-- Property Filter -->
-                    <select id="property_id" name="property_id"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Semua Property</option>
-                        @foreach ($properties as $property)
-                            <option value="{{ $property->id }}" {{ request('property_id') == $property->id ? 'selected' : '' }}>
-                                {{ $property->name }}
-                            </option>
-                        @endforeach
-                    </select>
 
                     <!-- Status -->
                     <select id="status" name="status"
@@ -208,37 +197,6 @@
                 }
             }));
         });
-
-        // Fungsi untuk fetch data dengan filter
-        function fetchFilteredBookings() {
-            const search = document.getElementById('search').value;
-            const propertyId = document.getElementById('property_id').value;
-            const status = document.getElementById('status').value;
-            const startDate = document.getElementById('start_date').value;
-            const endDate = document.getElementById('end_date').value;
-            const perPage = document.getElementById('per_page').value;
-
-            const params = new URLSearchParams({
-                search: search,
-                property_id: propertyId,
-                status: status,
-                start_date: startDate,
-                end_date: endDate,
-                per_page: perPage
-            });
-
-            fetch(`{{ route('room-availability.index') }}?${params}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('room-availability-table').innerHTML = data.html;
-                    document.getElementById('pagination-container').innerHTML = data.pagination;
-                })
-                .catch(error => console.error('Error:', error));
-        }
 
         // Fungsi untuk update status kamar
         function updateRoomStatus(roomId, status) {
@@ -415,13 +373,6 @@
                 loadStatistics()
             ]);
         }, 500));
-
-        document.getElementById('property_id').addEventListener('change', function() {
-            Promise.all([
-                fetchFilteredBookings(1),
-                loadStatistics()
-            ]);
-        });
 
         document.getElementById('status').addEventListener('change', function() {
             const currentPage = getCurrentPage();

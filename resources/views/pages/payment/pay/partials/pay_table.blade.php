@@ -177,6 +177,9 @@
                     <div class="text-sm font-medium text-gray-900">
                         {{ $payment->transaction?->property?->name ?? 'N/A' }}</div>
                     <span class="text-xs text-gray-400">{{ $payment->transaction?->room?->name ?? '-' }}</span>
+                    @if($payment->transaction?->room?->no ?? null)
+                        <div class="text-xs text-gray-400">No. {{ $payment->transaction->room->no }}</div>
+                    @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     Rp{{ number_format($payment->transaction?->grandtotal_price ?? 0, 0, ',', '.') }}
@@ -473,7 +476,7 @@
                             <!-- Informasi Verifikasi -->
                             <div class="text-xs text-gray-500">
                                 Oleh:
-                                {{ $payment->verifiedBy->username ?? 'Sistem' }}
+                                {{ $payment->verifiedBy->username ?? 'DOKU' }}
                             </div>
                         </div>
 
@@ -666,7 +669,7 @@
                             </span>
                             <div class="text-xs text-gray-500 mt-1">
                                 Oleh:
-                                {{ $payment->verifiedBy->name ?? 'Sistem' }}
+                                {{ $payment->verifiedBy->name ?? 'DOKU' }}
                             </div>
                         </div>
                     @endif

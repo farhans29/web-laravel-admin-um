@@ -341,7 +341,10 @@
                                                                 class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
 
                                                             <div class="ml-3 flex-1">
-                                                                <span class="block text-sm font-medium text-gray-900">
+                                                                <span class="block text-sm font-medium text-gray-900 flex items-center gap-1.5">
+                                                                    @if (!empty($facility->icon))
+                                                                        <span class="iconify text-lg" data-icon="{{ $facility->icon }}"></span>
+                                                                    @endif
                                                                     {{ $facility->facility }}
                                                                 </span>
                                                                 @if (!empty($facility->description))
@@ -2202,6 +2205,11 @@
                     return `Facility #${id}`;
                 },
 
+                getFacilityIcon(id) {
+                    const facility = this.facilityData.find(f => f.id == id);
+                    return facility && facility.icon ? facility.icon : '';
+                },
+
                 getFacilityDescription(id) {
                     const facility = this.facilityData.find(f => f.id == id);
                     return facility ? facility.description : '';
@@ -2230,6 +2238,8 @@
                             facilities: Array.isArray(room.facilities) ? room.facilities : []
                         };
                         this.isLoading = false;
+                        // Scan for Iconify icons in facility display
+                        setTimeout(() => { if (window.Iconify) Iconify.scan(); }, 200);
                     });
                 },
 

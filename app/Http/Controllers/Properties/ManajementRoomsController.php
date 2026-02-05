@@ -88,6 +88,7 @@ class ManajementRoomsController extends Controller
                 'id' => $facility->idrec,
                 'name' => $facility->facility,
                 'description' => $facility->description,
+                'icon' => $facility->icon,
             ];
         });
 

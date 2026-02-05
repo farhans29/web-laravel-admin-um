@@ -32,10 +32,10 @@
                     </div>
 
                     <!-- Status -->
-                    <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md">
+                    <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="all">{{ __('ui.all_status') }}</option>
-                        <option value="pending" {{ request('status') == 'refund' ? 'selected' : '' }}>{{ __('ui.refund') }}</option>
-                        <option value="waiting" {{ request('status') == 'refunded' ? 'selected' : '' }}>{{ __('ui.refunded') }}</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('ui.pending') }}</option>
+                        <option value="refunded" {{ request('status') == 'refunded' ? 'selected' : '' }}>{{ __('ui.refunded') }}</option>
                     </select>
 
                     <div class="md:col-span-2 flex gap-2">
@@ -145,21 +145,22 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
+                                    <div class="flex justify-center space-x-2">
+                                        @if($refund->status === 'pending')
                                         <!-- Tombol Refund -->
                                         <div x-data="refundModal()" class="relative group">
                                             <button type="button"
-                                                class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
+                                                class="inline-flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
                                                 @click="openModal('{{ $refund->id_booking }}')"
                                                 title="{{ __('ui.confirm_refund') }}">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2.5" stroke-linecap="round"
+                                                    stroke-width="2" stroke-linecap="round"
                                                     stroke-linejoin="round">
-                                                    <path d="M20 6L9 17l-5-5" />
-                                                    <circle cx="12" cy="12" r="10" />
+                                                    <polyline points="9 11 12 14 22 4"></polyline>
+                                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                                                 </svg>
-                                                <span class="text-sm font-semibold">{{ __('ui.refund') }}</span>
+                                                <span class="text-sm font-medium">{{ __('ui.confirm_refund') }}</span>
                                             </button>
 
                                             <!-- Modal -->
@@ -331,8 +332,13 @@
                                                         </div>
                                                         <div class="flex space-x-3">
                                                             <button type="button"
-                                                                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                                                @click="submitRefund" :disabled="!selectedFile">
+                                                                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium transition-colors duration-200"
+                                                                @click="closeModal">
+                                                                {{ __('ui.cancel') }}
+                                                            </button>
+                                                            <button type="button"
+                                                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+                                                                @click="submitRefund" :disabled="!selectedFile || isLoading">
                                                                 <span x-show="!isLoading">{{ __('ui.confirm_refund') }}</span>
                                                                 <span x-show="isLoading" class="flex items-center">
                                                                     <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -354,6 +360,16 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        @else
+                                        <!-- Status sudah refunded - tampilkan badge -->
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-100 text-green-700 text-sm font-medium">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                            </svg>
+                                            {{ __('ui.refunded') }}
+                                        </span>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

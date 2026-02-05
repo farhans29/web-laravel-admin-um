@@ -10,11 +10,11 @@
                         <nav class="flex space-x-8">
                             <button id="initiateTab"
                                 class="py-4 px-1 border-b-2 font-medium text-sm border-indigo-500 text-indigo-600">
-                                Initiate Transfer
+                                Pindah Kamar
                             </button>
                             <button id="historyTab"
                                 class="py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                                Transfer History
+                                Riwayat Perpindahan
                             </button>
                         </nav>
                     </div>
@@ -53,22 +53,22 @@
                             <input type="hidden" name="current_property_id" id="formCurrentPropertyId">
                             <input type="hidden" name="check_in" id="formCheckIn">
                             <input type="hidden" name="check_out" id="formCheckOut">
+
                             <!-- Transfer Controls -->
                             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h1
-                                        class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                                        Pindah kamar
+                                    <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                                        Pindah Kamar
                                     </h1>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <!-- Guest Selection -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Left Column: Booking Selection -->
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        <h3 class="font-medium text-gray-700 mb-3">Informasi Booking</h3>
+                                        <h3 class="font-medium text-gray-700 mb-3">Pilih Booking</h3>
 
-                                        <!-- Form Pencarian dengan margin bottom yang lebih besar -->
-                                        <div class="mb-8">
+                                        <!-- Search Input -->
+                                        <div class="mb-4">
                                             <div class="relative">
                                                 <input type="text" id="searchInput"
                                                     class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
@@ -79,8 +79,8 @@
                                             </div>
                                         </div>
 
-                                        <!-- Konten Tabel dengan margin top -->
-                                        <div class="space-y-4 mt-6" id="bookingResultsContainer">
+                                        <!-- Booking Cards -->
+                                        <div class="space-y-3 max-h-96 overflow-y-auto" id="bookingResultsContainer">
                                             @include('pages.rooms.changerooms.partials.changeRoom_table', [
                                                 'bookings' => $bookings,
                                                 'per_page' => request('per_page', 8),
@@ -92,127 +92,133 @@
                                         </div>
                                     </div>
 
-                                    <!-- Current Room -->
-                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        <h3 class="font-medium text-gray-700 mb-3">Kamar Saat Ini</h3>
-                                        <div class="bg-white p-3 rounded border border-gray-200"
-                                            id="currentRoomDetails">
-                                            <div class="text-center py-10 text-gray-500" id="noBookingSelected">
-                                                <p class="text-sm">Pilih pemesanan untuk melihat detailnya</p>
-                                            </div>
-                                            <div class="space-y-2 hidden" id="bookingDetails">
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Nama Tamu:</span>
-                                                    <span class="font-medium" id="guestName">-</span>
+                                    <!-- Right Column: Transfer Form -->
+                                    <div class="space-y-4">
+                                        <!-- Current Room Details -->
+                                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                            <h3 class="font-medium text-gray-700 mb-3">Kamar Saat Ini</h3>
+                                            <div class="bg-white p-4 rounded border border-gray-200" id="currentRoomDetails">
+                                                <div class="text-center py-8 text-gray-500" id="noBookingSelected">
+                                                    <i class="fas fa-hand-pointer text-4xl mb-3 text-gray-300"></i>
+                                                    <p class="text-sm">Pilih booking untuk melihat detail</p>
                                                 </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">ID Reservasi:</span>
-                                                    <span class="font-medium" id="orderId">-</span>
+                                                <div class="hidden" id="bookingDetails">
+                                                    <div class="grid grid-cols-2 gap-3 text-sm">
+                                                        <div>
+                                                            <span class="text-gray-500">Nama Tamu:</span>
+                                                            <p class="font-medium" id="guestName">-</p>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-gray-500">Order ID:</span>
+                                                            <p class="font-medium" id="orderId">-</p>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-gray-500">Properti:</span>
+                                                            <p class="font-medium" id="propertyName">-</p>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-gray-500">Status:</span>
+                                                            <p class="font-medium" id="bookingStatus">-</p>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-gray-500">Kamar:</span>
+                                                            <p class="font-medium"><span id="roomNumber">-</span> (<span id="roomType">-</span>)</p>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-gray-500">Check-in:</span>
+                                                            <p class="font-medium text-green-600" id="checkIn">-</p>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-gray-500">Check-out:</span>
+                                                            <p class="font-medium text-red-600" id="checkOut">-</p>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-gray-500">Riwayat Pindah:</span>
+                                                            <p class="font-medium">
+                                                                <span id="transferCount" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">0x</span>
+                                                                <button type="button" id="viewHistoryBtn" class="text-indigo-600 hover:text-indigo-800 text-xs ml-1 hidden">
+                                                                    Lihat
+                                                                </button>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <input type="hidden" id="propertyId">
+                                                    <input type="hidden" id="roomId">
+                                                    <input type="hidden" id="currentBookingId">
                                                 </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Status:</span>
-                                                    <span class="font-medium" id="bookingStatus">-</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Properti:</span>
-                                                    <span class="font-medium" id="propertyName">-</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Nomor Kamar:</span>
-                                                    <span class="font-medium" id="roomNumber">-</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Tipe Kamar:</span>
-                                                    <span class="font-medium" id="roomType">-</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Check-in:</span>
-                                                    <span class="font-medium" id="checkIn">-</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Check-out:</span>
-                                                    <span class="font-medium" id="checkOut">-</span>
-                                                </div>
-                                                <div class="flex justify-between hidden">
-                                                    <span class="text-gray-600">ID Properti:</span>
-                                                    <span class="font-medium" id="propertyId">-</span>
-                                                </div>
-                                                <div class="flex justify-between hidden">
-                                                    <span class="text-gray-600">ID Kamar:</span>
-                                                    <span class="font-medium" id="roomId">-</span>
-                                                </div>
-
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- New Room Selection -->
-                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        <h3 class="font-medium text-gray-700 mb-3">Transfer Ke</h3>
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">Ruang Baru <span
-                                                        class="text-red-500">*</span></label>
-                                                <select name="new_room" id="newRoomSelect"
-                                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                    disabled>
-                                                    <option value="" disabled selected>Pilih ruang baru</option>
-                                                    @foreach ($availableRooms as $room)
-                                                        <option value="{{ $room->idrec }}">
-                                                            {{ $room->name }} - {{ $room->type }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                        <!-- Arrow Indicator -->
+                                        <div class="flex justify-center">
+                                            <div class="bg-indigo-100 rounded-full p-2">
+                                                <i class="fas fa-arrow-down text-indigo-600"></i>
                                             </div>
-                                            <div class="bg-white p-3 rounded border border-gray-200">
-                                                <div class="space-y-2">
-                                                    <div class="flex justify-between">
-                                                        <span class="text-gray-600">Kamar Terpilih:</span>
+                                        </div>
+
+                                        <!-- New Room Selection -->
+                                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                            <h3 class="font-medium text-gray-700 mb-3">Pindah Ke Kamar Baru</h3>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Pilih Kamar <span class="text-red-500">*</span></label>
+                                                    <select name="new_room" id="newRoomSelect"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                        disabled required>
+                                                        <option value="" disabled selected>Pilih kamar baru</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="bg-white p-3 rounded border border-gray-200">
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="text-gray-600 text-sm">Kamar Terpilih:</span>
                                                         <span class="font-medium" id="selectedNewRoom">-</span>
                                                     </div>
-                                                    <div class="flex justify-between">
-                                                        <span class="text-gray-600">Status Kamar:</span>
-                                                        <span class="font-medium" id="roomAvailability">-</span>
+                                                    <div class="flex justify-between items-center mt-1">
+                                                        <span class="text-gray-600 text-sm">Status:</span>
+                                                        <span class="font-medium text-green-600" id="roomAvailability">-</span>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">
-                                                    Alasan Transfer <span class="text-red-500">*</span>
-                                                </label>
-                                                <select name="reason" id="transferReasonSelect"
-                                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                    disabled required>
-                                                    <option value="" disabled selected>Pilih alasan</option>
-                                                    <option value="maintenance">Perawatan yang Diperlukan</option>
-                                                    <option value="upgrade">Peningkatan yang Diminta Tamu</option>
-                                                    <option value="downgrade">Tamu Meminta Downgrade</option>
-                                                    <option value="other">Lainnya</option>
-                                                </select>
-                                                <p id="reasonError" class="text-red-500 text-xs mt-1 hidden">Silakan
-                                                    pilih alasan transfer</p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">Catatan</label>
-                                                <textarea name="notes" id="transferNotes"
-                                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                    disabled rows="2" placeholder="Additional notes..."></textarea>
+
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Alasan Pindah <span class="text-red-500">*</span></label>
+                                                    <select name="reason" id="transferReasonSelect"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                        disabled required>
+                                                        <option value="" disabled selected>Pilih alasan</option>
+                                                        <option value="maintenance">Maintenance/Perawatan</option>
+                                                        <option value="upgrade">Upgrade Kamar</option>
+                                                        <option value="downgrade">Downgrade Kamar</option>
+                                                        <option value="guest_request">Permintaan Tamu</option>
+                                                        <option value="other">Lainnya</option>
+                                                    </select>
+                                                    <p id="reasonError" class="text-red-500 text-xs mt-1 hidden">Silakan pilih alasan</p>
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Catatan</label>
+                                                    <textarea name="notes" id="transferNotes"
+                                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                        disabled rows="2" placeholder="Catatan tambahan..."></textarea>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
 
-                                <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
-                                    <button type="button"
-                                        onclick="window.location.href='{{ route('changerooom.index') }}'"
-                                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                        Membatalkan
-                                    </button>
-                                    <button type="submit" id="submitButton"
-                                        class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 flex items-center">
-                                        <i class="fas fa-exchange-alt mr-2"></i>
-                                        Transfer Proses
-                                    </button>
+                                        <!-- Action Buttons -->
+                                        <div class="flex justify-end space-x-3 pt-4">
+                                            <button type="button"
+                                                onclick="window.location.href='{{ route('changerooom.index') }}'"
+                                                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                                                Batal
+                                            </button>
+                                            <button type="submit" id="submitButton"
+                                                class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                                disabled>
+                                                <i class="fas fa-exchange-alt mr-2"></i>
+                                                Proses Pindah Kamar
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -220,152 +226,120 @@
 
                     <!-- History Tab Content -->
                     <div id="historyContent" class="hidden">
-                        <div class="bg-white rounded-lg shadow overflow-hidden">
-                            <div class="p-4 border-b border-gray-200">
-                                <div class="mb-4">
-                                    <h2 class="text-xl font-semibold text-gray-800">Riwayat Transfer Kamar</h2>
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold text-gray-800">Riwayat Perpindahan Kamar</h2>
+                                <div class="relative w-64">
+                                    <input type="text" id="historySearchInput"
+                                        value="{{ $historySearch ?? '' }}"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                        placeholder="Cari Order ID atau Nama...">
+                                    <div class="absolute right-3 top-2.5 text-gray-400">
+                                        <i class="fas fa-search"></i>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <!-- Search Form -->
-                                <div class="space-y-4">
-                                    <div class="grid grid-cols-1 gap-4">
-                                        <!-- Search by Order ID or Guest Name (Live Search) -->
-                                        <div class="relative">
-                                            <input type="text" id="historySearchInput"
-                                                value="{{ $historySearch ?? '' }}"
-                                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                placeholder="Cari ID Booking atau Nama...">
-                                            <div class="absolute right-3 top-2.5 text-gray-400">
-                                                <i class="fas fa-search"></i>
+                            @if (request('history_search'))
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-sm text-gray-600">Filter aktif:</span>
+                                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
+                                        {{ request('history_search') }}
+                                        <button onclick="clearHistorySearch()" class="ml-2 hover:text-indigo-900">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            @endif
+
+                            <!-- History Cards with Chain Visualization -->
+                            <div class="space-y-4" id="historyContainer">
+                                @forelse ($transferHistory as $history)
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                        <!-- Header -->
+                                        <div class="bg-gray-50 px-4 py-3 flex justify-between items-center">
+                                            <div class="flex items-center space-x-4">
+                                                <div>
+                                                    <span class="text-sm text-gray-500">Order:</span>
+                                                    <span class="font-semibold text-gray-800">{{ $history['order_id'] }}</span>
+                                                </div>
+                                                <div class="text-gray-300">|</div>
+                                                <div>
+                                                    <span class="text-sm text-gray-500">Tamu:</span>
+                                                    <span class="font-medium text-gray-800">{{ $history['guest_name'] }}</span>
+                                                </div>
+                                                <div class="text-gray-300">|</div>
+                                                <div>
+                                                    <span class="text-sm text-gray-500">Properti:</span>
+                                                    <span class="font-medium text-gray-800">{{ $history['property']->name ?? 'N/A' }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                                    {{ $history['transfer_count'] }}x Pindah
+                                                </span>
+                                                @if($history['active_booking'] && $history['active_booking']->previous_booking_id)
+                                                    <button type="button"
+                                                        onclick="openRollbackModal({{ $history['active_booking']->idrec }}, '{{ $history['order_id'] }}')"
+                                                        class="px-3 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium hover:bg-orange-200 transition">
+                                                        <i class="fas fa-undo mr-1"></i> Rollback
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <!-- Chain Visualization -->
+                                        <div class="p-4 overflow-x-auto">
+                                            <div class="flex items-center space-x-2 min-w-max">
+                                                @foreach ($history['chain'] as $index => $booking)
+                                                    <!-- Room Node -->
+                                                    <div class="flex flex-col items-center">
+                                                        <div class="w-24 p-3 rounded-lg border-2 text-center
+                                                            {{ $booking->is_active ? 'border-green-500 bg-green-50' : 'border-gray-300 bg-gray-50' }}">
+                                                            <div class="font-bold text-sm {{ $booking->is_active ? 'text-green-700' : 'text-gray-600' }}">
+                                                                {{ $booking->room->name ?? 'N/A' }}
+                                                            </div>
+                                                            <div class="text-xs text-gray-500">{{ $booking->room->type ?? '' }}</div>
+                                                            @if($booking->is_active)
+                                                                <span class="inline-block mt-1 px-2 py-0.5 bg-green-500 text-white text-xs rounded">AKTIF</span>
+                                                            @endif
+                                                        </div>
+                                                        <!-- Info below node -->
+                                                        <div class="mt-2 text-center">
+                                                            @if($index === 0)
+                                                                <span class="text-xs text-gray-400">(Awal)</span>
+                                                            @else
+                                                                <span class="text-xs font-medium
+                                                                    @if($booking->reason === 'upgrade') text-green-600
+                                                                    @elseif($booking->reason === 'downgrade') text-red-600
+                                                                    @elseif($booking->reason === 'rollback') text-orange-600
+                                                                    @else text-blue-600
+                                                                    @endif">
+                                                                    {{ ucfirst($booking->reason ?? 'Transfer') }}
+                                                                </span>
+                                                            @endif
+                                                            <div class="text-xs text-gray-400">
+                                                                {{ $booking->room_changed_at ? $booking->room_changed_at->format('d M H:i') : $booking->created_at->format('d M H:i') }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Arrow (except after last item) -->
+                                                    @if(!$loop->last)
+                                                        <div class="flex items-center text-gray-400 pb-8">
+                                                            <i class="fas fa-arrow-right text-lg"></i>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
                                             </div>
                                         </div>
                                     </div>
-
-                                    @if (request('history_search'))
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm text-gray-600">Filter aktif:</span>
-                                            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
-                                                Pencarian: {{ request('history_search') }}
-                                                <button onclick="clearHistorySearch()" class="ml-2 hover:text-indigo-900">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </span>
-                                            <a href="{{ route('changerooom.index') }}?tab=history"
-                                                class="text-sm text-red-600 hover:text-red-800">
-                                                <i class="fas fa-times-circle mr-1"></i>Clear semua filter
-                                            </a>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-800">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                ID Pesanan</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Tamu</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Dari Kamar</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Ke Kamar</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Tanggal Transfer</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Alasan</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Deskripsi</th>
-                                            <th scope="col"
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody
-                                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        @forelse ($transferHistory as $history)
-                                            <tr
-                                                class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {{ $history['order_id'] }}</div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
-                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {{ $history['guest_name'] }}</div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
-                                                    @if ($history['previous_room'])
-                                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                            {{ $history['previous_room']->room->name ?? 'N/A' }}
-                                                        </div>
-                                                        <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                            {{ $history['previous_room']->room->type ?? '' }}
-                                                        </div>
-                                                    @else
-                                                        <div class="text-gray-500 dark:text-gray-400">N/A</div>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
-                                                    @if ($history['current_room'])
-                                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                            {{ $history['current_room']->room->name ?? 'N/A' }}
-                                                        </div>
-                                                        <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                            {{ $history['current_room']->room->type ?? '' }}
-                                                        </div>
-                                                    @else
-                                                        <div class="text-gray-500 dark:text-gray-400">N/A</div>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-left">
-                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {{ $history['transfer_date']->format('d M Y') }}
-                                                    </div>
-                                                    <div class="text-xs text-gray-400 dark:text-gray-500">
-                                                        {{ $history['transfer_date']->format('H:i') }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {{ ucfirst($history['reason']) }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 text-sm text-center">
-                                                    <div class="text-sm text-gray-900 dark:text-white max-w-xs">
-                                                        {{ $history['description'] ?? '-' }}
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                    <span
-                                                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-                                                        Completed
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="8" class="px-6 py-10 text-center">
-                                                    <div class="text-gray-500 dark:text-gray-400">
-                                                        <p class="text-sm">Tidak ada riwayat transfer kamar.</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div class="mt-4">
-                                {{ $transferHistory->links() }}
+                                @empty
+                                    <div class="text-center py-12">
+                                        <i class="fas fa-exchange-alt text-6xl text-gray-300 mb-4"></i>
+                                        <p class="text-gray-500">Belum ada riwayat perpindahan kamar</p>
+                                    </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>
@@ -374,57 +348,96 @@
         </div>
     </div>
 
+    <!-- Rollback Modal -->
+    <div id="rollbackModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fas fa-undo text-orange-500 mr-2"></i>
+                    Konfirmasi Rollback
+                </h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">Anda akan mengembalikan tamu ke kamar sebelumnya:</p>
+
+                <div class="flex items-center justify-center space-x-4 mb-4">
+                    <div class="text-center p-3 bg-gray-100 rounded-lg">
+                        <div class="text-xs text-gray-500">Sekarang</div>
+                        <div class="font-bold text-gray-800" id="rollbackCurrentRoom">-</div>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                    <div class="text-center p-3 bg-green-100 rounded-lg">
+                        <div class="text-xs text-gray-500">Kembali ke</div>
+                        <div class="font-bold text-green-700" id="rollbackPreviousRoom">-</div>
+                    </div>
+                </div>
+
+                <div id="rollbackAvailabilityStatus" class="mb-4 p-3 rounded-lg">
+                    <!-- Will be filled by JS -->
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-600 mb-1">Catatan Rollback (opsional)</label>
+                    <textarea id="rollbackNotes"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                        rows="2" placeholder="Alasan rollback..."></textarea>
+                </div>
+
+                <form id="rollbackForm" action="{{ route('changeroom.rollback') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="booking_id" id="rollbackBookingId">
+                    <input type="hidden" name="notes" id="rollbackNotesInput">
+                </form>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" onclick="closeRollbackModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                    Batal
+                </button>
+                <button type="button" id="confirmRollbackBtn" onclick="submitRollback()"
+                    class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-undo mr-1"></i> Ya, Rollback
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chain Detail Modal -->
+    <div id="chainDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Detail Riwayat Perpindahan</h3>
+                <button onclick="closeChainDetailModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6" id="chainDetailContent">
+                <!-- Will be filled by JS -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Tab switching functionality
-        document.getElementById('initiateTab').addEventListener('click', function() {
-            document.getElementById('initiateTab').classList.add('border-indigo-500', 'text-indigo-600');
-            document.getElementById('initiateTab').classList.remove('border-transparent', 'text-gray-500',
-                'hover:text-gray-700', 'hover:border-gray-300');
-            document.getElementById('historyTab').classList.remove('border-indigo-500', 'text-indigo-600');
-            document.getElementById('historyTab').classList.add('border-transparent', 'text-gray-500',
-                'hover:text-gray-700', 'hover:border-gray-300');
-
-            document.getElementById('initiateTransferContent').classList.remove('hidden');
-            document.getElementById('historyContent').classList.add('hidden');
-        });
-
-        document.getElementById('historyTab').addEventListener('click', function() {
-            document.getElementById('historyTab').classList.add('border-indigo-500', 'text-indigo-600');
-            document.getElementById('historyTab').classList.remove('border-transparent', 'text-gray-500',
-                'hover:text-gray-700', 'hover:border-gray-300');
-            document.getElementById('initiateTab').classList.remove('border-indigo-500', 'text-indigo-600');
-            document.getElementById('initiateTab').classList.add('border-transparent', 'text-gray-500',
-                'hover:text-gray-700', 'hover:border-gray-300');
-
-            document.getElementById('historyContent').classList.remove('hidden');
-            document.getElementById('initiateTransferContent').classList.add('hidden');
-        });
-
-        // Tab switching functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Check URL for tab parameter
             const urlParams = new URLSearchParams(window.location.search);
             const activeTab = urlParams.get('tab') || 'initiate';
 
-            // Activate the correct tab
             if (activeTab === 'history') {
                 showHistoryTab();
             } else {
                 showInitiateTab();
             }
 
-            // Tab click handlers
             document.getElementById('initiateTab').addEventListener('click', showInitiateTab);
             document.getElementById('historyTab').addEventListener('click', showHistoryTab);
         });
 
         function showInitiateTab() {
             document.getElementById('initiateTab').classList.add('border-indigo-500', 'text-indigo-600');
-            document.getElementById('initiateTab').classList.remove('border-transparent', 'text-gray-500',
-                'hover:text-gray-700', 'hover:border-gray-300');
+            document.getElementById('initiateTab').classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             document.getElementById('historyTab').classList.remove('border-indigo-500', 'text-indigo-600');
-            document.getElementById('historyTab').classList.add('border-transparent', 'text-gray-500',
-                'hover:text-gray-700', 'hover:border-gray-300');
+            document.getElementById('historyTab').classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
 
             document.getElementById('initiateTransferContent').classList.remove('hidden');
             document.getElementById('historyContent').classList.add('hidden');
@@ -432,16 +445,13 @@
 
         function showHistoryTab() {
             document.getElementById('historyTab').classList.add('border-indigo-500', 'text-indigo-600');
-            document.getElementById('historyTab').classList.remove('border-transparent', 'text-gray-500',
-                'hover:text-gray-700', 'hover:border-gray-300');
+            document.getElementById('historyTab').classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
             document.getElementById('initiateTab').classList.remove('border-indigo-500', 'text-indigo-600');
-            document.getElementById('initiateTab').classList.add('border-transparent', 'text-gray-500',
-                'hover:text-gray-700', 'hover:border-gray-300');
+            document.getElementById('initiateTab').classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
 
             document.getElementById('historyContent').classList.remove('hidden');
             document.getElementById('initiateTransferContent').classList.add('hidden');
 
-            // Update URL without reload
             const url = new URL(window.location);
             url.searchParams.set('tab', 'history');
             window.history.pushState({}, '', url);
@@ -456,8 +466,6 @@
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             const searchValue = this.value.trim();
-
-            // Debounce search - wait 500ms after user stops typing
             searchTimeout = setTimeout(function() {
                 performSearch(searchValue);
             }, 500);
@@ -481,13 +489,9 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Update booking results
                 bookingResultsContainer.innerHTML = data.html;
                 paginationContainer.innerHTML = data.pagination;
-
-                // Re-attach click handlers to new booking cards
                 attachBookingCardHandlers();
-                // Re-attach pagination handlers
                 attachPaginationHandlers();
             })
             .catch(error => {
@@ -504,7 +508,6 @@
         }
 
         function attachPaginationHandlers() {
-            // Handle pagination link clicks
             paginationContainer.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -516,30 +519,32 @@
             });
         }
 
-        // Initial attachment of handlers
+        // Initial attachment
         attachBookingCardHandlers();
         attachPaginationHandlers();
 
+        // Form validation
         document.getElementById('roomTransferForm').addEventListener('submit', function(e) {
-            // Only validate if the submit is from the transfer form button, not search form
             const reasonSelect = document.getElementById('transferReasonSelect');
             const reasonError = document.getElementById('reasonError');
+            const newRoomSelect = document.getElementById('newRoomSelect');
 
-            if (!reasonSelect.value) {
-                e.preventDefault(); // Mencegah form submit
-                reasonSelect.classList.add('border-red-500');
-                reasonError.classList.remove('hidden');
+            if (!reasonSelect.value || !newRoomSelect.value) {
+                e.preventDefault();
 
-                // Scroll ke field yang error
-                reasonSelect.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-                reasonSelect.focus();
+                if (!reasonSelect.value) {
+                    reasonSelect.classList.add('border-red-500');
+                    reasonError.classList.remove('hidden');
+                }
+
+                if (!newRoomSelect.value) {
+                    newRoomSelect.classList.add('border-red-500');
+                }
+
+                reasonSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
 
-        // Tambahkan event listener untuk menghilangkan error ketika memilih reason
         document.getElementById('transferReasonSelect').addEventListener('change', function() {
             if (this.value) {
                 this.classList.remove('border-red-500');
@@ -547,80 +552,74 @@
             }
         });
 
+        function formatDateTime(dateStr) {
+            const d = new Date(dateStr);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${year}/${month}/${day} ${hours}:${minutes}`;
+        }
+
         function selectBooking(element) {
+            // Reset form
             const reasonSelect = document.getElementById('transferReasonSelect');
             reasonSelect.value = '';
             reasonSelect.classList.remove('border-red-500');
             document.getElementById('reasonError').classList.add('hidden');
-            // Reset selected new room and room status
             document.getElementById('selectedNewRoom').textContent = '-';
             document.getElementById('roomAvailability').textContent = '-';
-
-            // Clear transfer notes input
             document.getElementById('transferNotes').value = '';
+            document.getElementById('newRoomSelect').value = '';
 
+            // Update card selection
             document.querySelectorAll('.booking-card').forEach(card => {
                 card.classList.remove('border-indigo-500', 'bg-indigo-50');
             });
-
-            // Add active class to selected card
             element.classList.add('border-indigo-500', 'bg-indigo-50');
 
-            // Get booking data from data attribute
+            // Get booking data
             const bookingData = JSON.parse(element.getAttribute('data-booking'));
 
-            const checkInDate = new Date(bookingData.check_in);
-            const checkOutDate = new Date(bookingData.check_out);
-
-            const options = {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false // Gunakan format 24 jam
-            };
-
-            function formatDateTime(dateStr) {
-                const d = new Date(dateStr);
-                const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                const hours = String(d.getHours()).padStart(2, '0');
-                const minutes = String(d.getMinutes()).padStart(2, '0');
-                return `${year}/${month}/${day} ${hours}:${minutes}`;
-            }
-
+            // Fill hidden fields
             document.getElementById('formOrderId').value = bookingData.order_id;
             document.getElementById('formCurrentPropertyId').value = bookingData.property_id;
             document.getElementById('formCheckIn').value = bookingData.check_in;
             document.getElementById('formCheckOut').value = bookingData.check_out;
 
-            // Update current room details
+            // Fill visible details
             document.getElementById('guestName').textContent = bookingData.guest_name;
             document.getElementById('orderId').textContent = bookingData.order_id;
-
-            // Update booking status with color coding
-            const statusElement = document.getElementById('bookingStatus');
-            statusElement.textContent = bookingData.booking_status;
-            if (bookingData.is_checked_in) {
-                statusElement.className = 'font-medium text-green-600';
-            } else {
-                statusElement.className = 'font-medium text-yellow-600';
-            }
-
             document.getElementById('propertyName').textContent = bookingData.propertyName;
-            document.getElementById('propertyId').textContent = bookingData.property_id;
-            document.getElementById('roomId').textContent = bookingData.room_id;
             document.getElementById('roomNumber').textContent = bookingData.room_number;
             document.getElementById('roomType').textContent = bookingData.room_type;
             document.getElementById('checkIn').textContent = formatDateTime(bookingData.check_in);
-            document.getElementById('checkIn').style.color = 'green';
-
             document.getElementById('checkOut').textContent = formatDateTime(bookingData.check_out);
-            document.getElementById('checkOut').style.color = 'red';
 
-            // Show booking details and hide placeholder
+            // Update status with color
+            const statusElement = document.getElementById('bookingStatus');
+            statusElement.textContent = bookingData.booking_status;
+            statusElement.className = bookingData.is_checked_in ? 'font-medium text-green-600' : 'font-medium text-yellow-600';
+
+            // Update transfer count
+            const transferCount = bookingData.transfer_count || 0;
+            document.getElementById('transferCount').textContent = transferCount + 'x';
+
+            const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+            if (transferCount > 0) {
+                viewHistoryBtn.classList.remove('hidden');
+                viewHistoryBtn.onclick = () => showChainDetail(bookingData.order_id);
+            } else {
+                viewHistoryBtn.classList.add('hidden');
+            }
+
+            // Store hidden values
+            document.getElementById('propertyId').value = bookingData.property_id;
+            document.getElementById('roomId').value = bookingData.room_id;
+            document.getElementById('currentBookingId').value = bookingData.booking_id;
+
+            // Show booking details
             document.getElementById('noBookingSelected').classList.add('hidden');
             document.getElementById('bookingDetails').classList.remove('hidden');
 
@@ -628,42 +627,35 @@
             document.getElementById('newRoomSelect').disabled = false;
             document.getElementById('transferReasonSelect').disabled = false;
             document.getElementById('transferNotes').disabled = false;
+            document.getElementById('submitButton').disabled = false;
 
-            // Fetch available rooms for the selected property and dates
+            // Fetch available rooms
             fetchAvailableRooms(
                 bookingData.propertyName,
                 bookingData.property_id,
                 bookingData.room_id,
                 bookingData.check_in,
-                bookingData.check_out,
-                bookingData.room_number // exclude current room
+                bookingData.check_out
             );
         }
 
-        function fetchAvailableRooms(propertyName, property_id, room_id, checkInDate, checkOutDate, currentRoomNumber) {
+        function fetchAvailableRooms(propertyName, property_id, room_id, checkInDate, checkOutDate) {
             const url = new URL('/rooms/change-room/available-rooms', window.location.origin);
-            url.searchParams.append('propertyName', propertyName);
             url.searchParams.append('property_id', property_id);
             url.searchParams.append('room_id', room_id);
             url.searchParams.append('check_in', checkInDate);
             url.searchParams.append('check_out', checkOutDate);
-            url.searchParams.append('exclude_room', currentRoomNumber);
 
             fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(rooms => {
                     const select = document.getElementById('newRoomSelect');
-                    select.innerHTML = '<option value="" disabled selected>Select new room</option>';
+                    select.innerHTML = '<option value="" disabled selected>Pilih kamar baru</option>';
 
                     if (rooms.length === 0) {
                         const option = document.createElement('option');
                         option.value = '';
-                        option.textContent = 'No available rooms found';
+                        option.textContent = 'Tidak ada kamar tersedia';
                         option.disabled = true;
                         select.appendChild(option);
                     } else {
@@ -675,13 +667,7 @@
                         });
                     }
 
-                    // Aktifkan select dan dropdown lain
                     select.disabled = false;
-                    document.getElementById('transferReasonSelect').disabled = false;
-                    document.getElementById('transferNotes').disabled = false;
-
-                    // Tambahkan event listener baru (hindari duplikat)
-                    select.removeEventListener('change', updateNewRoomDetails);
                     select.addEventListener('change', function() {
                         updateNewRoomDetails(this);
                     });
@@ -693,28 +679,26 @@
                 });
         }
 
-
         function updateNewRoomDetails(selectElement) {
             const selectedOption = selectElement.options[selectElement.selectedIndex];
             document.getElementById('selectedNewRoom').textContent = selectedOption.text;
 
             const availabilityElement = document.getElementById('roomAvailability');
-            availabilityElement.textContent = 'Available';
+            availabilityElement.textContent = 'Tersedia';
             availabilityElement.classList.remove('text-red-600');
             availabilityElement.classList.add('text-green-600');
+
+            selectElement.classList.remove('border-red-500');
         }
 
-        // History Search functionality
+        // History Search
         let historySearchTimeout;
-
-        // Live search for history
         const historySearchInput = document.getElementById('historySearchInput');
+
         if (historySearchInput) {
             historySearchInput.addEventListener('input', function() {
                 clearTimeout(historySearchTimeout);
                 const searchValue = this.value.trim();
-
-                // Debounce search - wait 500ms after user stops typing
                 historySearchTimeout = setTimeout(function() {
                     performHistoryFilter(searchValue);
                 }, 500);
@@ -724,12 +708,9 @@
         function performHistoryFilter(search) {
             const url = new URL('{{ route('changerooom.index') }}');
             url.searchParams.append('tab', 'history');
-
             if (search) {
                 url.searchParams.append('history_search', search);
             }
-
-            // Redirect to the filtered URL
             window.location.href = url.toString();
         }
 
@@ -739,5 +720,107 @@
             }
             performHistoryFilter('');
         }
+
+        // Rollback Modal Functions
+        function openRollbackModal(bookingId, orderId) {
+            document.getElementById('rollbackBookingId').value = bookingId;
+            document.getElementById('rollbackModal').classList.remove('hidden');
+            document.getElementById('rollbackModal').classList.add('flex');
+
+            // Fetch rollback availability
+            fetch(`/rooms/change-room/check-rollback?booking_id=${bookingId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const statusDiv = document.getElementById('rollbackAvailabilityStatus');
+                    const confirmBtn = document.getElementById('confirmRollbackBtn');
+
+                    if (data.room) {
+                        document.getElementById('rollbackPreviousRoom').textContent = data.room.name + ' (' + data.room.type + ')';
+                    }
+
+                    if (data.available) {
+                        statusDiv.innerHTML = '<div class="bg-green-100 text-green-700 p-3 rounded"><i class="fas fa-check-circle mr-2"></i>' + data.message + '</div>';
+                        confirmBtn.disabled = false;
+                    } else {
+                        statusDiv.innerHTML = '<div class="bg-red-100 text-red-700 p-3 rounded"><i class="fas fa-exclamation-circle mr-2"></i>' + data.message + '</div>';
+                        confirmBtn.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+            // Fetch current room info
+            fetch(`/rooms/change-room/chain?order_id=${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const activeRoom = data.chain.find(b => b.is_active);
+                    if (activeRoom) {
+                        document.getElementById('rollbackCurrentRoom').textContent = activeRoom.room_name + ' (' + activeRoom.room_type + ')';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function closeRollbackModal() {
+            document.getElementById('rollbackModal').classList.add('hidden');
+            document.getElementById('rollbackModal').classList.remove('flex');
+            document.getElementById('rollbackNotes').value = '';
+        }
+
+        function submitRollback() {
+            document.getElementById('rollbackNotesInput').value = document.getElementById('rollbackNotes').value;
+            document.getElementById('rollbackForm').submit();
+        }
+
+        // Chain Detail Modal
+        function showChainDetail(orderId) {
+            fetch(`/rooms/change-room/chain?order_id=${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let html = '<div class="space-y-4">';
+                    data.chain.forEach((booking, index) => {
+                        html += `
+                            <div class="flex items-start space-x-3 ${index > 0 ? 'pt-3 border-t' : ''}">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${booking.is_active ? 'bg-green-500' : 'bg-gray-400'}">
+                                    ${index + 1}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium">${booking.room_name} (${booking.room_type})</div>
+                                    <div class="text-sm text-gray-500">
+                                        ${index === 0 ? 'Kamar Awal' : booking.reason_label}
+                                        ${booking.room_changed_at ? ' - ' + booking.room_changed_at : ''}
+                                    </div>
+                                    ${booking.description ? '<div class="text-sm text-gray-400 mt-1">' + booking.description + '</div>' : ''}
+                                    ${booking.room_changed_by ? '<div class="text-xs text-gray-400">Oleh: ' + booking.room_changed_by + '</div>' : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+
+                    document.getElementById('chainDetailContent').innerHTML = html;
+                    document.getElementById('chainDetailModal').classList.remove('hidden');
+                    document.getElementById('chainDetailModal').classList.add('flex');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function closeChainDetailModal() {
+            document.getElementById('chainDetailModal').classList.add('hidden');
+            document.getElementById('chainDetailModal').classList.remove('flex');
+        }
+
+        // Close modals on outside click
+        document.getElementById('rollbackModal').addEventListener('click', function(e) {
+            if (e.target === this) closeRollbackModal();
+        });
+        document.getElementById('chainDetailModal').addEventListener('click', function(e) {
+            if (e.target === this) closeChainDetailModal();
+        });
     </script>
 </x-app-layout>

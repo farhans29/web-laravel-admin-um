@@ -272,15 +272,15 @@ class PaymentController extends Controller
                 'cancel_at' => Carbon::now(),
             ]);
 
-            // Update related booking status to 0 (cancelled)
+            // Update related booking is_active to 0 (cancelled)
             if ($payment->booking) {
                 $payment->booking->update([
-                    'status' => '0',
+                    'is_active' => 0,
                     'reason' => $cancelReason,
                 ]);
             } else {
                 Booking::where('order_id', $payment->order_id)->update([
-                    'status' => '0',
+                    'is_active' => 0,
                     'reason' => $cancelReason,
                 ]);
             }

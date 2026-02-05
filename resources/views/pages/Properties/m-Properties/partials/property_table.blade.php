@@ -375,8 +375,9 @@
                                                                     x-for="facilityId in selectedProperty.general"
                                                                     :key="facilityId">
                                                                     <span
-                                                                        x-text="getFacilityName(facilityId, 'general')"
-                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                                                        class="px-2.5 py-1 inline-flex items-center gap-1 text-xs leading-5 font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                                                        <span x-show="getFacilityIcon(facilityId, 'general')" class="iconify text-sm" :data-icon="getFacilityIcon(facilityId, 'general')"></span>
+                                                                        <span x-text="getFacilityName(facilityId, 'general')"></span>
                                                                     </span>
                                                                 </template>
                                                             </div>
@@ -396,8 +397,9 @@
                                                                     x-for="facilityId in selectedProperty.security"
                                                                     :key="facilityId">
                                                                     <span
-                                                                        x-text="getFacilityName(facilityId, 'security')"
-                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
+                                                                        class="px-2.5 py-1 inline-flex items-center gap-1 text-xs leading-5 font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
+                                                                        <span x-show="getFacilityIcon(facilityId, 'security')" class="iconify text-sm" :data-icon="getFacilityIcon(facilityId, 'security')"></span>
+                                                                        <span x-text="getFacilityName(facilityId, 'security')"></span>
                                                                     </span>
                                                                 </template>
                                                             </div>
@@ -417,8 +419,9 @@
                                                                     x-for="facilityId in selectedProperty.amenities"
                                                                     :key="facilityId">
                                                                     <span
-                                                                        x-text="getFacilityName(facilityId, 'amenities')"
-                                                                        class="px-2.5 py-1 inline-flex text-xs leading-5 font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                                                        class="px-2.5 py-1 inline-flex items-center gap-1 text-xs leading-5 font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                                                        <span x-show="getFacilityIcon(facilityId, 'amenities')" class="iconify text-sm" :data-icon="getFacilityIcon(facilityId, 'amenities')"></span>
+                                                                        <span x-text="getFacilityName(facilityId, 'amenities')"></span>
                                                                     </span>
                                                                 </template>
                                                             </div>

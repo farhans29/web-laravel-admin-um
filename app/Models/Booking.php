@@ -28,25 +28,31 @@ class Booking extends Model
         'check_out_at',
         'created_by',
         'updated_by',
-        'status',
+        'is_active',
+        'previous_booking_id',
         'reason',
         'description',
+        'room_changed_at',
+        'room_changed_by',
         'is_printed',
     ];
 
     protected $casts = [
         'check_in_at' => 'datetime',
         'check_out_at' => 'datetime',
-        // Note: status is NOT cast here to allow the accessor to override it
+        'room_changed_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
-    // In your Booking model
     protected $dates = [
         'check_in_at',
         'check_out_at',
+        'room_changed_at',
         'created_at',
         'updated_at',
     ];
+
+    // ==================== RELATIONSHIPS ====================
 
     public function room()
     {
@@ -58,12 +64,70 @@ class Booking extends Model
         return $this->belongsTo(Property::class, 'property_id', 'idrec');
     }
 
-
     public function transaction()
     {
         return $this->belongsTo(Transaction::class, 'order_id', 'order_id');
     }
 
+    public function user()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            Transaction::class,
+            'order_id',      // Foreign key di Transaction
+            'id',            // Foreign key di User
+            'order_id',      // Local key di Booking
+            'user_id'        // Local key di Transaction
+        );
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'order_id', 'order_id');
+    }
+
+    public function refund()
+    {
+        return $this->hasOne(Refund::class, 'id_booking', 'order_id');
+    }
+
+    public function itemConditions()
+    {
+        return $this->hasMany(RoomItemCondition::class, 'order_id', 'order_id');
+    }
+
+    /**
+     * Get the previous booking in the room change chain.
+     * This is the booking that was replaced when moving to current room.
+     */
+    public function previousBooking()
+    {
+        return $this->belongsTo(Booking::class, 'previous_booking_id', 'idrec');
+    }
+
+    /**
+     * Get the next booking(s) that replaced this booking.
+     * Usually only one, but could be multiple in edge cases.
+     */
+    public function nextBookings()
+    {
+        return $this->hasMany(Booking::class, 'previous_booking_id', 'idrec');
+    }
+
+    /**
+     * Get the user who processed the room change.
+     */
+    public function roomChangedByUser()
+    {
+        return $this->belongsTo(User::class, 'room_changed_by', 'id');
+    }
+
+    // ==================== ACCESSORS ====================
+
+    /**
+     * Get the booking status based on transaction status.
+     * This is a computed status, not from database column.
+     */
     public function getStatusAttribute()
     {
         // Jika tidak ada transaksi terkait
@@ -102,32 +166,131 @@ class Booking extends Model
         return 'Unknown';
     }
 
-    public function user()
+    /**
+     * Get the number of times this booking has been transferred.
+     * Counts the chain of previous bookings.
+     */
+    public function getTransferCountAttribute()
     {
-        return $this->hasOneThrough(
-            User::class,
-            Transaction::class,
-            'order_id',      // Foreign key di Transaction
-            'id',            // Foreign key di User
-            'order_id',      // Local key di Booking
-            'user_id'        // Local key di Transaction
-        );
+        $count = 0;
+        $booking = $this;
+
+        while ($booking->previous_booking_id) {
+            $count++;
+            $booking = $booking->previousBooking;
+            if (!$booking) break;
+        }
+
+        return $count;
     }
 
-    public function payment()
+    /**
+     * Check if this booking has been transferred (has room change history).
+     */
+    public function getHasBeenTransferredAttribute()
     {
-        return $this->hasOne(Payment::class, 'order_id', 'order_id');
+        return $this->previous_booking_id !== null;
     }
 
-    public function refund()
+    /**
+     * Check if this booking can be transferred.
+     * Must be active and not checked out.
+     */
+    public function getCanBeTransferredAttribute()
     {
-        return $this->hasOne(Refund::class, 'id_booking', 'order_id');
+        return $this->is_active && is_null($this->check_out_at);
     }
 
-    public function itemConditions()
+    /**
+     * Get the full chain of room changes for this order.
+     * Returns array from original booking to current.
+     */
+    public function getRoomChangeChainAttribute()
     {
-        return $this->hasMany(RoomItemCondition::class, 'order_id', 'order_id');
+        $chain = collect();
+
+        // First, find the original booking (one without previous_booking_id)
+        $originalBooking = $this->getOriginalBooking();
+
+        if ($originalBooking) {
+            $chain->push($originalBooking);
+
+            // Then traverse forward through nextBookings
+            $current = $originalBooking;
+            while ($current->nextBookings->isNotEmpty()) {
+                $next = $current->nextBookings->first();
+                $chain->push($next);
+                $current = $next;
+            }
+        }
+
+        return $chain;
     }
+
+    // ==================== HELPER METHODS ====================
+
+    /**
+     * Get the original booking in the chain (first booking without previous_booking_id).
+     */
+    public function getOriginalBooking()
+    {
+        $booking = $this;
+
+        while ($booking->previous_booking_id) {
+            $prev = $booking->previousBooking;
+            if (!$prev) break;
+            $booking = $prev;
+        }
+
+        return $booking;
+    }
+
+    /**
+     * Get the current active booking for this order_id.
+     */
+    public static function getActiveBookingByOrderId($orderId)
+    {
+        return static::where('order_id', $orderId)
+            ->where('is_active', 1)
+            ->first();
+    }
+
+    /**
+     * Get all bookings in the room change chain for an order.
+     */
+    public static function getBookingChainByOrderId($orderId)
+    {
+        return static::where('order_id', $orderId)
+            ->orderBy('created_at', 'asc')
+            ->get();
+    }
+
+    /**
+     * Scope to get only active bookings.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', 1);
+    }
+
+    /**
+     * Scope to get only inactive (transferred) bookings.
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', 0);
+    }
+
+    /**
+     * Scope to get bookings that can be transferred.
+     */
+    public function scopeTransferable($query)
+    {
+        return $query->where('is_active', 1)
+            ->whereNull('check_out_at');
+    }
+
+    // ==================== INVOICE DATA ====================
 
     public function getInvoiceData()
     {

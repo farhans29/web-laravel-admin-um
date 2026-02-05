@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Room;
 use App\Models\Booking;
-use App\Models\Property;
 
 class RoomAvailabilityController extends Controller
 {
@@ -18,7 +17,6 @@ class RoomAvailabilityController extends Controller
         $status = $request->get('status', 'all');
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
-        $propertyId = $request->get('property_id');
 
         // Query untuk room availability
         $rooms = Room::with(['property', 'thumbnail', 'bookings' => function ($query) use ($startDate, $endDate) {
@@ -42,11 +40,6 @@ class RoomAvailabilityController extends Controller
         $user = Auth::user();
         if ($user && $user->isSiteRole() && $user->property_id) {
             $rooms->where('property_id', $user->property_id);
-        }
-
-        // Filter by property_id from request (e.g. from dashboard link)
-        if ($propertyId) {
-            $rooms->where('property_id', $propertyId);
         }
 
         $rooms = $rooms->when($search, function ($query, $search) {
@@ -77,9 +70,7 @@ class RoomAvailabilityController extends Controller
             ]);
         }
 
-        $properties = Property::orderBy('name')->get();
-
-        return view('pages.room_availability.index', compact('rooms', 'properties'));
+        return view('pages.room_availability.index', compact('rooms'));
     }
 
     public function getRoomBookings($roomId, Request $request)

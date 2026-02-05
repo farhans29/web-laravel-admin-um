@@ -81,6 +81,9 @@
                     <div class="text-sm font-medium text-gray-900">
                         {{ $booking->property->name ?? 'N/A' }}</div>
                     <div class="text-sm text-gray-500">{{ $booking->room->name ?? 'N/A' }}</div>
+                    @if($booking->room->no ?? null)
+                        <div class="text-xs text-gray-400">No. {{ $booking->room->no }}</div>
+                    @endif
                 </td>
                 @if ($showStatus ?? true)
                     <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -98,7 +101,7 @@
                     </td>
                 @endif
                 @if ($showActions ?? true)
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-center" x-data="{ open: false }">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center" x-data="{ open: false }">
                         @if (is_null($booking->check_out_at))
                             <div x-data="checkOutModal('{{ $booking->order_id }}')">
                                 <!-- Trigger Button -->
@@ -279,52 +282,60 @@
                                                         </div>
 
                                                         <div class="space-y-2">
-                                                            <template x-for="(item, index) in roomInventory"
+                                                            {{-- Regular inventory items (excluding Lain-lain) --}}
+                                                            <template x-for="(item, index) in roomInventory.filter(i => i.name !== 'Lain-lain')"
                                                                 :key="index">
-                                                                <div class="flex flex-col space-y-2">
-                                                                    <div class="flex items-center justify-between">
-                                                                        <label :for="'item-' + index"
-                                                                            class="block text-sm text-gray-700 min-w-[120px]"
-                                                                            x-text="item.name"></label>
-                                                                        <template x-if="item.name !== 'Lain-lain'">
-                                                                            <select x-model="item.condition"
-                                                                                class="block w-40 pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                                                                                :class="{
-                                                                                    'bg-green-50 text-green-700 border-green-300': item.condition === 'good',
-                                                                                    'bg-yellow-50 text-yellow-700 border-yellow-300': item.condition === 'damaged',
-                                                                                    'bg-red-50 text-red-700 border-red-300': item.condition === 'missing'
-                                                                                }">
-                                                                                <option value="good">Baik</option>
-                                                                                <option value="damaged">Rusak</option>
-                                                                                <option value="missing">Hilang</option>
-                                                                            </select>
-                                                                        </template>
-                                                                        <template x-if="item.name === 'Lain-lain'">
-                                                                            <select x-model="item.condition"
-                                                                                class="block w-40 pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                                                                                :class="{
-                                                                                    'bg-green-50 text-green-700 border-green-300': item.condition === 'good',
-                                                                                    'bg-yellow-50 text-yellow-700 border-yellow-300': item.condition === 'damaged',
-                                                                                    'bg-red-50 text-red-700 border-red-300': item.condition === 'missing'
-                                                                                }">
-                                                                                <option value="good">Baik</option>
-                                                                                <option value="damaged">Rusak</option>
-                                                                                <option value="missing">Hilang</option>
-                                                                            </select>
-                                                                        </template>
-                                                                    </div>
-
-                                                                    <!-- Show textbox for Lain-lain when not good -->
-                                                                    <template x-if="item.name === 'Lain-lain' && item.condition !== 'good'">
-                                                                        <div class="ml-6">
-                                                                            <input type="text"
-                                                                                x-model="item.customText"
-                                                                                placeholder="Sebutkan barang lain-lain..."
-                                                                                class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                                        </div>
-                                                                    </template>
+                                                                <div class="flex items-center justify-between">
+                                                                    <label :for="'item-' + index"
+                                                                        class="block text-sm text-gray-700 min-w-[120px]"
+                                                                        x-text="item.name"></label>
+                                                                    <select x-model="item.condition"
+                                                                        class="block w-40 pl-3 pr-10 py-1 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                                                        :class="{
+                                                                            'bg-green-50 text-green-700 border-green-300': item.condition === 'good',
+                                                                            'bg-yellow-50 text-yellow-700 border-yellow-300': item.condition === 'damaged',
+                                                                            'bg-red-50 text-red-700 border-red-300': item.condition === 'missing'
+                                                                        }">
+                                                                        <option value="good">Baik</option>
+                                                                        <option value="damaged">Rusak</option>
+                                                                        <option value="missing">Hilang</option>
+                                                                    </select>
                                                                 </div>
                                                             </template>
+
+                                                            {{-- Lain-lain: checkbox toggle --}}
+                                                            <div class="border-t border-gray-200 pt-3 mt-3">
+                                                                <div class="flex items-center">
+                                                                    <input type="checkbox" id="lain-lain-toggle"
+                                                                        x-model="lainLainSelected"
+                                                                        class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                                                    <label for="lain-lain-toggle"
+                                                                        class="ml-2 block text-sm text-gray-700 font-medium">
+                                                                        Lain-lain
+                                                                    </label>
+                                                                </div>
+
+                                                                {{-- Show text input when checked --}}
+                                                                <div x-show="lainLainSelected" x-transition class="ml-6 mt-2 space-y-2">
+                                                                    <input type="text"
+                                                                        x-model="lainLainItem.customText"
+                                                                        placeholder="Sebutkan barang lain-lain..."
+                                                                        class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+
+                                                                    {{-- Show condition dropdown when text is filled --}}
+                                                                    <div x-show="lainLainItem.customText.length > 0" x-transition>
+                                                                        <select x-model="lainLainItem.condition"
+                                                                            class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                                                            :class="{
+                                                                                'bg-yellow-50 text-yellow-700 border-yellow-300': lainLainItem.condition === 'damaged',
+                                                                                'bg-red-50 text-red-700 border-red-300': lainLainItem.condition === 'missing'
+                                                                            }">
+                                                                            <option value="damaged">Rusak</option>
+                                                                            <option value="missing">Hilang</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
 

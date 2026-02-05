@@ -29,6 +29,8 @@ class DatabaseSeeder extends Seeder
             DashboardWidgetsSeeder::class,
             RoleDashboardWidgetsSeeder::class,
             // ChatSampleDataSeeder::class,
+            ParkingDepositSidebarSeeder::class,
+            ParkingFeeTransactionSeeder::class,
         ]);
     }
 }

@@ -129,12 +129,13 @@
                         name: 'Toilet',
                         condition: 'good'
                     },
-                    {
-                        name: 'Lain-lain',
-                        condition: 'good',
-                        customText: ''
-                    }
                 ],
+                lainLainSelected: false,
+                lainLainItem: {
+                    name: 'Lain-lain',
+                    condition: 'damaged',
+                    customText: ''
+                },
                 additionalNotes: '',
                 damageCharges: 0,
                 scheduledCheckoutTime: null,
@@ -187,10 +188,10 @@
                     // Reset form when closing
                     this.roomInventory.forEach(item => {
                         item.condition = 'good';
-                        if (item.customText !== undefined) {
-                            item.customText = '';
-                        }
                     });
+                    this.lainLainSelected = false;
+                    this.lainLainItem.condition = 'damaged';
+                    this.lainLainItem.customText = '';
                     this.additionalNotes = '';
                     this.damageCharges = 0;
                 },
@@ -258,7 +259,9 @@
                 },
 
                 get hasDamagedItems() {
-                    return this.roomInventory.some(item => item.condition === 'damaged' || item.condition === 'missing');
+                    const inventoryDamaged = this.roomInventory.some(item => item.condition === 'damaged' || item.condition === 'missing');
+                    const lainLainDamaged = this.lainLainSelected && this.lainLainItem.customText.length > 0;
+                    return inventoryDamaged || lainLainDamaged;
                 },
 
                 submitCheckOut() {
@@ -278,8 +281,17 @@
                             const itemConditions = this.roomInventory.map(item => ({
                                 name: item.name,
                                 condition: item.condition,
-                                customText: item.customText || ''
+                                customText: ''
                             }));
+
+                            // Include Lain-lain only if selected and text is filled
+                            if (this.lainLainSelected && this.lainLainItem.customText.trim().length > 0) {
+                                itemConditions.push({
+                                    name: 'Lain-lain',
+                                    condition: this.lainLainItem.condition,
+                                    customText: this.lainLainItem.customText.trim()
+                                });
+                            }
 
                             // Prepare payload
                             const payload = {

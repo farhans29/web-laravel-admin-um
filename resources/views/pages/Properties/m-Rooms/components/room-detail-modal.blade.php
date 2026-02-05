@@ -265,11 +265,16 @@
                             <template x-for="facilityId in selectedRoom.facilities" :key="facilityId">
                                 <div
                                     class="flex items-center space-x-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                                    <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M5 13l4 4L19 7" />
-                                    </svg>
+                                    <template x-if="getFacilityIcon(facilityId)">
+                                        <span class="iconify text-xl text-blue-600" :data-icon="getFacilityIcon(facilityId)"></span>
+                                    </template>
+                                    <template x-if="!getFacilityIcon(facilityId)">
+                                        <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </template>
                                     <span x-text="getFacilityName(facilityId, 'room')"
                                         class="text-gray-800 font-medium text-sm"></span>
                                 </div>
