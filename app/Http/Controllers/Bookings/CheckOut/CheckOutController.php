@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Bookings\CheckOut;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Room;
 use App\Models\RoomItemCondition;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -121,11 +122,27 @@ class CheckOutController extends Controller
         try {
             DB::beginTransaction();
 
-            // Cari booking berdasarkan order_id
-            $booking = Booking::where('order_id', $order_id)->firstOrFail();
+            // Cari booking aktif berdasarkan order_id
+            $booking = Booking::where('order_id', $order_id)
+                ->where('is_active', 1)
+                ->firstOrFail();
 
             $booking->check_out_at = now();
+            $booking->is_active = 0; // Mark booking as inactive after checkout
             $booking->save();
+
+            // Reset rental_status on room if no other active bookings
+            if ($booking->room_id) {
+                $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
+                    ->where('is_active', 1)
+                    ->where('idrec', '!=', $booking->idrec)
+                    ->exists();
+
+                if (!$hasOtherActiveBooking) {
+                    Room::where('idrec', $booking->room_id)
+                        ->update(['rental_status' => 0]);
+                }
+            }
 
             // Simpan kondisi barang
             $itemConditions = $request->input('item_conditions', []);
