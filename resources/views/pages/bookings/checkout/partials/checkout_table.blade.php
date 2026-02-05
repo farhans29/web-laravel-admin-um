@@ -68,7 +68,10 @@
                     <div class="text-sm font-medium text-gray-900">
                         {{ $booking->property->name ?? 'N/A' }}</div>
                     <div class="text-sm text-gray-500">{{ $booking->room->name ?? 'N/A' }}</div>
-                </td>            
+                    @if($booking->room->no ?? null)
+                        <div class="text-xs text-gray-400">No. {{ $booking->room->no }}</div>
+                    @endif
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                     @if ($booking->check_out_at)
                         <span

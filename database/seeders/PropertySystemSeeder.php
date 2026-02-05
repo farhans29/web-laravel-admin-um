@@ -277,7 +277,7 @@ class PropertySystemSeeder extends Seeder
                 'check_out_at' => null,
                 'created_by' => $user['id'],
                 'updated_by' => $user['id'],
-                'status' => 1,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ];
@@ -379,7 +379,7 @@ class PropertySystemSeeder extends Seeder
             'check_out_at' => null,
             'created_by' => $todayUser['id'],
             'updated_by' => $todayUser['id'],
-            'status' => 1,
+            'is_active' => 1,
             'created_at' => now()->subHours(6),
             'updated_at' => now()
         ];
@@ -560,7 +560,7 @@ class PropertySystemSeeder extends Seeder
                 'check_out_at' => null,
                 'created_by' => $userId,
                 'updated_by' => $userId,
-                'status' => 1,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ];

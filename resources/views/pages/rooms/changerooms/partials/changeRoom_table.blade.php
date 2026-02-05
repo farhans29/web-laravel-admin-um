@@ -1,6 +1,7 @@
 @forelse ($bookings as $booking)
     <div class="bg-white p-4 rounded-lg shadow-sm border-2 border-gray-200 mb-3 cursor-pointer hover:border-indigo-400 hover:shadow-md transition-all duration-200 booking-card"
         data-booking="{{ json_encode([
+            'booking_id' => $booking->idrec,
             'room_number' => $booking->room->name ?? 'N/A',
             'room_type' => $booking->room->type ?? 'N/A',
             'check_in' => $booking->transaction?->check_in ?? $booking->check_in_at,
@@ -13,6 +14,8 @@
             'room_id' => $booking->room->idrec ?? 'N/A',
             'is_checked_in' => $booking->check_in_at ? true : false,
             'booking_status' => $booking->check_in_at ? 'Checked In' : 'Pending',
+            'transfer_count' => $booking->transfer_count ?? 0,
+            'has_been_transferred' => $booking->previous_booking_id ? true : false,
         ]) }}"
         onclick="selectBooking(this)">
 
@@ -29,15 +32,22 @@
                     <div class="text-xs text-gray-500 font-mono">{{ $booking->order_id }}</div>
                 </div>
             </div>
-            @if ($booking->check_in_at)
-                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 border border-green-200">
-                    <i class="fas fa-check-circle mr-1"></i>Checked In
-                </span>
-            @else
-                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">
-                    <i class="fas fa-clock mr-1"></i>Pending
-                </span>
-            @endif
+            <div class="flex flex-col items-end space-y-1">
+                @if ($booking->check_in_at)
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 border border-green-200">
+                        <i class="fas fa-check-circle mr-1"></i>Checked In
+                    </span>
+                @else
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200">
+                        <i class="fas fa-clock mr-1"></i>Pending
+                    </span>
+                @endif
+                @if ($booking->previous_booking_id)
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                        <i class="fas fa-exchange-alt mr-1"></i>{{ $booking->transfer_count }}x Pindah
+                    </span>
+                @endif
+            </div>
         </div>
 
         <!-- Details Grid -->

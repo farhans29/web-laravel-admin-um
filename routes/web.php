@@ -159,6 +159,9 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::get('/change-room', [ChangeRoomController::class, 'index'])->name('changerooom.index');
         Route::get('/change-room/available-rooms', [ChangeRoomController::class, 'getAvailableRooms']);
         Route::post('/change-room/store', [ChangeRoomController::class, 'store'])->name('changeroom.store');
+        Route::post('/change-room/rollback', [ChangeRoomController::class, 'rollback'])->name('changeroom.rollback');
+        Route::get('/change-room/chain', [ChangeRoomController::class, 'getChain'])->name('changeroom.chain');
+        Route::get('/change-room/check-rollback', [ChangeRoomController::class, 'checkRollbackAvailability'])->name('changeroom.check-rollback');
 
         // ---------------------------------------------------------------------------------------------------------------------
 

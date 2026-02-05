@@ -15,58 +15,42 @@ use Illuminate\Support\Facades\Validator;
 
 class ChangeRoomController extends Controller
 {
+    /**
+     * Display the change room interface.
+     */
     public function index(Request $request)
     {
         $user = Auth::user();
         $search = $request->input('search');
         $historySearch = $request->input('history_search');
-        $currentDate = now()->format('Y-m-d');
 
         // Set property_id based on user_type
-        // user_type = 0 (HO): can see all rooms, can filter by property if requested
-        // user_type = 1 (Site): can only see rooms from their property_id
         if ($user->user_type == 1) {
-            // Site user: must filter by their property_id
             $propertyId = $user->property_id;
         } else {
-            // HO user (user_type = 0): can see all, but can filter by property if requested
             $propertyId = $request->input('property_id');
         }
 
-        // Get all bookings that are eligible for room transfer
-        // Includes: 1) Paid bookings that haven't checked in yet, 2) Checked-in guests who haven't checked out, 3) Transferred bookings
-        $bookings = Booking::with(['user', 'room', 'property', 'transaction', 'payment'])
+        // Get active bookings that are eligible for room transfer
+        // Must be: active, paid, and not checked out yet
+        $bookings = Booking::with(['user', 'room', 'property', 'transaction', 'payment', 'previousBooking'])
             ->when($propertyId, function ($query, $propertyId) {
                 return $query->where('property_id', $propertyId);
             })
             ->whereHas('payment', function ($q) {
-                $q->where('payment_status', 'paid'); // Only paid bookings
+                $q->where('payment_status', 'paid');
             })
-            ->where(function ($query) {
-                $query->where(function ($q) {
-                    // Status 1 bookings (active)
-                    $q->where('status', 1)
-                      ->where(function ($subQ) {
-                          $subQ->whereNull('check_in_at') // Paid but not checked in yet
-                               ->orWhere(function ($checkQ) {
-                                   $checkQ->whereNotNull('check_in_at') // Already checked in
-                                          ->whereNull('check_out_at'); // But not checked out yet
-                               });
-                      });
-                })
-                ->orWhere('status', 2); // Also include transferred bookings
-            })
+            ->where('is_active', 1) // Only active bookings
+            ->whereNull('check_out_at') // Not checked out yet
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
-                    // Search by order_id
                     $q->where('order_id', 'like', '%' . $search . '%')
-                        // Search by username
                         ->orWhereHas('user', function ($uq) use ($search) {
                             $uq->where('username', 'like', '%' . $search . '%');
                         });
                 });
             })
-            ->orderByRaw('status ASC, check_in_at IS NULL DESC, check_in_at DESC') // Show active first, then transferred, pending bookings first, then checked-in by date
+            ->orderByRaw('check_in_at IS NULL DESC, check_in_at DESC')
             ->paginate(3);
 
         // Check if this is an AJAX request for live search
@@ -84,78 +68,80 @@ class ChangeRoomController extends Controller
             ]);
         }
 
-        // Get available rooms - must be active and available for rental
-        $availableRooms = Room::where('status', 1) // Room must be active
-            ->where('rental_status', 1) // Room must be available for rental
-            ->whereDoesntHave('bookings', function ($query) use ($currentDate) {
-                $query->where('status', 1)
-                    ->whereDate('check_in_at', '<=', $currentDate)
-                    ->whereDate('check_out_at', '>=', $currentDate);
-            })
-            ->when($propertyId, function ($query, $propertyId) {
-                return $query->where('property_id', $propertyId);
-            })
-            ->get();
-
-        // Modified transfer history query with search
-        // Show bookings with status 3 (old/cancelled) as they represent the rooms that were transferred FROM
-        $transferHistory = Booking::with(['user', 'room', 'property'])
-            ->when($propertyId, function ($query, $propertyId) {
-                return $query->where('property_id', $propertyId);
-            })
-            ->where('status', 3) // Status 3 means old/cancelled room
-            ->whereNotNull('reason') // Must have a transfer reason
-            ->when($historySearch, function ($query, $historySearch) {
-                return $query->where(function ($q) use ($historySearch) {
-                    $q->where('order_id', 'like', '%' . $historySearch . '%')
-                        ->orWhereHas('user', function ($uq) use ($historySearch) {
-                            $uq->where('username', 'like', '%' . $historySearch . '%');
-                        });
-                });
-            })
-            ->orderBy('updated_at', 'desc')
-            ->paginate(10)
-            ->through(function ($history) {
-                // The current record (status 3) is the old/previous room
-                // Find the new room (status 2) with the same order_id and more recent updated_at
-                $newRoomBooking = Booking::with('room')
-                    ->where('order_id', $history->order_id)
-                    ->where('status', 2)
-                    ->where('idrec', '!=', $history->idrec)
-                    ->orderBy('updated_at', 'desc')
-                    ->first();
-
-                return [
-                    'order_id' => $history->order_id,
-                    'guest_name' => $history->user->username ?? 'N/A',
-                    'previous_room' => $history, // This is the old room (status 3)
-                    'current_room' => $newRoomBooking, // This is the new room (status 2)
-                    'reason' => $history->reason,
-                    'description' => $history->description,
-                    'transfer_date' => $history->updated_at, // Use updated_at as transfer timestamp
-                ];
-            });
+        // Get transfer history - bookings that have been transferred (have previous_booking_id)
+        // Group by order_id to show chain history
+        $transferHistory = $this->getTransferHistory($propertyId, $historySearch);
 
         return view('pages.rooms.changerooms.index', compact(
             'bookings',
             'search',
-            'availableRooms',
             'transferHistory',
             'historySearch'
         ));
     }
 
+    /**
+     * Get transfer history grouped by order_id with chain visualization.
+     */
+    private function getTransferHistory($propertyId = null, $search = null)
+    {
+        // Get distinct order_ids that have room changes
+        $orderIds = Booking::when($propertyId, function ($query, $propertyId) {
+                return $query->where('property_id', $propertyId);
+            })
+            ->whereNotNull('previous_booking_id')
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('order_id', 'like', '%' . $search . '%')
+                        ->orWhereHas('user', function ($uq) use ($search) {
+                            $uq->where('username', 'like', '%' . $search . '%');
+                        });
+                });
+            })
+            ->select('order_id')
+            ->distinct()
+            ->pluck('order_id');
 
+        // Build history data with full chain for each order
+        $history = collect();
+
+        foreach ($orderIds as $orderId) {
+            $bookings = Booking::with(['room', 'property', 'user', 'roomChangedByUser'])
+                ->where('order_id', $orderId)
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            if ($bookings->isEmpty()) continue;
+
+            $activeBooking = $bookings->where('is_active', 1)->first();
+            $firstBooking = $bookings->first();
+
+            $history->push([
+                'order_id' => $orderId,
+                'guest_name' => $firstBooking->user->username ?? 'N/A',
+                'property' => $firstBooking->property,
+                'chain' => $bookings, // Full chain of bookings
+                'active_booking' => $activeBooking,
+                'transfer_count' => $bookings->count() - 1, // Exclude original booking
+                'last_transfer_at' => $activeBooking?->room_changed_at ?? $activeBooking?->created_at,
+            ]);
+        }
+
+        // Sort by last transfer date descending
+        return $history->sortByDesc('last_transfer_at')->values();
+    }
+
+    /**
+     * Get available rooms for transfer based on booking dates.
+     */
     public function getAvailableRooms(Request $request)
     {
         $user = Auth::user();
-        $roomId     = $request->input('room_id');
-        $checkIn    = $request->input('check_in');
-        $checkOut   = $request->input('check_out');
+        $roomId = $request->input('room_id');
+        $checkIn = $request->input('check_in');
+        $checkOut = $request->input('check_out');
 
         // Set property_id based on user_type
-        // user_type = 1 (Site): must use their property_id
-        // user_type = 0 (HO): can use requested property_id
         if ($user->user_type == 1) {
             $propertyId = $user->property_id;
         } else {
@@ -165,9 +151,11 @@ class ChangeRoomController extends Controller
         if (!$checkIn || !$checkOut || !$propertyId) {
             return response()->json(['error' => 'Missing required fields.'], 400);
         }
-        $checkInDate  = Carbon::parse($checkIn);
+
+        $checkInDate = Carbon::parse($checkIn);
         $checkOutDate = Carbon::parse($checkOut);
 
+        // Get rooms that are active and available
         $rooms = Room::where('property_id', $propertyId)
             ->where('status', 1) // Room must be active
             ->where('rental_status', 0) // Room must be available for rental
@@ -176,50 +164,43 @@ class ChangeRoomController extends Controller
             })
             ->get();
 
+        // Filter rooms that don't have booking conflicts
         $availableRooms = $rooms->filter(function ($room) use ($checkInDate, $checkOutDate) {
-            // Check if room has any booking conflicts for the given date range
-            // Only check for active bookings (status 1) and transferred bookings (status 2)
             $hasConflict = Booking::with('transaction')
                 ->where('room_id', $room->idrec)
-                ->whereIn('status', [1, 2]) // Active and transferred bookings
+                ->where('is_active', 1) // Only check active bookings
                 ->where(function ($query) use ($checkInDate, $checkOutDate) {
-                    // For bookings with check_in_at/check_out_at (checked-in guests)
+                    // For bookings with check_in_at/check_out_at
                     $query->where(function ($q) use ($checkInDate, $checkOutDate) {
                         $q->whereNotNull('check_in_at')
                           ->where(function ($subQ) use ($checkInDate, $checkOutDate) {
-                              // Case 1: Booking check-in falls within the transfer period
                               $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
                                   $q1->where('check_in_at', '>=', $checkInDate)
                                      ->where('check_in_at', '<', $checkOutDate);
                               })
-                              // Case 2: Booking check-out falls within the transfer period
                               ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
                                   $q2->where('check_out_at', '>', $checkInDate)
                                      ->where('check_out_at', '<=', $checkOutDate);
                               })
-                              // Case 3: Booking completely encompasses the transfer period
                               ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
                                   $q3->where('check_in_at', '<=', $checkInDate)
                                      ->where('check_out_at', '>=', $checkOutDate);
                               });
                           });
                     })
-                    // For pending bookings without check_in_at (use transaction dates)
+                    // For pending bookings without check_in_at
                     ->orWhere(function ($q) use ($checkInDate, $checkOutDate) {
                         $q->whereNull('check_in_at')
                           ->whereHas('transaction', function ($tq) use ($checkInDate, $checkOutDate) {
                               $tq->where(function ($subQ) use ($checkInDate, $checkOutDate) {
-                                  // Case 1: Transaction check-in falls within the transfer period
                                   $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
                                       $q1->where('check_in', '>=', $checkInDate)
                                          ->where('check_in', '<', $checkOutDate);
                                   })
-                                  // Case 2: Transaction check-out falls within the transfer period
                                   ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
                                       $q2->where('check_out', '>', $checkInDate)
                                          ->where('check_out', '<=', $checkOutDate);
                                   })
-                                  // Case 3: Transaction completely encompasses the transfer period
                                   ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
                                       $q3->where('check_in', '<=', $checkInDate)
                                          ->where('check_out', '>=', $checkOutDate);
@@ -233,16 +214,18 @@ class ChangeRoomController extends Controller
             return !$hasConflict;
         });
 
-
         return response()->json($availableRooms->values());
     }
 
+    /**
+     * Process room transfer.
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'current_property_id' => 'required|string|max:100',
             'order_id' => 'required|string|max:100',
-            'new_room' => 'nullable|string|max:255',
+            'new_room' => 'required|string|max:255',
             'check_in' => 'required|date',
             'check_out' => 'nullable|date',
             'reason' => 'required|string',
@@ -256,30 +239,29 @@ class ChangeRoomController extends Controller
                 ->with('error', 'Please fill all required fields.');
         }
 
+        $authUser = Auth::user();
+
         // Validate Site user can only transfer rooms within their property
-        $user = Auth::user();
-        if ($user->user_type == 1 && $user->property_id != $request->current_property_id) {
+        if ($authUser->user_type == 1 && $authUser->property_id != $request->current_property_id) {
             return redirect()->back()
                 ->with('error', 'Anda tidak memiliki akses untuk memindahkan kamar di properti ini.');
         }
 
         try {
-            // Get the previous booking to find the user and previous room
-            // Allow transfer for both checked-in and pending bookings (status 1 or 2)
-            $previousBooking = Booking::where('order_id', $request->order_id)
-                ->whereIn('status', [1, 2]) // Active or already transferred
-                ->whereNull('check_out_at') // Must not have checked out
-                ->orderBy('updated_at', 'desc') // Get the most recent booking
+            // Get the current active booking
+            $currentBooking = Booking::where('order_id', $request->order_id)
+                ->where('is_active', 1)
+                ->whereNull('check_out_at')
                 ->firstOrFail();
 
             // Validate that new room is different from current room
-            if ($previousBooking->room_id == $request->new_room) {
+            if ($currentBooking->room_id == $request->new_room) {
                 return redirect()->back()
                     ->with('error', 'Kamar baru tidak boleh sama dengan kamar saat ini.');
             }
 
             // Get room details
-            $previousRoom = Room::findOrFail($previousBooking->room_id);
+            $currentRoom = Room::findOrFail($currentBooking->room_id);
             $newRoom = Room::findOrFail($request->new_room);
 
             // Validate new room belongs to same property
@@ -288,114 +270,78 @@ class ChangeRoomController extends Controller
                     ->with('error', 'Kamar baru harus dalam properti yang sama.');
             }
 
-            // Check if new room has any booking conflicts
-            $checkInDate = Carbon::parse($request->check_in);
-            $checkOutDate = $request->check_out ? Carbon::parse($request->check_out) : $previousBooking->check_out_at;
+            // Validate new room is available
+            if ($newRoom->status != 1 || $newRoom->rental_status != 0) {
+                return redirect()->back()
+                    ->with('error', 'Kamar yang dipilih tidak tersedia.');
+            }
 
-            $hasConflict = Booking::with('transaction')
-                ->where('room_id', $request->new_room)
-                ->whereIn('status', [1, 2]) // Active or transferred bookings
-                ->where('order_id', '!=', $request->order_id) // Exclude current booking
-                ->where(function ($query) use ($checkInDate, $checkOutDate) {
-                    // For bookings with check_in_at/check_out_at (checked-in guests)
-                    $query->where(function ($q) use ($checkInDate, $checkOutDate) {
-                        $q->whereNotNull('check_in_at')
-                          ->where(function ($subQ) use ($checkInDate, $checkOutDate) {
-                              $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
-                                  $q1->where('check_in_at', '>=', $checkInDate)
-                                     ->where('check_in_at', '<', $checkOutDate);
-                              })
-                              ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
-                                  $q2->where('check_out_at', '>', $checkInDate)
-                                     ->where('check_out_at', '<=', $checkOutDate);
-                              })
-                              ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
-                                  $q3->where('check_in_at', '<=', $checkInDate)
-                                     ->where('check_out_at', '>=', $checkOutDate);
-                              });
-                          });
-                    })
-                    // For pending bookings without check_in_at (use transaction dates)
-                    ->orWhere(function ($q) use ($checkInDate, $checkOutDate) {
-                        $q->whereNull('check_in_at')
-                          ->whereHas('transaction', function ($tq) use ($checkInDate, $checkOutDate) {
-                              $tq->where(function ($subQ) use ($checkInDate, $checkOutDate) {
-                                  $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
-                                      $q1->where('check_in', '>=', $checkInDate)
-                                         ->where('check_in', '<', $checkOutDate);
-                                  })
-                                  ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
-                                      $q2->where('check_out', '>', $checkInDate)
-                                         ->where('check_out', '<=', $checkOutDate);
-                                  })
-                                  ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
-                                      $q3->where('check_in', '<=', $checkInDate)
-                                         ->where('check_out', '>=', $checkOutDate);
-                                  });
-                              });
-                          });
-                    });
-                })
-                ->exists();
+            // Check for booking conflicts
+            $checkInDate = Carbon::parse($request->check_in);
+            $checkOutDate = $request->check_out ? Carbon::parse($request->check_out) : ($currentBooking->check_out_at ?? Carbon::parse($currentBooking->transaction->check_out));
+
+            $hasConflict = $this->checkRoomConflict($request->new_room, $checkInDate, $checkOutDate, $request->order_id);
 
             if ($hasConflict) {
                 return redirect()->back()
                     ->with('error', 'Kamar yang dipilih sudah dipesan untuk tanggal tersebut.');
             }
 
-            // Get user who made the booking
-            $user = $previousBooking->user;
+            // Get user for notification
+            $guest = $currentBooking->user;
 
-            // Create the new booking (transfer) - copy all relevant data from previous booking
-            $booking = Booking::create([
+            // Create new booking record for the transfer
+            $newBooking = Booking::create([
                 'property_id' => $request->current_property_id,
                 'order_id' => $request->order_id,
                 'room_id' => $request->new_room,
-                'user_id' => $previousBooking->user_id,
-                'transaction_id' => $previousBooking->transaction_id,
-                'payment_id' => $previousBooking->payment_id,
-                'check_in_at' => $previousBooking->check_in_at, // Keep original check-in time (null for pending)
-                'check_out_at' => $previousBooking->check_out_at, // Keep original check-out time
+                'user_id' => $currentBooking->user_id ?? null,
+                'user_name' => $currentBooking->user_name,
+                'user_email' => $currentBooking->user_email,
+                'user_phone_number' => $currentBooking->user_phone_number,
+                'check_in_at' => $currentBooking->check_in_at,
+                'check_out_at' => $currentBooking->check_out_at,
+                'doc_type' => $currentBooking->doc_type,
+                'doc_path' => $currentBooking->doc_path,
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
-                'status' => 2, // Set to transferred status for the new room
-                'reason' => null,
-                'description' => null,
+                'is_active' => 1,
+                'previous_booking_id' => $currentBooking->idrec,
+                'reason' => $request->reason,
+                'description' => $request->notes,
+                'room_changed_at' => now(),
+                'room_changed_by' => Auth::id(),
+                'is_printed' => 0,
             ]);
 
-            // Mark all previous bookings with the same order_id as cancelled/old (status 3)
-            // Save reason and description to the old room (status 3)
-            Booking::where('order_id', $request->order_id)
-                ->where('idrec', '!=', $booking->idrec) // Exclude the newly created booking
-                ->update([
-                    'status' => 3,
-                    'reason' => $request->reason,
-                    'description' => $request->notes,
-                    'updated_by' => Auth::id(),
-                    'updated_at' => now(),
-                ]);
+            // Deactivate the current booking
+            $currentBooking->update([
+                'is_active' => 0,
+                'updated_by' => Auth::id(),
+            ]);
 
             // Prepare transfer details for notification
             $transferDetails = [
-                'guest_name' => $user->username,
+                'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
                 'order_id' => $request->order_id,
-                'previous_room' => $previousRoom->name . ' (' . $previousRoom->type . ')',
+                'previous_room' => $currentRoom->name . ' (' . $currentRoom->type . ')',
                 'new_room' => $newRoom->name . ' (' . $newRoom->type . ')',
-                'reason' => $request->reason,
+                'reason' => $this->getReasonLabel($request->reason),
                 'transfer_date' => now()->format('Y-m-d H:i'),
-                'check_in' => $previousBooking->check_in_at ? $previousBooking->check_in_at->format('Y-m-d H:i') : 'Not checked in yet',
-                'check_out' => $previousBooking->check_out_at ? $previousBooking->check_out_at->format('Y-m-d H:i') : 'Not specified',
+                'check_in' => $currentBooking->check_in_at ? $currentBooking->check_in_at->format('Y-m-d H:i') : 'Belum check-in',
+                'check_out' => $currentBooking->check_out_at ? $currentBooking->check_out_at->format('Y-m-d H:i') : 'Belum ditentukan',
             ];
 
-            // Send notification to user
+            // Send notification
             try {
-                if ($user && $user->email) {
-                    Notification::send($user, new RoomTransferNotification($transferDetails));
+                if ($guest && $guest->email) {
+                    Notification::send($guest, new RoomTransferNotification($transferDetails));
                 }
-                return redirect()->route('changerooom.index')->with('success', 'Kamar berhasil dipindahkan dan notifikasi telah dikirim!');
+                return redirect()->route('changerooom.index')
+                    ->with('success', 'Kamar berhasil dipindahkan dan notifikasi telah dikirim!');
             } catch (\Exception) {
-                // Room transfer succeeded but notification failed
-                return redirect()->route('changerooom.index')->with('success', 'Kamar berhasil dipindahkan! (Notifikasi email gagal dikirim)');
+                return redirect()->route('changerooom.index')
+                    ->with('success', 'Kamar berhasil dipindahkan! (Notifikasi email gagal dikirim)');
             }
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->back()
@@ -404,5 +350,288 @@ class ChangeRoomController extends Controller
             return redirect()->back()
                 ->with('error', 'Gagal memindahkan kamar: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Rollback to previous room.
+     */
+    public function rollback(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'booking_id' => 'required|integer',
+            'notes' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->with('error', 'Data tidak valid.');
+        }
+
+        $authUser = Auth::user();
+
+        try {
+            // Get the current active booking
+            $currentBooking = Booking::with(['previousBooking', 'room', 'property'])
+                ->where('idrec', $request->booking_id)
+                ->where('is_active', 1)
+                ->firstOrFail();
+
+            // Check if there's a previous booking to rollback to
+            if (!$currentBooking->previous_booking_id) {
+                return redirect()->back()
+                    ->with('error', 'Tidak ada kamar sebelumnya untuk di-rollback.');
+            }
+
+            $previousBooking = $currentBooking->previousBooking;
+
+            if (!$previousBooking) {
+                return redirect()->back()
+                    ->with('error', 'Data booking sebelumnya tidak ditemukan.');
+            }
+
+            // Validate Site user can only rollback rooms within their property
+            if ($authUser->user_type == 1 && $authUser->property_id != $currentBooking->property_id) {
+                return redirect()->back()
+                    ->with('error', 'Anda tidak memiliki akses untuk rollback kamar di properti ini.');
+            }
+
+            // Check if the previous room is still available
+            $previousRoom = Room::find($previousBooking->room_id);
+
+            if (!$previousRoom || $previousRoom->status != 1) {
+                return redirect()->back()
+                    ->with('error', 'Kamar sebelumnya tidak lagi tersedia.');
+            }
+
+            // Check for conflicts on the previous room
+            $checkInDate = $currentBooking->check_in_at ?? Carbon::parse($currentBooking->transaction->check_in);
+            $checkOutDate = $currentBooking->check_out_at ?? Carbon::parse($currentBooking->transaction->check_out);
+
+            $hasConflict = $this->checkRoomConflict($previousRoom->idrec, $checkInDate, $checkOutDate, $currentBooking->order_id);
+
+            if ($hasConflict) {
+                return redirect()->back()
+                    ->with('error', 'Kamar sebelumnya sudah dipesan untuk tanggal tersebut.');
+            }
+
+            // Get current room for notification
+            $currentRoom = $currentBooking->room;
+            $guest = $currentBooking->user;
+
+            // Create new booking record for the rollback
+            $rollbackBooking = Booking::create([
+                'property_id' => $currentBooking->property_id,
+                'order_id' => $currentBooking->order_id,
+                'room_id' => $previousRoom->idrec,
+                'user_name' => $currentBooking->user_name,
+                'user_email' => $currentBooking->user_email,
+                'user_phone_number' => $currentBooking->user_phone_number,
+                'check_in_at' => $currentBooking->check_in_at,
+                'check_out_at' => $currentBooking->check_out_at,
+                'doc_type' => $currentBooking->doc_type,
+                'doc_path' => $currentBooking->doc_path,
+                'created_by' => Auth::id(),
+                'updated_by' => Auth::id(),
+                'is_active' => 1,
+                'previous_booking_id' => $currentBooking->idrec,
+                'reason' => 'rollback',
+                'description' => $request->notes,
+                'room_changed_at' => now(),
+                'room_changed_by' => Auth::id(),
+                'is_printed' => 0,
+            ]);
+
+            // Deactivate current booking
+            $currentBooking->update([
+                'is_active' => 0,
+                'updated_by' => Auth::id(),
+            ]);
+
+            // Send notification
+            try {
+                if ($guest && $guest->email) {
+                    $transferDetails = [
+                        'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
+                        'order_id' => $currentBooking->order_id,
+                        'previous_room' => $currentRoom->name . ' (' . $currentRoom->type . ')',
+                        'new_room' => $previousRoom->name . ' (' . $previousRoom->type . ')',
+                        'reason' => 'Rollback ke kamar sebelumnya',
+                        'transfer_date' => now()->format('Y-m-d H:i'),
+                        'check_in' => $currentBooking->check_in_at ? $currentBooking->check_in_at->format('Y-m-d H:i') : 'Belum check-in',
+                        'check_out' => $currentBooking->check_out_at ? $currentBooking->check_out_at->format('Y-m-d H:i') : 'Belum ditentukan',
+                    ];
+                    Notification::send($guest, new RoomTransferNotification($transferDetails));
+                }
+            } catch (\Exception) {
+                // Notification failed but rollback succeeded
+            }
+
+            return redirect()->route('changerooom.index')
+                ->with('success', 'Berhasil rollback ke kamar sebelumnya: ' . $previousRoom->name);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()
+                ->with('error', 'Booking tidak ditemukan.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal rollback: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get room change chain for a specific order.
+     */
+    public function getChain(Request $request)
+    {
+        $orderId = $request->input('order_id');
+
+        if (!$orderId) {
+            return response()->json(['error' => 'Order ID required'], 400);
+        }
+
+        $bookings = Booking::with(['room', 'roomChangedByUser'])
+            ->where('order_id', $orderId)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($booking) {
+                return [
+                    'idrec' => $booking->idrec,
+                    'room_id' => $booking->room_id,
+                    'room_name' => $booking->room->name ?? 'N/A',
+                    'room_type' => $booking->room->type ?? 'N/A',
+                    'is_active' => $booking->is_active,
+                    'reason' => $booking->reason,
+                    'reason_label' => $this->getReasonLabel($booking->reason),
+                    'description' => $booking->description,
+                    'room_changed_at' => $booking->room_changed_at?->format('d M Y H:i'),
+                    'room_changed_by' => $booking->roomChangedByUser->username ?? null,
+                    'created_at' => $booking->created_at->format('d M Y H:i'),
+                ];
+            });
+
+        return response()->json([
+            'order_id' => $orderId,
+            'chain' => $bookings,
+            'transfer_count' => $bookings->count() - 1,
+        ]);
+    }
+
+    /**
+     * Check room availability for rollback.
+     */
+    public function checkRollbackAvailability(Request $request)
+    {
+        $bookingId = $request->input('booking_id');
+
+        $booking = Booking::with('previousBooking')
+            ->where('idrec', $bookingId)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$booking || !$booking->previous_booking_id) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Tidak ada kamar sebelumnya untuk di-rollback.'
+            ]);
+        }
+
+        $previousRoom = Room::find($booking->previousBooking->room_id);
+
+        if (!$previousRoom || $previousRoom->status != 1) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Kamar sebelumnya tidak lagi aktif.',
+                'room' => $previousRoom ? [
+                    'name' => $previousRoom->name,
+                    'type' => $previousRoom->type,
+                ] : null
+            ]);
+        }
+
+        // Check for conflicts
+        $checkInDate = $booking->check_in_at ?? Carbon::parse($booking->transaction->check_in);
+        $checkOutDate = $booking->check_out_at ?? Carbon::parse($booking->transaction->check_out);
+
+        $hasConflict = $this->checkRoomConflict($previousRoom->idrec, $checkInDate, $checkOutDate, $booking->order_id);
+
+        return response()->json([
+            'available' => !$hasConflict,
+            'message' => $hasConflict ? 'Kamar sebelumnya sudah dipesan untuk tanggal tersebut.' : 'Kamar tersedia untuk rollback.',
+            'room' => [
+                'idrec' => $previousRoom->idrec,
+                'name' => $previousRoom->name,
+                'type' => $previousRoom->type,
+            ]
+        ]);
+    }
+
+    /**
+     * Check if a room has booking conflicts for given dates.
+     */
+    private function checkRoomConflict($roomId, Carbon $checkInDate, Carbon $checkOutDate, $excludeOrderId = null)
+    {
+        return Booking::with('transaction')
+            ->where('room_id', $roomId)
+            ->where('is_active', 1)
+            ->when($excludeOrderId, function ($query, $excludeOrderId) {
+                return $query->where('order_id', '!=', $excludeOrderId);
+            })
+            ->where(function ($query) use ($checkInDate, $checkOutDate) {
+                $query->where(function ($q) use ($checkInDate, $checkOutDate) {
+                    $q->whereNotNull('check_in_at')
+                      ->where(function ($subQ) use ($checkInDate, $checkOutDate) {
+                          $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
+                              $q1->where('check_in_at', '>=', $checkInDate)
+                                 ->where('check_in_at', '<', $checkOutDate);
+                          })
+                          ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
+                              $q2->where('check_out_at', '>', $checkInDate)
+                                 ->where('check_out_at', '<=', $checkOutDate);
+                          })
+                          ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
+                              $q3->where('check_in_at', '<=', $checkInDate)
+                                 ->where('check_out_at', '>=', $checkOutDate);
+                          });
+                      });
+                })
+                ->orWhere(function ($q) use ($checkInDate, $checkOutDate) {
+                    $q->whereNull('check_in_at')
+                      ->whereHas('transaction', function ($tq) use ($checkInDate, $checkOutDate) {
+                          $tq->where(function ($subQ) use ($checkInDate, $checkOutDate) {
+                              $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
+                                  $q1->where('check_in', '>=', $checkInDate)
+                                     ->where('check_in', '<', $checkOutDate);
+                              })
+                              ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
+                                  $q2->where('check_out', '>', $checkInDate)
+                                     ->where('check_out', '<=', $checkOutDate);
+                              })
+                              ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
+                                  $q3->where('check_in', '<=', $checkInDate)
+                                     ->where('check_out', '>=', $checkOutDate);
+                              });
+                          });
+                      });
+                });
+            })
+            ->exists();
+    }
+
+    /**
+     * Get human-readable reason label.
+     */
+    private function getReasonLabel($reason)
+    {
+        $labels = [
+            'maintenance' => 'Maintenance/Perawatan',
+            'upgrade' => 'Upgrade Kamar',
+            'downgrade' => 'Downgrade Kamar',
+            'guest_request' => 'Permintaan Tamu',
+            'rollback' => 'Rollback',
+            'other' => 'Lainnya',
+        ];
+
+        return $labels[$reason] ?? $reason ?? 'N/A';
     }
 }

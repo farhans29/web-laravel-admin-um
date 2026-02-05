@@ -12,10 +12,9 @@ return new class extends Migration
         DB::statement('SET SESSION sql_mode = ""');
 
         Schema::table('t_transactions', function (Blueprint $table) {
-            $table->integer('deposit_fee')->default(0)->after('grandtotal_price');
-            $table->integer('parking_fee')->default(0)->after('deposit_fee');
+            $table->string('deposit_fee', 255)->nullable()->after('grandtotal_price');
+            $table->string('parking_fee', 255)->nullable()->after('deposit_fee');
         });
-
         DB::statement("SET SESSION sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
     }
 

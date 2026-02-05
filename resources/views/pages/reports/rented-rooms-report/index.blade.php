@@ -202,7 +202,7 @@
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span>Memuat data laporan booking...</span>
+                                    <span>{{ __('ui.loading_report_data') }}</span>
                                 </div>
                             </td>
                         </tr>
@@ -218,6 +218,42 @@
     </div>
 
     <script>
+        // Translations object for JavaScript
+        const translations = {
+            loading_data: '{{ __('ui.loading_data') }}',
+            failed_load_data: '{{ __('ui.failed_load_data') }}',
+            no_booking_data: '{{ __('ui.no_booking_data') }}',
+            showing: '{{ __('ui.showing') }}',
+            showing_page: '{{ __('ui.showing_page') }}',
+            of_pages: '{{ __('ui.of_pages') }}',
+            total_data: '{{ __('ui.total_data') }}',
+            previous: '{{ __('ui.previous') }}',
+            next: '{{ __('ui.next') }}',
+            report_waiting_checkin: '{{ __('ui.report_waiting_checkin') }}',
+            report_checked_in: '{{ __('ui.report_checked_in') }}',
+            report_rooms_occupied: '{{ __('ui.report_rooms_occupied') }}',
+            report_check_out: '{{ __('ui.report_check_out') }}',
+            report_cancelled: '{{ __('ui.report_cancelled') }}',
+            property: '{{ __('ui.property') }}',
+            period: '{{ __('ui.period') }}',
+            date: '{{ __('ui.date') }}',
+            search: '{{ __('ui.search') }}',
+            printed_on: '{{ __('ui.printed_on') }}',
+            applied_filters: '{{ __('ui.applied_filters') }}',
+            property_and_room: '{{ __('ui.property_and_room') }}',
+            tenant_name: '{{ __('ui.tenant_name') }}',
+            booking_type: '{{ __('ui.booking_type') }}',
+            period_col: '{{ __('ui.period') }}',
+            duration: '{{ __('ui.duration') }}',
+            room_price: '{{ __('ui.room_price') }}',
+            service_fee: '{{ __('ui.service_fee') }}',
+            grand_total: '{{ __('ui.grand_total') }}',
+            payment_status: '{{ __('ui.payment_status') }}',
+            payment_date: '{{ __('ui.payment_date') }}',
+            order_id: '{{ __('ui.order_id') }}',
+            exporting_booking_report: '{{ __('ui.exporting_booking_report') }}'
+        };
+
         let currentPage = 1;
         let searchTimeout;
         let singleDatePicker;
@@ -321,7 +357,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Memuat data...
+                            ${translations.loading_data}
                         </div>
                     </td>
                 </tr>
@@ -340,7 +376,7 @@
                     tbody.innerHTML = `
                         <tr>
                             <td colspan="12" class="px-4 py-8 text-center text-red-500">
-                                Gagal memuat data. Silakan coba lagi.
+                                ${translations.failed_load_data}
                             </td>
                         </tr>
                     `;
@@ -358,7 +394,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
-                                <span>Tidak ada data booking</span>
+                                <span>${translations.no_booking_data}</span>
                             </div>
                         </td>
                     </tr>
@@ -425,7 +461,7 @@
             if (pagination.last_page <= 1) {
                 container.innerHTML = `
                     <div class="text-sm text-gray-700">
-                        Menampilkan ${pagination.total} data
+                        ${translations.showing} ${pagination.total} data
                     </div>
                 `;
                 return;
@@ -434,7 +470,7 @@
             let paginationHTML = `
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Menampilkan halaman ${pagination.current_page} dari ${pagination.last_page} (${pagination.total} total data)
+                        ${translations.showing_page} ${pagination.current_page} ${translations.of_pages} ${pagination.last_page} (${pagination.total} ${translations.total_data})
                     </div>
                     <div class="flex gap-2">
             `;
@@ -444,7 +480,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page - 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Sebelumnya
+                        ${translations.previous}
                     </button>
                 `;
             }
@@ -478,7 +514,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page + 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Selanjutnya
+                        ${translations.next}
                     </button>
                 `;
             }
@@ -494,13 +530,13 @@
         function printReport() {
             // Get report title based on active tab
             const reportTitles = {
-                'waiting-check-in': 'Laporan Booking - Menunggu Check In',
-                'checked-in': 'Laporan Booking - Melakukan Check In',
-                'rooms-occupied': 'Laporan Booking - Kamar Terisi',
-                'check-out': 'Laporan Booking - Melakukan Check Out',
-                'cancelled': 'Laporan Booking - Booking Dibatalkan'
+                'waiting-check-in': translations.report_waiting_checkin,
+                'checked-in': translations.report_checked_in,
+                'rooms-occupied': translations.report_rooms_occupied,
+                'check-out': translations.report_check_out,
+                'cancelled': translations.report_cancelled
             };
-            const reportTitle = reportTitles[window.activeTab] || 'Laporan Booking';
+            const reportTitle = reportTitles[window.activeTab] || translations.report_waiting_checkin;
 
             // Get filter info
             let filterInfo = '';
@@ -508,7 +544,7 @@
             if (propertySelect) {
                 const selectedProperty = propertySelect.options[propertySelect.selectedIndex].text;
                 if (propertySelect.value) {
-                    filterInfo += `<p><strong>Properti:</strong> ${selectedProperty}</p>`;
+                    filterInfo += `<p><strong>${translations.property}:</strong> ${selectedProperty}</p>`;
                 }
             }
 
@@ -517,18 +553,18 @@
                 const startDate = document.getElementById('start_date').value;
                 const endDate = document.getElementById('end_date').value;
                 if (startDate && endDate) {
-                    filterInfo += `<p><strong>Periode:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}</p>`;
+                    filterInfo += `<p><strong>${translations.period}:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}</p>`;
                 }
             } else if (window.activeTab === 'check-out') {
                 const selectedDate = document.getElementById('single_date').value;
                 if (selectedDate) {
-                    filterInfo += `<p><strong>Tanggal:</strong> ${formatDate(selectedDate)}</p>`;
+                    filterInfo += `<p><strong>${translations.date}:</strong> ${formatDate(selectedDate)}</p>`;
                 }
             }
 
             const searchValue = document.getElementById('search').value;
             if (searchValue) {
-                filterInfo += `<p><strong>Pencarian:</strong> ${searchValue}</p>`;
+                filterInfo += `<p><strong>${translations.search}:</strong> ${searchValue}</p>`;
             }
 
             // Get table content
@@ -640,7 +676,7 @@
                 <body>
                     <div class="header">
                         <h1>${reportTitle}</h1>
-                        <p>Dicetak pada: ${new Date().toLocaleString('id-ID', {
+                        <p>${translations.printed_on}: ${new Date().toLocaleString('id-ID', {
                             weekday: 'long',
                             year: 'numeric',
                             month: 'long',
@@ -649,22 +685,22 @@
                             minute: '2-digit'
                         })}</p>
                     </div>
-                    ${filterInfo ? '<div class="filter-info"><strong>Filter yang Diterapkan:</strong>' + filterInfo + '</div>' : ''}
+                    ${filterInfo ? '<div class="filter-info"><strong>' + translations.applied_filters + ':</strong>' + filterInfo + '</div>' : ''}
                     <table>
                         <thead>
                             <tr>
                                 <th>No.</th>
-                                <th>Properti & Kamar</th>
-                                <th>Nama Penyewa</th>
-                                <th>Tipe Booking</th>
-                                <th>Periode</th>
-                                <th>Durasi</th>
-                                <th>Harga Kamar</th>
-                                <th>Biaya Layanan</th>
-                                <th>Total</th>
-                                <th>Status Pembayaran</th>
-                                <th>Tanggal Bayar</th>
-                                <th>ID Pesanan</th>
+                                <th>${translations.property_and_room}</th>
+                                <th>${translations.tenant_name}</th>
+                                <th>${translations.booking_type}</th>
+                                <th>${translations.period_col}</th>
+                                <th>${translations.duration}</th>
+                                <th>${translations.room_price}</th>
+                                <th>${translations.service_fee}</th>
+                                <th>${translations.grand_total}</th>
+                                <th>${translations.payment_status}</th>
+                                <th>${translations.payment_date}</th>
+                                <th>${translations.order_id}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -717,7 +753,7 @@
                 toast: true,
                 position: 'top-end',
                 icon: 'success',
-                title: 'Mengekspor laporan booking...',
+                title: translations.exporting_booking_report,
                 showConfirmButton: false,
                 timer: 2000,
                 timerProgressBar: true
