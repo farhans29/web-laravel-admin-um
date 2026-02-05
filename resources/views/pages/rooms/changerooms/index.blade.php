@@ -122,7 +122,7 @@
                                                         </div>
                                                         <div>
                                                             <span class="text-gray-500">Kamar:</span>
-                                                            <p class="font-medium"><span id="roomNumber">-</span> (<span id="roomType">-</span>)</p>
+                                                            <p class="font-medium"><span id="roomNumber">-</span> <span class="text-gray-500">No. <span id="roomNo">-</span></span></p>
                                                         </div>
                                                         <div>
                                                             <span class="text-gray-500">Check-in:</span>
@@ -299,7 +299,7 @@
                                                             <div class="font-bold text-sm {{ $booking->is_active ? 'text-green-700' : 'text-gray-600' }}">
                                                                 {{ $booking->room->name ?? 'N/A' }}
                                                             </div>
-                                                            <div class="text-xs text-gray-500">{{ $booking->room->type ?? '' }}</div>
+                                                            <div class="text-xs text-gray-500">No. {{ $booking->room->no ?? '' }}</div>
                                                             @if($booking->is_active)
                                                                 <span class="inline-block mt-1 px-2 py-0.5 bg-green-500 text-white text-xs rounded">AKTIF</span>
                                                             @endif
@@ -349,8 +349,36 @@
     </div>
 
     <!-- Rollback Modal -->
-    <div id="rollbackModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div x-data="{ open: false }"
+         x-show="open"
+         x-on:open-rollback-modal.window="open = true"
+         x-on:close-rollback-modal.window="open = false"
+         x-on:keydown.escape.window="open = false"
+         id="rollbackModal"
+         class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+         style="display: none;">
+        <!-- Backdrop -->
+        <div x-show="open"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 transform transition-all"
+             x-on:click="open = false">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+        <!-- Modal Content -->
+        <div x-show="open"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:max-w-md sm:mx-auto"
+             x-on:click.stop>
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-800">
                     <i class="fas fa-undo text-orange-500 mr-2"></i>
@@ -390,7 +418,7 @@
                 </form>
             </div>
             <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                <button type="button" onclick="closeRollbackModal()"
+                <button type="button" x-on:click="open = false"
                     class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
                     Batal
                 </button>
@@ -403,15 +431,43 @@
     </div>
 
     <!-- Chain Detail Modal -->
-    <div id="chainDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+    <div x-data="{ open: false }"
+         x-show="open"
+         x-on:open-chain-modal.window="open = true"
+         x-on:close-chain-modal.window="open = false"
+         x-on:keydown.escape.window="open = false"
+         id="chainDetailModal"
+         class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+         style="display: none;">
+        <!-- Backdrop -->
+        <div x-show="open"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 transform transition-all"
+             x-on:click="open = false">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+        <!-- Modal Content -->
+        <div x-show="open"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:max-w-lg sm:mx-auto"
+             x-on:click.stop>
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-800">Detail Riwayat Perpindahan</h3>
-                <button onclick="closeChainDetailModal()" class="text-gray-400 hover:text-gray-600">
+                <button x-on:click="open = false" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="p-6" id="chainDetailContent">
+            <div class="p-6 max-h-96 overflow-y-auto" id="chainDetailContent">
                 <!-- Will be filled by JS -->
             </div>
         </div>
@@ -593,7 +649,7 @@
             document.getElementById('orderId').textContent = bookingData.order_id;
             document.getElementById('propertyName').textContent = bookingData.propertyName;
             document.getElementById('roomNumber').textContent = bookingData.room_number;
-            document.getElementById('roomType').textContent = bookingData.room_type;
+            document.getElementById('roomNo').textContent = bookingData.room_no;
             document.getElementById('checkIn').textContent = formatDateTime(bookingData.check_in);
             document.getElementById('checkOut').textContent = formatDateTime(bookingData.check_out);
 
@@ -662,7 +718,7 @@
                         rooms.forEach(room => {
                             const option = document.createElement('option');
                             option.value = room.idrec;
-                            option.textContent = `${room.name} - ${room.type}`;
+                            option.textContent = `${room.name} - No. ${room.no}`;
                             select.appendChild(option);
                         });
                     }
@@ -724,8 +780,7 @@
         // Rollback Modal Functions
         function openRollbackModal(bookingId, orderId) {
             document.getElementById('rollbackBookingId').value = bookingId;
-            document.getElementById('rollbackModal').classList.remove('hidden');
-            document.getElementById('rollbackModal').classList.add('flex');
+            window.dispatchEvent(new CustomEvent('open-rollback-modal'));
 
             // Fetch rollback availability
             fetch(`/rooms/change-room/check-rollback?booking_id=${bookingId}`)
@@ -735,7 +790,7 @@
                     const confirmBtn = document.getElementById('confirmRollbackBtn');
 
                     if (data.room) {
-                        document.getElementById('rollbackPreviousRoom').textContent = data.room.name + ' (' + data.room.type + ')';
+                        document.getElementById('rollbackPreviousRoom').textContent = data.room.name + ' No. ' + data.room.no;
                     }
 
                     if (data.available) {
@@ -756,7 +811,7 @@
                 .then(data => {
                     const activeRoom = data.chain.find(b => b.is_active);
                     if (activeRoom) {
-                        document.getElementById('rollbackCurrentRoom').textContent = activeRoom.room_name + ' (' + activeRoom.room_type + ')';
+                        document.getElementById('rollbackCurrentRoom').textContent = activeRoom.room_name + ' No. ' + activeRoom.room_no;
                     }
                 })
                 .catch(error => {
@@ -765,13 +820,13 @@
         }
 
         function closeRollbackModal() {
-            document.getElementById('rollbackModal').classList.add('hidden');
-            document.getElementById('rollbackModal').classList.remove('flex');
+            window.dispatchEvent(new CustomEvent('close-rollback-modal'));
             document.getElementById('rollbackNotes').value = '';
         }
 
         function submitRollback() {
             document.getElementById('rollbackNotesInput').value = document.getElementById('rollbackNotes').value;
+            window.dispatchEvent(new CustomEvent('close-rollback-modal'));
             document.getElementById('rollbackForm').submit();
         }
 
@@ -788,7 +843,7 @@
                                     ${index + 1}
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium">${booking.room_name} (${booking.room_type})</div>
+                                    <div class="font-medium">${booking.room_name} No. ${booking.room_no}</div>
                                     <div class="text-sm text-gray-500">
                                         ${index === 0 ? 'Kamar Awal' : booking.reason_label}
                                         ${booking.room_changed_at ? ' - ' + booking.room_changed_at : ''}
@@ -802,25 +857,11 @@
                     html += '</div>';
 
                     document.getElementById('chainDetailContent').innerHTML = html;
-                    document.getElementById('chainDetailModal').classList.remove('hidden');
-                    document.getElementById('chainDetailModal').classList.add('flex');
+                    window.dispatchEvent(new CustomEvent('open-chain-modal'));
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
         }
-
-        function closeChainDetailModal() {
-            document.getElementById('chainDetailModal').classList.add('hidden');
-            document.getElementById('chainDetailModal').classList.remove('flex');
-        }
-
-        // Close modals on outside click
-        document.getElementById('rollbackModal').addEventListener('click', function(e) {
-            if (e.target === this) closeRollbackModal();
-        });
-        document.getElementById('chainDetailModal').addEventListener('click', function(e) {
-            if (e.target === this) closeChainDetailModal();
-        });
     </script>
 </x-app-layout>

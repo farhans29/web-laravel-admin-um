@@ -3,7 +3,7 @@
         data-booking="{{ json_encode([
             'booking_id' => $booking->idrec,
             'room_number' => $booking->room->name ?? 'N/A',
-            'room_type' => $booking->room->type ?? 'N/A',
+            'room_no' => $booking->room->no ?? 'N/A',
             'check_in' => $booking->transaction?->check_in ?? $booking->check_in_at,
             'check_out' => $booking->transaction?->check_out ?? $booking->check_out_at,
             'rate' => $booking->room->price ?? 'N/A',
@@ -64,7 +64,7 @@
                 </span>
                 <span class="text-gray-800 font-medium text-right">
                     {{ $booking->room->name ?? '-' }}
-                    <span class="text-gray-500">({{ $booking->room->type ?? '' }})</span>
+                    <span class="text-gray-500">No. {{ $booking->room->no ?? '' }}</span>
                 </span>
             </div>
         </div>

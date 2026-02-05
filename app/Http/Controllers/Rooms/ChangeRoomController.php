@@ -156,9 +156,11 @@ class ChangeRoomController extends Controller
         $checkOutDate = Carbon::parse($checkOut);
 
         // Get rooms that are active and available
+        // status = 1 means room is active (not disabled)
+        // rental_status = 0 means available, rental_status = 1 means booked (monthly/long-term)
         $rooms = Room::where('property_id', $propertyId)
-            ->where('status', 1) // Room must be active
-            ->where('rental_status', 0) // Room must be available for rental
+            ->where('status', 1)
+            ->where('rental_status', 0)
             ->when($roomId, function ($query) use ($roomId) {
                 return $query->where('idrec', '!=', $roomId);
             })
@@ -320,12 +322,33 @@ class ChangeRoomController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
+            // Update rental_status for rooms
+            // Check if this is a monthly booking
+            $isMonthlyBooking = $currentBooking->transaction &&
+                ($currentBooking->transaction->booking_type === 'monthly' ||
+                 ($currentBooking->transaction->booking_months && $currentBooking->transaction->booking_months > 0));
+
+            // Old room (currentRoom): Set to available if no other active bookings
+            $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
+                ->where('is_active', 1)
+                ->where('order_id', '!=', $currentBooking->order_id)
+                ->exists();
+
+            if (!$hasOtherActiveBooking) {
+                $currentRoom->update(['rental_status' => 0]);
+            }
+
+            // New room: Set rental_status based on booking type
+            if ($isMonthlyBooking) {
+                $newRoom->update(['rental_status' => 1]);
+            }
+
             // Prepare transfer details for notification
             $transferDetails = [
                 'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
                 'order_id' => $request->order_id,
-                'previous_room' => $currentRoom->name . ' (' . $currentRoom->type . ')',
-                'new_room' => $newRoom->name . ' (' . $newRoom->type . ')',
+                'previous_room' => $currentRoom->name . ' No. ' . $currentRoom->no,
+                'new_room' => $newRoom->name . ' No. ' . $newRoom->no,
                 'reason' => $this->getReasonLabel($request->reason),
                 'transfer_date' => now()->format('Y-m-d H:i'),
                 'check_in' => $currentBooking->check_in_at ? $currentBooking->check_in_at->format('Y-m-d H:i') : 'Belum check-in',
@@ -397,11 +420,12 @@ class ChangeRoomController extends Controller
             }
 
             // Check if the previous room is still available
+            // status = 1 means active, rental_status = 0 means available (not long-term booked)
             $previousRoom = Room::find($previousBooking->room_id);
 
-            if (!$previousRoom || $previousRoom->status != 1) {
+            if (!$previousRoom || $previousRoom->status != 1 || $previousRoom->rental_status != 0) {
                 return redirect()->back()
-                    ->with('error', 'Kamar sebelumnya tidak lagi tersedia.');
+                    ->with('error', 'Kamar sebelumnya tidak lagi tersedia atau sudah terbooking.');
             }
 
             // Check for conflicts on the previous room
@@ -448,14 +472,35 @@ class ChangeRoomController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
+            // Update rental_status for rooms
+            // Check if this is a monthly booking
+            $isMonthlyBooking = $currentBooking->transaction &&
+                ($currentBooking->transaction->booking_type === 'monthly' ||
+                 ($currentBooking->transaction->booking_months && $currentBooking->transaction->booking_months > 0));
+
+            // Current room: Set to available if no other active bookings
+            $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
+                ->where('is_active', 1)
+                ->where('order_id', '!=', $currentBooking->order_id)
+                ->exists();
+
+            if (!$hasOtherActiveBooking) {
+                $currentRoom->update(['rental_status' => 0]);
+            }
+
+            // Previous room (rollback target): Set rental_status based on booking type
+            if ($isMonthlyBooking) {
+                $previousRoom->update(['rental_status' => 1]);
+            }
+
             // Send notification
             try {
                 if ($guest && $guest->email) {
                     $transferDetails = [
                         'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
                         'order_id' => $currentBooking->order_id,
-                        'previous_room' => $currentRoom->name . ' (' . $currentRoom->type . ')',
-                        'new_room' => $previousRoom->name . ' (' . $previousRoom->type . ')',
+                        'previous_room' => $currentRoom->name . ' No. ' . $currentRoom->no,
+                        'new_room' => $previousRoom->name . ' No. ' . $previousRoom->no,
                         'reason' => 'Rollback ke kamar sebelumnya',
                         'transfer_date' => now()->format('Y-m-d H:i'),
                         'check_in' => $currentBooking->check_in_at ? $currentBooking->check_in_at->format('Y-m-d H:i') : 'Belum check-in',
@@ -499,7 +544,7 @@ class ChangeRoomController extends Controller
                     'idrec' => $booking->idrec,
                     'room_id' => $booking->room_id,
                     'room_name' => $booking->room->name ?? 'N/A',
-                    'room_type' => $booking->room->type ?? 'N/A',
+                    'room_no' => $booking->room->no ?? 'N/A',
                     'is_active' => $booking->is_active,
                     'reason' => $booking->reason,
                     'reason_label' => $this->getReasonLabel($booking->reason),
@@ -538,13 +583,13 @@ class ChangeRoomController extends Controller
 
         $previousRoom = Room::find($booking->previousBooking->room_id);
 
-        if (!$previousRoom || $previousRoom->status != 1) {
+        if (!$previousRoom || $previousRoom->status != 1 || $previousRoom->rental_status != 0) {
             return response()->json([
                 'available' => false,
-                'message' => 'Kamar sebelumnya tidak lagi aktif.',
+                'message' => 'Kamar sebelumnya tidak lagi tersedia atau sudah terbooking.',
                 'room' => $previousRoom ? [
                     'name' => $previousRoom->name,
-                    'type' => $previousRoom->type,
+                    'no' => $previousRoom->no,
                 ] : null
             ]);
         }
@@ -561,7 +606,7 @@ class ChangeRoomController extends Controller
             'room' => [
                 'idrec' => $previousRoom->idrec,
                 'name' => $previousRoom->name,
-                'type' => $previousRoom->type,
+                'no' => $previousRoom->no,
             ]
         ]);
     }
