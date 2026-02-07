@@ -101,7 +101,7 @@
                                         d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z">
                                     </path>
                                 </svg>
-                                {{ optional($user->role)->name ?? 'No Role' }}
+                                {{ optional($user->role)->name ?? __('ui.no_role') }}
                             </p>
 
                             <!-- Status Badge -->
@@ -187,7 +187,7 @@
                                                             <input type="text" name="first_name" id="first_name"
                                                                 required
                                                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                                placeholder="First name"
+                                                                placeholder="{{ __('ui.enter_first_name') }}"
                                                                 value="{{ old('first_name', $user->first_name) }}">
                                                             @error('first_name')
                                                                 <p class="text-red-500 text-xs mt-2">{{ $message }}
@@ -202,7 +202,7 @@
                                                             <input type="text" name="last_name" id="last_name"
                                                                 required
                                                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                                placeholder="Last name"
+                                                                placeholder="{{ __('ui.enter_last_name') }}"
                                                                 value="{{ old('last_name', $user->last_name) }}">
                                                             @error('last_name')
                                                                 <p class="text-red-500 text-xs mt-2">{{ $message }}
@@ -219,7 +219,7 @@
                                                         </label>
                                                         <input type="text" name="username" id="username" required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                            placeholder="Username"
+                                                            placeholder="{{ __('ui.enter_username') }}"
                                                             value="{{ old('username', $user->username) }}">
                                                         @error('username')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
@@ -234,7 +234,7 @@
                                                         </label>
                                                         <input type="email" name="email" id="email" required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                            placeholder="Email address"
+                                                            placeholder="{{ __('ui.email_address') }}"
                                                             value="{{ old('email', $user->email) }}">
                                                         @error('email')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
@@ -250,8 +250,8 @@
                                                         <input type="text" name="phone_number" id="phone_number"
                                                             required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
-                                                            placeholder="Phone number"
-                                                            value="{{ old('phone_number', $user->phone_number ?? 'Belum ada nomor') }}">
+                                                            placeholder="{{ __('ui.phone_number') }}"
+                                                            value="{{ old('phone_number', $user->phone_number ?? __('ui.no_phone_number')) }}">
                                                         @error('phone_number')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
@@ -581,7 +581,7 @@
                                         d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                         clip-rule="evenodd"></path>
                                 </svg>
-                                Change Password
+                                {{ __('ui.change_password_btn') }}
                             </h2>
 
                             @if (session('password_success'))
@@ -656,7 +656,7 @@
                                     <div class="relative">
                                         <input type="password" id="current-password" name="current_password" required
                                             class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300 @error('current_password') border-red-300 @enderror"
-                                            placeholder="Enter your current password">
+                                            placeholder="{{ __('ui.enter_current_password') }}">
                                         <button type="button"
                                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
                                             <svg class="h-5 w-5 eye-open" xmlns="http://www.w3.org/2000/svg"
@@ -693,7 +693,7 @@
                                     <div class="relative">
                                         <input type="password" id="new-password" name="password" required
                                             class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300 @error('password') border-red-300 @enderror"
-                                            placeholder="Enter your new password">
+                                            placeholder="{{ __('ui.enter_new_password') }}">
                                         <button type="button"
                                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
                                             <svg class="h-5 w-5 eye-open" xmlns="http://www.w3.org/2000/svg"
@@ -735,7 +735,7 @@
                                         <input type="password" id="confirm-password" name="password_confirmation"
                                             required
                                             class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300"
-                                            placeholder="Confirm your new password"
+                                            placeholder="{{ __('ui.confirm_your_password') }}"
                                             @input="passwordMatch = ($el.value === document.getElementById('new-password').value)">
                                         <button type="button"
                                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
@@ -769,7 +769,7 @@
                                             d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    Change Password
+                                    {{ __('ui.change_password_btn') }}
                                 </button>
                             </form>
                         </div>
@@ -787,6 +787,11 @@
                                 today: '{{ __("ui.today") }}',
                                 yesterday: '{{ __("ui.yesterday") }}',
                                 activities_count: '{{ __("ui.activities_count") }}',
+                                guest_label: '{{ __("ui.guest_label") }}',
+                                printed_by_label: '{{ __("ui.printed_by_label") }}',
+                                order_label: '{{ __("ui.order_label") }}',
+                                printed: '{{ __("ui.printed") }}',
+                                printed_at: '{{ __("ui.printed_at") }}',
                             },
                             get todayKey() {
                                 return new Date().toISOString().split('T')[0];
@@ -888,7 +893,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
-                            <p class="mt-2 text-sm text-gray-500">Belum ada aktivitas</p>
+                            <p class="mt-2 text-sm text-gray-500">{{ __('ui.no_activities') }}</p>
                         </div>
 
                         <!-- Grouped Activities by Date -->
@@ -915,14 +920,14 @@
                                                     :class="group.dateKey === todayKey ? 'text-indigo-700' : 'text-gray-700'"
                                                     x-text="group.label"></h3>
                                                 <p class="text-xs text-gray-500">
-                                                    <span x-text="group.activities.length"></span> aktivitas
+                                                    <span x-text="group.activities.length"></span> {{ __('ui.activities_count') }}
                                                 </p>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span x-show="group.dateKey === todayKey"
                                                 class="px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
-                                                Live
+                                                {{ __('ui.live') }}
                                             </span>
                                             <svg class="w-5 h-5 text-gray-400 transition-transform duration-200"
                                                 :class="isExpanded(group.dateKey) ? 'rotate-180' : ''" fill="none"
@@ -1012,11 +1017,11 @@
                                                                             <span
                                                                                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
                                                                                 x-show="activity.data.guest_name"
-                                                                                x-text="'Guest: ' + activity.data.guest_name"></span>
+                                                                                x-text="translations.guest_label + ': ' + activity.data.guest_name"></span>
                                                                             <span
                                                                                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
                                                                                 x-show="activity.data.printed_by"
-                                                                                x-text="'Printed by: ' + activity.data.printed_by"></span>
+                                                                                x-text="translations.printed_by_label + ': ' + activity.data.printed_by"></span>
                                                                         </div>
                                                                     </template>
 
@@ -1025,7 +1030,7 @@
                                                                             <span
                                                                                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200"
                                                                                 x-show="activity.data.order_id"
-                                                                                x-text="'Order: ' + activity.data.order_id"></span>
+                                                                                x-text="translations.order_label + ': ' + activity.data.order_id"></span>
                                                                             <span
                                                                                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                                                                                 x-show="activity.data.status"
@@ -1054,7 +1059,7 @@
                                                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                                                             clip-rule="evenodd" />
                                                                     </svg>
-                                                                    Printed
+                                                                    <span x-text="translations.printed"></span>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -1065,7 +1070,7 @@
                                                                 x-show="activity.type === 'print_registration' && activity.data.printed_at">
                                                                 <span
                                                                     class="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-200">
-                                                                    Printed at: <span
+                                                                    <span x-text="translations.printed_at"></span>: <span
                                                                         x-text="new Date(activity.data.printed_at).toLocaleString('en-US', {
                                                                         month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                                                     })"></span>

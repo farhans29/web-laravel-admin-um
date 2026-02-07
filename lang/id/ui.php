@@ -745,6 +745,12 @@ return [
     'not_verified' => 'Belum Terverifikasi',
     'first_name' => 'Nama Depan',
     'last_name' => 'Nama Belakang',
+    'no_role' => 'Tidak Ada Peran',
+    'enter_first_name' => 'Nama depan',
+    'enter_last_name' => 'Nama belakang',
+    'enter_username' => 'Nama pengguna',
+    'email_address' => 'Alamat email',
+    'no_phone_number' => 'Belum ada nomor',
 
     // Language
     'lang_english' => 'English',
@@ -763,6 +769,10 @@ return [
     'passwords_do_not_match' => 'Kata sandi tidak cocok',
     'password_updated' => 'Kata sandi berhasil diperbarui.',
     'admin_only_password' => 'Hanya admin yang dapat merubah password!',
+    'enter_current_password' => 'Masukkan kata sandi saat ini',
+    'enter_new_password' => 'Masukkan kata sandi baru',
+    'confirm_your_password' => 'Konfirmasi kata sandi baru',
+    'change_password_btn' => 'Ubah Kata Sandi',
 
     // History Tab
     'activity_history' => 'Riwayat Aktivitas',
@@ -773,6 +783,11 @@ return [
     'yesterday' => 'Kemarin',
     'activities_count' => 'aktivitas',
     'live' => 'Live',
+    'guest_label' => 'Tamu',
+    'printed_by_label' => 'Dicetak oleh',
+    'order_label' => 'Pesanan',
+    'printed' => 'Dicetak',
+    'printed_at' => 'Dicetak pada',
 
     // Table common
     'showing' => 'Menampilkan',
