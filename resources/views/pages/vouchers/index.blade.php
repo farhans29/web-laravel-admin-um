@@ -96,7 +96,7 @@
                             </label>
                             <input type="text" id="code" name="code" required minlength="8" maxlength="12"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase"
-                                placeholder="Contoh: HPNY2026"
+                                placeholder="{{ __('ui.example_code') }}"
                                 oninput="this.value = this.value.toUpperCase()">
                         </div>
 
@@ -107,7 +107,7 @@
                             </label>
                             <input type="text" id="name" name="name" required
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                placeholder="Contoh: New Year Special">
+                                placeholder="{{ __('ui.example_name') }}">
                         </div>
 
                         <!-- Description -->
@@ -117,7 +117,7 @@
                             </label>
                             <textarea id="description" name="description" rows="2"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                placeholder="Contoh: Get 10% off"></textarea>
+                                placeholder="{{ __('ui.example_discount_desc') }}"></textarea>
                         </div>
 
                         <!-- Discount Percentage -->
@@ -155,7 +155,7 @@
                         <!-- Max Usage Per User -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Maksimal Penggunaan Per User <span class="text-red-500">*</span>
+                                {{ __('ui.max_usage_per_user') }} <span class="text-red-500">*</span>
                             </label>
                             <input type="number" id="max_usage_per_user" name="max_usage_per_user" required
                                 min="1"
@@ -166,11 +166,11 @@
                         <!-- Date Range Picker -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Periode Berlaku <span class="text-red-500">*</span>
+                                {{ __('ui.valid_period') }} <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="date_range" name="date_range" required
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                placeholder="Pilih tanggal berlaku" readonly>
+                                placeholder="{{ __('ui.select_valid_date') }}" readonly>
                             <input type="hidden" id="valid_from" name="valid_from">
                             <input type="hidden" id="valid_to" name="valid_to">
                         </div>
@@ -178,7 +178,7 @@
                         <!-- Min Transaction Amount -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Minimal Transaksi (Rp)
+                                {{ __('ui.min_transaction') }}
                             </label>
                             <input type="text" id="min_transaction_amount" name="min_transaction_amount"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white currency-input"
@@ -189,23 +189,23 @@
                         <!-- Scope Type -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Scope Type <span class="text-red-500">*</span>
+                                {{ __('ui.scope_type') }} <span class="text-red-500">*</span>
                             </label>
                             <select id="scope_type" name="scope_type" required onchange="togglePropertySelector()"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                <option value="global">Global</option>
-                                <option value="property">Property</option>
+                                <option value="global">{{ __('ui.global') }}</option>
+                                <option value="property">{{ __('ui.property') }}</option>
                             </select>
                         </div>
 
                         <!-- Property Selector (shown when scope_type is property) -->
                         <div id="property_selector_container" style="display: none;">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Pilih Property <span class="text-red-500">*</span>
+                                {{ __('ui.select_property') }} <span class="text-red-500">*</span>
                             </label>
                             <select id="property_id" name="property_id"
                                 class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                <option value="">-- Pilih Property --</option>
+                                <option value="">{{ __('ui.select_property_option') }}</option>
                                 @php
                                     $user = auth()->user();
                                     $isSiteUser = $user->isSiteRole() || $user->isSite();
@@ -249,10 +249,10 @@
                     <div class="mt-6 flex justify-end gap-3">
                         <button type="button" onclick="closeModal()"
                             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                            Batal
+                            {{ __('ui.cancel') }}
                         </button>
                         <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                            Simpan
+                            {{ __('ui.save') }}
                         </button>
                     </div>
                 </form>
@@ -262,6 +262,38 @@
 
     @push('scripts')
         <script>
+            // Translations object for JavaScript
+            const voucherTranslations = {
+                addVoucher: '{{ __('ui.add_voucher') }}',
+                editVoucher: '{{ __('ui.edit_voucher') }}',
+                confirmDelete: '{{ __('ui.confirm_delete') }}',
+                confirmDeleteVoucher: '{{ __('ui.confirm_delete_voucher') }}',
+                yesDelete: '{{ __('ui.yes_delete') }}',
+                cancel: '{{ __('ui.cancel') }}',
+                confirm: '{{ __('ui.confirm_action') }}',
+                yesChange: '{{ __('ui.yes_change') }}',
+                activate: '{{ __('ui.activate_voucher') }}',
+                deactivate: '{{ __('ui.deactivate_voucher') }}',
+                failedFetchVoucher: '{{ __('ui.failed_fetch_voucher') }}',
+                failedSaveVoucher: '{{ __('ui.failed_save_voucher') }}',
+                failedDeleteVoucher: '{{ __('ui.failed_delete_voucher') }}',
+                failedChangeStatus: '{{ __('ui.failed_change_status') }}',
+                statusChangedSuccess: '{{ __('ui.status_changed_success') }}',
+                validityPeriodSelected: '{{ __('ui.validity_period_selected') }}',
+                today: '{{ __('ui.today') }}',
+                tomorrow: '{{ __('ui.tomorrow') }}',
+                next7Days: '{{ __('ui.next_7_days') }}',
+                next14Days: '{{ __('ui.next_14_days') }}',
+                next1Month: '{{ __('ui.next_1_month') }}',
+                next3Months: '{{ __('ui.next_3_months') }}',
+                next6Months: '{{ __('ui.next_6_months') }}',
+                next1Year: '{{ __('ui.next_1_year') }}',
+                apply: '{{ __('ui.apply') }}',
+                fromLabel: '{{ __('ui.from_label') }}',
+                toLabel: '{{ __('ui.to_label') }}',
+                chooseDate: '{{ __('ui.choose_date') }}'
+            };
+
             // Toast notification helper
             function showToast(message, type = 'success') {
                 const bgColor = type === 'success' ? 'linear-gradient(to right, #00b09b, #96c93d)' :
@@ -312,23 +344,23 @@
                         opens: 'center',
                         drops: 'auto',
                         ranges: {
-                            'Hari Ini': [moment().startOf('day'), moment().endOf('day')],
-                            'Besok': [moment().add(1, 'days').startOf('day'), moment().add(1, 'days').endOf('day')],
-                            '7 Hari Kedepan': [moment().startOf('day'), moment().add(6, 'days').endOf('day')],
-                            '14 Hari Kedepan': [moment().startOf('day'), moment().add(13, 'days').endOf('day')],
-                            '1 Bulan Kedepan': [moment().startOf('day'), moment().add(1, 'months').endOf('day')],
-                            '3 Bulan Kedepan': [moment().startOf('day'), moment().add(3, 'months').endOf('day')],
-                            '6 Bulan Kedepan': [moment().startOf('day'), moment().add(6, 'months').endOf('day')],
-                            '1 Tahun Kedepan': [moment().startOf('day'), moment().add(1, 'years').endOf('day')],
+                            [voucherTranslations.today]: [moment().startOf('day'), moment().endOf('day')],
+                            [voucherTranslations.tomorrow]: [moment().add(1, 'days').startOf('day'), moment().add(1, 'days').endOf('day')],
+                            [voucherTranslations.next7Days]: [moment().startOf('day'), moment().add(6, 'days').endOf('day')],
+                            [voucherTranslations.next14Days]: [moment().startOf('day'), moment().add(13, 'days').endOf('day')],
+                            [voucherTranslations.next1Month]: [moment().startOf('day'), moment().add(1, 'months').endOf('day')],
+                            [voucherTranslations.next3Months]: [moment().startOf('day'), moment().add(3, 'months').endOf('day')],
+                            [voucherTranslations.next6Months]: [moment().startOf('day'), moment().add(6, 'months').endOf('day')],
+                            [voucherTranslations.next1Year]: [moment().startOf('day'), moment().add(1, 'years').endOf('day')],
                         },
                         locale: {
                             format: 'DD/MM/YYYY HH:mm',
                             separator: ' - ',
-                            applyLabel: 'Terapkan',
-                            cancelLabel: 'Batal',
-                            fromLabel: 'Dari',
-                            toLabel: 'Sampai',
-                            customRangeLabel: 'Pilih Tanggal',
+                            applyLabel: voucherTranslations.apply,
+                            cancelLabel: voucherTranslations.cancel,
+                            fromLabel: voucherTranslations.fromLabel,
+                            toLabel: voucherTranslations.toLabel,
+                            customRangeLabel: voucherTranslations.chooseDate,
                             weekLabel: 'M',
                             daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
                             monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
@@ -347,7 +379,7 @@
                             'DD/MM/YYYY HH:mm'));
                         $('#valid_from').val(picker.startDate.format('YYYY-MM-DD HH:mm:ss'));
                         $('#valid_to').val(picker.endDate.format('YYYY-MM-DD HH:mm:ss'));
-                        showToast('Periode berlaku berhasil dipilih', 'info');
+                        showToast(voucherTranslations.validityPeriodSelected, 'info');
                     });
 
                     $('#date_range').on('cancel.daterangepicker', function(ev, picker) {
@@ -465,7 +497,7 @@
 
             // Modal functions
             function openCreateModal() {
-                $('#modalTitle').text('Tambah Voucher');
+                $('#modalTitle').text(voucherTranslations.addVoucher);
                 $('#voucherForm')[0].reset();
                 $('#voucher_id').val('');
                 $('#date_range').val('');
@@ -485,7 +517,7 @@
                     method: 'GET',
                     success: function(response) {
                         const voucher = response.data;
-                        $('#modalTitle').text('Edit Voucher');
+                        $('#modalTitle').text(voucherTranslations.editVoucher);
                         $('#voucher_id').val(voucher.idrec);
                         $('#code').val(voucher.code);
                         $('#name').val(voucher.name);
@@ -528,7 +560,7 @@
                         $('#voucherModal').removeClass('hidden').show();
                     },
                     error: function(xhr) {
-                        showToast('Gagal mengambil data voucher', 'error');
+                        showToast(voucherTranslations.failedFetchVoucher, 'error');
                     }
                 });
             }
@@ -573,7 +605,7 @@
                         }
                     },
                     error: function(xhr) {
-                        const errorMsg = xhr.responseJSON?.message || 'Gagal menyimpan voucher';
+                        const errorMsg = xhr.responseJSON?.message || voucherTranslations.failedSaveVoucher;
                         showToast(errorMsg, 'error');
 
                         // Show validation errors if any
@@ -589,14 +621,14 @@
             // Delete voucher
             function deleteVoucher(id) {
                 Swal.fire({
-                    title: 'Konfirmasi Hapus',
-                    text: 'Apakah Anda yakin ingin menghapus voucher ini?',
+                    title: voucherTranslations.confirmDelete,
+                    text: voucherTranslations.confirmDeleteVoucher,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: voucherTranslations.yesDelete,
+                    cancelButtonText: voucherTranslations.cancel
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -612,7 +644,7 @@
                                 }
                             },
                             error: function(xhr) {
-                                showToast('Gagal menghapus voucher', 'error');
+                                showToast(voucherTranslations.failedDeleteVoucher, 'error');
                             }
                         });
                     }
@@ -622,17 +654,17 @@
             // Toggle status
             function toggleStatus(id, currentStatus) {
                 const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-                const statusText = newStatus === 'active' ? 'mengaktifkan' : 'menonaktifkan';
+                const statusText = newStatus === 'active' ? voucherTranslations.activate : voucherTranslations.deactivate;
 
                 Swal.fire({
-                    title: 'Konfirmasi',
-                    text: `Apakah Anda yakin ingin ${statusText} voucher ini?`,
+                    title: voucherTranslations.confirm,
+                    text: `{{ __('ui.confirm_status_change') }}`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Ubah!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: voucherTranslations.yesChange,
+                    cancelButtonText: voucherTranslations.cancel
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -645,12 +677,12 @@
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    showToast(response.message || 'Status berhasil diubah', 'success');
+                                    showToast(response.message || voucherTranslations.statusChangedSuccess, 'success');
                                     setTimeout(() => reloadTable(), 500);
                                 }
                             },
                             error: function(xhr) {
-                                showToast('Gagal mengubah status', 'error');
+                                showToast(voucherTranslations.failedChangeStatus, 'error');
                             }
                         });
                     }
