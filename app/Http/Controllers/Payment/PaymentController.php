@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\Booking;
 use App\Models\Refund;
 use App\Models\Payment;
+use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -272,17 +273,27 @@ class PaymentController extends Controller
                 'cancel_at' => Carbon::now(),
             ]);
 
-            // Update related booking is_active to 0 (cancelled)
-            if ($payment->booking) {
-                $payment->booking->update([
-                    'is_active' => 0,
+            // Update related booking status to 0 (cancelled)
+            $booking = $payment->booking ?? Booking::where('order_id', $payment->order_id)->where('status', 1)->first();
+
+            if ($booking) {
+                $booking->update([
+                    'status' => 0,
                     'reason' => $cancelReason,
                 ]);
-            } else {
-                Booking::where('order_id', $payment->order_id)->update([
-                    'is_active' => 0,
-                    'reason' => $cancelReason,
-                ]);
+
+                // Reset rental_status on room if no other active bookings
+                if ($booking->room_id) {
+                    $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
+                        ->where('status', 1)
+                        ->where('idrec', '!=', $booking->idrec)
+                        ->exists();
+
+                    if (!$hasOtherActiveBooking) {
+                        Room::where('idrec', $booking->room_id)
+                            ->update(['rental_status' => 0]);
+                    }
+                }
             }
 
             $payment->update([

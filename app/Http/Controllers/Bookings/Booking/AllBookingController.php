@@ -13,6 +13,7 @@ class AllBookingController extends Controller
     public function index(Request $request)
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->where('status', 1) // Only show active bookings (filter out room-changed old records)
             ->orderByDesc('check_in_at');
 
         // Filter by property_id for site users
@@ -100,6 +101,7 @@ class AllBookingController extends Controller
     public function filter(Request $request)
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->where('status', 1) // Only show active bookings (filter out room-changed old records)
             ->orderByDesc('check_in_at');
 
         // Filter by property_id for site users

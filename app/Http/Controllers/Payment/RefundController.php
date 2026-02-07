@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Refund;
 use App\Models\Transaction;
 use App\Models\Booking;
+use App\Models\Room;
 use Illuminate\Support\Facades\DB;
 
 
@@ -106,13 +107,26 @@ class RefundController extends Controller
 
             // Update booking to inactive after refund
             $booking = Booking::where('order_id', $request->order_id)
-                ->where('is_active', 1)
+                ->where('status', 1)
                 ->first();
             if ($booking) {
                 $booking->update([
-                    'is_active' => 0,
+                    'status' => 0,
                     'reason' => 'refunded'
                 ]);
+
+                // Reset rental_status on room if no other active bookings
+                if ($booking->room_id) {
+                    $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
+                        ->where('status', 1)
+                        ->where('idrec', '!=', $booking->idrec)
+                        ->exists();
+
+                    if (!$hasOtherActiveBooking) {
+                        Room::where('idrec', $booking->room_id)
+                            ->update(['rental_status' => 0]);
+                    }
+                }
             }
 
             // Update status transaksi

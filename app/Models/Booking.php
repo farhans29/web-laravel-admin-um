@@ -28,7 +28,7 @@ class Booking extends Model
         'check_out_at',
         'created_by',
         'updated_by',
-        'is_active',
+        'status',
         'previous_booking_id',
         'reason',
         'description',
@@ -41,7 +41,7 @@ class Booking extends Model
         'check_in_at' => 'datetime',
         'check_out_at' => 'datetime',
         'room_changed_at' => 'datetime',
-        'is_active' => 'boolean',
+        'status' => 'integer',
     ];
 
     protected $dates = [
@@ -198,7 +198,7 @@ class Booking extends Model
      */
     public function getCanBeTransferredAttribute()
     {
-        return $this->is_active && is_null($this->check_out_at);
+        return $this->getRawOriginal('status') == 1 && is_null($this->check_out_at);
     }
 
     /**
@@ -251,7 +251,7 @@ class Booking extends Model
     public static function getActiveBookingByOrderId($orderId)
     {
         return static::where('order_id', $orderId)
-            ->where('is_active', 1)
+            ->where('status', 1)
             ->first();
     }
 
@@ -270,7 +270,7 @@ class Booking extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', 1);
+        return $query->where('status', 1);
     }
 
     /**
@@ -278,7 +278,7 @@ class Booking extends Model
      */
     public function scopeInactive($query)
     {
-        return $query->where('is_active', 0);
+        return $query->where('status', 0);
     }
 
     /**
@@ -286,7 +286,7 @@ class Booking extends Model
      */
     public function scopeTransferable($query)
     {
-        return $query->where('is_active', 1)
+        return $query->where('status', 1)
             ->whereNull('check_out_at');
     }
 
