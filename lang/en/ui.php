@@ -604,6 +604,12 @@ return [
     'not_verified' => 'Not Verified',
     'first_name' => 'First Name',
     'last_name' => 'Last Name',
+    'no_role' => 'No Role',
+    'enter_first_name' => 'First name',
+    'enter_last_name' => 'Last name',
+    'enter_username' => 'Username',
+    'email_address' => 'Email address',
+    'no_phone_number' => 'No phone number',
 
     // Language
     'lang_english' => 'English',
@@ -622,6 +628,10 @@ return [
     'passwords_do_not_match' => 'Passwords do not match',
     'password_updated' => 'Password updated successfully.',
     'admin_only_password' => 'Only admin can change the password!',
+    'enter_current_password' => 'Enter your current password',
+    'enter_new_password' => 'Enter your new password',
+    'confirm_your_password' => 'Confirm your new password',
+    'change_password_btn' => 'Change Password',
 
     // History Tab
     'activity_history' => 'Activity History',
@@ -632,6 +642,11 @@ return [
     'yesterday' => 'Yesterday',
     'activities_count' => 'activities',
     'live' => 'Live',
+    'guest_label' => 'Guest',
+    'printed_by_label' => 'Printed by',
+    'order_label' => 'Order',
+    'printed' => 'Printed',
+    'printed_at' => 'Printed at',
 
     // Table common
     'showing' => 'Showing',
