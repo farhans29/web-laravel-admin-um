@@ -123,6 +123,10 @@
                                         @if ($customer->last_room_name)
                                             <span class="text-gray-400">-</span>
                                             <span>{{ $customer->last_room_name }}</span>
+                                            @if ($customer->last_room_number)
+                                                <span class="text-gray-400 mx-1">•</span>
+                                                <span class="font-semibold text-indigo-600">No. {{ $customer->last_room_number }}</span>
+                                            @endif
                                         @endif
                                     </div>
                                 @endif

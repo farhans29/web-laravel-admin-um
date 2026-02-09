@@ -12,7 +12,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Reset rental_status for rooms with expired bookings
+        // Runs every hour to keep room availability accurate
+        $schedule->command('bookings:reset-expired-rooms --force')
+            ->hourly()
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

@@ -121,6 +121,8 @@
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.vatt') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.grand_total') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.deposit') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.deposit_fee') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.dpp_deposit_fee') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.service_fee') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.payment_status') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.verified_by') }}</th>
@@ -130,7 +132,7 @@
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200">
                         <tr>
-                            <td colspan="29" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="31" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
                                     <svg class="animate-spin h-8 w-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -219,7 +221,7 @@
             const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="29" class="px-4 py-8 text-center text-gray-500">
+                    <td colspan="31" class="px-4 py-8 text-center text-gray-500">
                         <div class="flex justify-center items-center gap-2">
                             <svg class="animate-spin h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -244,7 +246,7 @@
                     console.error('Error:', error);
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="29" class="px-4 py-8 text-center text-red-500">
+                            <td colspan="31" class="px-4 py-8 text-center text-red-500">
                                 {{ __('ui.error_loading') }}
                             </td>
                         </tr>
@@ -258,7 +260,7 @@
             if (data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="29" class="px-4 py-8 text-center text-gray-500">
+                        <td colspan="31" class="px-4 py-8 text-center text-gray-500">
                             <div class="flex flex-col items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -302,6 +304,8 @@
                     <td class="px-3 py-3 text-xs text-gray-900">${row.vatt}</td>
                     <td class="px-3 py-3 text-xs font-semibold text-gray-900">${row.grand_total}</td>
                     <td class="px-3 py-3 text-xs text-gray-900">${row.deposit}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.deposit_fee}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.dpp_deposit_fee}</td>
                     <td class="px-3 py-3 text-xs text-gray-900">${row.service_fee}</td>
                     <td class="px-3 py-3 text-xs text-gray-700">${row.payment_status}</td>
                     <td class="px-3 py-3 text-xs text-gray-700">${row.verified_by}</td>
@@ -443,6 +447,8 @@
                             <td>${row.vatt}</td>
                             <td>${row.grand_total}</td>
                             <td>${row.deposit}</td>
+                            <td>${row.deposit_fee}</td>
+                            <td>${row.dpp_deposit_fee}</td>
                             <td>${row.service_fee}</td>
                             <td>${row.payment_status}</td>
                             <td>${row.verified_by}</td>
@@ -602,6 +608,8 @@
                                 <th>{{ __('ui.vatt') }}</th>
                                 <th>{{ __('ui.grand_total') }}</th>
                                 <th>{{ __('ui.deposit') }}</th>
+                                <th>{{ __('ui.deposit_fee') }}</th>
+                                <th>{{ __('ui.dpp_deposit_fee') }}</th>
                                 <th>{{ __('ui.service_fee') }}</th>
                                 <th>{{ __('ui.status') }}</th>
                                 <th>{{ __('ui.verified_by') }}</th>

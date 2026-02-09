@@ -19,6 +19,9 @@
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 {{ __('ui.parking_type') }}
             </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                {{ __('ui.notes') }}
+            </th>
             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 {{ __('ui.status') }}
             </th>
@@ -74,6 +77,15 @@
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
                         {{ $typeLabel }}
                     </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    @if(!empty($trx->notes))
+                        <div class="max-w-xs truncate" title="{{ $trx->notes }}">
+                            {{ $trx->notes }}
+                        </div>
+                    @else
+                        <span class="text-gray-400">-</span>
+                    @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     @php
@@ -153,7 +165,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                     {{ __('ui.no_data') }}
                 </td>
             </tr>

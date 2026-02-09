@@ -287,6 +287,10 @@ class PaymentController extends Controller
                     $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
                         ->where('status', 1)
                         ->where('idrec', '!=', $booking->idrec)
+                        ->whereHas('transaction', function ($q) {
+                            $q->where('transaction_status', 'paid')
+                              ->orWhere('transaction_status', 'waiting');
+                        })
                         ->exists();
 
                     if (!$hasOtherActiveBooking) {
@@ -464,6 +468,44 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             Log::error('Update check-in/out failed: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal memperbarui tanggal check-in/check-out. Error: ' . $e->getMessage());
+        }
+    }
+
+    public function updateNotes(Request $request, $id)
+    {
+        try {
+            $payment = Payment::findOrFail($id);
+
+            $request->validate([
+                'notes' => 'nullable|string|max:1000'
+            ]);
+
+            $payment->update([
+                'notes' => $request->input('notes'),
+                'updated_at' => now(),
+                'updated_by' => Auth::id()
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Notes berhasil diperbarui',
+                    'notes' => $payment->notes
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Notes berhasil diperbarui');
+        } catch (\Exception $e) {
+            Log::error('Update notes failed: ' . $e->getMessage());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memperbarui notes. Error: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal memperbarui notes. Error: ' . $e->getMessage());
         }
     }
 }

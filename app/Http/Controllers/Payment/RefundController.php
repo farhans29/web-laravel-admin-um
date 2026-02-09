@@ -120,6 +120,10 @@ class RefundController extends Controller
                     $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
                         ->where('status', 1)
                         ->where('idrec', '!=', $booking->idrec)
+                        ->whereHas('transaction', function ($q) {
+                            $q->where('transaction_status', 'paid')
+                              ->orWhere('transaction_status', 'waiting');
+                        })
                         ->exists();
 
                     if (!$hasOtherActiveBooking) {
