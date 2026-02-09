@@ -466,4 +466,42 @@ class PaymentController extends Controller
             return redirect()->back()->with('error', 'Gagal memperbarui tanggal check-in/check-out. Error: ' . $e->getMessage());
         }
     }
+
+    public function updateNotes(Request $request, $id)
+    {
+        try {
+            $payment = Payment::findOrFail($id);
+
+            $request->validate([
+                'notes' => 'nullable|string|max:1000'
+            ]);
+
+            $payment->update([
+                'notes' => $request->input('notes'),
+                'updated_at' => now(),
+                'updated_by' => Auth::id()
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Notes berhasil diperbarui',
+                    'notes' => $payment->notes
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Notes berhasil diperbarui');
+        } catch (\Exception $e) {
+            Log::error('Update notes failed: ' . $e->getMessage());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memperbarui notes. Error: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Gagal memperbarui notes. Error: ' . $e->getMessage());
+        }
+    }
 }

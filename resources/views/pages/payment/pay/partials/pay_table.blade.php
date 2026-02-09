@@ -129,6 +129,8 @@
                 Tgl Check in</th>
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Notes</th>
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Aksi</th>
         </tr>
@@ -266,6 +268,101 @@
                                 {{ $payment->notes }}
                             </div>
                         @endif
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500" x-data="{
+                    editing: false,
+                    notes: '{{ addslashes($payment->notes ?? '') }}',
+                    originalNotes: '{{ addslashes($payment->notes ?? '') }}',
+                    saving: false,
+                    saveNotes() {
+                        this.saving = true;
+                        fetch('{{ route('admin.payments.update-notes', $payment->idrec) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ notes: this.notes })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.originalNotes = this.notes;
+                                this.editing = false;
+                                // Success notification
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: 'Notes berhasil diperbarui',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                throw new Error(data.message || 'Gagal menyimpan notes');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: error.message || 'Gagal menyimpan notes',
+                                icon: 'error',
+                                confirmButtonColor: '#dc2626'
+                            });
+                        })
+                        .finally(() => {
+                            this.saving = false;
+                        });
+                    },
+                    cancelEdit() {
+                        this.notes = this.originalNotes;
+                        this.editing = false;
+                    }
+                }">
+                    <div class="max-w-xs">
+                        <template x-if="!editing">
+                            <div class="flex items-start gap-2 group">
+                                <p class="text-sm text-gray-700 flex-1 break-words"
+                                   x-text="notes || '-'"
+                                   :class="notes ? '' : 'text-gray-400 italic'"></p>
+                                <button @click="editing = true"
+                                        class="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-800 flex-shrink-0"
+                                        title="Edit Notes">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </template>
+                        <template x-if="editing">
+                            <div class="space-y-2">
+                                <textarea x-model="notes"
+                                          rows="3"
+                                          class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                          placeholder="Masukkan catatan..."
+                                          :disabled="saving"></textarea>
+                                <div class="flex gap-2">
+                                    <button @click="saveNotes()"
+                                            :disabled="saving"
+                                            class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
+                                        <template x-if="saving">
+                                            <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </template>
+                                        <span x-text="saving ? 'Menyimpan...' : 'Simpan'"></span>
+                                    </button>
+                                    <button @click="cancelEdit()"
+                                            :disabled="saving"
+                                            class="px-3 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        Batal
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
@@ -677,7 +774,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
+                <td colspan="11" class="px-6 py-4 text-center text-sm text-gray-500">
                     Belum ada pembayaran terbaru
                 </td>
             </tr>

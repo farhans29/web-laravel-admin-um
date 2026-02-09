@@ -230,10 +230,12 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::put('/cancel/{id}', [PaymentController::class, 'cancel'])->name('admin.bookings.cancel');
         Route::put('/update-payment-date/{id}', [PaymentController::class, 'updatePaymentDate'])->name('admin.payments.update-payment-date');
         Route::put('/update-checkinout/{id}', [PaymentController::class, 'updateCheckInOut'])->name('admin.payments.update-checkinout');
+        Route::post('/update-notes/{id}', [PaymentController::class, 'updateNotes'])->name('admin.payments.update-notes');
 
         // ------------------------- PARKING PAYMENTS -------------------------
         Route::get('/parking', [ParkingPaymentController::class, 'index'])->name('admin.parking-payments.index');
         Route::post('/parking/filter', [ParkingPaymentController::class, 'filter'])->name('admin.parking-payments.filter');
+        Route::post('/parking/store', [ParkingPaymentController::class, 'store'])->name('admin.parking-payments.store');
         Route::post('/parking/approve/{id}', [ParkingPaymentController::class, 'approve'])->name('admin.parking-payments.approve');
         Route::post('/parking/reject/{id}', [ParkingPaymentController::class, 'reject'])->name('admin.parking-payments.reject');
         Route::get('/parking/proof/{id}', [ParkingPaymentController::class, 'viewProof'])->name('admin.parking-payments.proof');
