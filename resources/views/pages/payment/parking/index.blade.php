@@ -5,6 +5,13 @@
             <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                 {{ __('ui.parking_payments') }}
             </h1>
+            <button type="button" onclick="openAddPaymentModal()"
+                class="mt-4 md:mt-0 inline-flex items-center px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Payment
+            </button>
         </div>
 
         <!-- Table -->
@@ -144,6 +151,164 @@
         </div>
     </div>
 
+    {{-- Add New Payment Modal --}}
+    <div id="addPaymentModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeAddPaymentModal()"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onclick="event.stopPropagation()">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-600 to-blue-600">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">Add New Parking Payment</h3>
+                            <p class="text-white/80 text-sm">Create a new parking payment record</p>
+                        </div>
+                        <button onclick="closeAddPaymentModal()" class="text-white hover:text-indigo-200 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <form id="addPaymentForm" enctype="multipart/form-data">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Property -->
+                            <div class="md:col-span-2">
+                                <label for="add_property_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Property <span class="text-red-500">*</span>
+                                </label>
+                                <select name="property_id" id="add_property_id" required
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                    <option value="">Select Property</option>
+                                    @foreach(\App\Models\Property::where('status', 1)->orderBy('name')->get() as $prop)
+                                        <option value="{{ $prop->idrec }}">{{ $prop->name }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_property_id_error"></p>
+                            </div>
+
+                            <!-- Parking Type -->
+                            <div>
+                                <label for="add_parking_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Parking Type <span class="text-red-500">*</span>
+                                </label>
+                                <select name="parking_type" id="add_parking_type" required
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                    <option value="">Select Type</option>
+                                    <option value="car">{{ __('ui.car') }}</option>
+                                    <option value="motorcycle">{{ __('ui.motorcycle') }}</option>
+                                </select>
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_parking_type_error"></p>
+                            </div>
+
+                            <!-- Vehicle Plate -->
+                            <div>
+                                <label for="add_vehicle_plate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Vehicle Plate <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="vehicle_plate" id="add_vehicle_plate" required
+                                    placeholder="e.g., B 1234 XYZ"
+                                    oninput="this.value = this.value.toUpperCase()"
+                                    style="text-transform: uppercase;"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_vehicle_plate_error"></p>
+                            </div>
+
+                            <!-- User Name -->
+                            <div>
+                                <label for="add_user_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    User Name <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="user_name" id="add_user_name" required
+                                    placeholder="Enter user name"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_user_name_error"></p>
+                            </div>
+
+                            <!-- User Phone -->
+                            <div>
+                                <label for="add_user_phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Phone Number <span class="text-red-500">*</span>
+                                </label>
+                                <input type="tel" name="user_phone" id="add_user_phone" required
+                                    placeholder="e.g., 08123456789"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_user_phone_error"></p>
+                            </div>
+
+                            <!-- Fee Amount -->
+                            <div>
+                                <label for="add_fee_amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Fee Amount (Rp) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="fee_amount_display" id="add_fee_amount_display" required
+                                    placeholder="Enter fee amount"
+                                    oninput="formatFeeAmount(this)"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <input type="hidden" name="fee_amount" id="add_fee_amount">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_fee_amount_error"></p>
+                            </div>
+
+                            <!-- Transaction Date -->
+                            <div>
+                                <label for="add_transaction_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Transaction Date <span class="text-red-500">*</span>
+                                </label>
+                                <input type="datetime-local" name="transaction_date" id="add_transaction_date" required
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_transaction_date_error"></p>
+                            </div>
+
+                            <!-- Payment Proof -->
+                            <div class="md:col-span-2">
+                                <label for="add_payment_proof" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Payment Proof (JPG only, max 5MB) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="file" name="payment_proof" id="add_payment_proof" required
+                                    accept="image/jpeg,image/jpg"
+                                    onchange="validateImage(this)"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-xs text-gray-500 mt-1">Only JPG/JPEG format, maximum 5MB</p>
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_payment_proof_error"></p>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="md:col-span-2">
+                                <label for="add_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Notes (Optional)
+                                </label>
+                                <textarea name="notes" id="add_notes" rows="3"
+                                    placeholder="Enter additional notes..."
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 resize-none"></textarea>
+                            </div>
+                        </div>
+
+
+                        <!-- Footer -->
+                        <div class="mt-6 flex justify-end gap-3">
+                            <button type="button" onclick="closeAddPaymentModal()"
+                                class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" id="addPaymentSubmitBtn"
+                                class="px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                <span id="addPaymentSubmitText">Add Payment</span>
+                                <svg id="addPaymentSpinner" class="animate-spin h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Reject Reason Modal --}}
     <div id="rejectModal" class="fixed inset-0 z-[60] hidden">
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRejectParkingModal()"></div>
@@ -234,29 +399,10 @@
                 .then(data => {
                     if (data.success && data.images.length > 0) {
                         content.innerHTML = data.images.map(img => {
-                            const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
-                            let isPdf = img.image.startsWith('JVBERi0') || img.image_type === 'pdf';
-                            let isImage = imageSignatures.some(sig => img.image.startsWith(sig)) || ['jpeg','jpg','png','gif','webp'].includes(img.image_type);
-
-                            if (isPdf) {
-                                return `<div class="mb-4 h-[70vh] w-full">
-                                    <iframe src="data:application/pdf;base64,${img.image}" class="w-full h-full border border-gray-200 rounded-lg" frameborder="0"></iframe>
-                                    ${img.description ? `<p class="text-sm text-gray-500 mt-1">${img.description}</p>` : ''}
-                                </div>`;
-                            } else if (isImage) {
-                                const src = `data:image/${img.image_type || 'jpeg'};base64,${img.image}`;
-                                return `<div class="mb-4">
-                                    <img src="${src}" alt="{{ __('ui.payment_proof') }}" class="mx-auto max-h-[70vh] max-w-full object-contain rounded-lg shadow" />
-                                    ${img.description ? `<p class="text-sm text-gray-500 mt-1 text-center">${img.description}</p>` : ''}
-                                </div>`;
-                            } else {
-                                return `<div class="text-center py-10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <h3 class="mt-4 text-lg font-medium text-gray-900">{{ __('ui.unsupported_file') }}</h3>
-                                </div>`;
-                            }
+                            return `<div class="mb-4">
+                                <img src="${img.image_url}" alt="{{ __('ui.payment_proof') }}" class="mx-auto max-h-[70vh] max-w-full object-contain rounded-lg shadow" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22>Image not found</text></svg>';" />
+                                ${img.description ? `<p class="text-sm text-gray-500 mt-1 text-center">${img.description}</p>` : ''}
+                            </div>`;
                         }).join('');
                     } else {
                         content.innerHTML = `<div class="text-center py-10">
@@ -441,7 +587,182 @@
                     closeRejectParkingModal();
                 } else if (!document.getElementById('proofModal').classList.contains('hidden')) {
                     closeParkingProofModal();
+                } else if (!document.getElementById('addPaymentModal').classList.contains('hidden')) {
+                    closeAddPaymentModal();
                 }
+            }
+        });
+
+        // Add Payment Modal Functions
+        function openAddPaymentModal() {
+            document.getElementById('addPaymentModal').classList.remove('hidden');
+            document.getElementById('addPaymentForm').reset();
+            clearAddPaymentErrors();
+            // Clear fee amount fields
+            document.getElementById('add_fee_amount_display').value = '';
+            document.getElementById('add_fee_amount').value = '';
+            // Set default transaction date to now
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('add_transaction_date').value = now.toISOString().slice(0, 16);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddPaymentModal() {
+            document.getElementById('addPaymentModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function formatFeeAmount(input) {
+            // Remove all non-digit characters
+            let value = input.value.replace(/\D/g, '');
+
+            // Format with thousand separator (dot)
+            let formatted = '';
+            if (value) {
+                formatted = parseInt(value).toLocaleString('id-ID');
+            }
+
+            // Update display input
+            input.value = formatted;
+
+            // Update hidden input with raw number
+            document.getElementById('add_fee_amount').value = value;
+        }
+
+        function validateImage(input) {
+            const file = input.files[0];
+            const errorEl = document.getElementById('add_payment_proof_error');
+
+            if (file) {
+                // Check file type
+                const validTypes = ['image/jpeg', 'image/jpg'];
+                if (!validTypes.includes(file.type)) {
+                    errorEl.textContent = 'Only JPG/JPEG format is allowed';
+                    errorEl.classList.remove('hidden');
+                    input.value = '';
+                    return false;
+                }
+
+                // Check file size (5MB = 5 * 1024 * 1024 bytes)
+                const maxSize = 5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    errorEl.textContent = 'File size must not exceed 5MB';
+                    errorEl.classList.remove('hidden');
+                    input.value = '';
+                    return false;
+                }
+
+                errorEl.classList.add('hidden');
+                return true;
+            }
+        }
+
+        function clearAddPaymentErrors() {
+            const errorElements = document.querySelectorAll('[id^="add_"][id$="_error"]');
+            errorElements.forEach(el => {
+                el.textContent = '';
+                el.classList.add('hidden');
+            });
+
+            const inputs = document.querySelectorAll('#addPaymentForm input, #addPaymentForm select, #addPaymentForm textarea');
+            inputs.forEach(input => {
+                input.classList.remove('border-red-500');
+            });
+        }
+
+        function showAddPaymentError(field, message) {
+            const errorEl = document.getElementById('add_' + field + '_error');
+            let inputEl = document.getElementById('add_' + field);
+
+            // Special handling for fee_amount (use display input)
+            if (field === 'fee_amount' && !inputEl) {
+                inputEl = document.getElementById('add_fee_amount_display');
+            }
+
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.remove('hidden');
+            }
+
+            if (inputEl) {
+                inputEl.classList.add('border-red-500');
+            }
+        }
+
+        function setAddPaymentLoading(loading) {
+            const submitBtn = document.getElementById('addPaymentSubmitBtn');
+            const submitText = document.getElementById('addPaymentSubmitText');
+            const spinner = document.getElementById('addPaymentSpinner');
+
+            submitBtn.disabled = loading;
+            if (loading) {
+                submitText.textContent = 'Processing...';
+                spinner.classList.remove('hidden');
+            } else {
+                submitText.textContent = 'Add Payment';
+                spinner.classList.add('hidden');
+            }
+        }
+
+        // Form submission
+        document.getElementById('addPaymentForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearAddPaymentErrors();
+            setAddPaymentLoading(true);
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/payment/parking/store', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    closeAddPaymentModal();
+
+                    Swal.fire({
+                        title: '{{ __("ui.success") }}',
+                        text: result.message || 'Payment added successfully!',
+                        icon: 'success',
+                        confirmButtonColor: '#16a34a'
+                    }).then(() => applyFilters());
+                } else {
+                    // Handle validation errors
+                    if (result.errors) {
+                        Object.keys(result.errors).forEach(field => {
+                            const messages = Array.isArray(result.errors[field]) ?
+                                result.errors[field] :
+                                [result.errors[field]];
+                            showAddPaymentError(field, messages[0]);
+                        });
+                    }
+
+                    Swal.fire({
+                        title: '{{ __("ui.failed") }}',
+                        text: result.message || 'Failed to add payment. Please check the form.',
+                        icon: 'error',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+
+                Swal.fire({
+                    title: '{{ __("ui.failed") }}',
+                    text: 'An unexpected error occurred. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc2626'
+                });
+            } finally {
+                setAddPaymentLoading(false);
             }
         });
     </script>

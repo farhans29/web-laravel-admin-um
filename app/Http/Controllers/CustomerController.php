@@ -67,7 +67,8 @@ class CustomerController extends Controller
             DB::raw('COALESCE(SUM(t_transactions.grandtotal_price), 0) as total_spent'),
             DB::raw('MAX(t_transactions.transaction_date) as last_booking_date'),
             DB::raw('(SELECT property_name FROM t_transactions t2 WHERE t2.user_id = users.id ORDER BY t2.transaction_date DESC LIMIT 1) as last_property_name'),
-            DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_id = users.id ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name')
+            DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_id = users.id ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name'),
+            DB::raw('(SELECT m_rooms.no FROM t_transactions t4 LEFT JOIN m_rooms ON t4.room_id = m_rooms.idrec WHERE t4.user_id = users.id ORDER BY t4.transaction_date DESC LIMIT 1) as last_room_number')
         ])
             ->leftJoin('t_transactions', 'users.id', '=', 't_transactions.user_id')
             ->where(function ($query) {
@@ -89,7 +90,8 @@ class CustomerController extends Controller
             DB::raw('SUM(grandtotal_price) as total_spent'),
             DB::raw('MAX(transaction_date) as last_booking_date'),
             DB::raw('(SELECT property_name FROM t_transactions t2 WHERE t2.user_email = t_transactions.user_email AND t2.user_id IS NULL ORDER BY t2.transaction_date DESC LIMIT 1) as last_property_name'),
-            DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_email = t_transactions.user_email AND t3.user_id IS NULL ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name')
+            DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_email = t_transactions.user_email AND t3.user_id IS NULL ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name'),
+            DB::raw('(SELECT m_rooms.no FROM t_transactions t4 LEFT JOIN m_rooms ON t4.room_id = m_rooms.idrec WHERE t4.user_email = t_transactions.user_email AND t4.user_id IS NULL ORDER BY t4.transaction_date DESC LIMIT 1) as last_room_number')
         ])
             ->whereNull('user_id')
             ->groupBy('user_name', 'user_email', 'user_phone_number');

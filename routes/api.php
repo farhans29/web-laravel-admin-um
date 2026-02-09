@@ -42,3 +42,6 @@ Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
     // Search
     Route::get('/search', [\App\Http\Controllers\Api\ChatApiController::class, 'searchMessages']);
 });
+
+// Parking Fees API
+Route::get('/parking-fees/{propertyId}', [\App\Http\Controllers\Payment\ParkingPaymentController::class, 'getParkingFees']);
