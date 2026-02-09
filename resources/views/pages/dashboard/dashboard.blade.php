@@ -138,7 +138,11 @@
                                                 @if ($isSite && $propertyName)
                                                     {{ __('ui.staying_at') }} {{ $propertyName }}
                                                 @else
+<<<<<<< Updated upstream
                                                     {{ __('ui.staying') }}
+=======
+                                                    {{ __('ui.staying_at') }}
+>>>>>>> Stashed changes
                                                 @endif
                                             </p>
                                         </div>
@@ -218,8 +222,12 @@
                                     </svg>
                                 </div>
                                 <div class="text-right">
+<<<<<<< Updated upstream
                                     <span
                                         class="text-xs bg-white/20 px-2 py-1 rounded-full">{{ __('ui.today') }}</span>
+=======
+                                    <span class="text-xs bg-white/20 px-2 py-1 rounded-full">{{ __('ui.today') }}</span>
+>>>>>>> Stashed changes
                                 </div>
                             </div>
                             <h3 class="text-sm font-medium text-emerald-100 mb-1">{{ __('ui.today_revenue') }}</h3>
@@ -251,11 +259,18 @@
                                     </svg>
                                 </div>
                                 <div class="text-right">
+<<<<<<< Updated upstream
                                     <span
                                         class="text-xs bg-white/20 px-2 py-1 rounded-full">{{ __('ui.this_month') }}</span>
                                 </div>
                             </div>
                             <h3 class="text-sm font-medium text-blue-100 mb-1">{{ __('ui.monthly_revenue') }}</h3>
+=======
+                                    <span class="text-xs bg-white/20 px-2 py-1 rounded-full">{{ __('ui.this_month') }}</span>
+                                </div>
+                            </div>
+                            <h3 class="text-sm font-medium text-blue-100 mb-1">{{ __('ui.this_month_income') }}</h3>
+>>>>>>> Stashed changes
                             <div class="text-3xl font-bold mb-2">
                                 Rp {{ number_format($financeStats['monthly_revenue'] ?? 0, 0, ',', '.') }}
                             </div>
@@ -334,8 +349,12 @@
                                 Rp {{ number_format($financeStats['pending_payments'] ?? 0, 0, ',', '.') }}
                             </div>
                             <div class="flex items-center text-sm text-amber-100">
+<<<<<<< Updated upstream
                                 <span>{{ $financeStats['pending_count'] ?? 0 }}
                                     {{ __('ui.invoice_awaiting_payment') }}</span>
+=======
+                                <span>{{ $financeStats['pending_count'] ?? 0 }} {{ __('ui.invoice_awaiting_payment') }}</span>
+>>>>>>> Stashed changes
                             </div>
                         </div>
                     @endif
