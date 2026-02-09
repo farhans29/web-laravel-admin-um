@@ -70,7 +70,7 @@
                         <!-- Tipe & Kapasitas -->
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-medium capitalize">
-                                {{ $room->type }}
+                                {{ $room->name }}
                             </div>
                             <div class="flex items-center gap-1 text-xs text-gray-500 mt-1.5">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
