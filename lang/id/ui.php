@@ -499,6 +499,7 @@ return [
 
     // Deposit & Parking Fee
     'deposit_fee' => 'Biaya Deposit',
+    'dpp_deposit_fee' => 'DPP Biaya Deposit',
     'deposit_fee_management' => 'Manajemen Biaya Deposit',
     'deposit_fee_amount' => 'Jumlah Deposit',
     'add_deposit_fee' => 'Tambah Biaya Deposit',

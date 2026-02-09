@@ -499,6 +499,7 @@ return [
 
     // Deposit & Parking Fee
     'deposit_fee' => 'Deposit Fee',
+    'dpp_deposit_fee' => 'DPP Deposit Fee',
     'deposit_fee_management' => 'Deposit Fee Management',
     'deposit_fee_amount' => 'Deposit Amount',
     'add_deposit_fee' => 'Add Deposit Fee',
