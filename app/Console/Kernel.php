@@ -13,9 +13,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // Reset rental_status for rooms with expired bookings
-        // Runs every hour to keep room availability accurate
+        // Runs every 2 minutes to quickly free up rooms from expired bookings (1 hour payment deadline)
         $schedule->command('bookings:reset-expired-rooms --force')
-            ->hourly()
+            ->everyTwoMinutes()
             ->withoutOverlapping()
             ->runInBackground();
     }
