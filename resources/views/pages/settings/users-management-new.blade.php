@@ -5,7 +5,7 @@
             <div>
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                    Pengaturan Akun
+                    {{ __('ui.account_settings') }}
                 </h1>
             </div>
             <div x-data="{ modalOpenDetail: false, showPassword: false, showConfirmPassword: false }">
@@ -13,7 +13,7 @@
                 <button
                     class="px-5 py-2.5 bg-indigo-600 rounded-xl font-semibold text-sm text-white shadow hover:bg-indigo-700 transition-all duration-200 ease-in-out"
                     type="button" @click.prevent="modalOpenDetail = true">
-                    + Tambah Pengguna Baru
+                    + {{ __('ui.add_new_user') }}
                 </button>
 
                 <!-- Modal backdrop -->
@@ -29,7 +29,7 @@
 
                         <!-- Header -->
                         <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
-                            <h2 class="text-xl font-semibold text-gray-900">Tambah Pengguna Baru</h2>
+                            <h2 class="text-xl font-semibold text-gray-900">{{ __('ui.add_new_user') }}</h2>
                             <button class="text-gray-500 text-xl hover:text-gray-700 transition-colors"
                                 @click="modalOpenDetail = false">
                                 <i class="fas fa-times"></i>
@@ -45,23 +45,23 @@
                                 <!-- First Name & Last Name -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="mb-5">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Depan <span
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.first_name') }} <span
                                                 class="text-red-500">*</span></label>
                                         <input type="text" name="first_name" id="first_name" required
-                                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm 
+                                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
                                             focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
-                                            placeholder="Masukkan nama depan" value="{{ old('first_name') }}">
+                                            placeholder="{{ __('ui.enter_first_name_placeholder') }}" value="{{ old('first_name') }}">
                                         @error('first_name')
                                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                         @enderror
                                     </div>
                                     <div class="mb-5">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Belakang <span
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.last_name') }} <span
                                                 class="text-red-500">*</span></label>
                                         <input type="text" name="last_name" id="last_name" required
-                                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm 
+                                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
                                             focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
-                                            placeholder="Masukkan nama belakang" value="{{ old('last_name') }}">
+                                            placeholder="{{ __('ui.enter_last_name_placeholder') }}" value="{{ old('last_name') }}">
                                         @error('last_name')
                                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                         @enderror
@@ -70,12 +70,12 @@
 
                                 <!-- Username -->
                                 <div class="mb-5">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Username <span
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.username') }} <span
                                             class="text-red-500">*</span></label>
                                     <input type="text" name="username" id="username" required
-                                        class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm 
+                                        class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
                                         focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
-                                        placeholder="Masukkan username" value="{{ old('username') }}">
+                                        placeholder="{{ __('ui.enter_username_placeholder') }}" value="{{ old('username') }}">
                                     @error('username')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
@@ -83,12 +83,12 @@
 
                                 <!-- Email -->
                                 <div class="mb-5 relative">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.email') }} <span
                                             class="text-red-500">*</span></label>
                                     <input type="email" name="email" id="email" required autocomplete="off"
                                         class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
                                         focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
-                                        placeholder="Masukkan alamat email" value="{{ old('email') }}">
+                                        placeholder="{{ __('ui.enter_email_placeholder') }}" value="{{ old('email') }}">
                                     <div id="emailSuggestions" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-48 overflow-y-auto">
                                     </div>
                                     @error('email')
@@ -98,22 +98,21 @@
 
                                 <!-- Password -->
                                 <div class="mb-5">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi <span
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.password') }} <span
                                             class="text-red-500">*</span></label>
                                     <div class="relative">
                                         <input :type="showPassword ? 'text' : 'password'" name="password" id="password"
                                             minlength="8" required
                                             class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm pr-10
                                             focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
-                                            placeholder="Masukkan kata sandi">
+                                            placeholder="{{ __('ui.enter_password_placeholder') }}">
                                         <span
                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
                                             @click="showPassword = !showPassword">
                                             <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                                         </span>
                                     </div>
-                                    <p class="text-gray-500 text-xs mt-1">Harus mengandung huruf besar, kecil, angka,
-                                        simbol, dan minimal 8 karakter</p>
+                                    <p class="text-gray-500 text-xs mt-1">{{ __('ui.password_requirements_text') }}</p>
                                     @error('password')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
@@ -121,7 +120,7 @@
 
                                 <!-- Confirm Password -->
                                 <div class="mb-5">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.confirm_password') }}
                                         <span class="text-red-500">*</span></label>
                                     <div class="relative">
                                         <input :type="showConfirmPassword ? 'text' : 'password'"
@@ -129,7 +128,7 @@
                                             required
                                             class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm pr-10
                                             focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
-                                            placeholder="Konfirmasi kata sandi">
+                                            placeholder="{{ __('ui.confirm_password_placeholder') }}">
                                         <span
                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
                                             @click="showConfirmPassword = !showConfirmPassword">
@@ -142,11 +141,11 @@
                                 <!-- Role -->
                                 <div class="mb-5">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Peran <span class="text-red-500">*</span>
+                                        {{ __('ui.role') }} <span class="text-red-500">*</span>
                                     </label>
                                     <select name="role" id="role" required
                                         class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
-                                        <option value="">Pilih Peran</option>
+                                        <option value="">{{ __('ui.select_role') }}</option>
                                         @foreach ($roles as $role)
                                             <option value="{{ $role->id }}"
                                                 {{ old('role') == $role->id ? 'selected' : '' }}>{{ $role->name }}
@@ -161,7 +160,7 @@
                                 <!-- User Type Selection -->
                                 <div class="mb-5">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Tipe Akun <span class="text-red-500">*</span>
+                                        {{ __('ui.account_type') }} <span class="text-red-500">*</span>
                                     </label>
                                     <div class="flex gap-4">
                                         <label class="flex items-center cursor-pointer">
@@ -170,7 +169,7 @@
                                                 class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                                                 onchange="togglePropertyField()">
                                             <span class="ml-2 text-sm text-gray-700 flex items-center gap-1">
-                                                🏢 <strong>HO (Head Office)</strong> - Akses semua properti
+                                                🏢 <strong>{{ __('ui.ho_head_office') }}</strong> - {{ __('ui.access_all_properties') }}
                                             </span>
                                         </label>
                                         <label class="flex items-center cursor-pointer">
@@ -179,7 +178,7 @@
                                                 class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                                                 onchange="togglePropertyField()">
                                             <span class="ml-2 text-sm text-gray-700 flex items-center gap-1">
-                                                📍 <strong>Site</strong> - Akses 1 properti tertentu
+                                                📍 <strong>{{ __('ui.site_label') }}</strong> - {{ __('ui.access_one_property') }}
                                             </span>
                                         </label>
                                     </div>
@@ -191,11 +190,11 @@
                                 <!-- Property -->
                                 <div class="mb-5" id="property_field_container">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Properti <span class="text-red-500" id="property_required_mark">*</span>
+                                        {{ __('ui.property') }} <span class="text-red-500" id="property_required_mark">*</span>
                                     </label>
                                     <select name="property_id" id="property_id"
                                         class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
-                                        <option value="">Pilih Properti</option>
+                                        <option value="">{{ __('ui.select_property') }}</option>
                                         @foreach ($properties as $property)
                                             <option value="{{ $property->idrec }}"
                                                 {{ old('property_id') == $property->idrec ? 'selected' : '' }}>
@@ -205,7 +204,7 @@
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1" id="property_field_hint">
                                         <i class="fas fa-info-circle"></i>
-                                        <span id="property_hint_text">Wajib diisi untuk akun Site</span>
+                                        <span id="property_hint_text">{{ __('ui.required_for_site') }}</span>
                                     </p>
                                     @error('property_id')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -216,12 +215,12 @@
                                 <div class="mt-6 flex justify-end gap-3">
                                     <button type="button" @click="modalOpenDetail = false"
                                         class="px-4 py-2 rounded-lg border text-sm font-medium text-gray-600 hover:bg-gray-100 transition">
-                                        Batal
+                                        {{ __('ui.cancel') }}
                                     </button>
                                     <button type="submit"
                                         class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition-all duration-200 flex items-center gap-2">
                                         <i class="fas fa-plus"></i>
-                                        <span>Buat Pengguna</span>
+                                        <span>{{ __('ui.create_user') }}</span>
                                     </button>
                                 </div>
                             </form>
@@ -250,7 +249,7 @@
                                 <input type="text" name="search" id="searchInput"
                                     value="{{ request('search') }}"
                                     class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900"
-                                    placeholder="Cari pengguna...">
+                                    placeholder="{{ __('ui.search_users_placeholder') }}">
                             </div>
                         </div>
 
@@ -258,18 +257,18 @@
                         <div class="flex flex-wrap items-center gap-4">
                             <!-- Status Filter -->
                             <div class="flex items-center">
-                                <span class="text-sm text-gray-600 mr-2">Status:</span>
+                                <span class="text-sm text-gray-600 mr-2">{{ __('ui.status') }}:</span>
                                 <select name="status" id="statusFilter"
                                     class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-white text-gray-900">
-                                    <option value="1" {{ $statusFilter == '1' ? 'selected' : '' }}>Aktif</option>
-                                    <option value="0" {{ $statusFilter == '0' ? 'selected' : '' }}>Tidak Aktif</option>
-                                    <option value="all" {{ $statusFilter == 'all' ? 'selected' : '' }}>Semua</option>
+                                    <option value="1" {{ $statusFilter == '1' ? 'selected' : '' }}>{{ __('ui.active') }}</option>
+                                    <option value="0" {{ $statusFilter == '0' ? 'selected' : '' }}>{{ __('ui.inactive') }}</option>
+                                    <option value="all" {{ $statusFilter == 'all' ? 'selected' : '' }}>{{ __('ui.all') }}</option>
                                 </select>
                             </div>
 
                             <!-- Per Page -->
                             <div class="flex items-center">
-                                <span class="text-sm text-gray-600 mr-2">Show:</span>
+                                <span class="text-sm text-gray-600 mr-2">{{ __('ui.show') }}:</span>
                                 <select name="per_page" id="perPageSelect"
                                     class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm bg-white text-gray-900">
                                     <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
@@ -283,8 +282,8 @@
                             @if(request('search') || request('status') != '1' || request('per_page'))
                                 <a href="{{ route('users-newManagement') }}"
                                     class="inline-flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition"
-                                    title="Reset Filter">
-                                    <i class="fas fa-undo mr-1"></i> Reset
+                                    title="{{ __('ui.reset') }}">
+                                    <i class="fas fa-undo mr-1"></i> {{ __('ui.reset') }}
                                 </a>
                             @endif
                         </div>
@@ -296,14 +295,14 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Peran</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Properti</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.name') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.email') }}</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.type_column') }}</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.role') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.property') }}</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.status') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.created_column') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('ui.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody" class="divide-y divide-gray-200 bg-white text-sm text-gray-700">
@@ -357,7 +356,7 @@
                                 </td>
 
                                 @php
-                                    $roleName = optional($user->role)->name ?? 'No Role';
+                                    $roleName = optional($user->role)->name ?? __('ui.no_role');
                                 @endphp
                                 <!-- Role -->
                                 <td class="px-4 py-4 text-center">
@@ -417,7 +416,7 @@
                                             <span>{{ $user->property->name }}</span>
                                         </div>
                                     @else
-                                        <span class="text-gray-400 italic">Tidak ada</span>
+                                        <span class="text-gray-400 italic">{{ __('ui.no_property') }}</span>
                                     @endif
                                 </td>
 
@@ -430,7 +429,7 @@
                                             class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
                                         </div>
                                         <span class="ml-3 text-sm font-medium text-gray-900 transition-opacity duration-200">
-                                            {{ $user->status == 1 ? 'Aktif' : 'Tidak Aktif' }}
+                                            {{ $user->status == 1 ? __('ui.active') : __('ui.inactive') }}
                                         </span>
                                     </label>
                                 </td>
@@ -469,7 +468,7 @@
                                                         <!-- Header -->
                                                         <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
                                                             <div>
-                                                                <h2 class="text-xl font-semibold text-gray-900">Reset Password</h2>
+                                                                <h2 class="text-xl font-semibold text-gray-900">{{ __('ui.reset_password') }}</h2>
                                                                 <p class="text-sm text-gray-500 mt-1">{{ $user->first_name }} {{ $user->last_name }} ({{ '@' . $user->username }})</p>
                                                             </div>
                                                             <button class="text-gray-500 text-xl hover:text-gray-700 transition-colors"
@@ -488,7 +487,7 @@
                                                                     <div class="flex gap-2">
                                                                         <i class="fas fa-exclamation-triangle text-amber-600 mt-0.5"></i>
                                                                         <div class="text-sm text-amber-800">
-                                                                            <strong>Perhatian!</strong> Anda akan mereset password untuk user ini. Pastikan untuk memberitahu user password baru mereka.
+                                                                            <strong>{{ __('ui.attention') }}</strong> {{ __('ui.reset_password_warning_msg') }}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -496,7 +495,7 @@
                                                                 <!-- New Password -->
                                                                 <div class="mb-4">
                                                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                                        Password Baru <span class="text-red-500">*</span>
+                                                                        {{ __('ui.new_password_field') }} <span class="text-red-500">*</span>
                                                                     </label>
                                                                     <div class="relative">
                                                                         <input :type="showNewPassword{{ $user->id }} ? 'text' : 'password'"
@@ -506,19 +505,19 @@
                                                                             required
                                                                             class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm pr-10
                                                                             focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
-                                                                            placeholder="Masukkan password baru">
+                                                                            placeholder="{{ __('ui.enter_new_password_reset') }}">
                                                                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
                                                                             @click="showNewPassword{{ $user->id }} = !showNewPassword{{ $user->id }}">
                                                                             <i class="fas" :class="showNewPassword{{ $user->id }} ? 'fa-eye-slash' : 'fa-eye'"></i>
                                                                         </span>
                                                                     </div>
-                                                                    <p class="text-gray-500 text-xs mt-1">Harus mengandung huruf besar, kecil, angka, simbol, dan minimal 8 karakter</p>
+                                                                    <p class="text-gray-500 text-xs mt-1">{{ __('ui.password_requirements_text') }}</p>
                                                                 </div>
 
                                                                 <!-- Confirm Password -->
                                                                 <div class="mb-4">
                                                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                                        Konfirmasi Password <span class="text-red-500">*</span>
+                                                                        {{ __('ui.confirm_password_field') }} <span class="text-red-500">*</span>
                                                                     </label>
                                                                     <div class="relative">
                                                                         <input :type="showConfirmPassword{{ $user->id }} ? 'text' : 'password'"
@@ -528,7 +527,7 @@
                                                                             required
                                                                             class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm pr-10
                                                                             focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200"
-                                                                            placeholder="Konfirmasi password baru">
+                                                                            placeholder="{{ __('ui.confirm_new_password_reset') }}">
                                                                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
                                                                             @click="showConfirmPassword{{ $user->id }} = !showConfirmPassword{{ $user->id }}">
                                                                             <i class="fas" :class="showConfirmPassword{{ $user->id }} ? 'fa-eye-slash' : 'fa-eye'"></i>
@@ -540,12 +539,12 @@
                                                                 <div class="mt-6 flex justify-end gap-3">
                                                                     <button type="button" @click="modalOpenResetPwd{{ $user->id }} = false"
                                                                         class="px-4 py-2 rounded-lg border text-sm font-medium text-gray-600 hover:bg-gray-100 transition">
-                                                                        Batal
+                                                                        {{ __('ui.cancel') }}
                                                                     </button>
                                                                     <button type="submit"
                                                                         class="px-5 py-2.5 bg-amber-600 text-white rounded-lg shadow hover:bg-amber-700 transition-all duration-200 flex items-center gap-2">
                                                                         <i class="fas fa-key"></i>
-                                                                        <span>Reset Password</span>
+                                                                        <span>{{ __('ui.reset_password') }}</span>
                                                                     </button>
                                                                 </div>
                                                             </form>
@@ -580,7 +579,7 @@
                                                     <!-- Header -->
                                                     <div
                                                         class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
-                                                        <h2 class="text-xl font-semibold text-gray-900">Edit Pengguna
+                                                        <h2 class="text-xl font-semibold text-gray-900">{{ __('ui.edit_user') }}
                                                         </h2>
                                                         <button
                                                             class="text-gray-500 text-xl hover:text-gray-700 transition-colors"
@@ -602,7 +601,7 @@
                                                                 <div>
                                                                     <label for="first_name_{{ $user->id }}"
                                                                         class="block text-sm font-medium text-gray-700 mb-1">
-                                                                        Nama Depan <span class="text-red-500">*</span>
+                                                                        {{ __('ui.first_name') }} <span class="text-red-500">*</span>
                                                                     </label>
                                                                     <input type="text" name="first_name"
                                                                         id="first_name_{{ $user->id }}"
@@ -614,7 +613,7 @@
                                                                 <div>
                                                                     <label for="last_name_{{ $user->id }}"
                                                                         class="block text-sm font-medium text-gray-700 mb-1">
-                                                                        Nama Belakang <span class="text-red-500">*</span>
+                                                                        {{ __('ui.last_name') }} <span class="text-red-500">*</span>
                                                                     </label>
                                                                     <input type="text" name="last_name"
                                                                         id="last_name_{{ $user->id }}"
@@ -627,7 +626,7 @@
                                                             <div class="mb-5">
                                                                 <label for="name_{{ $user->id }}"
                                                                     class="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Username <span class="text-red-500">*</span>
+                                                                    {{ __('ui.username') }} <span class="text-red-500">*</span>
                                                                 </label>
                                                                 <input type="text" name="name"
                                                                     id="name_{{ $user->id }}"
@@ -639,7 +638,7 @@
                                                             <div class="mb-5 relative">
                                                                 <label for="email_{{ $user->id }}"
                                                                     class="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Email <span class="text-red-500">*</span>
+                                                                    {{ __('ui.email') }} <span class="text-red-500">*</span>
                                                                 </label>
                                                                 <input type="email" name="email" autocomplete="off"
                                                                     id="email_{{ $user->id }}"
@@ -653,12 +652,12 @@
                                                             <div class="mb-5">
                                                                 <label for="role_{{ $user->id }}"
                                                                     class="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Peran <span class="text-red-500">*</span>
+                                                                    {{ __('ui.role') }} <span class="text-red-500">*</span>
                                                                 </label>
                                                                 <select name="role"
                                                                     id="role_{{ $user->id }}" required
                                                                     class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
-                                                                    <option value="">Pilih Peran</option>
+                                                                    <option value="">{{ __('ui.select_role') }}</option>
                                                                     @foreach ($roles as $role)
                                                                         <option value="{{ $role->id }}"
                                                                             {{ $user->role_id == $role->id ? 'selected' : '' }}>
@@ -671,7 +670,7 @@
                                                             <!-- User Type Selection -->
                                                             <div class="mb-5">
                                                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                                                    Tipe Akun <span class="text-red-500">*</span>
+                                                                    {{ __('ui.account_type') }} <span class="text-red-500">*</span>
                                                                 </label>
                                                                 <div class="flex gap-4">
                                                                     <label class="flex items-center cursor-pointer">
@@ -682,7 +681,7 @@
                                                                             class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                                                                             onchange="togglePropertyFieldEdit{{ $user->id }}()">
                                                                         <span class="ml-2 text-sm text-gray-700 flex items-center gap-1">
-                                                                            🏢 <strong>HO (Head Office)</strong> - Akses semua properti
+                                                                            🏢 <strong>{{ __('ui.ho_head_office') }}</strong> - {{ __('ui.access_all_properties') }}
                                                                         </span>
                                                                     </label>
                                                                     <label class="flex items-center cursor-pointer">
@@ -693,7 +692,7 @@
                                                                             class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                                                                             onchange="togglePropertyFieldEdit{{ $user->id }}()">
                                                                         <span class="ml-2 text-sm text-gray-700 flex items-center gap-1">
-                                                                            📍 <strong>Site</strong> - Akses 1 properti tertentu
+                                                                            📍 <strong>{{ __('ui.site_label') }}</strong> - {{ __('ui.access_one_property') }}
                                                                         </span>
                                                                     </label>
                                                                 </div>
@@ -703,12 +702,12 @@
                                                             <div class="mb-5" id="property_field_container_{{ $user->id }}">
                                                                 <label for="property_id_{{ $user->id }}"
                                                                     class="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Properti <span class="text-red-500" id="property_required_mark_{{ $user->id }}">*</span>
+                                                                    {{ __('ui.property') }} <span class="text-red-500" id="property_required_mark_{{ $user->id }}">*</span>
                                                                 </label>
                                                                 <select name="property_id"
                                                                     id="property_id_{{ $user->id }}"
                                                                     class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-200 transition-all duration-200">
-                                                                    <option value="">Pilih Properti</option>
+                                                                    <option value="">{{ __('ui.select_property') }}</option>
                                                                     @foreach ($properties as $property)
                                                                         <option value="{{ $property->idrec }}"
                                                                             {{ $user->property_id == $property->idrec ? 'selected' : '' }}>
@@ -718,7 +717,7 @@
                                                                 </select>
                                                                 <p class="text-xs text-gray-500 mt-1" id="property_field_hint_{{ $user->id }}">
                                                                     <i class="fas fa-info-circle"></i>
-                                                                    <span id="property_hint_text_{{ $user->id }}">Wajib diisi untuk akun Site</span>
+                                                                    <span id="property_hint_text_{{ $user->id }}">{{ __('ui.required_for_site') }}</span>
                                                                 </p>
                                                             </div>
 
@@ -759,12 +758,12 @@
                                                                 <button type="button"
                                                                     @click="modalOpenEdit{{ $user->id }} = false"
                                                                     class="px-4 py-2 rounded-lg border text-sm font-medium text-gray-600 hover:bg-gray-100 transition">
-                                                                    Batal
+                                                                    {{ __('ui.cancel') }}
                                                                 </button>
                                                                 <button type="submit"
                                                                     class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition-all duration-200 flex items-center gap-2">
                                                                     <i class="fas fa-save"></i>
-                                                                    <span>Perbarui</span>
+                                                                    <span>{{ __('ui.update') }}</span>
                                                                 </button>
                                                             </div>
                                                         </form>
