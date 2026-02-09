@@ -340,6 +340,10 @@ class ChangeRoomController extends Controller
             $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
                 ->where('status', 1)
                 ->where('order_id', '!=', $currentBooking->order_id)
+                ->whereHas('transaction', function ($q) {
+                    $q->where('transaction_status', 'paid')
+                      ->orWhere('transaction_status', 'waiting');
+                })
                 ->exists();
 
             if (!$hasOtherActiveBooking) {
@@ -498,6 +502,10 @@ class ChangeRoomController extends Controller
             $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
                 ->where('status', 1)
                 ->where('order_id', '!=', $currentBooking->order_id)
+                ->whereHas('transaction', function ($q) {
+                    $q->where('transaction_status', 'paid')
+                      ->orWhere('transaction_status', 'waiting');
+                })
                 ->exists();
 
             if (!$hasOtherActiveBooking) {
