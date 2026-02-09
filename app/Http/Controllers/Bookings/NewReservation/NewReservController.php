@@ -29,6 +29,7 @@ class NewReservController extends Controller
     protected function filterBookings()
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->where('t_booking.status', 1) // Only show active bookings (filter out room-changed old records)
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid'); // Only paid transactions
             })
@@ -95,7 +96,9 @@ class NewReservController extends Controller
     public function checkIn(Request $request, $order_id)
     {
         try {
-            $booking = Booking::where('order_id', $order_id)->firstOrFail();
+            $booking = Booking::where('order_id', $order_id)
+                ->where('status', 1) // Get active booking only
+                ->firstOrFail();
 
             if ($booking->check_in_at) {
                 return response()->json([
@@ -173,6 +176,7 @@ class NewReservController extends Controller
     {
         $booking = Booking::with(['transaction', 'property', 'room', 'transaction.user', 'user'])
             ->where('order_id', $orderId)
+            ->where('status', 1) // Get active booking only
             ->firstOrFail();
 
         $response = $booking->toArray();

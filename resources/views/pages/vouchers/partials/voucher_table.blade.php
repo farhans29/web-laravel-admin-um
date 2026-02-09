@@ -4,28 +4,28 @@
             <thead class="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Kode
+                        {{ __('ui.voucher_code') }}
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Nama
+                        {{ __('ui.name') }}
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Diskon
+                        {{ __('ui.discount') }}
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Penggunaan
+                        {{ __('ui.usage') }}
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Periode
+                        {{ __('ui.period') }}
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Scope
+                        {{ __('ui.scope') }}
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Status
+                        {{ __('ui.status') }}
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Aksi
+                        {{ __('ui.action') }}
                     </th>
                 </tr>
             </thead>
@@ -52,7 +52,7 @@
                                 {{ $voucher->discount_percentage }}%
                             </div>
                             <div class="text-xs text-gray-500 dark:text-gray-400">
-                                Max: Rp {{ number_format($voucher->max_discount_amount, 0, ',', '.') }}
+                                {{ __('ui.max_label') }}: Rp {{ number_format($voucher->max_discount_amount, 0, ',', '.') }}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -60,13 +60,13 @@
                                 {{ $voucher->current_usage_count }} / {{ $voucher->max_total_usage == 0 ? '∞' : $voucher->max_total_usage }}
                             </div>
                             <div class="text-xs text-gray-500 dark:text-gray-400">
-                                Max per user: {{ $voucher->max_usage_per_user }}
+                                {{ __('ui.max_per_user') }}: {{ $voucher->max_usage_per_user }}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             <div>{{ \Carbon\Carbon::parse($voucher->valid_from)->format('d M Y') }}</div>
                             <div class="text-xs text-gray-500 dark:text-gray-400">
-                                s/d {{ \Carbon\Carbon::parse($voucher->valid_to)->format('d M Y') }}
+                                {{ __('ui.until_short') }} {{ \Carbon\Carbon::parse($voucher->valid_to)->format('d M Y') }}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -89,7 +89,7 @@
                             <div class="flex space-x-2">
                                 <button onclick="openEditModal({{ $voucher->idrec }})"
                                     class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                                    title="Edit">
+                                    title="{{ __('ui.edit') }}">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
@@ -98,7 +98,7 @@
                                 </button>
                                 <button onclick="deleteVoucher({{ $voucher->idrec }})"
                                     class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                    title="Hapus">
+                                    title="{{ __('ui.delete') }}">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -117,7 +117,7 @@
                                         d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
                                     </path>
                                 </svg>
-                                <p class="text-sm">Tidak ada data voucher</p>
+                                <p class="text-sm">{{ __('ui.no_voucher_data') }}</p>
                             </div>
                         </td>
                     </tr>

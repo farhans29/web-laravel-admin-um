@@ -40,7 +40,7 @@ class ChangeRoomController extends Controller
             ->whereHas('payment', function ($q) {
                 $q->where('payment_status', 'paid');
             })
-            ->where('is_active', 1) // Only active bookings
+            ->where('status', 1) // Only active bookings
             ->whereNull('check_out_at') // Not checked out yet
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
@@ -113,7 +113,7 @@ class ChangeRoomController extends Controller
 
             if ($bookings->isEmpty()) continue;
 
-            $activeBooking = $bookings->where('is_active', 1)->first();
+            $activeBooking = $bookings->where('status', 1)->first();
             $firstBooking = $bookings->first();
 
             $history->push([
@@ -170,7 +170,7 @@ class ChangeRoomController extends Controller
         $availableRooms = $rooms->filter(function ($room) use ($checkInDate, $checkOutDate) {
             $hasConflict = Booking::with('transaction')
                 ->where('room_id', $room->idrec)
-                ->where('is_active', 1) // Only check active bookings
+                ->where('status', 1) // Only check active bookings
                 ->where(function ($query) use ($checkInDate, $checkOutDate) {
                     // For bookings with check_in_at/check_out_at
                     $query->where(function ($q) use ($checkInDate, $checkOutDate) {
@@ -252,7 +252,7 @@ class ChangeRoomController extends Controller
         try {
             // Get the current active booking
             $currentBooking = Booking::where('order_id', $request->order_id)
-                ->where('is_active', 1)
+                ->where('status', 1)
                 ->whereNull('check_out_at')
                 ->firstOrFail();
 
@@ -307,7 +307,7 @@ class ChangeRoomController extends Controller
                 'doc_path' => $currentBooking->doc_path,
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
-                'is_active' => 1,
+                'status' => 1,
                 'previous_booking_id' => $currentBooking->idrec,
                 'reason' => $request->reason,
                 'description' => $request->notes,
@@ -318,9 +318,17 @@ class ChangeRoomController extends Controller
 
             // Deactivate the current booking
             $currentBooking->update([
-                'is_active' => 0,
+                'status' => 0,
                 'updated_by' => Auth::id(),
             ]);
+
+            // UPDATE the transaction with new room data (instead of creating new)
+            if ($currentBooking->transaction) {
+                $currentBooking->transaction->update([
+                    'room_id' => $newRoom->idrec,
+                    'room_name' => $newRoom->name,
+                ]);
+            }
 
             // Update rental_status for rooms
             // Check if this is a monthly booking
@@ -330,7 +338,7 @@ class ChangeRoomController extends Controller
 
             // Old room (currentRoom): Set to available if no other active bookings
             $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
-                ->where('is_active', 1)
+                ->where('status', 1)
                 ->where('order_id', '!=', $currentBooking->order_id)
                 ->exists();
 
@@ -397,7 +405,7 @@ class ChangeRoomController extends Controller
             // Get the current active booking
             $currentBooking = Booking::with(['previousBooking', 'room', 'property'])
                 ->where('idrec', $request->booking_id)
-                ->where('is_active', 1)
+                ->where('status', 1)
                 ->firstOrFail();
 
             // Check if there's a previous booking to rollback to
@@ -457,7 +465,7 @@ class ChangeRoomController extends Controller
                 'doc_path' => $currentBooking->doc_path,
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id(),
-                'is_active' => 1,
+                'status' => 1,
                 'previous_booking_id' => $currentBooking->idrec,
                 'reason' => 'rollback',
                 'description' => $request->notes,
@@ -468,9 +476,17 @@ class ChangeRoomController extends Controller
 
             // Deactivate current booking
             $currentBooking->update([
-                'is_active' => 0,
+                'status' => 0,
                 'updated_by' => Auth::id(),
             ]);
+
+            // UPDATE the transaction with previous room data (rollback)
+            if ($currentBooking->transaction) {
+                $currentBooking->transaction->update([
+                    'room_id' => $previousRoom->idrec,
+                    'room_name' => $previousRoom->name,
+                ]);
+            }
 
             // Update rental_status for rooms
             // Check if this is a monthly booking
@@ -480,7 +496,7 @@ class ChangeRoomController extends Controller
 
             // Current room: Set to available if no other active bookings
             $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
-                ->where('is_active', 1)
+                ->where('status', 1)
                 ->where('order_id', '!=', $currentBooking->order_id)
                 ->exists();
 
@@ -545,7 +561,7 @@ class ChangeRoomController extends Controller
                     'room_id' => $booking->room_id,
                     'room_name' => $booking->room->name ?? 'N/A',
                     'room_no' => $booking->room->no ?? 'N/A',
-                    'is_active' => $booking->is_active,
+                    'status' => $booking->status,
                     'reason' => $booking->reason,
                     'reason_label' => $this->getReasonLabel($booking->reason),
                     'description' => $booking->description,
@@ -571,7 +587,7 @@ class ChangeRoomController extends Controller
 
         $booking = Booking::with('previousBooking')
             ->where('idrec', $bookingId)
-            ->where('is_active', 1)
+            ->where('status', 1)
             ->first();
 
         if (!$booking || !$booking->previous_booking_id) {
@@ -618,7 +634,7 @@ class ChangeRoomController extends Controller
     {
         return Booking::with('transaction')
             ->where('room_id', $roomId)
-            ->where('is_active', 1)
+            ->where('status', 1)
             ->when($excludeOrderId, function ($query, $excludeOrderId) {
                 return $query->where('order_id', '!=', $excludeOrderId);
             })

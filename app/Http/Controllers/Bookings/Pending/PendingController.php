@@ -12,6 +12,7 @@ class PendingController extends Controller
     public function index(Request $request)
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->where('status', 1) // Only show active bookings (filter out room-changed old records)
             ->whereHas('transaction', function ($q) {
                 $q->whereIn('transaction_status', ['pending', 'waiting']);
             })
@@ -61,6 +62,7 @@ class PendingController extends Controller
     public function filter(Request $request)
     {
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
+            ->where('status', 1) // Only show active bookings (filter out room-changed old records)
             ->whereHas('transaction', function ($q) {
                 $q->whereIn('transaction_status', ['pending', 'waiting']);
             })

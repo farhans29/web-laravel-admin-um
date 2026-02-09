@@ -12,17 +12,24 @@ class CompletedController extends Controller
 {
     public function index(Request $request)
     {
+        // Show completed bookings:
+        // 1. Checked-out bookings (paid, check_out_at NOT NULL)
+        // 2. Expired/Cancelled bookings
         $query = Booking::with(['user', 'room', 'property', 'transaction', 'refund'])
-            ->whereHas('transaction', function ($q) {
-                $q->whereIn('transaction_status', ['paid', 'expired', 'canceled', 'cancelled'])
-                    ->where(function ($subQuery) {
-                        $subQuery->whereIn('transaction_status', ['expired', 'canceled', 'cancelled'])
-                            ->orWhere(function ($paidQuery) {
-                                $paidQuery->where('transaction_status', 'paid')
-                                    ->whereNotNull('check_in_at')
-                                    ->whereNotNull('check_out_at');
-                            });
+            ->where(function ($q) {
+                // Checked-out bookings (status=0 after checkout)
+                $q->where(function ($checkedOut) {
+                    $checkedOut->whereNotNull('check_out_at')
+                        ->whereHas('transaction', function ($t) {
+                            $t->where('transaction_status', 'paid');
+                        });
+                })
+                // OR expired/cancelled bookings (status=1, never checked out)
+                ->orWhere(function ($expiredCancelled) {
+                    $expiredCancelled->whereHas('transaction', function ($t) {
+                        $t->whereIn('transaction_status', ['expired', 'canceled', 'cancelled']);
                     });
+                });
             });
 
         // Filter by property_id for site users
@@ -61,17 +68,24 @@ class CompletedController extends Controller
 
     public function filter(Request $request)
     {
+        // Show completed bookings:
+        // 1. Checked-out bookings (paid, check_out_at NOT NULL)
+        // 2. Expired/Cancelled bookings
         $query = Booking::with(['user', 'room', 'property', 'transaction', 'refund'])
-            ->whereHas('transaction', function ($q) {
-                $q->whereIn('transaction_status', ['paid', 'expired', 'canceled', 'cancelled'])
-                    ->where(function ($subQuery) {
-                        $subQuery->whereIn('transaction_status', ['expired', 'canceled', 'cancelled'])
-                            ->orWhere(function ($paidQuery) {
-                                $paidQuery->where('transaction_status', 'paid')
-                                    ->whereNotNull('check_in_at')
-                                    ->whereNotNull('check_out_at');
-                            });
+            ->where(function ($q) {
+                // Checked-out bookings (status=0 after checkout)
+                $q->where(function ($checkedOut) {
+                    $checkedOut->whereNotNull('check_out_at')
+                        ->whereHas('transaction', function ($t) {
+                            $t->where('transaction_status', 'paid');
+                        });
+                })
+                // OR expired/cancelled bookings (status=1, never checked out)
+                ->orWhere(function ($expiredCancelled) {
+                    $expiredCancelled->whereHas('transaction', function ($t) {
+                        $t->whereIn('transaction_status', ['expired', 'canceled', 'cancelled']);
                     });
+                });
             });
 
         // Filter by property_id for site users

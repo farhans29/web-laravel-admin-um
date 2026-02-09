@@ -18,6 +18,7 @@ class CheckOutController extends Controller
     {
         $perPage = $request->input('per_page', 8);
 
+        // Show checked-out bookings (status=0 after checkout, check_out_at NOT NULL)
         $query = Booking::with(['transaction', 'property', 'room', 'user'])
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
@@ -65,14 +66,14 @@ class CheckOutController extends Controller
 
     public function filter(Request $request)
     {
+        // Show checked-out bookings (status=0 after checkout, check_out_at NOT NULL)
         $query = Booking::with(['user', 'room', 'property', 'transaction'])
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })
             ->whereNotNull('check_in_at')
             ->whereNotNull('check_out_at')
-            ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
-            ->orderBy('check_out_at', 'desc'); // Then sort by check_out_at
+            ->orderBy('check_out_at', 'desc');
 
         // Filter by property_id for site users
         $user = Auth::user();
@@ -123,18 +124,42 @@ class CheckOutController extends Controller
             DB::beginTransaction();
 
             // Cari booking aktif berdasarkan order_id
-            $booking = Booking::where('order_id', $order_id)
-                ->where('is_active', 1)
-                ->firstOrFail();
+            $booking = Booking::with('transaction')
+                ->where('order_id', $order_id)
+                ->where('status', 1) // Only get active booking
+                ->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking tidak ditemukan.'
+                ], 404);
+            }
+
+            // Check if already checked out
+            if ($booking->check_out_at !== null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tamu sudah melakukan check-out sebelumnya.'
+                ], 400);
+            }
+
+            // Check if booking is active (use getRawOriginal to bypass accessor)
+            if ($booking->getRawOriginal('status') != 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking tidak aktif.'
+                ], 400);
+            }
 
             $booking->check_out_at = now();
-            $booking->is_active = 0; // Mark booking as inactive after checkout
+            $booking->status = 0; // Mark booking as inactive after checkout
             $booking->save();
 
             // Reset rental_status on room if no other active bookings
             if ($booking->room_id) {
                 $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
-                    ->where('is_active', 1)
+                    ->where('status', 1)
                     ->where('idrec', '!=', $booking->idrec)
                     ->exists();
 
@@ -181,6 +206,7 @@ class CheckOutController extends Controller
     {
         $booking = Booking::with(['transaction', 'property', 'room', 'user'])
             ->where('order_id', $orderId)
+            ->where('status', 1) // Get active booking only
             ->firstOrFail();
 
         $transaction = Transaction::where('order_id', $orderId)->firstOrFail();
