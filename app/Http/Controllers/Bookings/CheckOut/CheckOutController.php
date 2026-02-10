@@ -57,7 +57,7 @@ class CheckOutController extends Controller
         }
 
         $bookings = $query
-            ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
+            // ->orderByRaw('CASE WHEN check_out_at IS NULL THEN 0 ELSE 1 END') // NULL values first
             ->orderBy('check_out_at', 'desc') // Then sort by check_out_at
             ->paginate($perPage);
 

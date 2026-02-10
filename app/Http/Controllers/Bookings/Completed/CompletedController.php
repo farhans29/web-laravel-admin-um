@@ -27,7 +27,7 @@ class CompletedController extends Controller
                 // OR expired/cancelled bookings (status=1, never checked out)
                 ->orWhere(function ($expiredCancelled) {
                     $expiredCancelled->whereHas('transaction', function ($t) {
-                        $t->whereIn('transaction_status', ['expired', 'canceled', 'cancelled']);
+                        $t->whereIn('transaction_status', ['canceled', 'cancelled']);
                     });
                 });
             });

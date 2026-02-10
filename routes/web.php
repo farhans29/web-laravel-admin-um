@@ -140,21 +140,21 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::get('/newReserv-in/{order_id}/regist', [NewReservController::class, 'getRegist'])->name('newReserv.checkin.regist');
         Route::get('/newReserv-in/{order_id}/invoice', [NewReservController::class, 'getInvoice'])->name('newReserv.checkin.invoice');
 
-        Route::get('/completed', [CompletedController::class, 'index'])->name('completed.index');
-        Route::get('/completed/filter', [CompletedController::class, 'filter'])->name('completed.filter');
-
         Route::get('/checkin', [CheckInController::class, 'index'])->name('checkin.index');
         Route::get('/checkin/filter', [CheckInController::class, 'filter'])->name('checkin.filter');
-        // ---------------------------------------------------------------------------------------------------------------------
         Route::post('/checkin/{order_id}', [CheckInController::class, 'checkIn'])->name('bookings.checkin');
         Route::get('/check-in/{order_id}/details', [CheckInController::class, 'getBookingDetails'])->name('bookings.checkin.details');
-
+        
         Route::get('/checkout', [CheckOutController::class, 'index'])->name('checkout.index');
         Route::get('/checkout/filter', [CheckOutController::class, 'filter'])->name('checkout.filter');
         Route::post('/check-out/{order_id}', [CheckOutController::class, 'checkOut'])->name('bookings.checkout');
         Route::get('/check-out/{order_id}/details', [CheckOutController::class, 'getBookingDetails'])->name('bookings.checkin.details');
-    });
 
+        Route::get('/completed', [CompletedController::class, 'index'])->name('completed.index');
+        Route::get('/completed/filter', [CompletedController::class, 'filter'])->name('completed.filter');
+    });
+    
+    // ---------------------------------------------------------------------------------------------------------------------
     Route::prefix('rooms')->group(function () {
         Route::get('/change-room', [ChangeRoomController::class, 'index'])->name('changerooom.index');
         Route::get('/change-room/available-rooms', [ChangeRoomController::class, 'getAvailableRooms']);
