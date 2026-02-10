@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                {{ __('ui.parking_payments') }}
+                {{ __('ui.deposit_payments') }}
             </h1>
             <button type="button" onclick="openAddPaymentModal()"
                 class="mt-4 md:mt-0 inline-flex items-center px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
@@ -32,7 +32,7 @@
                                 </div>
                                 <input type="text" name="search" id="searchInput" value="{{ request('search') }}"
                                     class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md sm:text-sm"
-                                    placeholder="{{ __('ui.search_parking_placeholder') }}">
+                                    placeholder="{{ __('ui.search_deposit_placeholder') }}">
                             </div>
                         </div>
 
@@ -54,19 +54,6 @@
                             </select>
                         </div>
 
-                        <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.parking_type') }}:</span>
-                            <select name="parking_type" id="parkingTypeFilter"
-                                class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md text-sm">
-                                <option value="">{{ __('ui.all') }}</option>
-                                <option value="car" {{ request('parking_type') == 'car' ? 'selected' : '' }}>
-                                    {{ __('ui.car') }}</option>
-                                <option value="motorcycle"
-                                    {{ request('parking_type') == 'motorcycle' ? 'selected' : '' }}>
-                                    {{ __('ui.motorcycle') }}</option>
-                            </select>
-                        </div>
-
                         <div class="flex items-center gap-2">
                             <label
                                 class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.items_per_page') }}</label>
@@ -82,14 +69,14 @@
             </div>
 
             <div class="overflow-x-auto" id="tableContainer">
-                @include('pages.payment.parking.partials.parking-payment_table', [
-                    'parkingTransactions' => $parkingTransactions,
+                @include('pages.payment.deposit.partials.deposit-payment_table', [
+                    'depositTransactions' => $depositTransactions,
                 ])
             </div>
 
-            @if ($parkingTransactions instanceof \Illuminate\Pagination\LengthAwarePaginator)
+            @if ($depositTransactions instanceof \Illuminate\Pagination\LengthAwarePaginator)
                 <div class="bg-gray-50 dark:bg-gray-800 rounded p-4" id="paginationContainer">
-                    {{ $parkingTransactions->appends(request()->input())->links() }}
+                    {{ $depositTransactions->appends(request()->input())->links() }}
                 </div>
             @endif
         </div>
@@ -98,7 +85,7 @@
     {{-- Proof + Konfirmasi Modal --}}
     <div id="proofModal" class="fixed inset-0 z-50 hidden">
         {{-- Backdrop --}}
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeParkingProofModal()">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeDepositProofModal()">
         </div>
 
         {{-- Dialog --}}
@@ -112,7 +99,7 @@
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
                         {{ __('ui.payment_proof') }} - {{ __('ui.order_id') }} #<span id="proofOrderId"></span>
                     </h3>
-                    <button onclick="closeParkingProofModal()"
+                    <button onclick="closeDepositProofModal()"
                         class="text-gray-500 hover:text-gray-700 dark:text-gray-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
@@ -144,15 +131,15 @@
                     </div>
                     <div class="flex space-x-3">
                         {{-- Approve --}}
-                        <button type="button" id="btnApproveParking"
+                        <button type="button" id="btnApproveDeposit"
                             class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium transition-colors"
-                            onclick="confirmApproveParkingPayment()">
+                            onclick="confirmApproveDepositPayment()">
                             {{ __('ui.approve') }}
                         </button>
                         {{-- Reject --}}
-                        <button type="button" id="btnRejectParking"
+                        <button type="button" id="btnRejectDeposit"
                             class="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm font-medium transition-colors"
-                            onclick="openRejectParkingModal()">
+                            onclick="openRejectDepositModal()">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -165,7 +152,7 @@
                 {{-- View-only footer (shown for paid/verified status) --}}
                 <div id="proofFooterViewOnly"
                     class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex justify-end hidden">
-                    <button type="button" onclick="closeParkingProofModal()"
+                    <button type="button" onclick="closeDepositProofModal()"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
                         {{ __('ui.close') }}
                     </button>
@@ -185,8 +172,8 @@
                     class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-600 to-blue-600">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-semibold text-white">Add New Parking Payment</h3>
-                            <p class="text-white/80 text-sm">Create a new parking payment record</p>
+                            <h3 class="text-lg font-semibold text-white">Add New Deposit Payment</h3>
+                            <p class="text-white/80 text-sm">Create a new deposit payment record</p>
                         </div>
                         <button onclick="closeAddPaymentModal()"
                             class="text-white hover:text-indigo-200 transition-colors">
@@ -245,34 +232,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Parking Type -->
-                            <div>
-                                <label for="add_parking_type"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Parking Type <span class="text-red-500">*</span>
-                                </label>
-                                <select name="parking_type" id="add_parking_type" required
-                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                                    <option value="">Select Type</option>
-                                    <option value="car">{{ __('ui.car') }}</option>
-                                    <option value="motorcycle">{{ __('ui.motorcycle') }}</option>
-                                </select>
-                                <p class="text-red-500 text-xs mt-1 hidden" id="add_parking_type_error"></p>
-                            </div>
-
-                            <!-- Vehicle Plate -->
-                            <div>
-                                <label for="add_vehicle_plate"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Vehicle Plate <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="vehicle_plate" id="add_vehicle_plate" required
-                                    placeholder="e.g., B 1234 XYZ" oninput="this.value = this.value.toUpperCase()"
-                                    style="text-transform: uppercase;"
-                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                                <p class="text-red-500 text-xs mt-1 hidden" id="add_vehicle_plate_error"></p>
                             </div>
 
                             <!-- Fee Amount -->
@@ -351,15 +310,15 @@
 
     {{-- Reject Reason Modal --}}
     <div id="rejectModal" class="fixed inset-0 z-[60] hidden">
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRejectParkingModal()"></div>
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRejectDepositModal()"></div>
         <div class="fixed inset-0 flex items-center justify-center p-4">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full"
                 onclick="event.stopPropagation()">
                 <div
                     class="px-6 py-4 border-b dark:border-gray-700 bg-gradient-to-r from-red-50 to-pink-50 dark:from-gray-700 dark:to-gray-700 rounded-t-xl flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-200">{{ __('ui.reject') }}
-                        {{ __('ui.parking_payments') }}</h3>
-                    <button onclick="closeRejectParkingModal()" class="text-gray-400 hover:text-gray-600">
+                        {{ __('ui.deposit_payments') }}</h3>
+                    <button onclick="closeRejectDepositModal()" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -370,7 +329,7 @@
                     <input type="hidden" id="rejectTransactionId">
                     <div class="p-6 space-y-4">
                         <p class="text-gray-600 dark:text-gray-400">
-                            {{ __('ui.confirm_reject_parking_msg') }}
+                            {{ __('ui.confirm_reject_deposit_msg') }}
                             <strong class="text-gray-900 dark:text-gray-100" id="rejectOrderIdLabel"></strong>?
                         </p>
                         <div>
@@ -385,7 +344,7 @@
                     </div>
                     <div
                         class="flex items-center justify-end p-6 space-x-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-xl">
-                        <button type="button" onclick="closeRejectParkingModal()"
+                        <button type="button" onclick="closeRejectDepositModal()"
                             class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
                             {{ __('ui.cancel') }}
                         </button>
@@ -409,7 +368,7 @@
         let currentProofOrderId = null;
 
         // Open proof modal with images loaded via AJAX
-        function openParkingProofModal(id, orderId, viewOnly = false) {
+        function openDepositProofModal(id, orderId, viewOnly = false) {
             currentProofTransactionId = id;
             currentProofOrderId = orderId;
 
@@ -440,7 +399,7 @@
                     </svg>
                 </div>`;
 
-            fetch(`/payment/parking/proof/${id}`, {
+            fetch(`/payment/deposit/proof/${id}`, {
                     headers: {
                         'Accept': 'application/json'
                     }
@@ -469,7 +428,7 @@
                 });
         }
 
-        function closeParkingProofModal() {
+        function closeDepositProofModal() {
             document.getElementById('proofModal').classList.add('hidden');
             document.body.style.overflow = '';
             currentProofTransactionId = null;
@@ -477,7 +436,7 @@
         }
 
         // Approve with SweetAlert confirm
-        function confirmApproveParkingPayment() {
+        function confirmApproveDepositPayment() {
             if (!currentProofTransactionId) return;
             const id = currentProofTransactionId;
 
@@ -492,13 +451,13 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const btn = document.getElementById('btnApproveParking');
+                    const btn = document.getElementById('btnApproveDeposit');
                     const origHTML = btn.innerHTML;
                     btn.disabled = true;
                     btn.innerHTML =
                         `<svg class="animate-spin h-4 w-4 mr-2 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> {{ __('ui.processing') }}`;
 
-                    fetch(`/payment/parking/approve/${id}`, {
+                    fetch(`/payment/deposit/approve/${id}`, {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -508,7 +467,7 @@
                         .then(r => r.json())
                         .then(data => {
                             if (data.success) {
-                                closeParkingProofModal();
+                                closeDepositProofModal();
                                 Swal.fire({
                                     toast: true,
                                     position: 'top-end',
@@ -541,7 +500,7 @@
         }
 
         // Open reject reason modal (from proof modal footer)
-        function openRejectParkingModal() {
+        function openRejectDepositModal() {
             document.getElementById('rejectTransactionId').value = currentProofTransactionId;
             document.getElementById('rejectOrderIdLabel').textContent = currentProofOrderId;
             document.getElementById('rejectNotes').value = '';
@@ -549,7 +508,7 @@
             setTimeout(() => document.getElementById('rejectNotes').focus(), 150);
         }
 
-        function closeRejectParkingModal() {
+        function closeRejectDepositModal() {
             document.getElementById('rejectModal').classList.add('hidden');
         }
 
@@ -588,7 +547,7 @@
                     submitBtn.innerHTML =
                         `<svg class="animate-spin h-4 w-4 mr-1 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> {{ __('ui.processing') }}`;
 
-                    fetch(`/payment/parking/reject/${id}`, {
+                    fetch(`/payment/deposit/reject/${id}`, {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
@@ -603,8 +562,8 @@
                         .then(r => r.json())
                         .then(data => {
                             if (data.success) {
-                                closeRejectParkingModal();
-                                closeParkingProofModal();
+                                closeRejectDepositModal();
+                                closeDepositProofModal();
                                 Swal.fire({
                                     toast: true,
                                     position: 'top-end',
@@ -640,10 +599,9 @@
         function applyFilters() {
             const search = document.getElementById('searchInput')?.value || '';
             const status = document.getElementById('statusFilter')?.value || '';
-            const parkingType = document.getElementById('parkingTypeFilter')?.value || '';
             const perPage = document.getElementById('perPageSelect')?.value || '8';
 
-            fetch('/payment/parking/filter', {
+            fetch('/payment/deposit/filter', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -653,7 +611,6 @@
                     body: JSON.stringify({
                         search,
                         status,
-                        parking_type: parkingType,
                         per_page: perPage
                     })
                 })
@@ -666,7 +623,6 @@
                     const urlParams = new URLSearchParams();
                     if (search) urlParams.append('search', search);
                     if (status) urlParams.append('status', status);
-                    if (parkingType) urlParams.append('parking_type', parkingType);
                     if (perPage) urlParams.append('per_page', perPage);
                     window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
                 });
@@ -679,7 +635,6 @@
                 t = setTimeout(applyFilters, 500);
             });
             document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
-            document.getElementById('parkingTypeFilter')?.addEventListener('change', applyFilters);
             document.getElementById('perPageSelect')?.addEventListener('change', applyFilters);
         });
 
@@ -687,9 +642,9 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 if (!document.getElementById('rejectModal').classList.contains('hidden')) {
-                    closeRejectParkingModal();
+                    closeRejectDepositModal();
                 } else if (!document.getElementById('proofModal').classList.contains('hidden')) {
-                    closeParkingProofModal();
+                    closeDepositProofModal();
                 } else if (!document.getElementById('addPaymentModal').classList.contains('hidden')) {
                     closeAddPaymentModal();
                 }
@@ -723,7 +678,7 @@
             const orderSelect = document.getElementById('add_order_id');
             orderSelect.innerHTML = '<option value="">Loading checked-in orders...</option>';
 
-            fetch('/payment/parking/checked-in-orders', {
+            fetch('/payment/deposit/checked-in-orders', {
                     headers: {
                         'Accept': 'application/json'
                     }
@@ -883,7 +838,7 @@
             const formData = new FormData(this);
 
             try {
-                const response = await fetch('/payment/parking/store', {
+                const response = await fetch('/payment/deposit/store', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,

@@ -968,22 +968,27 @@
                                             </div>
 
                                             <!-- Room Stats -->
-                                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                            <div class="grid grid-cols-4 gap-3 mb-4">
                                                 <div class="text-center">
                                                     <div class="text-2xl font-bold text-gray-800">
                                                         {{ $report['room_stats']['total_rooms'] }}</div>
-                                                    <div class="text-sm text-gray-600">{{ __('ui.total_rooms') }}
+                                                    <div class="text-xs text-gray-600">{{ __('ui.total_rooms') }}
                                                     </div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-2xl font-bold text-blue-600">
+                                                        {{ $report['room_stats']['booked_rooms'] }}</div>
+                                                    <div class="text-xs text-gray-600">Total Terbooking</div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-2xl font-bold text-orange-600">
+                                                        {{ $report['room_stats']['occupied_rooms'] }}</div>
+                                                    <div class="text-xs text-gray-600">Total Terisi</div>
                                                 </div>
                                                 <div class="text-center">
                                                     <div class="text-2xl font-bold text-green-600">
                                                         {{ $report['room_stats']['available_rooms'] }}</div>
-                                                    <div class="text-sm text-gray-600">{{ __('ui.available') }}</div>
-                                                </div>
-                                                <div class="text-center">
-                                                    <div class="text-2xl font-bold text-orange-600">
-                                                        {{ $report['room_stats']['booked_rooms'] }}</div>
-                                                    <div class="text-sm text-gray-600">{{ __('ui.occupied') }}</div>
+                                                    <div class="text-xs text-gray-600">{{ __('ui.available') }}</div>
                                                 </div>
                                             </div>
 
@@ -1000,26 +1005,83 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Room Types Breakdown -->
+                                            <!-- Room Breakdown by Type -->
                                             @if (isset($report['room_types_breakdown']) &&
                                                     count($report['room_types_breakdown']) > 0 &&
                                                     $canViewWidget('rooms_type_breakdown'))
                                                 <div class="mt-4">
                                                     <h4 class="font-medium text-gray-700 mb-2">
-                                                        {{ __('ui.room_type_breakdown') }}
+                                                        Breakdown Kamar
                                                     </h4>
-                                                    <div class="space-y-2">
-                                                        @foreach ($report['room_types_breakdown'] as $roomType)
-                                                            <div class="flex justify-between items-center text-sm">
-                                                                <span
-                                                                    class="text-gray-600">{{ $roomType->type }}</span>
-                                                                <div class="flex items-center space-x-2">
-                                                                    <span
-                                                                        class="text-gray-500">{{ $roomType->available_rooms }}/{{ $roomType->total_rooms }}</span>
-                                                                    <span
-                                                                        class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                                                                        {{ $roomType->total_rooms > 0 ? round(($roomType->available_rooms / $roomType->total_rooms) * 100) : 0 }}%
-                                                                    </span>
+                                                    <div class="space-y-2 max-h-96 overflow-y-auto">
+                                                        @foreach ($report['room_types_breakdown'] as $index => $roomType)
+                                                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                                                <!-- Room Type Header (Clickable) -->
+                                                                <div class="flex justify-between items-center text-sm py-2 px-3 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors"
+                                                                    onclick="toggleRoomDetails('room-type-{{ $propertyId }}-{{ $index }}')">
+                                                                    <div class="flex items-center space-x-3 flex-1">
+                                                                        <span class="text-gray-800 font-semibold">{{ $roomType['name'] }}</span>
+                                                                        <span class="text-gray-500 text-xs">({{ $roomType['total_rooms'] }} kamar)</span>
+                                                                    </div>
+                                                                    <div class="flex items-center space-x-2">
+                                                                        <!-- Status Summary -->
+                                                                        @if ($roomType['status_counts']['available'] > 0)
+                                                                            <span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded font-medium">
+                                                                                {{ $roomType['status_counts']['available'] }} Tersedia
+                                                                            </span>
+                                                                        @endif
+                                                                        @if ($roomType['status_counts']['booked'] > 0)
+                                                                            <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded font-medium">
+                                                                                {{ $roomType['status_counts']['booked'] }} Booking
+                                                                            </span>
+                                                                        @endif
+                                                                        @if ($roomType['status_counts']['occupied'] > 0)
+                                                                            <span class="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded font-medium">
+                                                                                {{ $roomType['status_counts']['occupied'] }} Terisi
+                                                                            </span>
+                                                                        @endif
+                                                                        @if ($roomType['status_counts']['unavailable'] > 0)
+                                                                            <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded font-medium">
+                                                                                {{ $roomType['status_counts']['unavailable'] }} N/A
+                                                                            </span>
+                                                                        @endif
+                                                                        <!-- Toggle Icon -->
+                                                                        <svg id="icon-room-type-{{ $propertyId }}-{{ $index }}"
+                                                                            class="h-4 w-4 text-gray-500 transition-transform duration-200"
+                                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                                        </svg>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Room Details (Expandable) -->
+                                                                <div id="room-type-{{ $propertyId }}-{{ $index }}" class="hidden bg-white">
+                                                                    <div class="px-3 py-2 space-y-1">
+                                                                        @foreach ($roomType['rooms'] as $room)
+                                                                            <div class="flex justify-between items-center text-xs py-1 px-2 hover:bg-gray-50 rounded">
+                                                                                <span class="text-gray-600">
+                                                                                    <span class="font-medium">No.</span> {{ $room['room_number'] }}
+                                                                                </span>
+                                                                                @if ($room['status'] === 'available')
+                                                                                    <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-xs">
+                                                                                        Tersedia
+                                                                                    </span>
+                                                                                @elseif ($room['status'] === 'booked')
+                                                                                    <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs">
+                                                                                        Terbooking
+                                                                                    </span>
+                                                                                @elseif ($room['status'] === 'occupied')
+                                                                                    <span class="bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-xs">
+                                                                                        Terisi
+                                                                                    </span>
+                                                                                @else
+                                                                                    <span class="bg-red-50 text-red-700 px-2 py-0.5 rounded text-xs">
+                                                                                        Tidak Tersedia
+                                                                                    </span>
+                                                                                @endif
+                                                                            </div>
+                                                                        @endforeach
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         @endforeach
@@ -1390,6 +1452,22 @@
                             icon.style.transform = 'rotate(0deg)';
                         }
                     });
+                }
+
+                // Toggle Room Type Details - Global function for room breakdown expand/collapse
+                window.toggleRoomDetails = function(elementId) {
+                    const detailsElement = document.getElementById(elementId);
+                    const iconElement = document.getElementById('icon-' + elementId);
+
+                    if (detailsElement && iconElement) {
+                        if (detailsElement.classList.contains('hidden')) {
+                            detailsElement.classList.remove('hidden');
+                            iconElement.style.transform = 'rotate(180deg)';
+                        } else {
+                            detailsElement.classList.add('hidden');
+                            iconElement.style.transform = 'rotate(0deg)';
+                        }
+                    }
                 }
 
                 // Toggle Duration & Sales Report

@@ -516,6 +516,8 @@ return [
     'vehicle_plate' => 'Plat Kendaraan',
     'parking_payments' => 'Pembayaran Parkir',
     'search_parking_placeholder' => 'Cari ID pesanan, nama, atau plat...',
+    'deposit_payments' => 'Pembayaran Deposit',
+    'search_deposit_placeholder' => 'Cari ID pesanan atau nama tamu...',
     'sidebar_deposit_fees' => 'Manajemen Biaya Deposit',
     'sidebar_parking_fees' => 'Manajemen Biaya Parkir',
     'sidebar_parking_payments' => 'Pembayaran Parkir',
@@ -806,6 +808,7 @@ return [
     'no_proof_available' => 'Tidak ada bukti pembayaran',
     'unsupported_file' => 'Jenis file tidak didukung',
     'confirm_reject_parking_msg' => 'Apakah Anda yakin ingin menolak pembayaran parkir untuk Order ID:',
+    'confirm_reject_deposit_msg' => 'Apakah Anda yakin ingin menolak pembayaran deposit untuk Order ID:',
 
     // User Management Page
     'add_new_user' => 'Tambah Pengguna Baru',

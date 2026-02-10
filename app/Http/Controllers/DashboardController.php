@@ -53,21 +53,34 @@ class DashboardController extends Controller
                     ->where('status', 1)
                     ->count();
 
-                // Kamar yang sedang dipesan berdasarkan bookings (must be checked in)
+                // Kamar yang terbooking (semua kamar dengan booking paid yang aktif)
+                // Hitung distinct room_id yang memiliki booking aktif (belum check-out)
                 $currentDate = now()->toDateString();
 
                 $bookedRooms = Booking::where('property_id', $property->idrec)
-                    ->whereHas('transaction', function ($q) use ($currentDate) {
-                        $q->where('transaction_status', 'paid')
-                            ->whereDate('check_in', '<=', $currentDate)
-                            ->whereDate('check_out', '>=', $currentDate);
+                    ->whereHas('transaction', function ($q) {
+                        $q->where('transaction_status', 'paid');
                     })
-                    ->whereNotNull('check_in_at') // Must be physically checked in
-                    ->whereNull('check_out_at')   // Not yet checked out
-                    ->count();
+                    ->whereNull('check_out_at')   // Belum check out
+                    ->distinct('room_id')
+                    ->count('room_id');
 
-                // Kamar tersedia
-                $availableRooms = $totalRooms - $bookedRooms;
+                // Kamar yang sudah check in (terisi secara fisik)
+                // Hitung distinct room_id dimana check_in_at != NULL dan check_out_at = NULL
+                $occupiedRooms = Booking::where('property_id', $property->idrec)
+                    ->whereHas('transaction', function ($q) {
+                        $q->where('transaction_status', 'paid');
+                    })
+                    ->whereNotNull('check_in_at') // Sudah check-in fisik
+                    ->whereNull('check_out_at')   // Belum check out
+                    ->distinct('room_id')
+                    ->count('room_id');
+
+                // Kamar tersedia (rental_status = 0)
+                $availableRooms = Room::where('property_id', $property->idrec)
+                    ->where('status', 1)
+                    ->where('rental_status', 0)
+                    ->count();
 
                 // Data durasi sewa
                 $bookingDurations = $this->getBookingDurations($property->idrec);
@@ -86,8 +99,9 @@ class DashboardController extends Controller
                     ],
                     'room_stats' => [
                         'total_rooms' => $totalRooms,
-                        'available_rooms' => $availableRooms,
                         'booked_rooms' => $bookedRooms,
+                        'occupied_rooms' => $occupiedRooms,
+                        'available_rooms' => $availableRooms,
                         'occupancy_rate' => $totalRooms > 0 ? round(($bookedRooms / $totalRooms) * 100, 2) : 0,
                     ],
                     'booking_durations' => $bookingDurations,
@@ -175,34 +189,66 @@ class DashboardController extends Controller
 
     private function getRoomTypesBreakdown($propertyId)
     {
-        $currentDate = now()->toDateString();
-
-        // Get booked room IDs (only those that are physically checked in)
+        // Get booked room IDs (transaction paid, belum check-out)
         $bookedRoomIds = Booking::where('property_id', $propertyId)
-            ->whereHas('transaction', function ($q) use ($currentDate) {
-                $q->where('transaction_status', 'paid')
-                    ->whereDate('check_in', '<=', $currentDate)
-                    ->whereDate('check_out', '>=', $currentDate);
+            ->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid');
             })
-            ->whereNotNull('check_in_at') // Must be physically checked in
-            ->whereNull('check_out_at')   // Not yet checked out
+            ->whereNull('check_out_at')   // Belum check out
             ->pluck('room_id')
             ->toArray();
 
-        // Get all rooms grouped by type with availability count
+        // Get occupied room IDs (sudah check-in fisik)
+        $occupiedRoomIds = Booking::where('property_id', $propertyId)
+            ->whereHas('transaction', function ($q) {
+                $q->where('transaction_status', 'paid');
+            })
+            ->whereNotNull('check_in_at') // Sudah check-in fisik
+            ->whereNull('check_out_at')   // Belum check out
+            ->pluck('room_id')
+            ->toArray();
+
+        // Get all rooms and group by room name (type)
         $rooms = Room::where('property_id', $propertyId)
             ->where('status', 1)
+            ->orderBy('name')
+            ->orderBy('no')
             ->get()
-            ->groupBy('type')
-            ->map(function ($roomsGroup) use ($bookedRoomIds) {
-                $totalRooms = $roomsGroup->count();
-                $bookedCount = $roomsGroup->whereIn('idrec', $bookedRoomIds)->count();
-                $availableRooms = $totalRooms - $bookedCount;
+            ->groupBy('name')
+            ->map(function ($roomGroup, $roomName) use ($bookedRoomIds, $occupiedRoomIds) {
+                $roomDetails = $roomGroup->map(function ($room) use ($bookedRoomIds, $occupiedRoomIds) {
+                    $isBooked = in_array($room->idrec, $bookedRoomIds);
+                    $isOccupied = in_array($room->idrec, $occupiedRoomIds);
 
-                return (object) [
-                    'type' => $roomsGroup->first()->type,
-                    'total_rooms' => $totalRooms,
-                    'available_rooms' => $availableRooms,
+                    // Determine status
+                    $status = 'available';
+                    if ($isOccupied) {
+                        $status = 'occupied';
+                    } elseif ($isBooked) {
+                        $status = 'booked';
+                    } else {
+                        $status = $room->rental_status == 0 ? 'available' : 'unavailable';
+                    }
+
+                    return [
+                        'room_number' => $room->no ?? '-',
+                        'status' => $status,
+                    ];
+                });
+
+                // Count status
+                $statusCounts = [
+                    'available' => $roomDetails->where('status', 'available')->count(),
+                    'booked' => $roomDetails->where('status', 'booked')->count(),
+                    'occupied' => $roomDetails->where('status', 'occupied')->count(),
+                    'unavailable' => $roomDetails->where('status', 'unavailable')->count(),
+                ];
+
+                return [
+                    'name' => $roomName,
+                    'total_rooms' => $roomGroup->count(),
+                    'rooms' => $roomDetails->toArray(),
+                    'status_counts' => $statusCounts,
                 ];
             })
             ->values();

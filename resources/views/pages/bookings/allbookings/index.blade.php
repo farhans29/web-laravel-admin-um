@@ -146,27 +146,35 @@
             perPageSelect.addEventListener('change', fetchFilteredBookings);
 
             // Function to fetch filtered bookings
-            function fetchFilteredBookings() {
+            function fetchFilteredBookings(url = null) {
                 // Collect all filter values
                 const params = new URLSearchParams();
 
-                // Get search value
-                const search = document.getElementById('search').value;
-                if (search) params.append('search', search);
+                // If URL is provided (from pagination) and it's a valid string, extract params from it
+                if (url && typeof url === 'string' && url.startsWith('http')) {
+                    const urlObj = new URL(url);
+                    urlObj.searchParams.forEach((value, key) => {
+                        params.append(key, value);
+                    });
+                } else {
+                    // Get search value
+                    const search = document.getElementById('search').value;
+                    if (search) params.append('search', search);
 
-                // Get status value
-                const status = document.getElementById('status').value;
-                if (status) params.append('status', status);
+                    // Get status value
+                    const status = document.getElementById('status').value;
+                    if (status) params.append('status', status);
 
-                // Get date range values
-                const startDate = document.getElementById('start_date').value;
-                const endDate = document.getElementById('end_date').value;
-                if (startDate) params.append('start_date', startDate);
-                if (endDate) params.append('end_date', endDate);
+                    // Get date range values
+                    const startDate = document.getElementById('start_date').value;
+                    const endDate = document.getElementById('end_date').value;
+                    if (startDate) params.append('start_date', startDate);
+                    if (endDate) params.append('end_date', endDate);
 
-                // Get per page value
-                const perPage = document.getElementById('per_page').value;
-                params.append('per_page', perPage);
+                    // Get per page value
+                    const perPage = document.getElementById('per_page').value;
+                    params.append('per_page', perPage);
+                }
 
                 // Show loading state
                 const tableContainer = document.querySelector('.overflow-x-auto');
@@ -195,6 +203,9 @@
                         if (typeof Alpine !== 'undefined') {
                             Alpine.initTree(document.querySelector('.overflow-x-auto'));
                         }
+
+                        // Re-attach event listeners for new pagination links
+                        attachPaginationListeners();
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -205,6 +216,28 @@
                     `;
                     });
             }
+
+            // Function to attach event listeners to pagination links
+            function attachPaginationListeners() {
+                const paginationContainer = document.getElementById('paginationContainer');
+                if (!paginationContainer) return;
+
+                // Find all pagination links
+                const paginationLinks = paginationContainer.querySelectorAll('a[href]');
+
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const url = this.getAttribute('href');
+                        if (url) {
+                            fetchFilteredBookings(url);
+                        }
+                    });
+                });
+            }
+
+            // Initial attach of pagination listeners
+            attachPaginationListeners();
         });
     </script>
 </x-app-layout>

@@ -4,41 +4,27 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\ParkingFeeTransaction;
-use App\Models\ParkingFeeTransactionImage;
-use App\Models\ParkingFee;
+use App\Models\DepositFeeTransaction;
+use App\Models\DepositFeeTransactionImage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class ParkingPaymentController extends Controller
+class DepositPaymentController extends Controller
 {
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = ParkingFeeTransaction::with(['property', 'parkingFee', 'images', 'verifiedBy', 'createdBy'])
+        $query = DepositFeeTransaction::with(['depositFee', 'images', 'verifiedBy', 'createdBy', 'transaction.property', 'transaction.room'])
             ->orderBy('created_at', 'desc');
 
-        $user = Auth::user();
-        if ($user->isSite() && $user->property_id) {
-            $query->where('property_id', $user->property_id);
-        }
-
         if ($request->has('search') && !empty($request->search)) {
-            $query->where(function ($q) use ($request) {
-                $q->where('order_id', 'like', "%{$request->search}%")
-                    ->orWhere('user_name', 'like', "%{$request->search}%")
-                    ->orWhere('vehicle_plate', 'like', "%{$request->search}%");
-            });
+            $query->where('order_id', 'like', "%{$request->search}%");
         }
 
         if ($request->has('status') && !empty($request->status)) {
             $query->where('transaction_status', $request->status);
-        }
-
-        if ($request->has('parking_type') && !empty($request->parking_type)) {
-            $query->where('parking_type', $request->parking_type);
         }
 
         if ($request->has('date_from') && !empty($request->date_from)) {
@@ -49,43 +35,30 @@ class ParkingPaymentController extends Controller
             $query->whereDate('transaction_date', '<=', $request->date_to);
         }
 
-        $parkingTransactions = $perPage === 'all'
+        $depositTransactions = $perPage === 'all'
             ? $query->get()
             : $query->paginate((int) $perPage)->withQueryString();
 
         if ($request->ajax() || $request->header('X-Requested-With') == 'XMLHttpRequest') {
-            return view('pages.payment.parking.partials.parking-payment_table', compact('parkingTransactions'));
+            return view('pages.payment.deposit.partials.deposit-payment_table', compact('depositTransactions'));
         }
 
-        return view('pages.payment.parking.index', compact('parkingTransactions'));
+        return view('pages.payment.deposit.index', compact('depositTransactions'));
     }
 
     public function filter(Request $request)
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = ParkingFeeTransaction::with(['property', 'parkingFee', 'images', 'verifiedBy', 'createdBy'])
+        $query = DepositFeeTransaction::with(['depositFee', 'images', 'verifiedBy', 'createdBy', 'transaction.property', 'transaction.room'])
             ->orderBy('created_at', 'desc');
 
-        $user = Auth::user();
-        if ($user->isSite() && $user->property_id) {
-            $query->where('property_id', $user->property_id);
-        }
-
         if (!empty($request->search)) {
-            $query->where(function ($q) use ($request) {
-                $q->where('order_id', 'like', "%{$request->search}%")
-                    ->orWhere('user_name', 'like', "%{$request->search}%")
-                    ->orWhere('vehicle_plate', 'like', "%{$request->search}%");
-            });
+            $query->where('order_id', 'like', "%{$request->search}%");
         }
 
         if (!empty($request->status)) {
             $query->where('transaction_status', $request->status);
-        }
-
-        if (!empty($request->parking_type)) {
-            $query->where('parking_type', $request->parking_type);
         }
 
         if (!empty($request->date_from)) {
@@ -96,14 +69,14 @@ class ParkingPaymentController extends Controller
             $query->whereDate('transaction_date', '<=', $request->date_to);
         }
 
-        $parkingTransactions = $perPage === 'all'
+        $depositTransactions = $perPage === 'all'
             ? $query->get()
             : $query->paginate((int) $perPage)->appends($request->all());
 
         return response()->json([
-            'html' => view('pages.payment.parking.partials.parking-payment_table', compact('parkingTransactions'))->render(),
-            'pagination' => $perPage !== 'all' && $parkingTransactions instanceof \Illuminate\Pagination\LengthAwarePaginator
-                ? $parkingTransactions->links()->toHtml()
+            'html' => view('pages.payment.deposit.partials.deposit-payment_table', compact('depositTransactions'))->render(),
+            'pagination' => $perPage !== 'all' && $depositTransactions instanceof \Illuminate\Pagination\LengthAwarePaginator
+                ? $depositTransactions->links()->toHtml()
                 : ''
         ]);
     }
@@ -111,7 +84,7 @@ class ParkingPaymentController extends Controller
     public function approve(Request $request, $id)
     {
         try {
-            $transaction = ParkingFeeTransaction::findOrFail($id);
+            $transaction = DepositFeeTransaction::findOrFail($id);
 
             $transaction->update([
                 'transaction_status' => 'paid',
@@ -123,7 +96,7 @@ class ParkingPaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pembayaran parkir berhasil disetujui'
+                'message' => 'Pembayaran deposit berhasil disetujui'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -140,7 +113,7 @@ class ParkingPaymentController extends Controller
         ]);
 
         try {
-            $transaction = ParkingFeeTransaction::findOrFail($id);
+            $transaction = DepositFeeTransaction::findOrFail($id);
 
             $transaction->update([
                 'transaction_status' => 'rejected',
@@ -152,7 +125,7 @@ class ParkingPaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pembayaran parkir berhasil ditolak'
+                'message' => 'Pembayaran deposit berhasil ditolak'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -164,7 +137,7 @@ class ParkingPaymentController extends Controller
 
     public function viewProof($id)
     {
-        $transaction = ParkingFeeTransaction::with('images')->findOrFail($id);
+        $transaction = DepositFeeTransaction::with('images')->findOrFail($id);
 
         $images = $transaction->images->where('status', 1);
 
@@ -192,8 +165,6 @@ class ParkingPaymentController extends Controller
     {
         $request->validate([
             'order_id' => 'required|exists:t_transactions,order_id',
-            'parking_type' => 'required|in:car,motorcycle',
-            'vehicle_plate' => 'required|string|max:50',
             'fee_amount' => 'required|numeric|min:0',
             'transaction_date' => 'required|date',
             'payment_proof' => 'required|image|mimes:jpeg,jpg|max:5120', // 5MB in kilobytes
@@ -237,14 +208,14 @@ class ParkingPaymentController extends Controller
             $romanMonth = $romanMonths[$month - 1];
 
             // Get sequential number for this month/year
-            $lastTransaction = ParkingFeeTransaction::whereYear('transaction_date', $year)
+            $lastTransaction = DepositFeeTransaction::whereYear('transaction_date', $year)
                 ->whereMonth('transaction_date', $month)
                 ->orderBy('created_at', 'desc')
                 ->first();
 
             $sequentialNumber = 1;
             if ($lastTransaction && $lastTransaction->invoice_id) {
-                // Extract number from last invoice_id (format: 0001/PRK-XX/KGA-INV/I/2026)
+                // Extract number from last invoice_id (format: 0001/DEP-XX/KGA-INV/I/2026)
                 preg_match('/^(\d+)\//', $lastTransaction->invoice_id, $matches);
                 if (!empty($matches[1])) {
                     $sequentialNumber = intval($matches[1]) + 1;
@@ -254,47 +225,20 @@ class ParkingPaymentController extends Controller
             // Format sequential number with leading zeros
             $formattedNumber = str_pad($sequentialNumber, 4, '0', STR_PAD_LEFT);
 
-            // Generate invoice ID: 0001/PRK-XX/KGA-INV/I/2026
+            // Generate invoice ID: 0001/DEP-XX/KGA-INV/I/2026
             $invoiceId = sprintf(
-                '%s/PRK-%s/KGA-INV/%s/%s',
+                '%s/DEP-%s/KGA-INV/%s/%s',
                 $formattedNumber,
                 $propertyInitials,
                 $romanMonth,
                 $year
             );
 
-            // Get or create parking_fee
-            $parkingFee = ParkingFee::where('property_id', $bookingTransaction->property_id)
-                ->where('parking_type', $request->parking_type)
-                ->where('status', 1)
-                ->first();
-
-            // If no parking fee exists, create one
-            if (!$parkingFee) {
-                $parkingFee = ParkingFee::create([
-                    'property_id' => $bookingTransaction->property_id,
-                    'parking_type' => $request->parking_type,
-                    'fee' => $request->fee_amount,
-                    'capacity' => 0,
-                    'status' => 1,
-                    'created_by' => Auth::id(),
-                ]);
-
-                // Refresh to get the auto-generated ID
-                $parkingFee->refresh();
-            }
-
-            // Create parking fee transaction with status 'paid' and already verified
-            $transaction = ParkingFeeTransaction::create([
-                'property_id' => $bookingTransaction->property_id,
-                'parking_fee_id' => $parkingFee->idrec,
+            // Create deposit fee transaction with status 'paid' and already verified
+            $transaction = DepositFeeTransaction::create([
+                'deposit_fee_id' => null,
                 'invoice_id' => $invoiceId,
                 'order_id' => $request->order_id,
-                'user_id' => $bookingTransaction->user_id,
-                'user_name' => $bookingTransaction->user_name,
-                'user_phone' => $bookingTransaction->user_phone_number,
-                'parking_type' => $request->parking_type,
-                'vehicle_plate' => strtoupper($request->vehicle_plate),
                 'fee_amount' => $request->fee_amount,
                 'transaction_date' => $request->transaction_date,
                 'transaction_status' => 'paid', // Already paid
@@ -311,7 +255,7 @@ class ParkingPaymentController extends Controller
                 $image = $request->file('payment_proof');
 
                 // Create directory if not exists
-                $uploadPath = storage_path('app/public/parking_payments');
+                $uploadPath = storage_path('app/public/deposit_payments');
                 if (!file_exists($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }
@@ -324,9 +268,9 @@ class ParkingPaymentController extends Controller
                 $image->move($uploadPath, $filename);
 
                 // Save file path to database
-                ParkingFeeTransactionImage::create([
-                    'parking_transaction_id' => $transaction->idrec,
-                    'image' => 'parking_payments/' . $filename, // Store relative path
+                DepositFeeTransactionImage::create([
+                    'deposit_transaction_id' => $transaction->idrec,
+                    'image' => 'deposit_payments/' . $filename, // Store relative path
                     'image_type' => $image->getClientOriginalExtension(),
                     'description' => 'Payment proof uploaded by admin',
                     'status' => 1,
@@ -338,7 +282,7 @@ class ParkingPaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Parking payment added successfully',
+                'message' => 'Deposit payment added successfully',
                 'data' => $transaction
             ]);
         } catch (\Exception $e) {
@@ -346,23 +290,7 @@ class ParkingPaymentController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to add parking payment: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getParkingFees($propertyId)
-    {
-        try {
-            $parkingFees = ParkingFee::where('property_id', $propertyId)
-                ->where('status', 1)
-                ->get(['idrec', 'parking_type', 'fee']);
-
-            return response()->json($parkingFees);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to load parking fees: ' . $e->getMessage()
+                'message' => 'Failed to add deposit payment: ' . $e->getMessage()
             ], 500);
         }
     }

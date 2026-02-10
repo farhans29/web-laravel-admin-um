@@ -33,7 +33,9 @@ return new class extends Migration
             $table->decimal('room_price', 18, 4)->nullable(); 
             $table->decimal('admin_fees', 18, 4)->nullable();
             $table->decimal('service_fees', 18, 4)->nullable();
-            $table->decimal('grandtotal_price', 18, 4)->nullable();
+            $table->integer('grandtotal_price')->nullable();
+            $table->integer('parking_duration')->nullable();
+            $table->string('parking_type', 255)->nullable();
             $table->dateTime('transaction_date');
             $table->string('transaction_type', 100)->nullable();
             $table->string('transaction_code', 100)->nullable();
