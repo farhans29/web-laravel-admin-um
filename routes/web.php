@@ -18,6 +18,7 @@ use App\Http\Controllers\Properties\ManajementPropertiesController;
 use App\Http\Controllers\Properties\ManajementRoomsController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\ParkingPaymentController;
+use App\Http\Controllers\Payment\DepositPaymentController;
 use App\Http\Controllers\Payment\RefundController;
 use App\Http\Controllers\Properties\DepositFeeController;
 use App\Http\Controllers\Properties\ParkingFeeController;
@@ -235,10 +236,20 @@ Route::middleware(['auth', 'permission'])->group(function () {
         // ------------------------- PARKING PAYMENTS -------------------------
         Route::get('/parking', [ParkingPaymentController::class, 'index'])->name('admin.parking-payments.index');
         Route::post('/parking/filter', [ParkingPaymentController::class, 'filter'])->name('admin.parking-payments.filter');
+        Route::get('/parking/checked-in-orders', [ParkingPaymentController::class, 'getCheckedInOrders'])->name('admin.parking-payments.checked-in-orders');
         Route::post('/parking/store', [ParkingPaymentController::class, 'store'])->name('admin.parking-payments.store');
         Route::post('/parking/approve/{id}', [ParkingPaymentController::class, 'approve'])->name('admin.parking-payments.approve');
         Route::post('/parking/reject/{id}', [ParkingPaymentController::class, 'reject'])->name('admin.parking-payments.reject');
         Route::get('/parking/proof/{id}', [ParkingPaymentController::class, 'viewProof'])->name('admin.parking-payments.proof');
+
+        // ------------------------- DEPOSIT PAYMENTS -------------------------
+        Route::get('/deposit', [DepositPaymentController::class, 'index'])->name('admin.deposit-payments.index');
+        Route::post('/deposit/filter', [DepositPaymentController::class, 'filter'])->name('admin.deposit-payments.filter');
+        Route::get('/deposit/checked-in-orders', [DepositPaymentController::class, 'getCheckedInOrders'])->name('admin.deposit-payments.checked-in-orders');
+        Route::post('/deposit/store', [DepositPaymentController::class, 'store'])->name('admin.deposit-payments.store');
+        Route::post('/deposit/approve/{id}', [DepositPaymentController::class, 'approve'])->name('admin.deposit-payments.approve');
+        Route::post('/deposit/reject/{id}', [DepositPaymentController::class, 'reject'])->name('admin.deposit-payments.reject');
+        Route::get('/deposit/proof/{id}', [DepositPaymentController::class, 'viewProof'])->name('admin.deposit-payments.proof');
 
         Route::get('/refund', [RefundController::class, 'index'])->name('admin.refunds.index');
         Route::post('/refund/store', [RefundController::class, 'store'])->name('admin.refunds.store');

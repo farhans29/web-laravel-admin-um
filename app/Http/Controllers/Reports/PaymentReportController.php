@@ -254,7 +254,7 @@ class PaymentReportController extends Controller
 
     private function formatNotes($transaction, $isRefund, $refundInfo)
     {
-        $notes = $transaction->notes ?? '';
+        $notes = $transaction->payment->notes ?? '';
 
         if ($isRefund && $refundInfo) {
             $refundDate = Carbon::parse($refundInfo->refund_date)->format('d M Y');

@@ -50,7 +50,8 @@ class Transaction extends Model
         'paid_at',
         'cancel_at',
         'deposit_fee',
-        'parking_fee'
+        'parking_fee',
+        'expired_at'
     ];
 
 

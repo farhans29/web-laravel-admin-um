@@ -14,7 +14,7 @@ class CompletedController extends Controller
     {
         // Show completed bookings:
         // 1. Checked-out bookings (paid, check_out_at NOT NULL)
-        // 2. Expired/Cancelled bookings
+        // 2. Cancelled bookings (exclude expired)
         $query = Booking::with(['user', 'room', 'property', 'transaction', 'refund'])
             ->where(function ($q) {
                 // Checked-out bookings (status=0 after checkout)
@@ -24,11 +24,10 @@ class CompletedController extends Controller
                             $t->where('transaction_status', 'paid');
                         });
                 })
-                // OR expired/cancelled bookings (status=1, never checked out)
-                ->orWhere(function ($expiredCancelled) {
-                    $expiredCancelled->whereHas('transaction', function ($t) {
-                        $t->whereIn('transaction_status', ['canceled', 'cancelled'])
-                            ->where('transaction_status', '!=', 'expired');
+                // OR cancelled bookings (exclude expired)
+                ->orWhere(function ($cancelled) {
+                    $cancelled->whereHas('transaction', function ($t) {
+                        $t->whereIn('transaction_status', ['canceled', 'cancelled']);
                     });
                 });
             });
@@ -71,7 +70,7 @@ class CompletedController extends Controller
     {
         // Show completed bookings:
         // 1. Checked-out bookings (paid, check_out_at NOT NULL)
-        // 2. Expired/Cancelled bookings
+        // 2. Cancelled bookings (exclude expired)
         $query = Booking::with(['user', 'room', 'property', 'transaction', 'refund'])
             ->where(function ($q) {
                 // Checked-out bookings (status=0 after checkout)
@@ -81,10 +80,10 @@ class CompletedController extends Controller
                             $t->where('transaction_status', 'paid');
                         });
                 })
-                // OR expired/cancelled bookings (status=1, never checked out)
-                ->orWhere(function ($expiredCancelled) {
-                    $expiredCancelled->whereHas('transaction', function ($t) {
-                        $t->whereIn('transaction_status', ['expired', 'canceled', 'cancelled']);
+                // OR cancelled bookings (exclude expired)
+                ->orWhere(function ($cancelled) {
+                    $cancelled->whereHas('transaction', function ($t) {
+                        $t->whereIn('transaction_status', ['canceled', 'cancelled']);
                     });
                 });
             });

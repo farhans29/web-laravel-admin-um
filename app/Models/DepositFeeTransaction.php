@@ -5,25 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ParkingFeeTransaction extends Model
+class DepositFeeTransaction extends Model
 {
     use HasFactory;
 
-    protected $table = 't_parking_fee_transaction';
+    protected $table = 't_deposit_fee_transaction';
     protected $primaryKey = 'idrec';
     protected $keyType = 'int';
     public $incrementing = true;
 
     protected $fillable = [
-        'property_id',
-        'parking_fee_id',
+        'deposit_fee_id',
         'invoice_id',
         'order_id',
-        'user_id',
-        'user_name',
-        'user_phone',
-        'parking_type',
-        'vehicle_plate',
         'fee_amount',
         'transaction_date',
         'transaction_status',
@@ -45,24 +39,14 @@ class ParkingFeeTransaction extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function property()
+    public function depositFee()
     {
-        return $this->belongsTo(Property::class, 'property_id', 'idrec');
-    }
-
-    public function parkingFee()
-    {
-        return $this->belongsTo(ParkingFee::class, 'parking_fee_id', 'idrec');
+        return $this->belongsTo(DepositFee::class, 'deposit_fee_id', 'idrec');
     }
 
     public function transaction()
     {
         return $this->belongsTo(Transaction::class, 'order_id', 'order_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function verifiedBy()
@@ -72,7 +56,7 @@ class ParkingFeeTransaction extends Model
 
     public function images()
     {
-        return $this->hasMany(ParkingFeeTransactionImage::class, 'parking_transaction_id', 'idrec');
+        return $this->hasMany(DepositFeeTransactionImage::class, 'deposit_transaction_id', 'idrec');
     }
 
     public function createdBy()

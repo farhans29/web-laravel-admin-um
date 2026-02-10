@@ -57,8 +57,9 @@ class PermissionsTableSeeder extends Seeder
 
             // Payments
             'view_payments',
-            'view_refunds',
             'view_parking_payments',
+            'view_deposit_payments',
+            'view_refunds',
 
             // Reports
             'view_reports',
