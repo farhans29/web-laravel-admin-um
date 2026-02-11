@@ -19,6 +19,13 @@ class DepositPaymentController extends Controller
         $query = DepositFeeTransaction::with(['depositFee', 'images', 'verifiedBy', 'createdBy', 'transaction.property', 'transaction.room'])
             ->orderBy('created_at', 'desc');
 
+        $user = Auth::user();
+        if ($user->isSite() && $user->property_id) {
+            $query->whereHas('transaction', function($q) use ($user) {
+                $q->where('property_id', $user->property_id);
+            });
+        }
+
         if ($request->has('search') && !empty($request->search)) {
             $query->where('order_id', 'like', "%{$request->search}%");
         }
@@ -52,6 +59,13 @@ class DepositPaymentController extends Controller
 
         $query = DepositFeeTransaction::with(['depositFee', 'images', 'verifiedBy', 'createdBy', 'transaction.property', 'transaction.room'])
             ->orderBy('created_at', 'desc');
+
+        $user = Auth::user();
+        if ($user->isSite() && $user->property_id) {
+            $query->whereHas('transaction', function($q) use ($user) {
+                $q->where('property_id', $user->property_id);
+            });
+        }
 
         if (!empty($request->search)) {
             $query->where('order_id', 'like', "%{$request->search}%");
@@ -236,7 +250,6 @@ class DepositPaymentController extends Controller
 
             // Create deposit fee transaction with status 'paid' and already verified
             $transaction = DepositFeeTransaction::create([
-                'deposit_fee_id' => null,
                 'invoice_id' => $invoiceId,
                 'order_id' => $request->order_id,
                 'fee_amount' => $request->fee_amount,

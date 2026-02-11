@@ -20,6 +20,7 @@ class ParkingFee extends Model
         'parking_type',
         'fee',
         'capacity',
+        'quota_used',
         'status',
         'created_by',
         'updated_by',
@@ -28,6 +29,7 @@ class ParkingFee extends Model
     protected $casts = [
         'fee' => 'decimal:4',
         'capacity' => 'integer',
+        'quota_used' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -72,5 +74,59 @@ class ParkingFee extends Model
             ->count();
 
         return max(0, $this->capacity - $occupied);
+    }
+
+    /**
+     * Get available quota (capacity - quota_used)
+     */
+    public function getAvailableQuotaAttribute(): int
+    {
+        return max(0, $this->capacity - $this->quota_used);
+    }
+
+    /**
+     * Check if quota is available
+     */
+    public function hasAvailableQuota(int $amount = 1): bool
+    {
+        return $this->available_quota >= $amount;
+    }
+
+    /**
+     * Increment quota used (when parking payment is created)
+     */
+    public function incrementQuota(int $amount = 1): bool
+    {
+        if (!$this->hasAvailableQuota($amount)) {
+            return false;
+        }
+
+        $this->increment('quota_used', $amount);
+        return true;
+    }
+
+    /**
+     * Decrement quota used (when vehicle checks out)
+     */
+    public function decrementQuota(int $amount = 1): bool
+    {
+        if ($this->quota_used < $amount) {
+            return false;
+        }
+
+        $this->decrement('quota_used', $amount);
+        return true;
+    }
+
+    /**
+     * Get quota usage percentage
+     */
+    public function getQuotaUsagePercentageAttribute(): float
+    {
+        if ($this->capacity <= 0) {
+            return 0;
+        }
+
+        return round(($this->quota_used / $this->capacity) * 100, 2);
     }
 }

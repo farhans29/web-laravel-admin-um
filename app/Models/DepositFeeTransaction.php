@@ -15,7 +15,6 @@ class DepositFeeTransaction extends Model
     public $incrementing = true;
 
     protected $fillable = [
-        'deposit_fee_id',
         'invoice_id',
         'order_id',
         'fee_amount',
@@ -38,11 +37,6 @@ class DepositFeeTransaction extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    public function depositFee()
-    {
-        return $this->belongsTo(DepositFee::class, 'deposit_fee_id', 'idrec');
-    }
 
     public function transaction()
     {

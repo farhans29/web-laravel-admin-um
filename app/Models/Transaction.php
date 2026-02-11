@@ -43,6 +43,8 @@ class Transaction extends Model
         'transaction_type',
         'transaction_code',
         'transaction_status',
+        'is_renewal',
+        'renewal_status',
         'booking_type',
         'notes',
         'attachment',

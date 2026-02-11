@@ -65,6 +65,8 @@ class PermissionsTableSeeder extends Seeder
             'view_reports',
             'view_booking_report',
             'view_payment_report',
+            'view_parking_report',
+            'view_deposit_report',
             'view_rented_rooms_report',
 
             // Settings

@@ -4,10 +4,10 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div>
                 <h1
-                    class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
-                    {{ __('ui.payment_report') }}
+                    class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-800">
+                    {{ __('ui.deposit_report') }}
                 </h1>
-                <p class="text-gray-600 mt-1">{{ __('ui.payment_report_desc') }}</p>
+                <p class="text-gray-600 mt-1">{{ __('ui.deposit_report_desc') }}</p>
             </div>
             <div class="mt-4 md:mt-0 flex gap-2">
                 <button onclick="printReport()"
@@ -43,8 +43,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" id="search" name="search" placeholder="{{ __('ui.search_payment_placeholder') }}"
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="text" id="search" name="search" placeholder="{{ __('ui.search_deposit_report_placeholder') }}"
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
                     </div>
 
                     <!-- Date Range -->
@@ -52,18 +52,18 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.payment_date_range') }}</label>
                         <div class="relative">
                             <input type="text" id="date_picker" placeholder="{{ __('ui.select_date_range') }}" data-input
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
                             <input type="hidden" id="start_date" name="start_date" value="{{ $startDate }}">
                             <input type="hidden" id="end_date" name="end_date" value="{{ $endDate }}">
                         </div>
                     </div>
 
-                    <!-- Property Filter (only for super admin and HO users) -->
+                    <!-- Property Filter -->
                     @if(auth()->user()->isSuperAdmin() || auth()->user()->isHO())
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.property') }}</label>
                         <select id="property_id" name="property_id"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
                             <option value="">{{ __('ui.all_properties') }}</option>
                             @foreach ($properties as $property)
                                 <option value="{{ $property->idrec }}"
@@ -81,7 +81,7 @@
                     <div class="flex items-center gap-2">
                         <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                         <select name="per_page" id="per_page"
-                            class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            class="border-gray-200 rounded-lg focus:ring-purple-500 focus:border-purple-500 text-sm">
                             <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
                             <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
                             <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
@@ -98,32 +98,15 @@
                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                         <tr>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.invoice_number') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.invoice_date') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.transaction_code') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.invoice_id') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.order_id') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.property_name') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.room_type') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.room_number') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.room') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.tenant_name') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.nik') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.mobile_number') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.email') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.check_in') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.check_out') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.duration') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.price_per_unit') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.dpp_per_unit') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.subtotal') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.discount') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.dpp_discount') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.parking') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.dpp_parking') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.vatt') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.grand_total') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.deposit') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.deposit_fee') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.dpp_deposit_fee') }}</th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.service_fee') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.phone_number') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.fee_amount') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.transaction_date') }}</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.payment_date') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.payment_status') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.verified_by') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.verified_date') }}</th>
@@ -132,9 +115,9 @@
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200">
                         <tr>
-                            <td colspan="31" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="14" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
-                                    <svg class="animate-spin h-8 w-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg class="animate-spin h-8 w-8 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
@@ -148,7 +131,6 @@
 
             <!-- Pagination -->
             <div id="paginationContainer" class="bg-gray-50 px-4 py-3 border-t border-gray-200">
-                <!-- Pagination will be inserted here -->
             </div>
         </div>
     </div>
@@ -157,7 +139,7 @@
     <script>
         let currentPage = 1;
         let searchTimeout;
-        let reportData = []; // Store report data for printing
+        let reportData = [];
 
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Flatpickr with persistence (no default dates - show all data)
@@ -173,12 +155,10 @@
                 flatpickrOptions.defaultStartDate = new Date(startDateVal);
                 flatpickrOptions.defaultEndDate = new Date(endDateVal);
             }
-            const datePicker = DateFilterPersistence.initFlatpickr('payment-report', flatpickrOptions);
+            const datePicker = DateFilterPersistence.initFlatpickr('deposit-report', flatpickrOptions);
 
-            // Auto-load data on page load
             fetchReportData();
 
-            // Listen for select filter changes (instant)
             ['property_id', 'per_page'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
@@ -189,7 +169,6 @@
                 }
             });
 
-            // Search input with debounce (300ms delay)
             document.getElementById('search').addEventListener('input', function(e) {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(function() {
@@ -198,7 +177,6 @@
                 }, 300);
             });
 
-            // Search on Enter key (immediate)
             document.getElementById('search').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -223,9 +201,9 @@
             const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="31" class="px-4 py-8 text-center text-gray-500">
+                    <td colspan="14" class="px-4 py-8 text-center text-gray-500">
                         <div class="flex justify-center items-center gap-2">
-                            <svg class="animate-spin h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg class="animate-spin h-5 w-5 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
@@ -235,11 +213,11 @@
                 </tr>
             `;
 
-            fetch('{{ route('reports.payment.data') }}?' + new URLSearchParams(Object.fromEntries(formData)))
+            fetch('{{ route('reports.deposit.data') }}?' + new URLSearchParams(Object.fromEntries(formData)))
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        reportData = data.data; // Store for printing
+                        reportData = data.data;
                         renderTable(data.data);
                         renderPagination(data.pagination);
                     }
@@ -248,7 +226,7 @@
                     console.error('Error:', error);
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="31" class="px-4 py-8 text-center text-red-500">
+                            <td colspan="14" class="px-4 py-8 text-center text-red-500">
                                 {{ __('ui.error_loading') }}
                             </td>
                         </tr>
@@ -262,7 +240,7 @@
             if (data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="31" class="px-4 py-8 text-center text-gray-500">
+                        <td colspan="14" class="px-4 py-8 text-center text-gray-500">
                             <div class="flex flex-col items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -276,39 +254,18 @@
             }
 
             tbody.innerHTML = data.map(row => {
-                const refundClass = row.is_refund ? 'bg-red-50' : '';
-                const refundBadge = row.is_refund ?
-                    '<span class="ml-1 px-1 py-0.5 text-xs bg-red-100 text-red-800 rounded font-semibold">REFUND</span>' : '';
-
                 return `
-                <tr class="hover:bg-gray-50 transition-colors ${refundClass}">
+                <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-3 py-3 text-xs text-gray-900">${row.no}</td>
-                    <td class="px-3 py-3 text-xs font-medium text-blue-600">${row.invoice_number}${refundBadge}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.invoice_date}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.transaction_code}</td>
+                    <td class="px-3 py-3 text-xs font-medium text-purple-600">${row.invoice_id}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.order_id}</td>
                     <td class="px-3 py-3 text-xs text-gray-900">${row.property_name}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.room_type}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.room_number}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.room_name}</td>
                     <td class="px-3 py-3 text-xs text-gray-900">${row.tenant_name}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.nik}</td>
-                    <td class="px-3 py-3 text-xs text-gray-700">${row.mobile_number}</td>
-                    <td class="px-3 py-3 text-xs text-gray-700">${row.email}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.check_in}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.check_out}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.duration}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.price_per_unit}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.dpp_kamar_per_unit}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.subtotal}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.diskon}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.dpp_diskon}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.parkir}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.dpp_parkir}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.vatt}</td>
-                    <td class="px-3 py-3 text-xs font-semibold text-gray-900">${row.grand_total}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.deposit}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.deposit_fee}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.dpp_deposit_fee}</td>
-                    <td class="px-3 py-3 text-xs text-gray-900">${row.service_fee}</td>
+                    <td class="px-3 py-3 text-xs text-gray-700">${row.phone}</td>
+                    <td class="px-3 py-3 text-xs font-semibold text-gray-900">${row.fee_amount}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.transaction_date}</td>
+                    <td class="px-3 py-3 text-xs text-gray-900">${row.paid_at}</td>
                     <td class="px-3 py-3 text-xs text-gray-700">${row.payment_status}</td>
                     <td class="px-3 py-3 text-xs text-gray-700">${row.verified_by}</td>
                     <td class="px-3 py-3 text-xs text-gray-700">${row.verified_at}</td>
@@ -337,7 +294,6 @@
                     <div class="flex gap-2">
             `;
 
-            // Previous button
             if (pagination.current_page > 1) {
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page - 1})"
@@ -347,7 +303,6 @@
                 `;
             }
 
-            // Page numbers
             for (let i = 1; i <= pagination.last_page; i++) {
                 if (
                     i === 1 ||
@@ -371,7 +326,6 @@
                 }
             }
 
-            // Next button
             if (pagination.current_page < pagination.last_page) {
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page + 1})"
@@ -390,68 +344,41 @@
         }
 
         function printReport() {
-            const reportTitle = '{{ __('ui.payment_report') }}';
+            const reportTitle = '{{ __('ui.deposit_report') }}';
 
-            // Get filter info
             let filterInfo = '';
-
-            // Date range
             const startDate = document.getElementById('start_date').value;
             const endDate = document.getElementById('end_date').value;
             if (startDate && endDate) {
                 filterInfo += `<p><strong>{{ __('ui.period') }}:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}</p>`;
             }
 
-            // Property filter
             const propertySelect = document.getElementById('property_id');
-            if (propertySelect) {
+            if (propertySelect && propertySelect.value) {
                 const selectedProperty = propertySelect.options[propertySelect.selectedIndex].text;
-                if (propertySelect.value) {
-                    filterInfo += `<p><strong>{{ __('ui.property') }}:</strong> ${selectedProperty}</p>`;
-                }
+                filterInfo += `<p><strong>{{ __('ui.property') }}:</strong> ${selectedProperty}</p>`;
             }
 
-            // Search filter
             const searchValue = document.getElementById('search').value;
             if (searchValue) {
                 filterInfo += `<p><strong>{{ __('ui.search') }}:</strong> ${searchValue}</p>`;
             }
 
-            // Build table rows from reportData
             let tableRows = '';
             if (reportData && reportData.length > 0) {
                 tableRows = reportData.map(row => {
-                    const refundClass = row.is_refund ? 'refund-row' : '';
-                    const refundBadge = row.is_refund ? ' [REFUND]' : '';
                     return `
-                        <tr class="${refundClass}">
+                        <tr>
                             <td>${row.no}</td>
-                            <td>${row.invoice_number}${refundBadge}</td>
-                            <td>${row.invoice_date}</td>
-                            <td>${row.transaction_code}</td>
+                            <td>${row.invoice_id}</td>
+                            <td>${row.order_id}</td>
                             <td>${row.property_name}</td>
-                            <td>${row.room_type}</td>
-                            <td>${row.room_number}</td>
+                            <td>${row.room_name}</td>
                             <td>${row.tenant_name}</td>
-                            <td>${row.nik}</td>
-                            <td>${row.mobile_number}</td>
-                            <td>${row.email}</td>
-                            <td>${row.check_in}</td>
-                            <td>${row.check_out}</td>
-                            <td>${row.duration}</td>
-                            <td>${row.price_per_unit}</td>
-                            <td>${row.dpp_kamar_per_unit}</td>
-                            <td>${row.subtotal}</td>
-                            <td>${row.diskon}</td>
-                            <td>${row.dpp_diskon}</td>
-                            <td>${row.parkir}</td>
-                            <td>${row.dpp_parkir}</td>
-                            <td>${row.vatt}</td>
-                            <td>${row.grand_total}</td>
-                            <td>${row.deposit}</td>
-                            <td>${row.deposit_fee}</td>
-                            <td>${row.dpp_deposit_fee}</td>
-                            <td>${row.service_fee}</td>
+                            <td>${row.phone}</td>
+                            <td>${row.fee_amount}</td>
+                            <td>${row.transaction_date}</td>
+                            <td>${row.paid_at}</td>
                             <td>${row.payment_status}</td>
                             <td>${row.verified_by}</td>
                             <td>${row.verified_at}</td>
@@ -461,7 +388,6 @@
                 }).join('');
             }
 
-            // Create print window
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <!DOCTYPE html>
@@ -469,150 +395,44 @@
                 <head>
                     <title>${reportTitle}</title>
                     <style>
-                        @page {
-                            size: landscape;
-                            margin: 10mm;
-                        }
-                        body {
-                            font-family: Arial, sans-serif;
-                            margin: 10px;
-                            color: #333;
-                            font-size: 8px;
-                        }
-                        .header {
-                            text-align: center;
-                            margin-bottom: 15px;
-                            border-bottom: 2px solid #059669;
-                            padding-bottom: 10px;
-                        }
-                        .header h1 {
-                            margin: 0;
-                            color: #059669;
-                            font-size: 18px;
-                        }
-                        .header p {
-                            margin: 5px 0;
-                            color: #666;
-                            font-size: 10px;
-                        }
-                        .filter-info {
-                            background: #F3F4F6;
-                            padding: 10px;
-                            border-radius: 5px;
-                            margin-bottom: 15px;
-                        }
-                        .filter-info p {
-                            margin: 3px 0;
-                            font-size: 10px;
-                        }
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin-top: 10px;
-                        }
-                        th {
-                            background-color: #059669;
-                            color: white;
-                            padding: 5px 3px;
-                            text-align: left;
-                            font-size: 7px;
-                            font-weight: 600;
-                            text-transform: uppercase;
-                            border: 1px solid #047857;
-                            white-space: nowrap;
-                        }
-                        td {
-                            padding: 4px 3px;
-                            border: 1px solid #E5E7EB;
-                            font-size: 7px;
-                            white-space: nowrap;
-                        }
-                        tr:nth-child(even) {
-                            background-color: #F9FAFB;
-                        }
-                        tr.refund-row {
-                            background-color: #FEE2E2 !important;
-                        }
-                        .footer {
-                            margin-top: 20px;
-                            text-align: center;
-                            font-size: 9px;
-                            color: #666;
-                            border-top: 1px solid #E5E7EB;
-                            padding-top: 10px;
-                        }
+                        @page { size: landscape; margin: 10mm; }
+                        body { font-family: Arial, sans-serif; margin: 10px; color: #333; font-size: 9px; }
+                        .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #7C3AED; padding-bottom: 10px; }
+                        .header h1 { margin: 0; color: #7C3AED; font-size: 18px; }
+                        .header p { margin: 5px 0; color: #666; font-size: 10px; }
+                        .filter-info { background: #F3F4F6; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+                        .filter-info p { margin: 3px 0; font-size: 10px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                        th { background-color: #7C3AED; color: white; padding: 5px 3px; text-align: left; font-size: 8px; font-weight: 600; text-transform: uppercase; border: 1px solid #6D28D9; white-space: nowrap; }
+                        td { padding: 4px 3px; border: 1px solid #E5E7EB; font-size: 8px; white-space: nowrap; }
+                        tr:nth-child(even) { background-color: #F9FAFB; }
+                        .footer { margin-top: 20px; text-align: center; font-size: 9px; color: #666; border-top: 1px solid #E5E7EB; padding-top: 10px; }
                         @media print {
-                            body {
-                                margin: 0;
-                                padding: 5px;
-                            }
-                            .filter-info {
-                                background: #F9FAFB !important;
-                                -webkit-print-color-adjust: exact;
-                                print-color-adjust: exact;
-                            }
-                            th {
-                                background-color: #059669 !important;
-                                color: white !important;
-                                -webkit-print-color-adjust: exact;
-                                print-color-adjust: exact;
-                            }
-                            tr:nth-child(even) {
-                                background-color: #F9FAFB !important;
-                                -webkit-print-color-adjust: exact;
-                                print-color-adjust: exact;
-                            }
-                            tr.refund-row {
-                                background-color: #FEE2E2 !important;
-                                -webkit-print-color-adjust: exact;
-                                print-color-adjust: exact;
-                            }
+                            body { margin: 0; padding: 5px; }
+                            th { background-color: #7C3AED !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            tr:nth-child(even) { background-color: #F9FAFB !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                         }
                     </style>
                 </head>
                 <body>
                     <div class="header">
                         <h1>${reportTitle}</h1>
-                        <p>Dicetak pada: ${new Date().toLocaleString('id-ID', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}</p>
+                        <p>Dicetak pada: ${new Date().toLocaleString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                     ${filterInfo ? '<div class="filter-info"><strong>{{ __('ui.filter') }}:</strong>' + filterInfo + '</div>' : ''}
                     <table>
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>{{ __('ui.invoice_number') }}</th>
-                                <th>{{ __('ui.invoice_date') }}</th>
-                                <th>{{ __('ui.transaction_code') }}</th>
+                                <th>{{ __('ui.invoice_id') }}</th>
+                                <th>{{ __('ui.order_id') }}</th>
                                 <th>{{ __('ui.property') }}</th>
-                                <th>{{ __('ui.room_type') }}</th>
-                                <th>{{ __('ui.room_number') }}</th>
+                                <th>{{ __('ui.room') }}</th>
                                 <th>{{ __('ui.tenant_name') }}</th>
-                                <th>{{ __('ui.nik') }}</th>
-                                <th>{{ __('ui.mobile_number') }}</th>
-                                <th>{{ __('ui.email') }}</th>
-                                <th>{{ __('ui.check_in') }}</th>
-                                <th>{{ __('ui.check_out') }}</th>
-                                <th>{{ __('ui.duration') }}</th>
-                                <th>{{ __('ui.price_per_unit') }}</th>
-                                <th>{{ __('ui.dpp_per_unit') }}</th>
-                                <th>{{ __('ui.subtotal') }}</th>
-                                <th>{{ __('ui.discount') }}</th>
-                                <th>{{ __('ui.dpp_discount') }}</th>
-                                <th>{{ __('ui.parking') }}</th>
-                                <th>{{ __('ui.dpp_parking') }}</th>
-                                <th>{{ __('ui.vatt') }}</th>
-                                <th>{{ __('ui.grand_total') }}</th>
-                                <th>{{ __('ui.deposit') }}</th>
-                                <th>{{ __('ui.deposit_fee') }}</th>
-                                <th>{{ __('ui.dpp_deposit_fee') }}</th>
-                                <th>{{ __('ui.service_fee') }}</th>
+                                <th>{{ __('ui.phone_number') }}</th>
+                                <th>{{ __('ui.fee_amount') }}</th>
+                                <th>{{ __('ui.transaction_date') }}</th>
+                                <th>{{ __('ui.payment_date') }}</th>
                                 <th>{{ __('ui.status') }}</th>
                                 <th>{{ __('ui.verified_by') }}</th>
                                 <th>{{ __('ui.verified_date') }}</th>
@@ -624,14 +444,12 @@
                         </tbody>
                     </table>
                     <div class="footer">
-                        <p>Booking Management System - {{ __('ui.payment_report') }}</p>
+                        <p>Booking Management System - {{ __('ui.deposit_report') }}</p>
                     </div>
                 </body>
                 </html>
             `);
             printWindow.document.close();
-
-            // Wait for content to load then print
             printWindow.onload = function() {
                 printWindow.focus();
                 printWindow.print();
@@ -640,11 +458,7 @@
 
         function formatDate(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         }
 
         function exportReport() {
@@ -655,9 +469,8 @@
                 search: document.getElementById('search').value
             });
 
-            window.location.href = '{{ route('reports.payment.export') }}?' + params.toString();
+            window.location.href = '{{ route('reports.deposit.export') }}?' + params.toString();
 
-            // Show success message
             Swal.fire({
                 toast: true,
                 position: 'top-end',

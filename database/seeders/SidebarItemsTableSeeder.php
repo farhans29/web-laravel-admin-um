@@ -278,7 +278,7 @@ class SidebarItemsTableSeeder extends Seeder
         ]);
 
         SidebarItem::create([
-            'name' => 'Payment Report',
+            'name' => 'Transaction Report',
             'route' => 'reports.payment.index',
             'permission_id' => $permissions['view_payment_report'] ?? null,
             'parent_id' => $reports->id,
@@ -286,11 +286,27 @@ class SidebarItemsTableSeeder extends Seeder
         ]);
 
         SidebarItem::create([
+            'name' => 'Parking Report',
+            'route' => 'reports.parking.index',
+            'permission_id' => $permissions['view_parking_report'] ?? null,
+            'parent_id' => $reports->id,
+            'order' => 3
+        ]);
+
+        SidebarItem::create([
+            'name' => 'Deposit Report',
+            'route' => 'reports.deposit.index',
+            'permission_id' => $permissions['view_deposit_report'] ?? null,
+            'parent_id' => $reports->id,
+            'order' => 4
+        ]);
+
+        SidebarItem::create([
             'name' => 'Rented Rooms Report',
             'route' => 'reports.rented-rooms.index',
             'permission_id' => $permissions['view_rented_rooms_report'] ?? null,
             'parent_id' => $reports->id,
-            'order' => 3
+            'order' => 5
         ]);
 
         // Settings items

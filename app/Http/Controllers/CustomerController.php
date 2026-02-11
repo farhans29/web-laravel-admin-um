@@ -75,7 +75,7 @@ class CustomerController extends Controller
             DB::raw('(SELECT renewal_status FROM t_transactions t5 WHERE t5.user_id = users.id ORDER BY t5.transaction_date DESC LIMIT 1) as renewal_status'),
             DB::raw('(SELECT is_renewal FROM t_transactions t6 WHERE t6.user_id = users.id ORDER BY t6.transaction_date DESC LIMIT 1) as is_renewal'),
             DB::raw('(SELECT GROUP_CONCAT(DISTINCT CONCAT(parking_type, " (", vehicle_plate, ")") SEPARATOR ", ") FROM t_parking_fee_transaction pft WHERE pft.user_id = users.id AND pft.status = 1) as parking_info'),
-            DB::raw('(SELECT t_booking.status FROM t_booking INNER JOIN t_transactions t7 ON t_booking.order_id = t7.order_id WHERE t7.user_id = users.id ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
+            DB::raw('(SELECT t_booking.status FROM t_booking INNER JOIN t_transactions t7 ON t_booking.order_id COLLATE utf8mb4_unicode_ci = t7.order_id COLLATE utf8mb4_unicode_ci WHERE t7.user_id = users.id ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
             DB::raw('(SELECT t7.check_in FROM t_transactions t7 WHERE t7.user_id = users.id ORDER BY t7.transaction_date DESC LIMIT 1) as last_check_in'),
             DB::raw('(SELECT t8.check_out FROM t_transactions t8 WHERE t8.user_id = users.id ORDER BY t8.transaction_date DESC LIMIT 1) as last_check_out')
         ])
@@ -104,7 +104,7 @@ class CustomerController extends Controller
             DB::raw('(SELECT renewal_status FROM t_transactions t5 WHERE t5.user_email = t_transactions.user_email AND t5.user_id IS NULL ORDER BY t5.transaction_date DESC LIMIT 1) as renewal_status'),
             DB::raw('(SELECT is_renewal FROM t_transactions t6 WHERE t6.user_email = t_transactions.user_email AND t6.user_id IS NULL ORDER BY t6.transaction_date DESC LIMIT 1) as is_renewal'),
             DB::raw('(SELECT GROUP_CONCAT(DISTINCT CONCAT(parking_type, " (", vehicle_plate, ")") SEPARATOR ", ") FROM t_parking_fee_transaction pft WHERE pft.user_phone = t_transactions.user_phone_number AND pft.status = 1) as parking_info'),
-            DB::raw('(SELECT t_booking.status FROM t_booking INNER JOIN t_transactions t7 ON t_booking.order_id = t7.order_id WHERE t7.user_email = t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
+            DB::raw('(SELECT t_booking.status FROM t_booking INNER JOIN t_transactions t7 ON t_booking.order_id COLLATE utf8mb4_unicode_ci = t7.order_id COLLATE utf8mb4_unicode_ci WHERE t7.user_email COLLATE utf8mb4_unicode_ci = t_transactions.user_email COLLATE utf8mb4_unicode_ci AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
             DB::raw('(SELECT t7.check_in FROM t_transactions t7 WHERE t7.user_email = t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as last_check_in'),
             DB::raw('(SELECT t8.check_out FROM t_transactions t8 WHERE t8.user_email = t_transactions.user_email AND t8.user_id IS NULL ORDER BY t8.transaction_date DESC LIMIT 1) as last_check_out')
         ])

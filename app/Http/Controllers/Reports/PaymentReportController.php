@@ -31,13 +31,9 @@ class PaymentReportController extends Controller
                 ->get();
         }
 
-        // Set default date range (current month)
-        $defaultStartDate = now()->startOfMonth()->format('Y-m-d');
-        $defaultEndDate = now()->endOfMonth()->format('Y-m-d');
-
-        // Get filter values
-        $startDate = $request->filled('start_date') ? $request->start_date : $defaultStartDate;
-        $endDate = $request->filled('end_date') ? $request->end_date : $defaultEndDate;
+        // Get filter values (no default date - show all data)
+        $startDate = $request->input('start_date', '');
+        $endDate = $request->input('end_date', '');
 
         // Set property_id based on user access
         // Super Admin and HO users can select any property

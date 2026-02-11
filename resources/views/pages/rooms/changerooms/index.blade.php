@@ -10,43 +10,17 @@
                         <nav class="flex space-x-8">
                             <button id="initiateTab"
                                 class="py-4 px-1 border-b-2 font-medium text-sm border-indigo-500 text-indigo-600">
-                                Pindah Kamar
+                                {{ __('ui.change_room') }}
                             </button>
                             <button id="historyTab"
                                 class="py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                                Riwayat Perpindahan
+                                {{ __('ui.transfer_history') }}
                             </button>
                         </nav>
                     </div>
 
                     <!-- Initiate Transfer Tab Content -->
                     <div id="initiateTransferContent">
-                        <!-- Success/Error Messages -->
-                        @if (session('success'))
-                            <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
-                                role="alert">
-                                <span class="block sm:inline">{{ session('success') }}</span>
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                                role="alert">
-                                <span class="block sm:inline">{{ session('error') }}</span>
-                            </div>
-                        @endif
-
-                        @if ($errors->any())
-                            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                                role="alert">
-                                <ul class="list-disc list-inside">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
                         <form id="roomTransferForm" action="{{ route('changeroom.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="order_id" id="formOrderId">
@@ -58,21 +32,21 @@
                             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                                 <div class="flex justify-between items-center mb-4">
                                     <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                                        Pindah Kamar
+                                        {{ __('ui.change_room') }}
                                     </h1>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <!-- Left Column: Booking Selection -->
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        <h3 class="font-medium text-gray-700 mb-3">Pilih Booking</h3>
+                                        <h3 class="font-medium text-gray-700 mb-3">{{ __('ui.select_booking') }}</h3>
 
                                         <!-- Search Input -->
                                         <div class="mb-4">
                                             <div class="relative">
                                                 <input type="text" id="searchInput"
                                                     class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                    placeholder="Cari ID Booking atau Nama Tamu...">
+                                                    placeholder="{{ __('ui.search_booking_guest_placeholder') }}">
                                                 <div class="absolute right-3 top-3 text-gray-400">
                                                     <i class="fas fa-search"></i>
                                                 </div>
@@ -83,7 +57,7 @@
                                         <div class="space-y-3 max-h-96 overflow-y-auto" id="bookingResultsContainer">
                                             @include('pages.rooms.changerooms.partials.changeRoom_table', [
                                                 'bookings' => $bookings,
-                                                'per_page' => request('per_page', 8),
+                                                'per_page' => request('per_page', 3),
                                             ])
                                         </div>
 
@@ -96,52 +70,70 @@
                                     <div class="space-y-4">
                                         <!-- Current Room Details -->
                                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                            <h3 class="font-medium text-gray-700 mb-3">Kamar Saat Ini</h3>
-                                            <div class="bg-white p-4 rounded border border-gray-200" id="currentRoomDetails">
+                                            <h3 class="font-medium text-gray-700 mb-3">{{ __('ui.current_room') }}</h3>
+                                            <div class="bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm" id="currentRoomDetails">
                                                 <div class="text-center py-8 text-gray-500" id="noBookingSelected">
                                                     <i class="fas fa-hand-pointer text-4xl mb-3 text-gray-300"></i>
-                                                    <p class="text-sm">Pilih booking untuk melihat detail</p>
+                                                    <p class="text-sm">{{ __('ui.select_booking_to_view_details') }}</p>
                                                 </div>
                                                 <div class="hidden" id="bookingDetails">
-                                                    <div class="grid grid-cols-2 gap-3 text-sm">
-                                                        <div>
-                                                            <span class="text-gray-500">Nama Tamu:</span>
-                                                            <p class="font-medium" id="guestName">-</p>
+                                                    <!-- Header: Guest Name & Status -->
+                                                    <div class="flex items-start justify-between mb-3">
+                                                        <div class="flex items-center space-x-2">
+                                                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm" id="guestAvatar">
+                                                                ?
+                                                            </div>
+                                                            <div>
+                                                                <div class="font-semibold text-gray-800 text-sm" id="guestName">-</div>
+                                                                <div class="text-xs text-gray-500" id="guestEmail">-</div>
+                                                                <div class="text-xs text-gray-500" id="guestPhone">-</div>
+                                                                <div class="text-xs text-gray-500 font-mono" id="orderId">-</div>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <span class="text-gray-500">Order ID:</span>
-                                                            <p class="font-medium" id="orderId">-</p>
-                                                        </div>
-                                                        <div>
-                                                            <span class="text-gray-500">Properti:</span>
-                                                            <p class="font-medium" id="propertyName">-</p>
-                                                        </div>
-                                                        <div>
-                                                            <span class="text-gray-500">Status:</span>
-                                                            <p class="font-medium" id="bookingStatus">-</p>
-                                                        </div>
-                                                        <div>
-                                                            <span class="text-gray-500">Kamar:</span>
-                                                            <p class="font-medium"><span id="roomNumber">-</span> <span class="text-gray-500">No. <span id="roomNo">-</span></span></p>
-                                                        </div>
-                                                        <div>
-                                                            <span class="text-gray-500">Check-in:</span>
-                                                            <p class="font-medium text-green-600" id="checkIn">-</p>
-                                                        </div>
-                                                        <div>
-                                                            <span class="text-gray-500">Check-out:</span>
-                                                            <p class="font-medium text-red-600" id="checkOut">-</p>
-                                                        </div>
-                                                        <div>
-                                                            <span class="text-gray-500">Riwayat Pindah:</span>
-                                                            <p class="font-medium">
-                                                                <span id="transferCount" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">0x</span>
-                                                                <button type="button" id="viewHistoryBtn" class="text-indigo-600 hover:text-indigo-800 text-xs ml-1 hidden">
-                                                                    Lihat
-                                                                </button>
-                                                            </p>
+                                                        <div class="flex flex-col items-end space-y-1">
+                                                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-100 text-gray-700 border border-gray-200" id="bookingStatusBadge">
+                                                                <i class="fas fa-clock mr-1"></i>-
+                                                            </span>
+                                                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 border border-blue-200 hidden" id="transferBadge">
+                                                                <i class="fas fa-exchange-alt mr-1"></i><span id="transferCount">0x</span> {{ __('ui.transferred') }}
+                                                            </span>
+                                                            <button type="button" id="viewHistoryBtn" class="text-indigo-600 hover:text-indigo-800 text-xs hidden">
+                                                                <i class="fas fa-history mr-1"></i>{{ __('ui.view_history') }}
+                                                            </button>
                                                         </div>
                                                     </div>
+
+                                                    <!-- Details Grid -->
+                                                    <div class="space-y-1.5 text-xs mt-3">
+                                                        <div class="flex items-center justify-between py-1 border-b border-gray-100">
+                                                            <span class="text-gray-500 font-medium">
+                                                                <i class="fas fa-building w-4 text-gray-400"></i> {{ __('ui.property') }}
+                                                            </span>
+                                                            <span class="text-gray-800 font-medium text-right" id="propertyName">-</span>
+                                                        </div>
+                                                        <div class="flex items-center justify-between py-1 border-b border-gray-100">
+                                                            <span class="text-gray-500 font-medium">
+                                                                <i class="fas fa-door-open w-4 text-gray-400"></i> {{ __('ui.room') }}
+                                                            </span>
+                                                            <span class="text-gray-800 font-medium text-right">
+                                                                <span id="roomNumber">-</span>
+                                                                <span class="text-gray-500">{{ __('ui.no') }} <span id="roomNo">-</span></span>
+                                                            </span>
+                                                        </div>
+                                                        <div class="flex items-center justify-between py-1 border-b border-gray-100">
+                                                            <span class="text-gray-500 font-medium">
+                                                                <i class="fas fa-calendar-check w-4 text-green-500"></i> {{ __('ui.check_in') }}
+                                                            </span>
+                                                            <span class="text-green-600 font-medium text-right" id="checkIn">-</span>
+                                                        </div>
+                                                        <div class="flex items-center justify-between py-1">
+                                                            <span class="text-gray-500 font-medium">
+                                                                <i class="fas fa-calendar-times w-4 text-red-500"></i> {{ __('ui.check_out') }}
+                                                            </span>
+                                                            <span class="text-red-600 font-medium text-right" id="checkOut">-</span>
+                                                        </div>
+                                                    </div>
+
                                                     <input type="hidden" id="propertyId">
                                                     <input type="hidden" id="roomId">
                                                     <input type="hidden" id="currentBookingId">
@@ -158,48 +150,48 @@
 
                                         <!-- New Room Selection -->
                                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                            <h3 class="font-medium text-gray-700 mb-3">Pindah Ke Kamar Baru</h3>
+                                            <h3 class="font-medium text-gray-700 mb-3">{{ __('ui.transfer_to_new_room') }}</h3>
                                             <div class="space-y-4">
                                                 <div>
-                                                    <label class="block text-sm text-gray-600 mb-1">Pilih Kamar <span class="text-red-500">*</span></label>
+                                                    <label class="block text-sm text-gray-600 mb-1">{{ __('ui.select_room') }} <span class="text-red-500">*</span></label>
                                                     <select name="new_room" id="newRoomSelect"
                                                         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                                         disabled required>
-                                                        <option value="" disabled selected>Pilih kamar baru</option>
+                                                        <option value="" disabled selected>{{ __('ui.select_new_room_placeholder') }}</option>
                                                     </select>
                                                 </div>
 
                                                 <div class="bg-white p-3 rounded border border-gray-200">
                                                     <div class="flex justify-between items-center">
-                                                        <span class="text-gray-600 text-sm">Kamar Terpilih:</span>
+                                                        <span class="text-gray-600 text-sm">{{ __('ui.selected_room') }}:</span>
                                                         <span class="font-medium" id="selectedNewRoom">-</span>
                                                     </div>
                                                     <div class="flex justify-between items-center mt-1">
-                                                        <span class="text-gray-600 text-sm">Status:</span>
+                                                        <span class="text-gray-600 text-sm">{{ __('ui.status') }}:</span>
                                                         <span class="font-medium text-green-600" id="roomAvailability">-</span>
                                                     </div>
                                                 </div>
 
                                                 <div>
-                                                    <label class="block text-sm text-gray-600 mb-1">Alasan Pindah <span class="text-red-500">*</span></label>
+                                                    <label class="block text-sm text-gray-600 mb-1">{{ __('ui.transfer_reason') }} <span class="text-red-500">*</span></label>
                                                     <select name="reason" id="transferReasonSelect"
                                                         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                                         disabled required>
-                                                        <option value="" disabled selected>Pilih alasan</option>
-                                                        <option value="maintenance">Maintenance/Perawatan</option>
-                                                        <option value="upgrade">Upgrade Kamar</option>
-                                                        <option value="downgrade">Downgrade Kamar</option>
-                                                        <option value="guest_request">Permintaan Tamu</option>
-                                                        <option value="other">Lainnya</option>
+                                                        <option value="" disabled selected>{{ __('ui.select_reason') }}</option>
+                                                        <option value="maintenance">{{ __('ui.maintenance') }}</option>
+                                                        <option value="upgrade">{{ __('ui.upgrade') }}</option>
+                                                        <option value="downgrade">{{ __('ui.downgrade') }}</option>
+                                                        <option value="guest_request">{{ __('ui.guest_request') }}</option>
+                                                        <option value="other">{{ __('ui.other') }}</option>
                                                     </select>
-                                                    <p id="reasonError" class="text-red-500 text-xs mt-1 hidden">Silakan pilih alasan</p>
+                                                    <p id="reasonError" class="text-red-500 text-xs mt-1 hidden">{{ __('ui.please_select_reason') }}</p>
                                                 </div>
 
                                                 <div>
-                                                    <label class="block text-sm text-gray-600 mb-1">Catatan</label>
+                                                    <label class="block text-sm text-gray-600 mb-1">{{ __('ui.notes') }}</label>
                                                     <textarea name="notes" id="transferNotes"
                                                         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                        disabled rows="2" placeholder="Catatan tambahan..."></textarea>
+                                                        disabled rows="2" placeholder="{{ __('ui.additional_notes_placeholder') }}"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -209,13 +201,13 @@
                                             <button type="button"
                                                 onclick="window.location.href='{{ route('changerooom.index') }}'"
                                                 class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                                                Batal
+                                                {{ __('ui.cancel') }}
                                             </button>
                                             <button type="submit" id="submitButton"
                                                 class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                                                 disabled>
                                                 <i class="fas fa-exchange-alt mr-2"></i>
-                                                Proses Pindah Kamar
+                                                {{ __('ui.process_room_transfer') }}
                                             </button>
                                         </div>
                                     </div>
@@ -228,12 +220,12 @@
                     <div id="historyContent" class="hidden">
                         <div class="bg-white rounded-lg shadow-md p-6">
                             <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-2xl font-bold text-gray-800">Riwayat Perpindahan Kamar</h2>
+                                <h2 class="text-2xl font-bold text-gray-800">{{ __('ui.room_transfer_history') }}</h2>
                                 <div class="relative w-64">
                                     <input type="text" id="historySearchInput"
                                         value="{{ $historySearch ?? '' }}"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                        placeholder="Cari Order ID atau Nama...">
+                                        placeholder="{{ __('ui.search_order_name_placeholder') }}">
                                     <div class="absolute right-3 top-2.5 text-gray-400">
                                         <i class="fas fa-search"></i>
                                     </div>
@@ -242,7 +234,7 @@
 
                             @if (request('history_search'))
                                 <div class="flex items-center gap-2 mb-4">
-                                    <span class="text-sm text-gray-600">Filter aktif:</span>
+                                    <span class="text-sm text-gray-600">{{ __('ui.active_filter') }}:</span>
                                     <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
                                         {{ request('history_search') }}
                                         <button onclick="clearHistorySearch()" class="ml-2 hover:text-indigo-900">
@@ -260,29 +252,29 @@
                                         <div class="bg-gray-50 px-4 py-3 flex justify-between items-center">
                                             <div class="flex items-center space-x-4">
                                                 <div>
-                                                    <span class="text-sm text-gray-500">Order:</span>
+                                                    <span class="text-sm text-gray-500">{{ __('ui.order') }}:</span>
                                                     <span class="font-semibold text-gray-800">{{ $history['order_id'] }}</span>
                                                 </div>
                                                 <div class="text-gray-300">|</div>
                                                 <div>
-                                                    <span class="text-sm text-gray-500">Tamu:</span>
+                                                    <span class="text-sm text-gray-500">{{ __('ui.guest') }}:</span>
                                                     <span class="font-medium text-gray-800">{{ $history['guest_name'] }}</span>
                                                 </div>
                                                 <div class="text-gray-300">|</div>
                                                 <div>
-                                                    <span class="text-sm text-gray-500">Properti:</span>
+                                                    <span class="text-sm text-gray-500">{{ __('ui.property') }}:</span>
                                                     <span class="font-medium text-gray-800">{{ $history['property']->name ?? 'N/A' }}</span>
                                                 </div>
                                             </div>
                                             <div class="flex items-center space-x-2">
                                                 <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                                                    {{ $history['transfer_count'] }}x Pindah
+                                                    {{ $history['transfer_count'] }}x {{ __('ui.transfers') }}
                                                 </span>
                                                 @if($history['active_booking'] && $history['active_booking']->previous_booking_id)
                                                     <button type="button"
                                                         onclick="openRollbackModal({{ $history['active_booking']->idrec }}, '{{ $history['order_id'] }}')"
                                                         class="px-3 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium hover:bg-orange-200 transition">
-                                                        <i class="fas fa-undo mr-1"></i> Rollback
+                                                        <i class="fas fa-undo mr-1"></i> {{ __('ui.rollback') }}
                                                     </button>
                                                 @endif
                                             </div>
@@ -299,15 +291,15 @@
                                                             <div class="font-bold text-sm {{ $booking->is_active ? 'text-green-700' : 'text-gray-600' }}">
                                                                 {{ $booking->room->name ?? 'N/A' }}
                                                             </div>
-                                                            <div class="text-xs text-gray-500">No. {{ $booking->room->no ?? '' }}</div>
+                                                            <div class="text-xs text-gray-500">{{ __('ui.no') }} {{ $booking->room->no ?? '' }}</div>
                                                             @if($booking->is_active)
-                                                                <span class="inline-block mt-1 px-2 py-0.5 bg-green-500 text-white text-xs rounded">AKTIF</span>
+                                                                <span class="inline-block mt-1 px-2 py-0.5 bg-green-500 text-white text-xs rounded">{{ __('ui.active') }}</span>
                                                             @endif
                                                         </div>
                                                         <!-- Info below node -->
                                                         <div class="mt-2 text-center">
                                                             @if($index === 0)
-                                                                <span class="text-xs text-gray-400">(Awal)</span>
+                                                                <span class="text-xs text-gray-400">{{ __('ui.initial_room') }}</span>
                                                             @else
                                                                 <span class="text-xs font-medium
                                                                     @if($booking->reason === 'upgrade') text-green-600
@@ -337,7 +329,7 @@
                                 @empty
                                     <div class="text-center py-12">
                                         <i class="fas fa-exchange-alt text-6xl text-gray-300 mb-4"></i>
-                                        <p class="text-gray-500">Belum ada riwayat perpindahan kamar</p>
+                                        <p class="text-gray-500">{{ __('ui.no_room_transfer_history') }}</p>
                                     </div>
                                 @endforelse
                             </div>
@@ -382,20 +374,20 @@
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-800">
                     <i class="fas fa-undo text-orange-500 mr-2"></i>
-                    Konfirmasi Rollback
+                    {{ __('ui.confirm_rollback') }}
                 </h3>
             </div>
             <div class="p-6">
-                <p class="text-gray-600 mb-4">Anda akan mengembalikan tamu ke kamar sebelumnya:</p>
+                <p class="text-gray-600 mb-4">{{ __('ui.rollback_confirmation_message') }}</p>
 
                 <div class="flex items-center justify-center space-x-4 mb-4">
                     <div class="text-center p-3 bg-gray-100 rounded-lg">
-                        <div class="text-xs text-gray-500">Sekarang</div>
+                        <div class="text-xs text-gray-500">{{ __('ui.now') }}</div>
                         <div class="font-bold text-gray-800" id="rollbackCurrentRoom">-</div>
                     </div>
                     <i class="fas fa-arrow-right text-gray-400"></i>
                     <div class="text-center p-3 bg-green-100 rounded-lg">
-                        <div class="text-xs text-gray-500">Kembali ke</div>
+                        <div class="text-xs text-gray-500">{{ __('ui.return_to') }}</div>
                         <div class="font-bold text-green-700" id="rollbackPreviousRoom">-</div>
                     </div>
                 </div>
@@ -405,10 +397,10 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm text-gray-600 mb-1">Catatan Rollback (opsional)</label>
+                    <label class="block text-sm text-gray-600 mb-1">{{ __('ui.rollback_notes_optional') }}</label>
                     <textarea id="rollbackNotes"
                         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                        rows="2" placeholder="Alasan rollback..."></textarea>
+                        rows="2" placeholder="{{ __('ui.rollback_reason_placeholder') }}"></textarea>
                 </div>
 
                 <form id="rollbackForm" action="{{ route('changeroom.rollback') }}" method="POST">
@@ -420,11 +412,11 @@
             <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
                 <button type="button" x-on:click="open = false"
                     class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                    Batal
+                    {{ __('ui.cancel') }}
                 </button>
                 <button type="button" id="confirmRollbackBtn" onclick="submitRollback()"
                     class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="fas fa-undo mr-1"></i> Ya, Rollback
+                    <i class="fas fa-undo mr-1"></i> {{ __('ui.yes_rollback') }}
                 </button>
             </div>
         </div>
@@ -462,7 +454,7 @@
              class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:max-w-lg sm:mx-auto"
              x-on:click.stop>
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-gray-800">Detail Riwayat Perpindahan</h3>
+                <h3 class="text-lg font-semibold text-gray-800">{{ __('ui.transfer_history_detail') }}</h3>
                 <button x-on:click="open = false" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times"></i>
                 </button>
@@ -474,6 +466,43 @@
     </div>
 
     <script>
+        // Show toast notifications for session messages
+        @if (session('success'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: '{{ session('error') }}',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if ($errors->any())
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: '{{ $errors->first() }}',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+        @endif
+
         // Tab switching functionality
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -644,31 +673,46 @@
             document.getElementById('formCheckIn').value = bookingData.check_in;
             document.getElementById('formCheckOut').value = bookingData.check_out;
 
-            // Fill visible details
-            document.getElementById('guestName').textContent = bookingData.guest_name;
+            // Fill guest details with avatar
+            const guestName = bookingData.guest_name || '?';
+            const guestInitial = guestName.charAt(0).toUpperCase();
+            document.getElementById('guestAvatar').textContent = guestInitial;
+            document.getElementById('guestName').textContent = guestName;
+            document.getElementById('guestEmail').textContent = bookingData.guest_email || '-';
+            document.getElementById('guestPhone').textContent = bookingData.guest_phone || '-';
             document.getElementById('orderId').textContent = bookingData.order_id;
+
+            // Update status badge
+            const statusBadge = document.getElementById('bookingStatusBadge');
+            if (bookingData.is_checked_in) {
+                statusBadge.className = 'px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 border border-green-200';
+                statusBadge.innerHTML = '<i class="fas fa-check-circle mr-1"></i>{{ __('ui.checked_in_status') }}';
+            } else {
+                statusBadge.className = 'px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200';
+                statusBadge.innerHTML = '<i class="fas fa-clock mr-1"></i>{{ __('ui.pending_status') }}';
+            }
+
+            // Update transfer badge
+            const transferCount = bookingData.transfer_count || 0;
+            const transferBadge = document.getElementById('transferBadge');
+            const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+
+            if (transferCount > 0) {
+                document.getElementById('transferCount').textContent = transferCount + 'x';
+                transferBadge.classList.remove('hidden');
+                viewHistoryBtn.classList.remove('hidden');
+                viewHistoryBtn.onclick = () => showChainDetail(bookingData.order_id);
+            } else {
+                transferBadge.classList.add('hidden');
+                viewHistoryBtn.classList.add('hidden');
+            }
+
+            // Fill property and room details
             document.getElementById('propertyName').textContent = bookingData.propertyName;
             document.getElementById('roomNumber').textContent = bookingData.room_number;
             document.getElementById('roomNo').textContent = bookingData.room_no;
             document.getElementById('checkIn').textContent = formatDateTime(bookingData.check_in);
             document.getElementById('checkOut').textContent = formatDateTime(bookingData.check_out);
-
-            // Update status with color
-            const statusElement = document.getElementById('bookingStatus');
-            statusElement.textContent = bookingData.booking_status;
-            statusElement.className = bookingData.is_checked_in ? 'font-medium text-green-600' : 'font-medium text-yellow-600';
-
-            // Update transfer count
-            const transferCount = bookingData.transfer_count || 0;
-            document.getElementById('transferCount').textContent = transferCount + 'x';
-
-            const viewHistoryBtn = document.getElementById('viewHistoryBtn');
-            if (transferCount > 0) {
-                viewHistoryBtn.classList.remove('hidden');
-                viewHistoryBtn.onclick = () => showChainDetail(bookingData.order_id);
-            } else {
-                viewHistoryBtn.classList.add('hidden');
-            }
 
             // Store hidden values
             document.getElementById('propertyId').value = bookingData.property_id;
@@ -706,19 +750,19 @@
                 .then(response => response.json())
                 .then(rooms => {
                     const select = document.getElementById('newRoomSelect');
-                    select.innerHTML = '<option value="" disabled selected>Pilih kamar baru</option>';
+                    select.innerHTML = '<option value="" disabled selected>{{ __('ui.select_new_room_placeholder') }}</option>';
 
                     if (rooms.length === 0) {
                         const option = document.createElement('option');
                         option.value = '';
-                        option.textContent = 'Tidak ada kamar tersedia';
+                        option.textContent = '{{ __('ui.no_available_rooms') }}';
                         option.disabled = true;
                         select.appendChild(option);
                     } else {
                         rooms.forEach(room => {
                             const option = document.createElement('option');
                             option.value = room.idrec;
-                            option.textContent = `${room.name} - No. ${room.no}`;
+                            option.textContent = `${room.name} - {{ __('ui.no') }} ${room.no}`;
                             select.appendChild(option);
                         });
                     }
@@ -731,7 +775,7 @@
                 .catch(error => {
                     console.error('Error fetching available rooms:', error);
                     const select = document.getElementById('newRoomSelect');
-                    select.innerHTML = '<option value="" disabled selected>Error loading rooms</option>';
+                    select.innerHTML = '<option value="" disabled selected>{{ __('ui.error_loading_rooms') }}</option>';
                 });
         }
 
@@ -740,7 +784,7 @@
             document.getElementById('selectedNewRoom').textContent = selectedOption.text;
 
             const availabilityElement = document.getElementById('roomAvailability');
-            availabilityElement.textContent = 'Tersedia';
+            availabilityElement.textContent = '{{ __('ui.available') }}';
             availabilityElement.classList.remove('text-red-600');
             availabilityElement.classList.add('text-green-600');
 
@@ -790,7 +834,7 @@
                     const confirmBtn = document.getElementById('confirmRollbackBtn');
 
                     if (data.room) {
-                        document.getElementById('rollbackPreviousRoom').textContent = data.room.name + ' No. ' + data.room.no;
+                        document.getElementById('rollbackPreviousRoom').textContent = data.room.name + ' {{ __('ui.no') }} ' + data.room.no;
                     }
 
                     if (data.available) {
@@ -811,7 +855,7 @@
                 .then(data => {
                     const activeRoom = data.chain.find(b => b.is_active);
                     if (activeRoom) {
-                        document.getElementById('rollbackCurrentRoom').textContent = activeRoom.room_name + ' No. ' + activeRoom.room_no;
+                        document.getElementById('rollbackCurrentRoom').textContent = activeRoom.room_name + ' {{ __('ui.no') }} ' + activeRoom.room_no;
                     }
                 })
                 .catch(error => {
@@ -843,13 +887,13 @@
                                     ${index + 1}
                                 </div>
                                 <div class="flex-1">
-                                    <div class="font-medium">${booking.room_name} No. ${booking.room_no}</div>
+                                    <div class="font-medium">${booking.room_name} {{ __('ui.no') }} ${booking.room_no}</div>
                                     <div class="text-sm text-gray-500">
-                                        ${index === 0 ? 'Kamar Awal' : booking.reason_label}
+                                        ${index === 0 ? '{{ __('ui.original_room') }}' : booking.reason_label}
                                         ${booking.room_changed_at ? ' - ' + booking.room_changed_at : ''}
                                     </div>
                                     ${booking.description ? '<div class="text-sm text-gray-400 mt-1">' + booking.description + '</div>' : ''}
-                                    ${booking.room_changed_by ? '<div class="text-xs text-gray-400">Oleh: ' + booking.room_changed_by + '</div>' : ''}
+                                    ${booking.room_changed_by ? '<div class="text-xs text-gray-400">{{ __('ui.by') }}: ' + booking.room_changed_by + '</div>' : ''}
                                 </div>
                             </div>
                         `;

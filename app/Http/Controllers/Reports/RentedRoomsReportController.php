@@ -28,10 +28,10 @@ class RentedRoomsReportController extends Controller
                 ->get();
         }
 
-        // Default dates
-        $selectedDate = now()->format('Y-m-d'); // For single date tabs
-        $startDate = now()->subMonth()->format('Y-m-d'); // For cancelled tab (1 month ago)
-        $endDate = now()->format('Y-m-d'); // For cancelled tab (today)
+        // Default dates (no default - show all data)
+        $selectedDate = '';
+        $startDate = '';
+        $endDate = '';
 
         // Set property_id based on user access
         if ($user->isSuperAdmin()) {
@@ -67,81 +67,68 @@ class RentedRoomsReportController extends Controller
             case 'waiting-check-in':
                 // Bookings that are paid but not yet checked in
                 // Filter: transaction_status = 'paid' AND check_in_at is NULL
-                // Date filter: selected date is between check_in and check_out
-                $selectedDate = $request->filled('selected_date')
-                    ? $request->selected_date
-                    : now()->format('Y-m-d');
-
-                $query->whereHas('transaction', function ($q) use ($selectedDate) {
-                    $q->where('transaction_status', 'paid')
-                      ->whereDate('check_in', '<=', $selectedDate)
-                      ->whereDate('check_out', '>=', $selectedDate);
+                $query->whereHas('transaction', function ($q) use ($request) {
+                    $q->where('transaction_status', 'paid');
+                    if ($request->filled('selected_date')) {
+                        $selectedDate = $request->selected_date;
+                        $q->whereDate('check_in', '<=', $selectedDate)
+                          ->whereDate('check_out', '>=', $selectedDate);
+                    }
                 })->whereNull('check_in_at');
                 break;
 
             case 'checked-in':
                 // Bookings that are paid and already checked in
                 // Filter: transaction_status = 'paid' AND check_in_at is NOT NULL
-                // Date filter: check_in_at date matches selected date
-                $selectedDate = $request->filled('selected_date')
-                    ? $request->selected_date
-                    : now()->format('Y-m-d');
-
-                $query->whereNotNull('check_in_at')
-                      ->whereDate('check_in_at', $selectedDate)
-                      ->whereHas('transaction', function ($q) {
-                          $q->where('transaction_status', 'paid');
-                      });
+                $query->whereNotNull('check_in_at');
+                if ($request->filled('selected_date')) {
+                    $query->whereDate('check_in_at', $request->selected_date);
+                }
+                $query->whereHas('transaction', function ($q) {
+                    $q->where('transaction_status', 'paid');
+                });
                 break;
 
             case 'rooms-occupied':
                 // Rooms that are currently occupied
-                // Filter: selected date is between booking.check_in_at and transaction.check_out
-                $selectedDate = $request->filled('selected_date')
-                    ? $request->selected_date
-                    : now()->format('Y-m-d');
-
-                $query->whereNotNull('check_in_at')
-                      ->whereDate('check_in_at', '<=', $selectedDate)
-                      ->whereHas('transaction', function ($q) use ($selectedDate) {
-                          $q->where('transaction_status', 'paid')
-                            ->whereDate('check_out', '>=', $selectedDate);
-                      });
+                $query->whereNotNull('check_in_at');
+                if ($request->filled('selected_date')) {
+                    $selectedDate = $request->selected_date;
+                    $query->whereDate('check_in_at', '<=', $selectedDate)
+                          ->whereHas('transaction', function ($q) use ($selectedDate) {
+                              $q->where('transaction_status', 'paid')
+                                ->whereDate('check_out', '>=', $selectedDate);
+                          });
+                } else {
+                    $query->whereHas('transaction', function ($q) {
+                        $q->where('transaction_status', 'paid');
+                    });
+                }
                 break;
 
             case 'check-out':
                 // Bookings that are checked out
                 // Filter: check_in_at NOT NULL AND check_out_at NOT NULL
-                // Date filter: check_out_at date matches selected date
-                $selectedDate = $request->filled('selected_date')
-                    ? $request->selected_date
-                    : now()->format('Y-m-d');
-
                 $query->whereNotNull('check_in_at')
-                      ->whereNotNull('check_out_at')
-                      ->whereDate('check_out_at', $selectedDate)
-                      ->whereHas('transaction', function ($q) {
-                          $q->where('transaction_status', 'paid');
-                      });
+                      ->whereNotNull('check_out_at');
+                if ($request->filled('selected_date')) {
+                    $query->whereDate('check_out_at', $request->selected_date);
+                }
+                $query->whereHas('transaction', function ($q) {
+                    $q->where('transaction_status', 'paid');
+                });
                 break;
 
             case 'cancelled':
                 // Cancelled bookings only
-                // Filter: transaction_status = 'cancelled'
-                // Date range filter on cancel_at
-                $startDate = $request->filled('start_date')
-                    ? $request->start_date
-                    : now()->subMonth()->format('Y-m-d');
-                $endDate = $request->filled('end_date')
-                    ? $request->end_date
-                    : now()->format('Y-m-d');
-
-                $query->whereHas('transaction', function ($q) use ($startDate, $endDate) {
-                    $q->where('transaction_status', 'cancelled')
-                      ->whereBetween('cancel_at', [
-                          $startDate . ' 00:00:00',
-                          $endDate . ' 23:59:59'
-                      ]);
+                $query->whereHas('transaction', function ($q) use ($request) {
+                    $q->where('transaction_status', 'cancelled');
+                    if ($request->filled('start_date') && $request->filled('end_date')) {
+                        $q->whereBetween('cancel_at', [
+                            $request->start_date . ' 00:00:00',
+                            $request->end_date . ' 23:59:59'
+                        ]);
+                    }
                 });
                 break;
         }

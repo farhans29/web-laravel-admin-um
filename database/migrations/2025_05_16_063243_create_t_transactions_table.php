@@ -39,7 +39,9 @@ return new class extends Migration
             $table->dateTime('transaction_date');
             $table->string('transaction_type', 100)->nullable();
             $table->string('transaction_code', 100)->nullable();
-            $table->string('transaction_status', 100)->nullable(); 
+            $table->string('transaction_status', 100)->nullable();
+            $table->integer('is_renewal')->default(0);
+            $table->integer('renewal_status')->default(0);
             $table->string('virtual_account_no', 255)->nullable();
             $table->string('payment_bank', 255)->nullable();
             $table->longText('notes')->nullable();
