@@ -19,16 +19,18 @@ class CustomerController extends Controller
         $search = $request->input('search');
         $registrationStatus = $request->input('registration_status');
         $propertyId = $request->input('property_id');
+        $bookingStatus = $request->input('booking_status');
         $perPage = $request->input('per_page', 8);
 
         // Get properties for filter dropdown
         $properties = Property::select('idrec', 'name')->orderBy('name')->get();
 
         // Build the customer query by combining registered users and guest transactions
-        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId)->paginate($perPage)->appends([
+        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId, $bookingStatus)->paginate($perPage)->appends([
             'search' => $search,
             'registration_status' => $registrationStatus,
             'property_id' => $propertyId,
+            'booking_status' => $bookingStatus,
             'per_page' => $perPage
         ]);
 
@@ -44,9 +46,10 @@ class CustomerController extends Controller
         $search = $request->input('search');
         $registrationStatus = $request->input('registration_status');
         $propertyId = $request->input('property_id');
+        $bookingStatus = $request->input('booking_status');
         $perPage = $request->input('per_page', 8);
 
-        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId)->paginate($perPage);
+        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId, $bookingStatus)->paginate($perPage);
 
         return view('pages.customers.partials.customer_table', [
             'customers' => $customers,
@@ -54,7 +57,7 @@ class CustomerController extends Controller
         ])->render();
     }
 
-    private function getCustomersQuery($search = null, $registrationStatus = null, $propertyId = null)
+    private function getCustomersQuery($search = null, $registrationStatus = null, $propertyId = null, $bookingStatus = null)
     {
         // Get registered users with their booking statistics
         $registeredUsers = User::select([
@@ -68,7 +71,13 @@ class CustomerController extends Controller
             DB::raw('MAX(t_transactions.transaction_date) as last_booking_date'),
             DB::raw('(SELECT property_name FROM t_transactions t2 WHERE t2.user_id = users.id ORDER BY t2.transaction_date DESC LIMIT 1) as last_property_name'),
             DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_id = users.id ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name'),
-            DB::raw('(SELECT m_rooms.no FROM t_transactions t4 LEFT JOIN m_rooms ON t4.room_id = m_rooms.idrec WHERE t4.user_id = users.id ORDER BY t4.transaction_date DESC LIMIT 1) as last_room_number')
+            DB::raw('(SELECT m_rooms.no FROM t_transactions t4 LEFT JOIN m_rooms ON t4.room_id = m_rooms.idrec WHERE t4.user_id = users.id ORDER BY t4.transaction_date DESC LIMIT 1) as last_room_number'),
+            DB::raw('(SELECT renewal_status FROM t_transactions t5 WHERE t5.user_id = users.id ORDER BY t5.transaction_date DESC LIMIT 1) as renewal_status'),
+            DB::raw('(SELECT is_renewal FROM t_transactions t6 WHERE t6.user_id = users.id ORDER BY t6.transaction_date DESC LIMIT 1) as is_renewal'),
+            DB::raw('(SELECT GROUP_CONCAT(DISTINCT CONCAT(parking_type, " (", vehicle_plate, ")") SEPARATOR ", ") FROM t_parking_fee_transaction pft WHERE pft.user_id = users.id AND pft.status = 1) as parking_info'),
+            DB::raw('(SELECT t_booking.status FROM t_booking INNER JOIN t_transactions t7 ON t_booking.order_id = t7.order_id WHERE t7.user_id = users.id ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
+            DB::raw('(SELECT t7.check_in FROM t_transactions t7 WHERE t7.user_id = users.id ORDER BY t7.transaction_date DESC LIMIT 1) as last_check_in'),
+            DB::raw('(SELECT t8.check_out FROM t_transactions t8 WHERE t8.user_id = users.id ORDER BY t8.transaction_date DESC LIMIT 1) as last_check_out')
         ])
             ->leftJoin('t_transactions', 'users.id', '=', 't_transactions.user_id')
             ->where(function ($query) {
@@ -91,7 +100,13 @@ class CustomerController extends Controller
             DB::raw('MAX(transaction_date) as last_booking_date'),
             DB::raw('(SELECT property_name FROM t_transactions t2 WHERE t2.user_email = t_transactions.user_email AND t2.user_id IS NULL ORDER BY t2.transaction_date DESC LIMIT 1) as last_property_name'),
             DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_email = t_transactions.user_email AND t3.user_id IS NULL ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name'),
-            DB::raw('(SELECT m_rooms.no FROM t_transactions t4 LEFT JOIN m_rooms ON t4.room_id = m_rooms.idrec WHERE t4.user_email = t_transactions.user_email AND t4.user_id IS NULL ORDER BY t4.transaction_date DESC LIMIT 1) as last_room_number')
+            DB::raw('(SELECT m_rooms.no FROM t_transactions t4 LEFT JOIN m_rooms ON t4.room_id = m_rooms.idrec WHERE t4.user_email = t_transactions.user_email AND t4.user_id IS NULL ORDER BY t4.transaction_date DESC LIMIT 1) as last_room_number'),
+            DB::raw('(SELECT renewal_status FROM t_transactions t5 WHERE t5.user_email = t_transactions.user_email AND t5.user_id IS NULL ORDER BY t5.transaction_date DESC LIMIT 1) as renewal_status'),
+            DB::raw('(SELECT is_renewal FROM t_transactions t6 WHERE t6.user_email = t_transactions.user_email AND t6.user_id IS NULL ORDER BY t6.transaction_date DESC LIMIT 1) as is_renewal'),
+            DB::raw('(SELECT GROUP_CONCAT(DISTINCT CONCAT(parking_type, " (", vehicle_plate, ")") SEPARATOR ", ") FROM t_parking_fee_transaction pft WHERE pft.user_phone = t_transactions.user_phone_number AND pft.status = 1) as parking_info'),
+            DB::raw('(SELECT t_booking.status FROM t_booking INNER JOIN t_transactions t7 ON t_booking.order_id = t7.order_id WHERE t7.user_email = t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
+            DB::raw('(SELECT t7.check_in FROM t_transactions t7 WHERE t7.user_email = t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as last_check_in'),
+            DB::raw('(SELECT t8.check_out FROM t_transactions t8 WHERE t8.user_email = t_transactions.user_email AND t8.user_id IS NULL ORDER BY t8.transaction_date DESC LIMIT 1) as last_check_out')
         ])
             ->whereNull('user_id')
             ->groupBy('user_name', 'user_email', 'user_phone_number');
@@ -141,6 +156,15 @@ class CustomerController extends Controller
                 ->mergeBindings($query->getQuery());
         }
 
+        // Apply booking status filter
+        if ($bookingStatus) {
+            if ($bookingStatus === 'completed') {
+                $query->whereIn('current_booking_status', ['checked-out', 'completed']);
+            } else {
+                $query->where('current_booking_status', $bookingStatus);
+            }
+        }
+
         // Order by last booking date descending (newest first)
         return $query->orderBy('last_booking_date', 'desc');
     }
@@ -162,6 +186,14 @@ class CustomerController extends Controller
                 ->orderBy('transaction_date', 'desc')
                 ->get();
 
+            // Get parking info for registered user
+            $parkingInfo = DB::table('t_parking_fee_transaction')
+                ->where('user_id', $identifier)
+                ->where('status', 1)
+                ->select('parking_type', 'vehicle_plate', 'order_id')
+                ->get()
+                ->groupBy('order_id');
+
             // TAMBAHKAN FILTER UNTUK MEMASTIKAN BUKAN ADMIN
             $customer = User::where('id', $identifier)
                 ->where(function ($query) {
@@ -179,12 +211,35 @@ class CustomerController extends Controller
                 ->orderBy('transaction_date', 'desc')
                 ->get();
 
+            // Get parking info for guest by phone
+            $phoneNumber = $bookings->first()->user_phone_number ?? null;
+            $parkingInfo = collect([]);
+            if ($phoneNumber) {
+                $parkingInfo = DB::table('t_parking_fee_transaction')
+                    ->where('user_phone', $phoneNumber)
+                    ->where('status', 1)
+                    ->select('parking_type', 'vehicle_plate', 'order_id')
+                    ->get()
+                    ->groupBy('order_id');
+            }
+
             $customerName = $bookings->first()->user_name ?? 'Unknown';
         }
 
         return response()->json([
             'customer_name' => $customerName,
-            'bookings' => $bookings->map(function ($transaction) {
+            'bookings' => $bookings->map(function ($transaction) use ($parkingInfo) {
+                $parking = $parkingInfo->get($transaction->order_id);
+                $parkingDetails = [];
+                if ($parking) {
+                    foreach ($parking as $p) {
+                        $parkingDetails[] = [
+                            'type' => $p->parking_type,
+                            'plate' => $p->vehicle_plate
+                        ];
+                    }
+                }
+
                 return [
                     'order_id' => $transaction->order_id,
                     'property_name' => $transaction->property_name,
@@ -197,7 +252,10 @@ class CustomerController extends Controller
                     'grandtotal_price' => number_format($transaction->grandtotal_price, 0, ',', '.'),
                     'transaction_status' => $transaction->transaction_status,
                     'booking_status' => $transaction->booking ? $transaction->booking->status : '-',
-                    'payment_status' => $transaction->payment ? $transaction->payment->status : 'unpaid'
+                    'payment_status' => $transaction->payment ? $transaction->payment->status : 'unpaid',
+                    'is_renewal' => $transaction->is_renewal,
+                    'renewal_status' => $transaction->renewal_status,
+                    'parking' => $parkingDetails
                 ];
             })
         ]);
