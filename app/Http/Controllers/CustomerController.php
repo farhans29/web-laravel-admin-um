@@ -62,10 +62,10 @@ class CustomerController extends Controller
         // Get registered users with their booking statistics
         $registeredUsers = User::select([
             'users.id',
-            DB::raw('CAST(users.username AS CHAR) COLLATE utf8mb4_general_ci as username'),
-            DB::raw('CAST(users.email AS CHAR) COLLATE utf8mb4_general_ci as email'),
-            DB::raw('CAST(users.phone_number AS CHAR) COLLATE utf8mb4_general_ci as phone'),
-            DB::raw('CAST("registered" AS CHAR) COLLATE utf8mb4_general_ci as registration_status'),
+            DB::raw('users.username as username'),
+            DB::raw('users.email as email'),
+            DB::raw('users.phone_number as phone'),
+            DB::raw('"registered" as registration_status'),
             DB::raw('COALESCE(COUNT(DISTINCT t_transactions.order_id), 0) as total_bookings'),
             DB::raw('COALESCE(SUM(t_transactions.grandtotal_price), 0) as total_spent'),
             DB::raw('MAX(t_transactions.transaction_date) as last_booking_date'),
@@ -91,22 +91,22 @@ class CustomerController extends Controller
         // Get guest customers (transactions without user_id)
         $guestCustomers = Transaction::select([
             DB::raw('NULL as id'),
-            DB::raw('CAST(user_name AS CHAR) COLLATE utf8mb4_general_ci as username'),
-            DB::raw('CAST(user_email AS CHAR) COLLATE utf8mb4_general_ci as email'),
-            DB::raw('CAST(user_phone_number AS CHAR) COLLATE utf8mb4_general_ci as phone'),
-            DB::raw('CAST("guest" AS CHAR) COLLATE utf8mb4_general_ci as registration_status'),
+            DB::raw('user_name as username'),
+            DB::raw('user_email as email'),
+            DB::raw('user_phone_number as phone'),
+            DB::raw('"guest" as registration_status'),
             DB::raw('COUNT(DISTINCT order_id) as total_bookings'),
             DB::raw('SUM(grandtotal_price) as total_spent'),
             DB::raw('MAX(transaction_date) as last_booking_date'),
-            DB::raw('(SELECT property_name FROM t_transactions t2 WHERE t2.user_email = t_transactions.user_email AND t2.user_id IS NULL ORDER BY t2.transaction_date DESC LIMIT 1) as last_property_name'),
-            DB::raw('(SELECT room_name FROM t_transactions t3 WHERE t3.user_email = t_transactions.user_email AND t3.user_id IS NULL ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name'),
-            DB::raw('(SELECT m_rooms.no FROM t_transactions t4 LEFT JOIN m_rooms ON t4.room_id = m_rooms.idrec WHERE t4.user_email = t_transactions.user_email AND t4.user_id IS NULL ORDER BY t4.transaction_date DESC LIMIT 1) as last_room_number'),
-            DB::raw('(SELECT renewal_status FROM t_transactions t5 WHERE t5.user_email = t_transactions.user_email AND t5.user_id IS NULL ORDER BY t5.transaction_date DESC LIMIT 1) as renewal_status'),
-            DB::raw('(SELECT is_renewal FROM t_transactions t6 WHERE t6.user_email = t_transactions.user_email AND t6.user_id IS NULL ORDER BY t6.transaction_date DESC LIMIT 1) as is_renewal'),
-            DB::raw('(SELECT GROUP_CONCAT(DISTINCT CONCAT(parking_type, " (", vehicle_plate, ")") SEPARATOR ", ") FROM t_parking_fee_transaction pft WHERE pft.user_phone = t_transactions.user_phone_number AND pft.status = 1) as parking_info'),
+            DB::raw('(SELECT property_name FROM t_transactions t2 WHERE BINARY t2.user_email = BINARY t_transactions.user_email AND t2.user_id IS NULL ORDER BY t2.transaction_date DESC LIMIT 1) as last_property_name'),
+            DB::raw('(SELECT room_name FROM t_transactions t3 WHERE BINARY t3.user_email = BINARY t_transactions.user_email AND t3.user_id IS NULL ORDER BY t3.transaction_date DESC LIMIT 1) as last_room_name'),
+            DB::raw('(SELECT m_rooms.no FROM t_transactions t4 LEFT JOIN m_rooms ON t4.room_id = m_rooms.idrec WHERE BINARY t4.user_email = BINARY t_transactions.user_email AND t4.user_id IS NULL ORDER BY t4.transaction_date DESC LIMIT 1) as last_room_number'),
+            DB::raw('(SELECT renewal_status FROM t_transactions t5 WHERE BINARY t5.user_email = BINARY t_transactions.user_email AND t5.user_id IS NULL ORDER BY t5.transaction_date DESC LIMIT 1) as renewal_status'),
+            DB::raw('(SELECT is_renewal FROM t_transactions t6 WHERE BINARY t6.user_email = BINARY t_transactions.user_email AND t6.user_id IS NULL ORDER BY t6.transaction_date DESC LIMIT 1) as is_renewal'),
+            DB::raw('(SELECT GROUP_CONCAT(DISTINCT CONCAT(parking_type, " (", vehicle_plate, ")") SEPARATOR ", ") FROM t_parking_fee_transaction pft WHERE BINARY pft.user_phone = BINARY t_transactions.user_phone_number AND pft.status = 1) as parking_info'),
             DB::raw('(SELECT t_booking.status FROM t_booking INNER JOIN t_transactions t7 ON BINARY t_booking.order_id = BINARY t7.order_id WHERE BINARY t7.user_email = BINARY t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
-            DB::raw('(SELECT t7.check_in FROM t_transactions t7 WHERE t7.user_email = t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as last_check_in'),
-            DB::raw('(SELECT t8.check_out FROM t_transactions t8 WHERE t8.user_email = t_transactions.user_email AND t8.user_id IS NULL ORDER BY t8.transaction_date DESC LIMIT 1) as last_check_out')
+            DB::raw('(SELECT t7.check_in FROM t_transactions t7 WHERE BINARY t7.user_email = BINARY t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as last_check_in'),
+            DB::raw('(SELECT t8.check_out FROM t_transactions t8 WHERE BINARY t8.user_email = BINARY t_transactions.user_email AND t8.user_id IS NULL ORDER BY t8.transaction_date DESC LIMIT 1) as last_check_out')
         ])
             ->whereNull('user_id')
             ->groupBy('user_name', 'user_email', 'user_phone_number');
