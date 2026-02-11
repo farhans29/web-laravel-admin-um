@@ -221,18 +221,35 @@ class SidebarItemsTableSeeder extends Seeder
         
         $payments = SidebarItem::create([
             'name' => 'Payments',
-            'route' => 'admin.payments.index',
+            'route' => null,
             'permission_id' => $permissions['view_payments'] ?? null,
             'parent_id' => $financialSection->id,
             'order' => 1
         ]);
 
+        // Payments children
         SidebarItem::create([
-            'name' => 'Parking Payments',
+            'name' => 'Transaction',
+            'route' => 'admin.payments.index',
+            'permission_id' => $permissions['view_payments'] ?? null,
+            'parent_id' => $payments->id,
+            'order' => 1
+        ]);
+
+        SidebarItem::create([
+            'name' => 'Parking',
             'route' => 'admin.parking-payments.index',
             'permission_id' => $permissions['view_parking_payments'] ?? null,
-            'parent_id' => $financialSection->id,
+            'parent_id' => $payments->id,
             'order' => 2
+        ]);
+
+        SidebarItem::create([
+            'name' => 'Deposit',
+            'route' => 'admin.deposit-payments.index',
+            'permission_id' => $permissions['view_deposit_payments'] ?? null,
+            'parent_id' => $payments->id,
+            'order' => 3
         ]);
 
         $refunds = SidebarItem::create([
@@ -240,7 +257,7 @@ class SidebarItemsTableSeeder extends Seeder
             'route' => 'admin.refunds.index',
             'permission_id' => $permissions['view_refunds'] ?? null,
             'parent_id' => $financialSection->id,
-            'order' => 3
+            'order' => 2
         ]);
 
         $reports = SidebarItem::create([
@@ -248,7 +265,7 @@ class SidebarItemsTableSeeder extends Seeder
             'route' => null,
             'permission_id' => $permissions['view_reports'] ?? null,
             'parent_id' => $financialSection->id,
-            'order' => 2
+            'order' => 3
         ]);
 
         // Reports children

@@ -741,6 +741,9 @@
                 }
             });
 
+            // Remove duplicates from selectedPermissions array
+            const uniquePermissions = [...new Set(selectedPermissions)];
+
             fetch(`/master-role/update-permissions/${currentUserId}`, {
                     method: 'POST',
                     headers: {
@@ -748,28 +751,41 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
-                        permissions: selectedPermissions
+                        permissions: uniquePermissions
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    Toastify({
-                        text: data.message,
-                        duration: 3000,
-                        close: true,
-                        gravity: "bottom",
-                        position: "left",
-                        style: {
-                            background: "#4CAF50",
-                        },
-                    }).showToast();
+                    if (data.success) {
+                        Toastify({
+                            text: data.message,
+                            duration: 3000,
+                            close: true,
+                            gravity: "bottom",
+                            position: "left",
+                            style: {
+                                background: "#4CAF50",
+                            },
+                        }).showToast();
 
-                    closeAccessRightsModal();
+                        closeAccessRightsModal();
+                    } else {
+                        Toastify({
+                            text: data.message || "Failed to update permissions!",
+                            duration: 3000,
+                            close: true,
+                            gravity: "bottom",
+                            position: "left",
+                            style: {
+                                background: "#FF5733",
+                            },
+                        }).showToast();
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     Toastify({
-                        text: "Failed to update permissions!",
+                        text: "Failed to update permissions: " + (error.message || "Unknown error"),
                         duration: 3000,
                         close: true,
                         gravity: "bottom",

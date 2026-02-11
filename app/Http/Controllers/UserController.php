@@ -216,23 +216,26 @@ class UserController extends Controller
         ]);
 
         // Tambahkan permission ID 1 dan 2 untuk user baru
-        $defaultPermissions = [1, 2];
+        $defaultPermissions = array_unique([1, 2]); // Ensure uniqueness
 
-        foreach ($defaultPermissions as $permissionId) {
-            $existingPermission = DB::table('role_permission')
-                ->where('user_id', $user->id)
-                ->where('permission_id', $permissionId)
-                ->exists();
+        DB::transaction(function () use ($user, $defaultPermissions) {
+            foreach ($defaultPermissions as $permissionId) {
+                // Check if permission already exists
+                $existingPermission = DB::table('role_permission')
+                    ->where('user_id', $user->id)
+                    ->where('permission_id', $permissionId)
+                    ->exists();
 
-            if (!$existingPermission) {
-                DB::table('role_permission')->insert([
-                    'user_id' => $user->id,
-                    'permission_id' => $permissionId,
-                    'created_at' => Carbon::now(),
-                    'created_by' => Auth::id(),
-                ]);
+                if (!$existingPermission) {
+                    DB::table('role_permission')->insert([
+                        'user_id' => $user->id,
+                        'permission_id' => $permissionId,
+                        'created_at' => Carbon::now(),
+                        'created_by' => Auth::id(),
+                    ]);
+                }
             }
-        }
+        });
 
         return redirect()->route('users-newManagement')
             ->with('success', 'User successfully created.');
@@ -450,20 +453,43 @@ class UserController extends Controller
 
     public function update(Request $request, $userId)
     {
-        // Clear existing permissions
-        DB::table('role_permission')->where('user_id', $userId)->delete();
+        try {
+            // Use transaction to ensure atomicity
+            DB::transaction(function () use ($request, $userId) {
+                // Clear existing permissions
+                DB::table('role_permission')->where('user_id', $userId)->delete();
 
-        // Insert new permissions
-        foreach ($request->permissions as $permissionId) {
-            DB::table('role_permission')->insert([
-                'user_id' => $userId,
-                'permission_id' => $permissionId,
-                'created_at' => Carbon::now(),
-                'created_by' => Auth::id(),
-            ]);
+                // Insert new permissions
+                if ($request->has('permissions') && is_array($request->permissions)) {
+                    // Remove duplicate permission IDs
+                    $uniquePermissions = array_unique($request->permissions);
+
+                    foreach ($uniquePermissions as $permissionId) {
+                        // Double check to prevent duplicate entry
+                        $exists = DB::table('role_permission')
+                            ->where('user_id', $userId)
+                            ->where('permission_id', $permissionId)
+                            ->exists();
+
+                        if (!$exists) {
+                            DB::table('role_permission')->insert([
+                                'user_id' => $userId,
+                                'permission_id' => $permissionId,
+                                'created_at' => Carbon::now(),
+                                'created_by' => Auth::id(),
+                            ]);
+                        }
+                    }
+                }
+            });
+
+            return response()->json(['message' => 'Permissions updated successfully!']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update permissions: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json(['message' => 'Permissions updated successfully!']);
     }
 
     public function accountGetData()
@@ -779,20 +805,34 @@ class UserController extends Controller
             //     ], 403);
             // }
 
-            // Clear existing permissions
-            DB::table('role_permission')->where('user_id', $userId)->delete();
+            // Use transaction to ensure atomicity
+            DB::transaction(function () use ($request, $userId) {
+                // Clear existing permissions
+                DB::table('role_permission')->where('user_id', $userId)->delete();
 
-            // Insert new permissions
-            if ($request->has('permissions') && is_array($request->permissions)) {
-                foreach ($request->permissions as $permissionId) {
-                    DB::table('role_permission')->insert([
-                        'user_id' => $userId,
-                        'permission_id' => $permissionId,
-                        'created_at' => Carbon::now(),
-                        'created_by' => Auth::id(),
-                    ]);
+                // Insert new permissions
+                if ($request->has('permissions') && is_array($request->permissions)) {
+                    // Remove duplicate permission IDs
+                    $uniquePermissions = array_unique($request->permissions);
+
+                    foreach ($uniquePermissions as $permissionId) {
+                        // Double check to prevent duplicate entry
+                        $exists = DB::table('role_permission')
+                            ->where('user_id', $userId)
+                            ->where('permission_id', $permissionId)
+                            ->exists();
+
+                        if (!$exists) {
+                            DB::table('role_permission')->insert([
+                                'user_id' => $userId,
+                                'permission_id' => $permissionId,
+                                'created_at' => Carbon::now(),
+                                'created_by' => Auth::id(),
+                            ]);
+                        }
+                    }
                 }
-            }
+            });
 
             return response()->json([
                 'success' => true,
