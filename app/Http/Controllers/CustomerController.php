@@ -62,10 +62,10 @@ class CustomerController extends Controller
         // Get registered users with their booking statistics
         $registeredUsers = User::select([
             'users.id',
-            DB::raw('CAST(users.username AS CHAR) COLLATE utf8mb4_unicode_ci as username'),
-            DB::raw('CAST(users.email AS CHAR) COLLATE utf8mb4_unicode_ci as email'),
-            DB::raw('CAST(users.phone_number AS CHAR) COLLATE utf8mb4_unicode_ci as phone'), // PERBAIKAN DI SINI
-            DB::raw('CAST("registered" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
+            DB::raw('CAST(users.username AS CHAR) COLLATE utf8mb4_general_ci as username'),
+            DB::raw('CAST(users.email AS CHAR) COLLATE utf8mb4_general_ci as email'),
+            DB::raw('CAST(users.phone_number AS CHAR) COLLATE utf8mb4_general_ci as phone'),
+            DB::raw('CAST("registered" AS CHAR) COLLATE utf8mb4_general_ci as registration_status'),
             DB::raw('COALESCE(COUNT(DISTINCT t_transactions.order_id), 0) as total_bookings'),
             DB::raw('COALESCE(SUM(t_transactions.grandtotal_price), 0) as total_spent'),
             DB::raw('MAX(t_transactions.transaction_date) as last_booking_date'),
@@ -91,10 +91,10 @@ class CustomerController extends Controller
         // Get guest customers (transactions without user_id)
         $guestCustomers = Transaction::select([
             DB::raw('NULL as id'),
-            DB::raw('CAST(user_name AS CHAR) COLLATE utf8mb4_unicode_ci as username'),
-            DB::raw('CAST(user_email AS CHAR) COLLATE utf8mb4_unicode_ci as email'),
-            DB::raw('CAST(user_phone_number AS CHAR) COLLATE utf8mb4_unicode_ci as phone'),
-            DB::raw('CAST("guest" AS CHAR) COLLATE utf8mb4_unicode_ci as registration_status'),
+            DB::raw('CAST(user_name AS CHAR) COLLATE utf8mb4_general_ci as username'),
+            DB::raw('CAST(user_email AS CHAR) COLLATE utf8mb4_general_ci as email'),
+            DB::raw('CAST(user_phone_number AS CHAR) COLLATE utf8mb4_general_ci as phone'),
+            DB::raw('CAST("guest" AS CHAR) COLLATE utf8mb4_general_ci as registration_status'),
             DB::raw('COUNT(DISTINCT order_id) as total_bookings'),
             DB::raw('SUM(grandtotal_price) as total_spent'),
             DB::raw('MAX(transaction_date) as last_booking_date'),
