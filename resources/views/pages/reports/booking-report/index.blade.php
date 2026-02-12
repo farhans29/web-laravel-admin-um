@@ -163,26 +163,38 @@
         </div>
     </div>
 
-    <script src="{{ asset('js/date-filter-persistence.js') }}"></script>
     <script>
         let currentPage = 1;
         let searchTimeout;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Flatpickr with persistence (no default dates - show all data)
-            const startDateVal = '{{ $startDate }}';
-            const endDateVal = '{{ $endDate }}';
-            const flatpickrOptions = {
+            // Initialize Flatpickr without localStorage persistence (show all data by default)
+            flatpickr('#date_picker', {
+                mode: 'range',
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'j M Y',
+                allowInput: true,
+                locale: { rangeSeparator: ' to ' },
                 onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        const startDate = selectedDates[0];
+                        const endDate = selectedDates[1] || selectedDates[0];
+                        document.getElementById('start_date').value = instance.formatDate(startDate, 'Y-m-d');
+                        document.getElementById('end_date').value = instance.formatDate(endDate, 'Y-m-d');
+                    }
                     currentPage = 1;
                     fetchReportData();
+                },
+                onClose: function(selectedDates) {
+                    if (selectedDates.length === 0) {
+                        document.getElementById('start_date').value = '';
+                        document.getElementById('end_date').value = '';
+                        currentPage = 1;
+                        fetchReportData();
+                    }
                 }
-            };
-            if (startDateVal && endDateVal) {
-                flatpickrOptions.defaultStartDate = new Date(startDateVal);
-                flatpickrOptions.defaultEndDate = new Date(endDateVal);
-            }
-            const datePicker = DateFilterPersistence.initFlatpickr('booking-report', flatpickrOptions);
+            });
 
             // Auto-load data on page load
             fetchReportData();

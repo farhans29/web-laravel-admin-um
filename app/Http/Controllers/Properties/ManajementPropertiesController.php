@@ -510,8 +510,10 @@ class ManajementPropertiesController extends Controller
     {
         $query = PropertyFacility::with(['createdBy', 'updatedBy'])
             ->when($request->search, function ($q) use ($request) {
-                $q->where('facility', 'like', '%' . $request->search . '%')
-                    ->orWhere('description', 'like', '%' . $request->search . '%');
+                $q->where(function ($sub) use ($request) {
+                    $sub->where('facility', 'like', '%' . $request->search . '%')
+                        ->orWhere('description', 'like', '%' . $request->search . '%');
+                });
             })
             ->when($request->status, function ($q) use ($request) {
                 // Convert status string to integer
@@ -531,9 +533,15 @@ class ManajementPropertiesController extends Controller
 
         $categories = PropertyFacility::distinct()->pluck('category');
 
-        // Jika request AJAX, kembalikan hanya bagian table dan pagination
+        // Jika request AJAX, kembalikan bagian table dan pagination
         if ($request->ajax() || $request->header('X-Requested-With') == 'XMLHttpRequest') {
-            return view('pages.Properties.Facility_properties.partials.facility-property_table', compact('facilities', 'categories'));
+            $tableHtml = view('pages.Properties.Facility_properties.partials.facility-property_table', compact('facilities', 'categories'))->render();
+            $paginationHtml = $facilities instanceof \Illuminate\Pagination\LengthAwarePaginator
+                ? $facilities->appends($request->input())->links()->toHtml()
+                : '';
+
+            return '<div id="tableContainer">' . $tableHtml . '</div>'
+                 . '<div id="paginationContainer">' . $paginationHtml . '</div>';
         }
 
         return view('pages.Properties.Facility_properties.index', compact('facilities', 'categories'));

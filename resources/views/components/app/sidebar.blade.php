@@ -728,11 +728,13 @@
                             @can('view_reports')
                                 <li x-init="if (window.location.href.includes('reports/booking') ||
                                     window.location.href.includes('reports/payment') ||
+                                    window.location.href.includes('reports/parking') ||
+                                    window.location.href.includes('reports/deposit') ||
                                     window.location.href.includes('reports/rented-rooms')) { activeMenu = 'reports' }">
 
                                     <!-- Main Menu Button -->
                                     <a @click="activeMenu = activeMenu === 'reports' ? '' : 'reports'"
-                                        class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('reports.booking.*', 'reports.payment.*', 'reports.rented-rooms.*')) bg-indigo-900 @endif">
+                                        class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('reports.booking.*', 'reports.payment.*', 'reports.parking.*', 'reports.deposit.*', 'reports.rented-rooms.*')) bg-indigo-900 @endif">
 
                                         <div class="flex items-center gap-3 min-w-0">
                                             <!-- Chart/Report Icon -->

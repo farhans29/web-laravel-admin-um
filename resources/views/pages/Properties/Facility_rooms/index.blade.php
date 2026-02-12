@@ -336,10 +336,10 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
 
-                    const newTableBody = doc.querySelector('tbody');
-                    const currentTableBody = document.querySelector('tbody');
-                    if (newTableBody && currentTableBody) {
-                        currentTableBody.innerHTML = newTableBody.innerHTML;
+                    const newTable = doc.querySelector('#tableContainer table');
+                    const currentTable = document.querySelector('.overflow-x-auto table');
+                    if (newTable && currentTable) {
+                        currentTable.querySelector('tbody').innerHTML = newTable.querySelector('tbody').innerHTML;
                     }
 
                     const newPagination = doc.getElementById('paginationContainer');
