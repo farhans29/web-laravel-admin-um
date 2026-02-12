@@ -940,8 +940,10 @@ class ManajementRoomsController extends Controller
     {
         $query = RoomFacility::with(['createdBy', 'updatedBy'])
             ->when($request->search, function ($q) use ($request) {
-                $q->where('facility', 'like', '%' . $request->search . '%')
-                    ->orWhere('description', 'like', '%' . $request->search . '%');
+                $q->where(function ($sub) use ($request) {
+                    $sub->where('facility', 'like', '%' . $request->search . '%')
+                        ->orWhere('description', 'like', '%' . $request->search . '%');
+                });
             })
             ->when($request->status, function ($q) use ($request) {
                 // Convert status string to integer
@@ -958,9 +960,15 @@ class ManajementRoomsController extends Controller
             ? $query->get()
             : $query->paginate($perPage)->withQueryString();
 
-        // Jika request AJAX, kembalikan hanya bagian table dan pagination
+        // Jika request AJAX, kembalikan bagian table dan pagination
         if ($request->ajax() || $request->header('X-Requested-With') == 'XMLHttpRequest') {
-            return view('pages.Properties.Facility_rooms.partials.facility-room_table', compact('facilities'));
+            $tableHtml = view('pages.Properties.Facility_rooms.partials.facility-room_table', compact('facilities'))->render();
+            $paginationHtml = $facilities instanceof \Illuminate\Pagination\LengthAwarePaginator
+                ? $facilities->appends($request->input())->links()->toHtml()
+                : '';
+
+            return '<div id="tableContainer">' . $tableHtml . '</div>'
+                 . '<div id="paginationContainer">' . $paginationHtml . '</div>';
         }
 
         return view('pages.Properties.Facility_rooms.index', compact('facilities'));
