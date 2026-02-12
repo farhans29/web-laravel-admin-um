@@ -84,7 +84,6 @@
         </div>
     </div>
 
-    <script src="{{ asset('js/date-filter-persistence.js') }}"></script>
     <script>
         // Fungsi untuk Approve Payment
         function confirmApprove(paymentId) {
@@ -410,15 +409,27 @@
             // local reference for convenience
             const fetchFilteredBookings = window.fetchFilteredBookings;
 
-            // Initialize Flatpickr with persistence disabled (no default dates)
-            const datePicker = DateFilterPersistence.initFlatpickr('payment-pay', {
-                disablePersistence: true,
-                maxRangeDays: null,
+            // Initialize Flatpickr without localStorage persistence (show all data by default)
+            flatpickr('#date_picker', {
+                mode: 'range',
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'j M Y',
+                allowInput: true,
+                locale: { rangeSeparator: ' to ' },
                 onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        const startDate = selectedDates[0];
+                        const endDate = selectedDates[1] || selectedDates[0];
+                        document.getElementById('start_date').value = instance.formatDate(startDate, 'Y-m-d');
+                        document.getElementById('end_date').value = instance.formatDate(endDate, 'Y-m-d');
+                    }
                     fetchFilteredBookings();
                 },
-                onClose: function(selectedDates, dateStr, instance) {
+                onClose: function(selectedDates) {
                     if (selectedDates.length === 0) {
+                        document.getElementById('start_date').value = '';
+                        document.getElementById('end_date').value = '';
                         fetchFilteredBookings();
                     }
                 }
