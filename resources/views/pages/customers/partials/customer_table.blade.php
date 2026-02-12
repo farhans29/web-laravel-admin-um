@@ -20,10 +20,6 @@
                 </th>
                 <th scope="col"
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Renewal Status
-                </th>
-                <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Parking Info
                 </th>
                 <th scope="col"
@@ -170,35 +166,6 @@
                         </span>
                     </td>
 
-                    <!-- Renewal Status -->
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        @if ($customer->is_renewal == 1)
-                            @if ($customer->renewal_status == 1)
-                                <span
-                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Sudah Perpanjang
-                                </span>
-                            @else
-                                <span
-                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Belum Perpanjang
-                                </span>
-                            @endif
-                        @else
-                            <span class="text-gray-400 text-sm">Booking Baru</span>
-                        @endif
-                    </td>
-
                     <!-- Parking Info -->
                     <td class="px-6 py-4">
                         @if ($customer->parking_info)
@@ -278,7 +245,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="px-6 py-12 text-center">
+                    <td colspan="9" class="px-6 py-12 text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

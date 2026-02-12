@@ -43,6 +43,18 @@ class DepositFeeTransaction extends Model
         return $this->belongsTo(Transaction::class, 'order_id', 'order_id');
     }
 
+    public function depositFee()
+    {
+        return $this->hasOneThrough(
+            DepositFee::class,
+            Transaction::class,
+            'order_id', // Foreign key on transactions table
+            'property_id', // Foreign key on deposit_fees table
+            'order_id', // Local key on deposit_fee_transactions table
+            'property_id' // Local key on transactions table
+        );
+    }
+
     public function verifiedBy()
     {
         return $this->belongsTo(User::class, 'verified_by');
