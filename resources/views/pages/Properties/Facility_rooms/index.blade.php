@@ -37,11 +37,7 @@
                             @click.outside="modalOpenDetail = false">
                             <!-- Header -->
                             <div
-<<<<<<< Updated upstream
                                 class="px-5 py-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-b flex items-center justify-between rounded-t-xl">
-=======
-                                class="px-5 py-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-b flex items-center justify-between">
->>>>>>> Stashed changes
                                 <h3 class="text-sm font-semibold text-gray-800">Tambah Fasilitas</h3>
                                 <button @click="modalOpenDetail = false"
                                     class="text-gray-400 hover:text-gray-600 transition">
@@ -66,23 +62,7 @@
                                 </div>
 
                                 <!-- Icon -->
-<<<<<<< Updated upstream
                                 <x-icon-picker model="currentFacility.icon" name="icon" />
-=======
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Icon (Iconify)</label>
-                                    <div class="flex items-center gap-2">
-                                        <input type="text" name="icon" x-model="currentFacility.icon"
-                                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="mdi:wifi, mdi:bed, mdi:tv" />
-                                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-100 rounded-md">
-                                            <span x-show="currentFacility.icon" class="iconify text-2xl text-gray-700" :data-icon="currentFacility.icon"></span>
-                                            <span x-show="!currentFacility.icon" class="text-gray-400 text-xs">Icon</span>
-                                        </div>
-                                    </div>
-                                    <p class="mt-1 text-xs text-gray-500">Cari icon di <a href="https://icon-sets.iconify.design/" target="_blank" class="text-blue-600 hover:underline">Iconify</a></p>
-                                </div>
->>>>>>> Stashed changes
 
                                 <!-- Description -->
                                 <div>
@@ -191,17 +171,10 @@
             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
             @keydown.escape.window="closeModal()">
 
-<<<<<<< Updated upstream
             <div class="bg-white w-full max-w-md rounded-xl shadow-lg overflow-visible border border-gray-100"
                 @click.outside="closeModal()">
                 <!-- Header -->
                 <div class="px-5 py-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-b flex items-center justify-between rounded-t-xl">
-=======
-            <div class="bg-white w-full max-w-md rounded-xl shadow-lg overflow-hidden border border-gray-100"
-                @click.outside="closeModal()">
-                <!-- Header -->
-                <div class="px-5 py-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-b flex items-center justify-between">
->>>>>>> Stashed changes
                     <h3 class="text-sm font-semibold text-gray-800">Edit Fasilitas</h3>
                     <button @click="closeModal()" class="text-gray-400 hover:text-gray-600 transition">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -223,23 +196,7 @@
                     </div>
 
                     <!-- Icon -->
-<<<<<<< Updated upstream
                     <x-icon-picker model="facility.icon" name="icon" />
-=======
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Icon (Iconify)</label>
-                        <div class="flex items-center gap-2">
-                            <input type="text" x-model="facility.icon"
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="mdi:wifi, mdi:bed, mdi:tv" />
-                            <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-100 rounded-md">
-                                <span x-show="facility.icon" class="iconify text-2xl text-gray-700" :data-icon="facility.icon"></span>
-                                <span x-show="!facility.icon" class="text-gray-400 text-xs">Icon</span>
-                            </div>
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500">Cari icon di <a href="https://icon-sets.iconify.design/" target="_blank" class="text-blue-600 hover:underline">Iconify</a></p>
-                    </div>
->>>>>>> Stashed changes
 
                     <!-- Description -->
                     <div>
@@ -526,11 +483,6 @@
                             throw new Error(data.message || 'Terjadi kesalahan saat menyimpan data');
                         }
 
-<<<<<<< Updated upstream
-=======
-                        this.showSuccessToast('Fasilitas berhasil ditambahkan');
-
->>>>>>> Stashed changes
                         this.modalOpenDetail = false;
                         this.currentFacility = {
                             id: null,
@@ -540,14 +492,8 @@
                             status: 1,
                         };
 
-<<<<<<< Updated upstream
                         this.showSuccessToast('Fasilitas berhasil ditambahkan');
                         window.location.reload();
-=======
-                        setTimeout(() => {
-                            applyFacilityRoomsFilters();
-                        }, 500);
->>>>>>> Stashed changes
 
                     } catch (error) {
                         console.error('Error:', error);
@@ -623,11 +569,8 @@
                             throw new Error(data.message || 'Terjadi kesalahan saat menyimpan data');
                         }
 
-<<<<<<< Updated upstream
                         this.closeModal();
 
-=======
->>>>>>> Stashed changes
                         Swal.fire({
                             toast: true,
                             position: 'top-end',
@@ -636,16 +579,7 @@
                             showConfirmButton: false,
                             timer: 3000
                         });
-<<<<<<< Updated upstream
                         window.location.reload();
-=======
-
-                        this.closeModal();
-
-                        setTimeout(() => {
-                            applyFacilityRoomsFilters();
-                        }, 500);
->>>>>>> Stashed changes
 
                     } catch (error) {
                         console.error('Error:', error);
