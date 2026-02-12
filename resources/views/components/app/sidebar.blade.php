@@ -801,6 +801,28 @@
                                                 </li>
                                             @endcan
 
+                                            <!-- Parking Report -->
+                                            @can('view_parking_report')
+                                                <li>
+                                                    <a href="{{ route('reports.parking.index') }}"
+                                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.parking.*')) bg-indigo-900 @endif">
+                                                        <span
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_parking_report') }}</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+
+                                            <!-- Deposit Report -->
+                                            @can('view_deposit_report')
+                                                <li>
+                                                    <a href="{{ route('reports.deposit.index') }}"
+                                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('reports.deposit.*')) bg-indigo-900 @endif">
+                                                        <span
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_deposit_report') }}</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+
                                             <!-- Rented Rooms Report -->
                                             @can('view_rented_rooms_report')
                                                 <li>

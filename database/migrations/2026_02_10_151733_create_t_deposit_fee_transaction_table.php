@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('t_deposit_fee_transaction', function (Blueprint $table) {
             $table->id('idrec');
-            $table->unsignedBigInteger('deposit_fee_id')->nullable();
             $table->string('invoice_id', 100)->nullable()->unique();
             $table->string('order_id', 100);
             $table->decimal('fee_amount', 18, 4)->default(0);

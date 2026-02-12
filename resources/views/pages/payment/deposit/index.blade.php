@@ -11,7 +11,7 @@
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Add New Payment
+                {{ __('ui.add_new_payment') }}
             </button>
         </div>
 
@@ -34,24 +34,6 @@
                                     class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md sm:text-sm"
                                     placeholder="{{ __('ui.search_deposit_placeholder') }}">
                             </div>
-                        </div>
-
-                        <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.status') }}:</span>
-                            <select name="status" id="statusFilter"
-                                class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md text-sm">
-                                <option value="">{{ __('ui.all_status') }}</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
-                                    {{ __('ui.pending') }}</option>
-                                <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }}>
-                                    {{ __('ui.waiting_verification') }}</option>
-                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>
-                                    {{ __('ui.paid') }}</option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
-                                    {{ __('ui.rejected') }}</option>
-                                <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>
-                                    {{ __('ui.canceled') }}</option>
-                            </select>
                         </div>
 
                         <div class="flex items-center gap-2">
@@ -172,8 +154,8 @@
                     class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-600 to-blue-600">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-semibold text-white">Add New Deposit Payment</h3>
-                            <p class="text-white/80 text-sm">Create a new deposit payment record</p>
+                            <h3 class="text-lg font-semibold text-white">{{ __('ui.add_new_deposit_payment') }}</h3>
+                            <p class="text-white/80 text-sm">{{ __('ui.create_deposit_payment_record') }}</p>
                         </div>
                         <button onclick="closeAddPaymentModal()"
                             class="text-white hover:text-indigo-200 transition-colors">
@@ -195,13 +177,13 @@
                             <div class="md:col-span-2">
                                 <label for="add_order_id"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Booking Order (Checked-In) <span class="text-red-500">*</span>
+                                    {{ __('ui.booking_order_checked_in') }} <span class="text-red-500">*</span>
                                 </label>
                                 <select name="order_id" id="add_order_id" required
                                     class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                                    <option value="">Loading checked-in orders...</option>
+                                    <option value="">{{ __('ui.loading_checked_in_orders') }}</option>
                                 </select>
-                                <p class="text-xs text-gray-500 mt-1">Select a booking that is currently checked-in</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ __('ui.select_booking_checked_in') }}</p>
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_order_id_error"></p>
                             </div>
 
@@ -216,18 +198,17 @@
                                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <div class="flex-1">
-                                        <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-1">Booking
-                                            Information</h4>
+                                        <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-1">{{ __('ui.booking_information') }}</h4>
                                         <div class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                                            <p><span class="font-medium">Customer:</span> <span
+                                            <p><span class="font-medium">{{ __('ui.customer') }}:</span> <span
                                                     id="display_user_name">-</span></p>
-                                            <p><span class="font-medium">Phone:</span> <span
+                                            <p><span class="font-medium">{{ __('ui.phone') }}:</span> <span
                                                     id="display_user_phone">-</span></p>
-                                            <p><span class="font-medium">Room:</span> <span
+                                            <p><span class="font-medium">{{ __('ui.room') }}:</span> <span
                                                     id="display_room_name">-</span></p>
-                                            <p><span class="font-medium">Property:</span> <span
+                                            <p><span class="font-medium">{{ __('ui.property') }}:</span> <span
                                                     id="display_property_name">-</span></p>
-                                            <p><span class="font-medium">Check-in - Check-out:</span> <span
+                                            <p><span class="font-medium">{{ __('ui.check_in_check_out') }}:</span> <span
                                                     id="display_checkin_checkout">-</span></p>
                                         </div>
                                     </div>
@@ -238,10 +219,10 @@
                             <div class="md:col-span-2">
                                 <label for="add_fee_amount_display"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Fee Amount (Rp) <span class="text-red-500">*</span>
+                                    {{ __('ui.fee_amount_rp') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="fee_amount_display" id="add_fee_amount_display" required
-                                    placeholder="Enter fee amount" oninput="formatFeeAmount(this)"
+                                    placeholder="{{ __('ui.enter_fee_amount') }}" oninput="formatFeeAmount(this)"
                                     class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                 <input type="hidden" name="fee_amount" id="add_fee_amount">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_fee_amount_error"></p>
@@ -251,7 +232,7 @@
                             <div>
                                 <label for="add_transaction_date"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Transaction Date <span class="text-red-500">*</span>
+                                    {{ __('ui.transaction_date') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="datetime-local" name="transaction_date" id="add_transaction_date"
                                     required
@@ -263,12 +244,12 @@
                             <div>
                                 <label for="add_payment_proof"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Payment Proof (JPG only, max 5MB) <span class="text-red-500">*</span>
+                                    {{ __('ui.payment_proof_jpg_only') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="file" name="payment_proof" id="add_payment_proof" required
                                     accept="image/jpeg,image/jpg" onchange="validateImage(this)"
                                     class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                                <p class="text-xs text-gray-500 mt-1">Only JPG/JPEG format, maximum 5MB</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ __('ui.jpg_format_max_5mb') }}</p>
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_payment_proof_error"></p>
                             </div>
 
@@ -276,9 +257,9 @@
                             <div class="md:col-span-2">
                                 <label for="add_notes"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Notes (Optional)
+                                    {{ __('ui.notes_optional') }}
                                 </label>
-                                <textarea name="notes" id="add_notes" rows="3" placeholder="Enter additional notes..."
+                                <textarea name="notes" id="add_notes" rows="3" placeholder="{{ __('ui.enter_additional_notes') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 resize-none"></textarea>
                             </div>
                         </div>
@@ -287,11 +268,11 @@
                         <div class="mt-6 flex justify-end gap-3">
                             <button type="button" onclick="closeAddPaymentModal()"
                                 class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                Cancel
+                                {{ __('ui.cancel') }}
                             </button>
                             <button type="submit" id="addPaymentSubmitBtn"
                                 class="px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                <span id="addPaymentSubmitText">Add Payment</span>
+                                <span id="addPaymentSubmitText">{{ __('ui.add_payment') }}</span>
                                 <svg id="addPaymentSpinner" class="animate-spin h-4 w-4 text-white hidden"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -598,7 +579,6 @@
         // AJAX filter using POST /filter endpoint
         function applyFilters() {
             const search = document.getElementById('searchInput')?.value || '';
-            const status = document.getElementById('statusFilter')?.value || '';
             const perPage = document.getElementById('perPageSelect')?.value || '8';
 
             fetch('/payment/deposit/filter', {
@@ -610,7 +590,6 @@
                     },
                     body: JSON.stringify({
                         search,
-                        status,
                         per_page: perPage
                     })
                 })
@@ -622,7 +601,6 @@
 
                     const urlParams = new URLSearchParams();
                     if (search) urlParams.append('search', search);
-                    if (status) urlParams.append('status', status);
                     if (perPage) urlParams.append('per_page', perPage);
                     window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
                 });
@@ -634,7 +612,6 @@
                 clearTimeout(t);
                 t = setTimeout(applyFilters, 500);
             });
-            document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
             document.getElementById('perPageSelect')?.addEventListener('change', applyFilters);
         });
 
@@ -676,7 +653,7 @@
 
         function loadCheckedInOrders() {
             const orderSelect = document.getElementById('add_order_id');
-            orderSelect.innerHTML = '<option value="">Loading checked-in orders...</option>';
+            orderSelect.innerHTML = '<option value="">{{ __('ui.loading_checked_in_orders') }}</option>';
 
             fetch('/payment/deposit/checked-in-orders', {
                     headers: {
@@ -687,7 +664,7 @@
                 .then(data => {
                     if (data.success && data.data.length > 0) {
                         checkedInOrdersData = data.data;
-                        orderSelect.innerHTML = '<option value="">Select a booking order</option>';
+                        orderSelect.innerHTML = '<option value="">{{ __('ui.select_booking_order') }}</option>';
                         data.data.forEach(order => {
                             const option = document.createElement('option');
                             option.value = order.order_id;
@@ -701,12 +678,12 @@
                             orderSelect.appendChild(option);
                         });
                     } else {
-                        orderSelect.innerHTML = '<option value="">No checked-in bookings available</option>';
+                        orderSelect.innerHTML = '<option value="">{{ __('ui.no_checked_in_bookings') }}</option>';
                     }
                 })
                 .catch(error => {
                     console.error('Error loading orders:', error);
-                    orderSelect.innerHTML = '<option value="">Error loading orders</option>';
+                    orderSelect.innerHTML = '<option value="">{{ __('ui.error_loading_orders') }}</option>';
                 });
         }
 
@@ -761,7 +738,7 @@
                 // Check file type
                 const validTypes = ['image/jpeg', 'image/jpg'];
                 if (!validTypes.includes(file.type)) {
-                    errorEl.textContent = 'Only JPG/JPEG format is allowed';
+                    errorEl.textContent = '{{ __('ui.only_jpg_format_allowed') }}';
                     errorEl.classList.remove('hidden');
                     input.value = '';
                     return false;
@@ -770,7 +747,7 @@
                 // Check file size (5MB = 5 * 1024 * 1024 bytes)
                 const maxSize = 5 * 1024 * 1024;
                 if (file.size > maxSize) {
-                    errorEl.textContent = 'File size must not exceed 5MB';
+                    errorEl.textContent = '{{ __('ui.file_size_max_5mb') }}';
                     errorEl.classList.remove('hidden');
                     input.value = '';
                     return false;
@@ -821,10 +798,10 @@
 
             submitBtn.disabled = loading;
             if (loading) {
-                submitText.textContent = 'Processing...';
+                submitText.textContent = '{{ __('ui.processing') }}';
                 spinner.classList.remove('hidden');
             } else {
-                submitText.textContent = 'Add Payment';
+                submitText.textContent = '{{ __('ui.add_payment') }}';
                 spinner.classList.add('hidden');
             }
         }
@@ -856,7 +833,7 @@
                         toast: true,
                         position: 'top-end',
                         icon: 'success',
-                        title: result.message || 'Payment added successfully!',
+                        title: result.message || '{{ __('ui.payment_added_successfully') }}',
                         showConfirmButton: false,
                         timer: 3000,
                         timerProgressBar: true
@@ -876,7 +853,7 @@
                         toast: true,
                         position: 'top-end',
                         icon: 'error',
-                        title: result.message || 'Failed to add payment. Please check the form.',
+                        title: result.message || '{{ __('ui.failed_add_payment') }}',
                         showConfirmButton: false,
                         timer: 3000,
                         timerProgressBar: true
@@ -889,7 +866,7 @@
                     toast: true,
                     position: 'top-end',
                     icon: 'error',
-                    title: 'An unexpected error occurred. Please try again.',
+                    title: '{{ __('ui.unexpected_error') }}',
                     showConfirmButton: false,
                     timer: 3000,
                     timerProgressBar: true

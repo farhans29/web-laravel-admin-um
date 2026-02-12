@@ -53,6 +53,10 @@ class RolesAndPermissionsSeeder extends Seeder
             [1, 33],
             [1, 34],
             [1, 35],
+            [1, 36],
+            [1, 37],
+            [1, 38],
+            
 
 
             [2, 1],  

@@ -26,7 +26,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
             <form method="GET" action="{{ route('customers.index') }}" id="filterForm"
                 class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     <!-- Search Input -->
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
@@ -79,6 +79,23 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <!-- Booking Status Filter -->
+                    <div>
+                        <label for="booking_status" class="block text-sm font-medium text-gray-700 mb-1">
+                            Status Booking
+                        </label>
+                        <select name="booking_status" id="booking_status"
+                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
+                            focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                            <option value="" {{ request('booking_status') == '' ? 'selected' : '' }}>Semua Status</option>
+                            <option value="checked-in" {{ request('booking_status') == 'checked-in' ? 'selected' : '' }}>Sedang Check-in</option>
+                            <option value="completed" {{ request('booking_status') == 'completed' ? 'selected' : '' }}>Selesai</option>
+                            <option value="pending" {{ request('booking_status') == 'pending' ? 'selected' : '' }}>Akan Datang</option>
+                            <option value="cancelled" {{ request('booking_status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                        </select>
+                    </div>
+
                     <!-- Per Page -->
                     <div class="flex items-center gap-2 justify-end">
                         <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
@@ -153,15 +170,44 @@
                                         <h3 class="font-semibold text-gray-900" x-text="booking.property_name"></h3>
                                         <p class="text-sm text-gray-600" x-text="booking.room_name"></p>
                                     </div>
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold"
-                                        :class="{
-                                            'bg-yellow-100 text-yellow-700': booking.transaction_status === 'pending',
-                                            'bg-green-100 text-green-700': booking.transaction_status === 'completed',
-                                            'bg-blue-100 text-blue-700': booking.transaction_status === 'confirmed',
-                                            'bg-red-100 text-red-700': booking.transaction_status === 'cancelled'
-                                        }"
-                                        x-text="booking.transaction_status">
-                                    </span>
+                                    <div class="flex flex-col gap-1 items-end">
+                                        <!-- Transaction Status -->
+                                        <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                                            :class="{
+                                                'bg-yellow-100 text-yellow-700': booking.transaction_status === 'pending',
+                                                'bg-green-100 text-green-700': booking.transaction_status === 'completed',
+                                                'bg-blue-100 text-blue-700': booking.transaction_status === 'confirmed',
+                                                'bg-red-100 text-red-700': booking.transaction_status === 'cancelled'
+                                            }"
+                                            x-text="booking.transaction_status">
+                                        </span>
+
+                                        <!-- Booking Status Badge -->
+                                        <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                                            :class="{
+                                                'bg-blue-100 text-blue-700': booking.booking_status === 'checked-in',
+                                                'bg-gray-100 text-gray-700': booking.booking_status === 'checked-out' || booking.booking_status === 'completed',
+                                                'bg-yellow-100 text-yellow-700': booking.booking_status === 'confirmed' || booking.booking_status === 'pending',
+                                                'bg-red-100 text-red-700': booking.booking_status === 'cancelled'
+                                            }">
+                                            <span x-show="booking.booking_status === 'checked-in'">🏠 Sedang Check-in</span>
+                                            <span x-show="booking.booking_status === 'checked-out' || booking.booking_status === 'completed'">✓ Selesai</span>
+                                            <span x-show="booking.booking_status === 'confirmed' || booking.booking_status === 'pending'">⏳ Akan Datang</span>
+                                            <span x-show="booking.booking_status === 'cancelled'">✗ Dibatalkan</span>
+                                        </span>
+
+                                        <!-- Renewal Status Badge -->
+                                        <template x-if="booking.is_renewal == 1">
+                                            <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                                                :class="{
+                                                    'bg-green-100 text-green-700': booking.renewal_status == 1,
+                                                    'bg-yellow-100 text-yellow-700': booking.renewal_status == 0
+                                                }">
+                                                <span x-show="booking.renewal_status == 1">✓ Sudah Perpanjang</span>
+                                                <span x-show="booking.renewal_status == 0">⏳ Belum Perpanjang</span>
+                                            </span>
+                                        </template>
+                                    </div>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-4 text-sm">
@@ -196,6 +242,23 @@
                                                 x-text="booking.grandtotal_price"></span></p>
                                     </div>
                                 </div>
+
+                                <!-- Parking Info -->
+                                <template x-if="booking.parking && booking.parking.length > 0">
+                                    <div class="mt-3 pt-3 border-t border-gray-200">
+                                        <p class="text-gray-500 text-xs mb-2">Informasi Parkir:</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="(park, index) in booking.parking" :key="index">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                                    </svg>
+                                                    <span x-text="park.type"></span>: <strong x-text="park.plate" class="ml-1"></strong>
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
                         </template>
                     </div>
@@ -280,6 +343,7 @@
             const searchInput = document.getElementById('search');
             const registrationStatus = document.getElementById('registration_status');
             const propertyFilter = document.getElementById('property_id');
+            const bookingStatusFilter = document.getElementById('booking_status');
             const perPageSelect = document.getElementById('per_page');
             let searchTimeout;
 
@@ -290,6 +354,7 @@
                     formData.append('search', searchInput.value);
                     formData.append('registration_status', registrationStatus.value);
                     formData.append('property_id', propertyFilter.value);
+                    formData.append('booking_status', bookingStatusFilter.value);
                     formData.append('per_page', perPageSelect.value);
 
                     const params = new URLSearchParams(formData);
@@ -306,6 +371,7 @@
             searchInput.addEventListener('input', submitFilter);
             registrationStatus.addEventListener('change', submitFilter);
             propertyFilter.addEventListener('change', submitFilter);
+            bookingStatusFilter.addEventListener('change', submitFilter);
             perPageSelect.addEventListener('change', submitFilter);
         });
     </script>

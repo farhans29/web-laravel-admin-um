@@ -54,15 +54,40 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900 dark:text-gray-100">
-                        <span class="font-semibold {{ $parking->available_capacity > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
-                            {{ $parking->available_capacity }}
-                        </span>
-                        <span class="text-gray-500 dark:text-gray-400">/ {{ $parking->capacity }}</span>
-                    </div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ __('ui.available') }} / {{ __('ui.total') }}
-                    </div>
+                    @if($parking->capacity > 0)
+                        <!-- Quota Information -->
+                        <div class="text-sm text-gray-900 dark:text-gray-100 mb-1">
+                            <span class="font-semibold {{ $parking->available_quota > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                {{ $parking->available_quota }}
+                            </span>
+                            <span class="text-gray-500 dark:text-gray-400">/ {{ $parking->capacity }}</span>
+                            <span class="text-xs text-gray-400 ml-1">({{ __('ui.available') }})</span>
+                        </div>
+
+                        <!-- Used Quota -->
+                        <div class="text-xs text-gray-600 dark:text-gray-400">
+                            <span class="font-medium">{{ __('ui.in_use') }}:</span>
+                            <span class="font-semibold text-blue-600 dark:text-blue-400">{{ $parking->quota_used }}</span>
+                        </div>
+
+                        <!-- Quota Progress Bar -->
+                        @if($parking->quota_usage_percentage > 0)
+                            <div class="mt-2">
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                                    <div class="h-1.5 rounded-full transition-all duration-300
+                                        {{ $parking->quota_usage_percentage >= 90 ? 'bg-red-600' : ($parking->quota_usage_percentage >= 70 ? 'bg-yellow-500' : 'bg-green-500') }}"
+                                        style="width: {{ min($parking->quota_usage_percentage, 100) }}%"></div>
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                    {{ number_format($parking->quota_usage_percentage, 0) }}% {{ __('ui.used') }}
+                                </div>
+                            </div>
+                        @endif
+                    @else
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ __('ui.no_quota_limit') }}
+                        </div>
+                    @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900 dark:text-gray-100">

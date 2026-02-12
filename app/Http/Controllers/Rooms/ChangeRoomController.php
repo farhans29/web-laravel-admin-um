@@ -369,12 +369,29 @@ class ChangeRoomController extends Controller
 
             // Send notification
             try {
+                $notificationSent = false;
+
+                // Try to send to registered user first
                 if ($guest && $guest->email) {
                     Notification::send($guest, new RoomTransferNotification($transferDetails));
+                    $notificationSent = true;
                 }
-                return redirect()->route('changerooom.index')
-                    ->with('success', 'Kamar berhasil dipindahkan dan notifikasi telah dikirim!');
-            } catch (\Exception) {
+                // If no user account but has email in booking, send to anonymous notifiable
+                elseif ($currentBooking->user_email) {
+                    Notification::route('mail', $currentBooking->user_email)
+                        ->notify(new RoomTransferNotification($transferDetails));
+                    $notificationSent = true;
+                }
+
+                if ($notificationSent) {
+                    return redirect()->route('changerooom.index')
+                        ->with('success', 'Kamar berhasil dipindahkan dan notifikasi telah dikirim!');
+                } else {
+                    return redirect()->route('changerooom.index')
+                        ->with('success', 'Kamar berhasil dipindahkan! (Email customer tidak tersedia)');
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to send room transfer notification: ' . $e->getMessage());
                 return redirect()->route('changerooom.index')
                     ->with('success', 'Kamar berhasil dipindahkan! (Notifikasi email gagal dikirim)');
             }
@@ -519,20 +536,26 @@ class ChangeRoomController extends Controller
 
             // Send notification
             try {
+                $transferDetails = [
+                    'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
+                    'order_id' => $currentBooking->order_id,
+                    'previous_room' => $currentRoom->name . ' No. ' . $currentRoom->no,
+                    'new_room' => $previousRoom->name . ' No. ' . $previousRoom->no,
+                    'reason' => 'Rollback ke kamar sebelumnya',
+                    'transfer_date' => now()->format('Y-m-d H:i'),
+                    'check_in' => $currentBooking->check_in_at ? $currentBooking->check_in_at->format('Y-m-d H:i') : 'Belum check-in',
+                    'check_out' => $currentBooking->check_out_at ? $currentBooking->check_out_at->format('Y-m-d H:i') : 'Belum ditentukan',
+                ];
+
+                // Send to registered user or walk-in customer
                 if ($guest && $guest->email) {
-                    $transferDetails = [
-                        'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
-                        'order_id' => $currentBooking->order_id,
-                        'previous_room' => $currentRoom->name . ' No. ' . $currentRoom->no,
-                        'new_room' => $previousRoom->name . ' No. ' . $previousRoom->no,
-                        'reason' => 'Rollback ke kamar sebelumnya',
-                        'transfer_date' => now()->format('Y-m-d H:i'),
-                        'check_in' => $currentBooking->check_in_at ? $currentBooking->check_in_at->format('Y-m-d H:i') : 'Belum check-in',
-                        'check_out' => $currentBooking->check_out_at ? $currentBooking->check_out_at->format('Y-m-d H:i') : 'Belum ditentukan',
-                    ];
                     Notification::send($guest, new RoomTransferNotification($transferDetails));
+                } elseif ($currentBooking->user_email) {
+                    Notification::route('mail', $currentBooking->user_email)
+                        ->notify(new RoomTransferNotification($transferDetails));
                 }
-            } catch (\Exception) {
+            } catch (\Exception $e) {
+                \Log::error('Failed to send rollback notification: ' . $e->getMessage());
                 // Notification failed but rollback succeeded
             }
 

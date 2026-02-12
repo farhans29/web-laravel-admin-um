@@ -11,9 +11,16 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Registration
                 </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Current Status
+                </th>
                 <th scope="col"
                     class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total Bookings
+                </th>
+                <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Parking Info
                 </th>
                 <th scope="col"
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -97,12 +104,89 @@
                         @endif
                     </td>
 
+                    <!-- Current Status -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        @php
+                            $now = now();
+                            $checkIn = $customer->last_check_in ? \Carbon\Carbon::parse($customer->last_check_in) : null;
+                            $checkOut = $customer->last_check_out ? \Carbon\Carbon::parse($customer->last_check_out) : null;
+                            $bookingStatus = $customer->current_booking_status;
+                        @endphp
+
+                        @if ($bookingStatus === 'checked-in' || ($checkIn && $checkOut && $now->between($checkIn, $checkOut)))
+                            <span
+                                class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Sedang Check-in
+                            </span>
+                        @elseif ($bookingStatus === 'checked-out' || $bookingStatus === 'completed')
+                            <span
+                                class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Selesai
+                            </span>
+                        @elseif ($bookingStatus === 'confirmed' || $bookingStatus === 'pending')
+                            <span
+                                class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Akan Datang
+                            </span>
+                        @elseif ($bookingStatus === 'cancelled')
+                            <span
+                                class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Dibatalkan
+                            </span>
+                        @else
+                            <span class="text-gray-400 text-sm">Belum ada booking</span>
+                        @endif
+                    </td>
+
                     <!-- Total Bookings -->
                     <td class="px-6 py-4 whitespace-nowrap text-center">
                         <span
                             class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold {{ $customer->total_bookings > 0 ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-500' }}">
                             {{ $customer->total_bookings ?? 0 }}
                         </span>
+                    </td>
+
+                    <!-- Parking Info -->
+                    <td class="px-6 py-4">
+                        @if ($customer->parking_info)
+                            <div class="text-sm text-gray-900">
+                                @php
+                                    $parkings = explode(', ', $customer->parking_info);
+                                @endphp
+                                @foreach ($parkings as $parking)
+                                    <div class="flex items-center mb-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-indigo-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                        </svg>
+                                        <span class="text-xs">{{ $parking }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <span class="text-gray-400 text-sm">Tidak ada parkir</span>
+                        @endif
                     </td>
 
                     <!-- Last Booking Date -->
@@ -161,7 +245,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-12 text-center">
+                    <td colspan="9" class="px-6 py-12 text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

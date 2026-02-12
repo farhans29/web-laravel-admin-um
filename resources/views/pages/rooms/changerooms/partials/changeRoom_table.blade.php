@@ -8,6 +8,8 @@
             'check_out' => $booking->transaction?->check_out ?? $booking->check_out_at,
             'rate' => $booking->room->price ?? 'N/A',
             'guest_name' => $booking->transaction->user_name ?? 'N/A',
+            'guest_email' => $booking->transaction->user_email ?? '-',
+            'guest_phone' => $booking->transaction->user_phone_number ?? '-',
             'order_id' => $booking->order_id,
             'propertyName' => $booking->property->name ?? 'N/A',
             'property_id' => $booking->property->idrec ?? 'N/A',

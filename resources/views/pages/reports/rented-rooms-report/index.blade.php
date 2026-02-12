@@ -261,31 +261,33 @@
         window.activeTab = 'waiting-check-in'; // Global variable to track active tab
 
         document.addEventListener('DOMContentLoaded', function() {
-            const defaultDate = new Date('{{ $selectedDate }}');
-            const startDate = new Date('{{ $startDate }}');
-            const endDate = new Date('{{ $endDate }}');
+            const selectedDateVal = '{{ $selectedDate }}';
+            const startDateVal = '{{ $startDate }}';
+            const endDateVal = '{{ $endDate }}';
 
-            // Initialize Flatpickr for single date selection
-            singleDatePicker = flatpickr('#single_date_picker', {
+            // Initialize Flatpickr for single date selection (no default - show all data)
+            const singleDateOptions = {
                 mode: 'single',
                 dateFormat: 'Y-m-d',
                 altInput: true,
                 altFormat: 'j M Y',
-                defaultDate: defaultDate,
                 onChange: function(selectedDates, dateStr, instance) {
                     document.getElementById('single_date').value = dateStr;
                     currentPage = 1;
                     fetchReportData();
                 }
-            });
+            };
+            if (selectedDateVal) {
+                singleDateOptions.defaultDate = new Date(selectedDateVal);
+            }
+            singleDatePicker = flatpickr('#single_date_picker', singleDateOptions);
 
-            // Initialize Flatpickr for date range selection
-            rangeDatePicker = flatpickr('#date_range_picker', {
+            // Initialize Flatpickr for date range selection (no default - show all data)
+            const rangeDateOptions = {
                 mode: 'range',
                 dateFormat: 'Y-m-d',
                 altInput: true,
                 altFormat: 'j M Y',
-                defaultDate: [startDate, endDate],
                 onChange: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 2) {
                         document.getElementById('start_date').value = flatpickr.formatDate(selectedDates[0], 'Y-m-d');
@@ -294,7 +296,11 @@
                         fetchReportData();
                     }
                 }
-            });
+            };
+            if (startDateVal && endDateVal) {
+                rangeDateOptions.defaultDate = [new Date(startDateVal), new Date(endDateVal)];
+            }
+            rangeDatePicker = flatpickr('#date_range_picker', rangeDateOptions);
 
             // Auto-load data on page load
             fetchReportData();
@@ -461,7 +467,7 @@
             if (pagination.last_page <= 1) {
                 container.innerHTML = `
                     <div class="text-sm text-gray-700">
-                        ${translations.showing} ${pagination.total} data
+                        {{ __('ui.showing') }} ${pagination.total} {{ __('ui.entries') }}
                     </div>
                 `;
                 return;
@@ -470,7 +476,7 @@
             let paginationHTML = `
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        ${translations.showing_page} ${pagination.current_page} ${translations.of_pages} ${pagination.last_page} (${pagination.total} ${translations.total_data})
+                        {{ __('ui.showing') }} ${pagination.current_page} {{ __('ui.of') }} ${pagination.last_page} (${pagination.total} {{ __('ui.entries') }})
                     </div>
                     <div class="flex gap-2">
             `;
@@ -480,7 +486,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page - 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        ${translations.previous}
+                        {{ __('ui.previous') }}
                     </button>
                 `;
             }
@@ -493,7 +499,7 @@
                     (i >= pagination.current_page - 2 && i <= pagination.current_page + 2)
                 ) {
                     const activeClass = i === pagination.current_page ?
-                        'bg-indigo-600 text-white' :
+                        'bg-green-600 text-white' :
                         'border border-gray-300 hover:bg-gray-50';
                     paginationHTML += `
                         <button onclick="fetchReportData(${i})"
@@ -514,7 +520,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page + 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        ${translations.next}
+                        {{ __('ui.next') }}
                     </button>
                 `;
             }

@@ -169,19 +169,20 @@
         let searchTimeout;
 
         document.addEventListener('DOMContentLoaded', function() {
-            const defaultStartDate = new Date('{{ $startDate }}');
-            const defaultEndDate = new Date('{{ $endDate }}');
-
-            // Initialize Flatpickr with persistence
-            const datePicker = DateFilterPersistence.initFlatpickr('booking-report', {
-                defaultStartDate: defaultStartDate,
-                defaultEndDate: defaultEndDate,
+            // Initialize Flatpickr with persistence (no default dates - show all data)
+            const startDateVal = '{{ $startDate }}';
+            const endDateVal = '{{ $endDate }}';
+            const flatpickrOptions = {
                 onChange: function(selectedDates, dateStr, instance) {
-                    // Auto-fetch when dates change
                     currentPage = 1;
                     fetchReportData();
                 }
-            });
+            };
+            if (startDateVal && endDateVal) {
+                flatpickrOptions.defaultStartDate = new Date(startDateVal);
+                flatpickrOptions.defaultEndDate = new Date(endDateVal);
+            }
+            const datePicker = DateFilterPersistence.initFlatpickr('booking-report', flatpickrOptions);
 
             // Auto-load data on page load
             fetchReportData();
@@ -332,7 +333,7 @@
             if (pagination.last_page <= 1) {
                 container.innerHTML = `
                     <div class="text-sm text-gray-700">
-                        Showing ${pagination.total} ${pagination.total === 1 ? 'entry' : 'entries'}
+                        {{ __('ui.showing') }} ${pagination.total} {{ __('ui.entries') }}
                     </div>
                 `;
                 return;
@@ -341,7 +342,7 @@
             let paginationHTML = `
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
-                        Showing page ${pagination.current_page} of ${pagination.last_page} (${pagination.total} total entries)
+                        {{ __('ui.showing') }} ${pagination.current_page} {{ __('ui.of') }} ${pagination.last_page} (${pagination.total} {{ __('ui.entries') }})
                     </div>
                     <div class="flex gap-2">
             `;
@@ -351,7 +352,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page - 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Previous
+                        {{ __('ui.previous') }}
                     </button>
                 `;
             }
@@ -364,7 +365,7 @@
                     (i >= pagination.current_page - 2 && i <= pagination.current_page + 2)
                 ) {
                     const activeClass = i === pagination.current_page ?
-                        'bg-blue-600 text-white' :
+                        'bg-green-600 text-white' :
                         'border border-gray-300 hover:bg-gray-50';
                     paginationHTML += `
                         <button onclick="fetchReportData(${i})"
@@ -385,7 +386,7 @@
                 paginationHTML += `
                     <button onclick="fetchReportData(${pagination.current_page + 1})"
                         class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">
-                        Next
+                        {{ __('ui.next') }}
                     </button>
                 `;
             }

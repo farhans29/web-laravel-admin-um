@@ -37,24 +37,6 @@
                         </div>
 
                         <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.status') }}:</span>
-                            <select name="status" id="statusFilter"
-                                class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md text-sm">
-                                <option value="">{{ __('ui.all_status') }}</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
-                                    {{ __('ui.pending') }}</option>
-                                <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }}>
-                                    {{ __('ui.waiting_verification') }}</option>
-                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>
-                                    {{ __('ui.paid') }}</option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
-                                    {{ __('ui.rejected') }}</option>
-                                <option value="canceled" {{ request('status') == 'canceled' ? 'selected' : '' }}>
-                                    {{ __('ui.canceled') }}</option>
-                            </select>
-                        </div>
-
-                        <div class="flex items-center space-x-4">
                             <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.parking_type') }}:</span>
                             <select name="parking_type" id="parkingTypeFilter"
                                 class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md text-sm">
@@ -248,12 +230,13 @@
                             </div>
 
                             <!-- Parking Type -->
-                            <div>
+                            <div class="md:col-span-2">
                                 <label for="add_parking_type"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Parking Type <span class="text-red-500">*</span>
                                 </label>
                                 <select name="parking_type" id="add_parking_type" required
+                                    onchange="checkParkingQuota()"
                                     class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                     <option value="">Select Type</option>
                                     <option value="car">{{ __('ui.car') }}</option>
@@ -262,7 +245,14 @@
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_parking_type_error"></p>
                             </div>
 
-                            <!-- Vehicle Plate -->
+                            <!-- Parking Quota Information -->
+                            <div class="md:col-span-2 hidden" id="quota_info_section">
+                                <div class="rounded-lg border-2 p-4" id="quota_info_container">
+                                    <!-- Content will be filled by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Plate and Fee Amount side by side -->
                             <div>
                                 <label for="add_vehicle_plate"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -275,8 +265,7 @@
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_vehicle_plate_error"></p>
                             </div>
 
-                            <!-- Fee Amount -->
-                            <div class="md:col-span-2">
+                            <div>
                                 <label for="add_fee_amount_display"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Fee Amount (Rp) <span class="text-red-500">*</span>
@@ -639,7 +628,6 @@
         // AJAX filter using POST /filter endpoint
         function applyFilters() {
             const search = document.getElementById('searchInput')?.value || '';
-            const status = document.getElementById('statusFilter')?.value || '';
             const parkingType = document.getElementById('parkingTypeFilter')?.value || '';
             const perPage = document.getElementById('perPageSelect')?.value || '8';
 
@@ -652,7 +640,6 @@
                     },
                     body: JSON.stringify({
                         search,
-                        status,
                         parking_type: parkingType,
                         per_page: perPage
                     })
@@ -665,7 +652,6 @@
 
                     const urlParams = new URLSearchParams();
                     if (search) urlParams.append('search', search);
-                    if (status) urlParams.append('status', status);
                     if (parkingType) urlParams.append('parking_type', parkingType);
                     if (perPage) urlParams.append('per_page', perPage);
                     window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
@@ -678,7 +664,6 @@
                 clearTimeout(t);
                 t = setTimeout(applyFilters, 500);
             });
-            document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
             document.getElementById('parkingTypeFilter')?.addEventListener('change', applyFilters);
             document.getElementById('perPageSelect')?.addEventListener('change', applyFilters);
         });
@@ -737,6 +722,7 @@
                             const option = document.createElement('option');
                             option.value = order.order_id;
                             option.textContent = order.display_text;
+                            option.dataset.propertyId = order.property_id;
                             option.dataset.userName = order.user_name;
                             option.dataset.userPhone = order.user_phone;
                             option.dataset.roomName = order.room_name;
@@ -770,11 +756,216 @@
                 document.getElementById('display_checkin_checkout').textContent =
                     (selectedOption.dataset.checkIn || '-') + ' - ' + (selectedOption.dataset.checkOut || '-');
                 orderInfoSection.classList.remove('hidden');
+
+                // Check parking quota when order is selected
+                checkParkingQuota();
             } else {
                 // Hide order info
                 orderInfoSection.classList.add('hidden');
+                // Hide quota info
+                document.getElementById('quota_info_section').classList.add('hidden');
             }
         });
+
+        // Check parking quota availability
+        function checkParkingQuota() {
+            const orderSelect = document.getElementById('add_order_id');
+            const parkingTypeSelect = document.getElementById('add_parking_type');
+            const quotaInfoSection = document.getElementById('quota_info_section');
+            const quotaInfoContainer = document.getElementById('quota_info_container');
+
+            // Need both order and parking type selected
+            if (!orderSelect.value || !parkingTypeSelect.value) {
+                quotaInfoSection.classList.add('hidden');
+                return;
+            }
+
+            // Get property_id from selected option
+            const selectedOption = orderSelect.options[orderSelect.selectedIndex];
+            const propertyId = selectedOption.dataset.propertyId;
+
+            if (!propertyId) {
+                quotaInfoSection.classList.add('hidden');
+                return;
+            }
+
+            // Show loading
+            quotaInfoContainer.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <svg class="animate-spin h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Checking parking quota...</span>
+                </div>
+            `;
+            quotaInfoSection.classList.remove('hidden');
+
+            // Fetch parking quota info
+            fetch(`/api/parking-fees/${propertyId}`)
+                .then(r => r.json())
+                .then(data => {
+                    const parkingType = parkingTypeSelect.value;
+                    const quotaData = data.find(pf => pf.parking_type === parkingType);
+
+                    if (quotaData) {
+                        displayQuotaInfo(quotaData, parkingType);
+                    } else {
+                        displayNoQuotaData(parkingType);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching quota:', error);
+                    quotaInfoContainer.innerHTML = `
+                        <div class="text-sm text-yellow-600 dark:text-yellow-400">
+                            ⚠️ Unable to fetch quota information
+                        </div>
+                    `;
+                });
+        }
+
+        function displayQuotaInfo(quotaData, parkingType) {
+            const quotaInfoContainer = document.getElementById('quota_info_container');
+            const typeLabel = parkingType === 'car' ? '{{ __('ui.car') }}' : '{{ __('ui.motorcycle') }}';
+            const submitBtn = document.getElementById('addPaymentSubmitBtn');
+
+            if (quotaData.capacity === 0) {
+                // Unlimited parking
+                quotaInfoContainer.className =
+                    'rounded-lg border-2 border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-4';
+                quotaInfoContainer.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-semibold text-green-900 dark:text-green-100">Unlimited Parking (${typeLabel})</h4>
+                            <p class="text-xs text-green-700 dark:text-green-300 mt-1">
+                                This property has unlimited parking quota. You can create parking payment without restriction.
+                            </p>
+                            <p class="text-xs text-green-600 dark:text-green-400 mt-2">
+                                💡 <strong>Note:</strong> Quota management is not enabled. Set capacity in Parking Fee Management to enable quota control.
+                            </p>
+                        </div>
+                    </div>
+                `;
+
+                // Enable submit button
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            } else {
+                // Limited parking with quota
+                const available = quotaData.available_quota;
+                const percentage = quotaData.quota_percentage;
+                const isAvailable = available > 0;
+
+                if (isAvailable) {
+                    quotaInfoContainer.className =
+                        'rounded-lg border-2 border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 p-4';
+                    quotaInfoContainer.innerHTML = `
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-100">Parking Quota Available (${typeLabel})</h4>
+                                <div class="mt-2 space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs text-blue-700 dark:text-blue-300">Available:</span>
+                                        <span class="text-sm font-bold text-blue-900 dark:text-blue-100">${available} / ${quotaData.capacity}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs text-blue-700 dark:text-blue-300">In Use:</span>
+                                        <span class="text-sm font-semibold text-blue-800 dark:text-blue-200">${quotaData.quota_used}</span>
+                                    </div>
+                                    <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+                                        <div class="h-2 rounded-full transition-all ${percentage >= 90 ? 'bg-red-600' : percentage >= 70 ? 'bg-yellow-500' : 'bg-green-500'}"
+                                             style="width: ${Math.min(percentage, 100)}%"></div>
+                                    </div>
+                                    <p class="text-xs text-blue-600 dark:text-blue-400">${Math.round(percentage)}% used</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Enable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                } else {
+                    // Quota full
+                    quotaInfoContainer.className =
+                        'rounded-lg border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4';
+                    quotaInfoContainer.innerHTML = `
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold text-red-900 dark:text-red-100">⚠️ Parking Quota Full (${typeLabel})</h4>
+                                <p class="text-xs text-red-700 dark:text-red-300 mt-1">
+                                    <strong>Capacity: ${quotaData.capacity}</strong> (All slots occupied)
+                                </p>
+                                <p class="text-xs text-red-600 dark:text-red-400 mt-2">
+                                    ❌ <strong>Cannot create parking payment.</strong> Please wait for check-out or increase capacity in Parking Fee Management.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+
+                    // Disable submit button when quota is full
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            }
+        }
+
+        function displayNoQuotaData(parkingType) {
+            const quotaInfoContainer = document.getElementById('quota_info_container');
+            const typeLabel = parkingType === 'car' ? '{{ __('ui.car') }}' : '{{ __('ui.motorcycle') }}';
+
+            quotaInfoContainer.className =
+                'rounded-lg border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4';
+            quotaInfoContainer.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold text-red-900 dark:text-red-100">⚠️ Parking Fee Not Configured (${typeLabel})</h4>
+                        <p class="text-xs text-red-700 dark:text-red-300 mt-1">
+                            Parking fee for this property has not been configured yet.
+                        </p>
+                        <p class="text-xs text-red-600 dark:text-red-400 mt-2">
+                            ❌ <strong>Cannot create parking payment.</strong> Please configure parking fee in <strong>Parking Fee Management</strong> menu first.
+                        </p>
+                        <p class="text-xs text-red-600 dark:text-red-400 mt-1">
+                            💡 Go to <strong>Parking Fee Management</strong> → Add Parking Fee → Set fee amount and capacity → Then create parking payment.
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            // Disable submit button when no parking fee is configured
+            const submitBtn = document.getElementById('addPaymentSubmitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
 
         function closeAddPaymentModal() {
             document.getElementById('addPaymentModal').classList.add('hidden');

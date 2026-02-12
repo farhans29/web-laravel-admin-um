@@ -26,6 +26,8 @@ use App\Http\Controllers\RoomAvailability\RoomAvailabilityController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Reports\BookingReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
+use App\Http\Controllers\Reports\ParkingReportController;
+use App\Http\Controllers\Reports\DepositReportController;
 use App\Http\Controllers\Reports\RentedRoomsReportController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\PromoBannerController;
@@ -240,6 +242,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::post('/parking/store', [ParkingPaymentController::class, 'store'])->name('admin.parking-payments.store');
         Route::post('/parking/approve/{id}', [ParkingPaymentController::class, 'approve'])->name('admin.parking-payments.approve');
         Route::post('/parking/reject/{id}', [ParkingPaymentController::class, 'reject'])->name('admin.parking-payments.reject');
+        Route::post('/parking/checkout/{id}', [ParkingPaymentController::class, 'checkout'])->name('admin.parking-payments.checkout');
         Route::get('/parking/proof/{id}', [ParkingPaymentController::class, 'viewProof'])->name('admin.parking-payments.proof');
 
         // ------------------------- DEPOSIT PAYMENTS -------------------------
@@ -270,6 +273,14 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::get('/payment-report', [PaymentReportController::class, 'index'])->name('reports.payment.index');
         Route::get('/payment-report/data', [PaymentReportController::class, 'getData'])->name('reports.payment.data');
         Route::get('/payment-report/export', [PaymentReportController::class, 'export'])->name('reports.payment.export');
+
+        Route::get('/parking-report', [ParkingReportController::class, 'index'])->name('reports.parking.index');
+        Route::get('/parking-report/data', [ParkingReportController::class, 'getData'])->name('reports.parking.data');
+        Route::get('/parking-report/export', [ParkingReportController::class, 'export'])->name('reports.parking.export');
+
+        Route::get('/deposit-report', [DepositReportController::class, 'index'])->name('reports.deposit.index');
+        Route::get('/deposit-report/data', [DepositReportController::class, 'getData'])->name('reports.deposit.data');
+        Route::get('/deposit-report/export', [DepositReportController::class, 'export'])->name('reports.deposit.export');
 
         Route::get('/rented-rooms-report', [RentedRoomsReportController::class, 'index'])->name('reports.rented-rooms.index');
         Route::get('/rented-rooms-report/data', [RentedRoomsReportController::class, 'getData'])->name('reports.rented-rooms.data');

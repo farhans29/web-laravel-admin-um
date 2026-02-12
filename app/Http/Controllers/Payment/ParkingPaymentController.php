@@ -140,7 +140,12 @@ class ParkingPaymentController extends Controller
         ]);
 
         try {
-            $transaction = ParkingFeeTransaction::findOrFail($id);
+            DB::beginTransaction();
+
+            $transaction = ParkingFeeTransaction::with('parkingFee')->findOrFail($id);
+
+            // Store previous status to check if we need to decrement quota
+            $wasPaid = $transaction->transaction_status === 'paid';
 
             $transaction->update([
                 'transaction_status' => 'rejected',
@@ -150,11 +155,20 @@ class ParkingPaymentController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
+            // If transaction was paid, decrement the quota
+            if ($wasPaid && $transaction->parkingFee && $transaction->parkingFee->capacity > 0) {
+                $transaction->parkingFee->decrementQuota();
+            }
+
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pembayaran parkir berhasil ditolak'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menolak pembayaran: ' . $e->getMessage()
@@ -263,25 +277,29 @@ class ParkingPaymentController extends Controller
                 $year
             );
 
-            // Get or create parking_fee
+            // Get parking_fee - MUST exist in Parking Fee Management
             $parkingFee = ParkingFee::where('property_id', $bookingTransaction->property_id)
                 ->where('parking_type', $request->parking_type)
                 ->where('status', 1)
                 ->first();
 
-            // If no parking fee exists, create one
+            // Parking fee MUST be configured in Parking Fee Management first
             if (!$parkingFee) {
-                $parkingFee = ParkingFee::create([
-                    'property_id' => $bookingTransaction->property_id,
-                    'parking_type' => $request->parking_type,
-                    'fee' => $request->fee_amount,
-                    'capacity' => 0,
-                    'status' => 1,
-                    'created_by' => Auth::id(),
-                ]);
+                throw new \Exception(
+                    'Parking fee for ' . ucfirst($request->parking_type) . ' is not configured for this property. ' .
+                    'Please create parking fee in Parking Fee Management first before creating parking payment.'
+                );
+            }
 
-                // Refresh to get the auto-generated ID
-                $parkingFee->refresh();
+            // Check quota availability before creating transaction
+            // If capacity = 0, it means unlimited parking (no quota check needed)
+            // If capacity > 0, check if quota is available
+            if ($parkingFee->capacity > 0 && !$parkingFee->hasAvailableQuota()) {
+                throw new \Exception(
+                    'Parking quota is full for ' . ucfirst($request->parking_type) .
+                    '. Available: 0, Capacity: ' . $parkingFee->capacity .
+                    '. Please wait for check-out or increase capacity in Parking Fee Management.'
+                );
             }
 
             // Create parking fee transaction with status 'paid' and already verified
@@ -334,12 +352,32 @@ class ParkingPaymentController extends Controller
                 ]);
             }
 
+            // Increment quota used (only if capacity is set)
+            if ($parkingFee->capacity > 0) {
+                $parkingFee->incrementQuota();
+            }
+
             DB::commit();
+
+            // Build success message
+            $message = 'Parking payment added successfully';
+            if ($parkingFee->capacity === 0) {
+                $message .= '. This property has unlimited parking (no quota limit).';
+            } else {
+                $remaining = $parkingFee->available_quota;
+                $message .= ". Parking quota: {$remaining}/{$parkingFee->capacity} available.";
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Parking payment added successfully',
-                'data' => $transaction
+                'message' => $message,
+                'data' => $transaction,
+                'parking_info' => [
+                    'capacity' => $parkingFee->capacity,
+                    'quota_used' => $parkingFee->quota_used,
+                    'available_quota' => $parkingFee->available_quota,
+                    'is_unlimited' => $parkingFee->capacity === 0,
+                ]
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -356,7 +394,18 @@ class ParkingPaymentController extends Controller
         try {
             $parkingFees = ParkingFee::where('property_id', $propertyId)
                 ->where('status', 1)
-                ->get(['idrec', 'parking_type', 'fee']);
+                ->get(['idrec', 'parking_type', 'fee', 'capacity', 'quota_used'])
+                ->map(function($fee) {
+                    return [
+                        'idrec' => $fee->idrec,
+                        'parking_type' => $fee->parking_type,
+                        'fee' => $fee->fee,
+                        'capacity' => $fee->capacity,
+                        'quota_used' => $fee->quota_used,
+                        'available_quota' => $fee->available_quota,
+                        'quota_percentage' => $fee->quota_usage_percentage,
+                    ];
+                });
 
             return response()->json($parkingFees);
         } catch (\Exception $e) {
@@ -398,6 +447,7 @@ class ParkingPaymentController extends Controller
                 ->map(function($booking) {
                     return [
                         'order_id' => $booking->order_id,
+                        'property_id' => $booking->property_id,
                         'user_name' => $booking->transaction->user_name ?? $booking->user_name,
                         'user_phone' => $booking->transaction->user_phone_number ?? $booking->user_phone_number,
                         'room_name' => $booking->room->name ?? '-',
@@ -419,6 +469,48 @@ class ParkingPaymentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load checked-in orders: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check out parking - Release quota
+     */
+    public function checkout(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $transaction = ParkingFeeTransaction::with('parkingFee')->findOrFail($id);
+
+            // Only paid transactions can be checked out
+            if ($transaction->transaction_status !== 'paid') {
+                throw new \Exception('Only paid parking can be checked out');
+            }
+
+            // Update transaction to completed/checked-out
+            $transaction->update([
+                'transaction_status' => 'completed',
+                'updated_by' => Auth::id(),
+            ]);
+
+            // Decrement quota (free up the parking space)
+            if ($transaction->parkingFee && $transaction->parkingFee->capacity > 0) {
+                $transaction->parkingFee->decrementQuota();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Parking checked out successfully. Quota has been released.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to checkout parking: ' . $e->getMessage()
             ], 500);
         }
     }
