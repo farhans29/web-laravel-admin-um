@@ -9,6 +9,8 @@ use App\Models\Booking;
 use App\Models\Refund;
 use App\Models\Payment;
 use App\Models\Room;
+use App\Models\ParkingFeeTransaction;
+use App\Models\ParkingFee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -300,6 +302,9 @@ class PaymentController extends Controller
                 }
             }
 
+            // Release parking quota for this cancelled booking
+            $this->releaseParkingQuota($payment->order_id);
+
             $payment->update([
                 'payment_status' => 'refunded',
             ]);
@@ -506,6 +511,40 @@ class PaymentController extends Controller
             }
 
             return redirect()->back()->with('error', 'Gagal memperbarui notes. Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Release parking quota for the given order_id
+     */
+    private function releaseParkingQuota($order_id)
+    {
+        try {
+            // Find all parking transactions for this order_id with 'paid' status
+            $parkingTransactions = ParkingFeeTransaction::where('order_id', $order_id)
+                ->where('transaction_status', 'paid')
+                ->where('status', 1)
+                ->get();
+
+            foreach ($parkingTransactions as $transaction) {
+                // Update parking transaction status to 'cancelled'
+                $transaction->update([
+                    'transaction_status' => 'cancelled'
+                ]);
+
+                // Decrement quota if parking fee has capacity limit (capacity > 0)
+                if ($transaction->parking_fee_id) {
+                    $parkingFee = ParkingFee::find($transaction->parking_fee_id);
+
+                    if ($parkingFee && $parkingFee->capacity > 0) {
+                        $parkingFee->decrementQuota(1);
+                        Log::info("Parking quota released for cancelled order {$order_id}, parking type: {$parkingFee->parking_type}");
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to release parking quota for order {$order_id}: " . $e->getMessage());
+            // Don't throw exception, just log it - parking quota release shouldn't block cancellation
         }
     }
 }

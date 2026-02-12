@@ -277,43 +277,23 @@ class ParkingPaymentController extends Controller
                 $year
             );
 
-            // Get or create parking_fee
+            // Get parking_fee - MUST exist in Parking Fee Management
             $parkingFee = ParkingFee::where('property_id', $bookingTransaction->property_id)
                 ->where('parking_type', $request->parking_type)
                 ->where('status', 1)
                 ->first();
 
-            // Track if parking fee was auto-created
-            $parkingFeeAutoCreated = false;
-
-            // If no parking fee exists, create one with unlimited capacity (capacity = 0)
+            // Parking fee MUST be configured in Parking Fee Management first
             if (!$parkingFee) {
-                $parkingFeeAutoCreated = true;
-
-                $parkingFee = ParkingFee::create([
-                    'property_id' => $bookingTransaction->property_id,
-                    'parking_type' => $request->parking_type,
-                    'fee' => $request->fee_amount,
-                    'capacity' => 0, // 0 = unlimited parking
-                    'quota_used' => 0,
-                    'status' => 1,
-                    'created_by' => Auth::id(),
-                ]);
-
-                // Refresh to get the auto-generated ID
-                $parkingFee->refresh();
-
-                // Log creation for debugging
-                \Log::info('Auto-created parking fee', [
-                    'property_id' => $bookingTransaction->property_id,
-                    'parking_type' => $request->parking_type,
-                    'capacity' => 0,
-                    'note' => 'Unlimited parking (capacity = 0). Set capacity in Parking Fee Management to enable quota control.'
-                ]);
+                throw new \Exception(
+                    'Parking fee for ' . ucfirst($request->parking_type) . ' is not configured for this property. ' .
+                    'Please create parking fee in Parking Fee Management first before creating parking payment.'
+                );
             }
 
-            // Check quota availability before creating transaction (only if capacity is set)
-            // capacity = 0 means unlimited parking, no quota check needed
+            // Check quota availability before creating transaction
+            // If capacity = 0, it means unlimited parking (no quota check needed)
+            // If capacity > 0, check if quota is available
             if ($parkingFee->capacity > 0 && !$parkingFee->hasAvailableQuota()) {
                 throw new \Exception(
                     'Parking quota is full for ' . ucfirst($request->parking_type) .
@@ -381,9 +361,7 @@ class ParkingPaymentController extends Controller
 
             // Build success message
             $message = 'Parking payment added successfully';
-            if ($parkingFeeAutoCreated) {
-                $message .= '. Parking fee auto-created with unlimited capacity (0). You can set parking quota limit in Parking Fee Management.';
-            } elseif ($parkingFee->capacity === 0) {
+            if ($parkingFee->capacity === 0) {
                 $message .= '. This property has unlimited parking (no quota limit).';
             } else {
                 $remaining = $parkingFee->available_quota;
@@ -395,7 +373,6 @@ class ParkingPaymentController extends Controller
                 'message' => $message,
                 'data' => $transaction,
                 'parking_info' => [
-                    'auto_created' => $parkingFeeAutoCreated,
                     'capacity' => $parkingFee->capacity,
                     'quota_used' => $parkingFee->quota_used,
                     'available_quota' => $parkingFee->available_quota,
