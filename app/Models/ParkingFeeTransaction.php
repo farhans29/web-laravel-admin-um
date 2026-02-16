@@ -16,7 +16,7 @@ class ParkingFeeTransaction extends Model
 
     protected $fillable = [
         'property_id',
-        'parking_fee_id',
+        'parking_id',
         'invoice_id',
         'order_id',
         'user_id',
@@ -24,6 +24,7 @@ class ParkingFeeTransaction extends Model
         'user_phone',
         'parking_type',
         'vehicle_plate',
+        'parking_duration',
         'fee_amount',
         'transaction_date',
         'transaction_status',
@@ -38,6 +39,7 @@ class ParkingFeeTransaction extends Model
 
     protected $casts = [
         'fee_amount' => 'decimal:4',
+        'parking_duration' => 'integer',
         'transaction_date' => 'datetime',
         'paid_at' => 'datetime',
         'verified_at' => 'datetime',
@@ -50,9 +52,24 @@ class ParkingFeeTransaction extends Model
         return $this->belongsTo(Property::class, 'property_id', 'idrec');
     }
 
-    public function parkingFee()
+    public function parking()
     {
-        return $this->belongsTo(ParkingFee::class, 'parking_fee_id', 'idrec');
+        return $this->belongsTo(Parking::class, 'parking_id', 'idrec');
+    }
+
+    /**
+     * Get parking fee via parking registration's property + type.
+     */
+    public function getParkingFeeViaParking()
+    {
+        if ($this->parking) {
+            return ParkingFee::where('property_id', $this->parking->property_id)
+                ->where('parking_type', $this->parking->parking_type)
+                ->where('status', 1)
+                ->first();
+        }
+
+        return null;
     }
 
     public function transaction()

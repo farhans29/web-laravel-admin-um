@@ -252,7 +252,7 @@
                                 </div>
                             </div>
 
-                            <!-- Vehicle Plate and Fee Amount side by side -->
+                            <!-- Vehicle Plate and Parking Duration side by side -->
                             <div>
                                 <label for="add_vehicle_plate"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -266,14 +266,27 @@
                             </div>
 
                             <div>
+                                <label for="add_parking_duration"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Parking Duration (months) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" name="parking_duration" id="add_parking_duration" required
+                                    min="1" value="1" placeholder="e.g., 1"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_parking_duration_error"></p>
+                            </div>
+
+                            <!-- Fee Amount (readonly, full width) -->
+                            <div class="md:col-span-2">
                                 <label for="add_fee_amount_display"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Fee Amount (Rp) <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="fee_amount_display" id="add_fee_amount_display" required
-                                    placeholder="Enter fee amount" oninput="formatFeeAmount(this)"
-                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                    placeholder="Select parking type first" readonly
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm bg-gray-50 dark:bg-gray-600 cursor-not-allowed">
                                 <input type="hidden" name="fee_amount" id="add_fee_amount">
+                                <p class="text-xs text-gray-500 mt-1" id="fee_source_info">Fee will be loaded from parking fee configuration</p>
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_fee_amount_error"></p>
                             </div>
 
@@ -757,6 +770,9 @@
                     (selectedOption.dataset.checkIn || '-') + ' - ' + (selectedOption.dataset.checkOut || '-');
                 orderInfoSection.classList.remove('hidden');
 
+                // Auto-calculate parking duration in months from check-in to check-out
+                calculateParkingDuration(selectedOption.dataset.checkIn, selectedOption.dataset.checkOut);
+
                 // Check parking quota when order is selected
                 checkParkingQuota();
             } else {
@@ -764,8 +780,40 @@
                 orderInfoSection.classList.add('hidden');
                 // Hide quota info
                 document.getElementById('quota_info_section').classList.add('hidden');
+                // Clear fee amount
+                setFeeAmount(null);
             }
         });
+
+        // Calculate parking duration in months from check-in and check-out dates
+        function calculateParkingDuration(checkInStr, checkOutStr) {
+            const durationInput = document.getElementById('add_parking_duration');
+
+            if (!checkInStr || !checkOutStr || checkOutStr === '-') {
+                durationInput.value = 1;
+                return;
+            }
+
+            const checkIn = new Date(checkInStr);
+            const checkOut = new Date(checkOutStr);
+
+            if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
+                durationInput.value = 1;
+                return;
+            }
+
+            // Calculate difference in months
+            let months = (checkOut.getFullYear() - checkIn.getFullYear()) * 12 +
+                (checkOut.getMonth() - checkIn.getMonth());
+
+            // If there are remaining days, round up to next month
+            if (checkOut.getDate() > checkIn.getDate()) {
+                months++;
+            }
+
+            // Minimum 1 month
+            durationInput.value = Math.max(1, months);
+        }
 
         // Check parking quota availability
         function checkParkingQuota() {
@@ -777,6 +825,7 @@
             // Need both order and parking type selected
             if (!orderSelect.value || !parkingTypeSelect.value) {
                 quotaInfoSection.classList.add('hidden');
+                setFeeAmount(null);
                 return;
             }
 
@@ -824,10 +873,38 @@
                 });
         }
 
+        function setFeeAmount(fee) {
+            const displayInput = document.getElementById('add_fee_amount_display');
+            const hiddenInput = document.getElementById('add_fee_amount');
+            const feeSourceInfo = document.getElementById('fee_source_info');
+
+            if (fee !== null && fee !== undefined) {
+                const formatted = parseInt(fee).toLocaleString('id-ID');
+                displayInput.value = formatted;
+                hiddenInput.value = fee;
+                if (feeSourceInfo) {
+                    feeSourceInfo.textContent = 'Fee loaded from parking fee configuration';
+                    feeSourceInfo.classList.remove('text-red-500');
+                    feeSourceInfo.classList.add('text-gray-500');
+                }
+            } else {
+                displayInput.value = '';
+                hiddenInput.value = '';
+                if (feeSourceInfo) {
+                    feeSourceInfo.textContent = 'Fee will be loaded from parking fee configuration';
+                    feeSourceInfo.classList.remove('text-red-500');
+                    feeSourceInfo.classList.add('text-gray-500');
+                }
+            }
+        }
+
         function displayQuotaInfo(quotaData, parkingType) {
             const quotaInfoContainer = document.getElementById('quota_info_container');
             const typeLabel = parkingType === 'car' ? '{{ __('ui.car') }}' : '{{ __('ui.motorcycle') }}';
             const submitBtn = document.getElementById('addPaymentSubmitBtn');
+
+            // Auto-fill fee amount from parking fee config
+            setFeeAmount(quotaData.fee);
 
             if (quotaData.capacity === 0) {
                 // Unlimited parking
@@ -934,6 +1011,9 @@
         function displayNoQuotaData(parkingType) {
             const quotaInfoContainer = document.getElementById('quota_info_container');
             const typeLabel = parkingType === 'car' ? '{{ __('ui.car') }}' : '{{ __('ui.motorcycle') }}';
+
+            // Clear fee amount when no parking fee configured
+            setFeeAmount(null);
 
             quotaInfoContainer.className =
                 'rounded-lg border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4';

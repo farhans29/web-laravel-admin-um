@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\ParkingFeeTransaction;
 use App\Models\ParkingFeeTransactionImage;
 use App\Models\ParkingFee;
+use App\Models\Parking;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -17,7 +18,7 @@ class ParkingPaymentController extends Controller
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = ParkingFeeTransaction::with(['property', 'parkingFee', 'images', 'verifiedBy', 'createdBy'])
+        $query = ParkingFeeTransaction::with(['property', 'parking', 'images', 'verifiedBy', 'createdBy'])
             ->orderBy('created_at', 'desc');
 
         $user = Auth::user();
@@ -64,7 +65,7 @@ class ParkingPaymentController extends Controller
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = ParkingFeeTransaction::with(['property', 'parkingFee', 'images', 'verifiedBy', 'createdBy'])
+        $query = ParkingFeeTransaction::with(['property', 'parking', 'images', 'verifiedBy', 'createdBy'])
             ->orderBy('created_at', 'desc');
 
         $user = Auth::user();
@@ -142,7 +143,7 @@ class ParkingPaymentController extends Controller
         try {
             DB::beginTransaction();
 
-            $transaction = ParkingFeeTransaction::with('parkingFee')->findOrFail($id);
+            $transaction = ParkingFeeTransaction::with('parking')->findOrFail($id);
 
             // Store previous status to check if we need to decrement quota
             $wasPaid = $transaction->transaction_status === 'paid';
@@ -156,8 +157,11 @@ class ParkingPaymentController extends Controller
             ]);
 
             // If transaction was paid, decrement the quota
-            if ($wasPaid && $transaction->parkingFee && $transaction->parkingFee->capacity > 0) {
-                $transaction->parkingFee->decrementQuota();
+            if ($wasPaid) {
+                $parkingFee = $transaction->getParkingFeeViaParking();
+                if ($parkingFee && $parkingFee->capacity > 0) {
+                    $parkingFee->decrementQuota();
+                }
             }
 
             DB::commit();
@@ -208,6 +212,7 @@ class ParkingPaymentController extends Controller
             'order_id' => 'required|exists:t_transactions,order_id',
             'parking_type' => 'required|in:car,motorcycle',
             'vehicle_plate' => 'required|string|max:50',
+            'parking_duration' => 'required|integer|min:1',
             'fee_amount' => 'required|numeric|min:0',
             'transaction_date' => 'required|date',
             'payment_proof' => 'required|image|mimes:jpeg,jpg|max:5120', // 5MB in kilobytes
@@ -302,10 +307,33 @@ class ParkingPaymentController extends Controller
                 );
             }
 
+            // Find or create parking registration in m_parking
+            $parking = Parking::withTrashed()
+                ->where('property_id', $bookingTransaction->property_id)
+                ->where('vehicle_plate', strtoupper($request->vehicle_plate))
+                ->first();
+
+            if ($parking && $parking->trashed()) {
+                $parking->restore();
+            }
+
+            if (!$parking) {
+                $parking = Parking::create([
+                    'property_id' => $bookingTransaction->property_id,
+                    'parking_type' => $request->parking_type,
+                    'vehicle_plate' => strtoupper($request->vehicle_plate),
+                    'owner_name' => $bookingTransaction->user_name,
+                    'owner_phone' => $bookingTransaction->user_phone_number,
+                    'user_id' => $bookingTransaction->user_id,
+                    'status' => 1,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+
             // Create parking fee transaction with status 'paid' and already verified
             $transaction = ParkingFeeTransaction::create([
                 'property_id' => $bookingTransaction->property_id,
-                'parking_fee_id' => $parkingFee->idrec,
+                'parking_id' => $parking->idrec,
                 'invoice_id' => $invoiceId,
                 'order_id' => $request->order_id,
                 'user_id' => $bookingTransaction->user_id,
@@ -313,6 +341,7 @@ class ParkingPaymentController extends Controller
                 'user_phone' => $bookingTransaction->user_phone_number,
                 'parking_type' => $request->parking_type,
                 'vehicle_plate' => strtoupper($request->vehicle_plate),
+                'parking_duration' => $request->parking_duration,
                 'fee_amount' => $request->fee_amount,
                 'transaction_date' => $request->transaction_date,
                 'transaction_status' => 'paid', // Already paid
@@ -481,7 +510,7 @@ class ParkingPaymentController extends Controller
         try {
             DB::beginTransaction();
 
-            $transaction = ParkingFeeTransaction::with('parkingFee')->findOrFail($id);
+            $transaction = ParkingFeeTransaction::with('parking')->findOrFail($id);
 
             // Only paid transactions can be checked out
             if ($transaction->transaction_status !== 'paid') {
@@ -495,8 +524,9 @@ class ParkingPaymentController extends Controller
             ]);
 
             // Decrement quota (free up the parking space)
-            if ($transaction->parkingFee && $transaction->parkingFee->capacity > 0) {
-                $transaction->parkingFee->decrementQuota();
+            $parkingFee = $transaction->getParkingFeeViaParking();
+            if ($parkingFee && $parkingFee->capacity > 0) {
+                $parkingFee->decrementQuota();
             }
 
             DB::commit();

@@ -245,11 +245,12 @@
                             <li x-init="if (window.location.href.includes('m-properties') ||
                                 window.location.href.includes('facilityProperty') ||
                                 window.location.href.includes('deposit-fees') ||
-                                window.location.href.includes('parking-fees')) { activeMenu = 'properties' }">
+                                window.location.href.includes('parking-fees') ||
+                                window.location.href.includes('/parking')) { activeMenu = 'properties' }">
 
                                 <!-- Main Menu Button -->
                                 <a @click="activeMenu = activeMenu === 'properties' ? '' : 'properties'"
-                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index', 'deposit-fees.index', 'parking-fees.index')) bg-indigo-900 @endif">
+                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index', 'deposit-fees.index', 'parking-fees.index', 'parking.index')) bg-indigo-900 @endif">
 
                                     <div class="flex items-center gap-3 min-w-0">
                                         <!-- Building Icon -->
@@ -336,6 +337,17 @@
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('parking-fees.index')) bg-indigo-900 @endif">
                                                     <span
                                                         class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_parking_fees') }}</span>
+                                                </a>
+                                            </li>
+                                        @endcan
+
+                                        <!-- Parking Management -->
+                                        @can('view_parking_fees')
+                                            <li>
+                                                <a href="{{ route('parking.index') }}"
+                                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('parking.index')) bg-indigo-900 @endif">
+                                                    <span
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_parking') }}</span>
                                                 </a>
                                             </li>
                                         @endcan
