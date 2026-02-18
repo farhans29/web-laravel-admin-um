@@ -1202,15 +1202,15 @@
                 customLocationCategory: 'custom',
                 customLocationDistance: '',
                 nearbyCategories: {
-                    'transport': '{{ __("ui.category_transport") }}',
-                    'education': '{{ __("ui.category_education") }}',
-                    'health': '{{ __("ui.category_health") }}',
-                    'shopping': '{{ __("ui.category_shopping") }}',
-                    'worship': '{{ __("ui.category_worship") }}',
-                    'food_drink': '{{ __("ui.category_food_drink") }}',
-                    'finance': '{{ __("ui.category_finance") }}',
-                    'public_service': '{{ __("ui.category_public_service") }}',
-                    'custom': '{{ __("ui.category_custom") }}'
+                    'transport': '{!! __("ui.category_transport") !!}',
+                    'education': '{!! __("ui.category_education") !!}',
+                    'health': '{!! __("ui.category_health") !!}',
+                    'shopping': '{!! __("ui.category_shopping") !!}',
+                    'worship': '{!! __("ui.category_worship") !!}',
+                    'food_drink': '{!! __("ui.category_food_drink") !!}',
+                    'finance': '{!! __("ui.category_finance") !!}',
+                    'public_service': '{!! __("ui.category_public_service") !!}',
+                    'custom': '{!! __("ui.category_custom") !!}'
                 },
                 nearbyCategoryIcons: {
                     'transport': 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
@@ -2164,15 +2164,15 @@
                 customLocationCategory: 'custom',
                 customLocationDistance: '',
                 nearbyCategories: {
-                    'transport': '{{ __("ui.category_transport") }}',
-                    'education': '{{ __("ui.category_education") }}',
-                    'health': '{{ __("ui.category_health") }}',
-                    'shopping': '{{ __("ui.category_shopping") }}',
-                    'worship': '{{ __("ui.category_worship") }}',
-                    'food_drink': '{{ __("ui.category_food_drink") }}',
-                    'finance': '{{ __("ui.category_finance") }}',
-                    'public_service': '{{ __("ui.category_public_service") }}',
-                    'custom': '{{ __("ui.category_custom") }}'
+                    'transport': '{!! __("ui.category_transport") !!}',
+                    'education': '{!! __("ui.category_education") !!}',
+                    'health': '{!! __("ui.category_health") !!}',
+                    'shopping': '{!! __("ui.category_shopping") !!}',
+                    'worship': '{!! __("ui.category_worship") !!}',
+                    'food_drink': '{!! __("ui.category_food_drink") !!}',
+                    'finance': '{!! __("ui.category_finance") !!}',
+                    'public_service': '{!! __("ui.category_public_service") !!}',
+                    'custom': '{!! __("ui.category_custom") !!}'
                 },
                 nearbyCategoryIcons: {
                     'transport': 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
@@ -3352,15 +3352,15 @@
                     nearby_locations: []
                 },
                 viewNearbyCategories: {
-                    'transport': '{{ __("ui.category_transport") }}',
-                    'education': '{{ __("ui.category_education") }}',
-                    'health': '{{ __("ui.category_health") }}',
-                    'shopping': '{{ __("ui.category_shopping") }}',
-                    'worship': '{{ __("ui.category_worship") }}',
-                    'food_drink': '{{ __("ui.category_food_drink") }}',
-                    'finance': '{{ __("ui.category_finance") }}',
-                    'public_service': '{{ __("ui.category_public_service") }}',
-                    'custom': '{{ __("ui.category_custom") }}'
+                    'transport': '{!! __("ui.category_transport") !!}',
+                    'education': '{!! __("ui.category_education") !!}',
+                    'health': '{!! __("ui.category_health") !!}',
+                    'shopping': '{!! __("ui.category_shopping") !!}',
+                    'worship': '{!! __("ui.category_worship") !!}',
+                    'food_drink': '{!! __("ui.category_food_drink") !!}',
+                    'finance': '{!! __("ui.category_finance") !!}',
+                    'public_service': '{!! __("ui.category_public_service") !!}',
+                    'custom': '{!! __("ui.category_custom") !!}'
                 },
                 viewNearbyCategoryIcons: {
                     'transport': 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
