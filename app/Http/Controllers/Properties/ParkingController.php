@@ -112,6 +112,132 @@ class ParkingController extends Controller
         ]);
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:t_transactions,order_id',
+            'parking_type' => 'required|in:car,motorcycle',
+            'vehicle_plate' => 'required|string|max:50',
+            'parking_duration' => 'nullable|integer|min:1',
+            'fee_amount' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Get transaction details from order_id
+            $bookingTransaction = \App\Models\Transaction::where('order_id', $request->order_id)->firstOrFail();
+
+            // Check if parking fee is configured for this property and type
+            $parkingFee = ParkingFee::where('property_id', $bookingTransaction->property_id)
+                ->where('parking_type', $request->parking_type)
+                ->where('status', 1)
+                ->first();
+
+            if (!$parkingFee) {
+                throw new \Exception(
+                    'Parking fee for ' . ucfirst($request->parking_type) . ' is not configured for this property. ' .
+                    'Please create parking fee in Parking Fee Management first.'
+                );
+            }
+
+            // Check if this is a renewal (user already has active paid parking for same property + type)
+            $isRenewal = ParkingFeeTransaction::where('user_id', $bookingTransaction->user_id)
+                ->where('property_id', $bookingTransaction->property_id)
+                ->where('parking_type', $request->parking_type)
+                ->where('transaction_status', 'paid')
+                ->exists();
+
+            // Only check quota for new parking, not renewals (vehicle already occupies a spot)
+            if (!$isRenewal) {
+                if ($parkingFee->capacity > 0 && !$parkingFee->hasAvailableQuota()) {
+                    throw new \Exception(
+                        'Parking quota is full for ' . ucfirst($request->parking_type) .
+                        '. Available: 0, Capacity: ' . $parkingFee->capacity .
+                        '. Please wait for check-out or increase capacity in Parking Fee Management.'
+                    );
+                }
+            }
+
+            // Validate parking duration against stay duration
+            if ($request->parking_duration && $bookingTransaction->check_in && $bookingTransaction->check_out) {
+                $checkIn = \Carbon\Carbon::parse($bookingTransaction->check_in);
+                $checkOut = \Carbon\Carbon::parse($bookingTransaction->check_out);
+                $maxMonths = $checkIn->diffInMonths($checkOut);
+                if ($checkIn->copy()->addMonths($maxMonths)->lt($checkOut)) {
+                    $maxMonths++;
+                }
+                $maxMonths = max(1, $maxMonths);
+
+                if ($request->parking_duration > $maxMonths) {
+                    throw new \Exception(
+                        "Parking duration ({$request->parking_duration} months) cannot exceed stay duration ({$maxMonths} months)."
+                    );
+                }
+            }
+
+            $vehiclePlate = strtoupper($request->vehicle_plate);
+
+            // Check if vehicle plate already exists for this property
+            $existing = Parking::withTrashed()
+                ->where('property_id', $bookingTransaction->property_id)
+                ->where('vehicle_plate', $vehiclePlate)
+                ->first();
+
+            if ($existing && !$existing->trashed()) {
+                throw new \Exception(
+                    "Vehicle plate {$vehiclePlate} is already registered for this property."
+                );
+            }
+
+            if ($existing && $existing->trashed()) {
+                $existing->restore();
+                $existing->update([
+                    'parking_type' => $request->parking_type,
+                    'owner_name' => $bookingTransaction->user_name,
+                    'owner_phone' => $bookingTransaction->user_phone_number,
+                    'user_id' => $bookingTransaction->user_id,
+                    'parking_duration' => $request->parking_duration,
+                    'fee_amount' => $request->fee_amount,
+                    'notes' => $request->notes,
+                    'status' => 1,
+                    'updated_by' => Auth::id(),
+                ]);
+                $parking = $existing;
+            } else {
+                $parking = Parking::create([
+                    'property_id' => $bookingTransaction->property_id,
+                    'parking_type' => $request->parking_type,
+                    'vehicle_plate' => $vehiclePlate,
+                    'owner_name' => $bookingTransaction->user_name,
+                    'owner_phone' => $bookingTransaction->user_phone_number,
+                    'user_id' => $bookingTransaction->user_id,
+                    'parking_duration' => $request->parking_duration,
+                    'fee_amount' => $request->fee_amount,
+                    'notes' => $request->notes,
+                    'status' => 1,
+                    'created_by' => Auth::id(),
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Parking registration added successfully',
+                'data' => $parking,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add parking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function update(Request $request, $idrec)
     {
         $validated = $request->validate([

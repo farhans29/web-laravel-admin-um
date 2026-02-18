@@ -239,6 +239,24 @@ class ParkingPaymentController extends Controller
             // Get transaction details from order_id
             $bookingTransaction = \App\Models\Transaction::where('order_id', $request->order_id)->firstOrFail();
 
+            // Validate parking_duration does not exceed stay duration
+            if ($bookingTransaction->check_in && $bookingTransaction->check_out) {
+                $checkIn = \Carbon\Carbon::parse($bookingTransaction->check_in);
+                $checkOut = \Carbon\Carbon::parse($bookingTransaction->check_out);
+                $maxMonths = $checkIn->diffInMonths($checkOut);
+                if ($checkIn->copy()->addMonths($maxMonths)->lt($checkOut)) {
+                    $maxMonths++;
+                }
+                $maxMonths = max(1, $maxMonths);
+
+                if ($request->parking_duration > $maxMonths) {
+                    throw new \Exception(
+                        "Parking duration ({$request->parking_duration} months) cannot exceed stay duration ({$maxMonths} months). " .
+                        "Stay period: {$checkIn->format('d M Y')} - {$checkOut->format('d M Y')}."
+                    );
+                }
+            }
+
             // Check if this order already has an active parking transaction with duration not expired
             $existingActiveParking = ParkingFeeTransaction::where('order_id', $request->order_id)
                 ->where('transaction_status', 'paid')
@@ -324,7 +342,7 @@ class ParkingPaymentController extends Controller
                 );
             }
 
-            // Find or create parking registration in m_parking
+            // Find or create parking registration in t_parking
             $parking = Parking::withTrashed()
                 ->where('property_id', $bookingTransaction->property_id)
                 ->where('vehicle_plate', strtoupper($request->vehicle_plate))
@@ -511,6 +529,20 @@ class ParkingPaymentController extends Controller
                     return $booking->transaction && $booking->transaction->transaction_status === 'paid';
                 })
                 ->map(function($booking) {
+                    // Calculate max parking duration in months based on stay period
+                    $maxParkingMonths = null;
+                    if ($booking->transaction && $booking->transaction->check_in && $booking->transaction->check_out) {
+                        $checkIn = \Carbon\Carbon::parse($booking->transaction->check_in);
+                        $checkOut = \Carbon\Carbon::parse($booking->transaction->check_out);
+                        $maxParkingMonths = $checkIn->diffInMonths($checkOut);
+                        // If there are remaining days beyond full months, round up
+                        if ($checkIn->copy()->addMonths($maxParkingMonths)->lt($checkOut)) {
+                            $maxParkingMonths++;
+                        }
+                        // Minimum 1 month
+                        $maxParkingMonths = max(1, $maxParkingMonths);
+                    }
+
                     return [
                         'order_id' => $booking->order_id,
                         'property_id' => $booking->property_id,
@@ -522,6 +554,7 @@ class ParkingPaymentController extends Controller
                         'check_out' => $booking->transaction && $booking->transaction->check_out
                             ? $booking->transaction->check_out->format('d M Y')
                             : '-',
+                        'max_parking_months' => $maxParkingMonths,
                         'display_text' => $booking->order_id . ' - ' . ($booking->transaction->user_name ?? $booking->user_name) . ' (' . ($booking->room->name ?? '-') . ')',
                     ];
                 })

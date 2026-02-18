@@ -11,7 +11,7 @@ class Parking extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'm_parking';
+    protected $table = 't_parking';
     protected $primaryKey = 'idrec';
     protected $keyType = 'int';
     public $incrementing = true;
@@ -23,6 +23,8 @@ class Parking extends Model
         'owner_name',
         'owner_phone',
         'user_id',
+        'parking_duration',
+        'fee_amount',
         'notes',
         'status',
         'created_by',

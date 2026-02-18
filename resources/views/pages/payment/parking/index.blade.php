@@ -273,6 +273,7 @@
                                 <input type="number" name="parking_duration" id="add_parking_duration" required
                                     min="1" value="1" placeholder="e.g., 1"
                                     class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-xs text-blue-600 mt-1 hidden" id="parking_duration_max_hint"></p>
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_parking_duration_error"></p>
                             </div>
 
@@ -742,6 +743,7 @@
                             option.dataset.propertyName = order.property_name;
                             option.dataset.checkIn = order.check_in;
                             option.dataset.checkOut = order.check_out;
+                            option.dataset.maxParkingMonths = order.max_parking_months || '';
                             orderSelect.appendChild(option);
                         });
                     } else {
@@ -771,7 +773,7 @@
                 orderInfoSection.classList.remove('hidden');
 
                 // Auto-calculate parking duration in months from check-in to check-out
-                calculateParkingDuration(selectedOption.dataset.checkIn, selectedOption.dataset.checkOut);
+                calculateParkingDuration(selectedOption.dataset.checkIn, selectedOption.dataset.checkOut, selectedOption.dataset.maxParkingMonths);
 
                 // Check parking quota when order is selected
                 checkParkingQuota();
@@ -782,15 +784,25 @@
                 document.getElementById('quota_info_section').classList.add('hidden');
                 // Clear fee amount
                 setFeeAmount(null);
+                // Reset parking duration max
+                const durationInput = document.getElementById('add_parking_duration');
+                durationInput.removeAttribute('max');
+                durationInput.value = 1;
+                const maxHint = document.getElementById('parking_duration_max_hint');
+                if (maxHint) maxHint.classList.add('hidden');
             }
         });
 
         // Calculate parking duration in months from check-in and check-out dates
-        function calculateParkingDuration(checkInStr, checkOutStr) {
+        function calculateParkingDuration(checkInStr, checkOutStr, maxParkingMonths) {
             const durationInput = document.getElementById('add_parking_duration');
+            const durationError = document.getElementById('add_parking_duration_error');
+            const maxHint = document.getElementById('parking_duration_max_hint');
 
             if (!checkInStr || !checkOutStr || checkOutStr === '-') {
                 durationInput.value = 1;
+                durationInput.removeAttribute('max');
+                if (maxHint) maxHint.classList.add('hidden');
                 return;
             }
 
@@ -799,6 +811,8 @@
 
             if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
                 durationInput.value = 1;
+                durationInput.removeAttribute('max');
+                if (maxHint) maxHint.classList.add('hidden');
                 return;
             }
 
@@ -812,8 +826,40 @@
             }
 
             // Minimum 1 month
-            durationInput.value = Math.max(1, months);
+            months = Math.max(1, months);
+
+            // Set max parking months from server calculation
+            const maxMonths = maxParkingMonths ? parseInt(maxParkingMonths) : months;
+            durationInput.value = Math.min(months, maxMonths);
+            durationInput.setAttribute('max', maxMonths);
+
+            // Show max hint
+            if (maxHint) {
+                maxHint.textContent = `Max ${maxMonths} month(s) based on stay period (${checkInStr} - ${checkOutStr})`;
+                maxHint.classList.remove('hidden');
+            }
+
+            // Clear any previous error
+            if (durationError) durationError.classList.add('hidden');
         }
+
+        // Validate parking duration on input change
+        document.getElementById('add_parking_duration')?.addEventListener('input', function() {
+            const max = parseInt(this.getAttribute('max'));
+            const val = parseInt(this.value);
+            const errorEl = document.getElementById('add_parking_duration_error');
+
+            if (max && val > max) {
+                if (errorEl) {
+                    errorEl.textContent = `Parking duration cannot exceed ${max} month(s) (stay duration)`;
+                    errorEl.classList.remove('hidden');
+                }
+                this.classList.add('border-red-500');
+            } else {
+                if (errorEl) errorEl.classList.add('hidden');
+                this.classList.remove('border-red-500');
+            }
+        });
 
         // Check parking quota availability
         function checkParkingQuota() {
@@ -1149,6 +1195,16 @@
         document.getElementById('addPaymentForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             clearAddPaymentErrors();
+
+            // Validate parking duration does not exceed max stay duration
+            const durationInput = document.getElementById('add_parking_duration');
+            const maxDuration = parseInt(durationInput.getAttribute('max'));
+            const currentDuration = parseInt(durationInput.value);
+            if (maxDuration && currentDuration > maxDuration) {
+                showAddPaymentError('parking_duration', `Parking duration cannot exceed ${maxDuration} month(s) (stay duration)`);
+                return;
+            }
+
             setAddPaymentLoading(true);
 
             const formData = new FormData(this);

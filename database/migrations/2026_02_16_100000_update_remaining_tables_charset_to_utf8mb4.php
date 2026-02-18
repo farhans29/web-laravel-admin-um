@@ -18,7 +18,7 @@ return new class extends Migration
             'm_deposit_fee',
             't_deposit_fee_transaction',
             't_deposit_fee_transaction_image',
-            'm_parking',
+            't_parking',
             // Re-convert previously converted tables to ensure consistency
             'users',
             't_transactions',
@@ -49,7 +49,7 @@ return new class extends Migration
             'm_deposit_fee',
             't_deposit_fee_transaction',
             't_deposit_fee_transaction_image',
-            'm_parking',
+            't_parking',
         ];
 
         foreach ($tables as $table) {

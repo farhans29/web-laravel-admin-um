@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('m_parking', function (Blueprint $table) {
+        Schema::create('t_parking', function (Blueprint $table) {
             $table->id('idrec');
             $table->string('property_id', 11);
             $table->enum('parking_type', ['car', 'motorcycle']);
@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('owner_name', 150)->nullable();
             $table->string('owner_phone', 50)->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->integer('parking_duration')->nullable();
+            $table->decimal('fee_amount', 15, 2)->nullable();
             $table->string('notes', 500)->nullable();
             $table->integer('status')->default(1);
             $table->unsignedBigInteger('created_by')->nullable();
@@ -32,6 +34,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('m_parking');
+        Schema::dropIfExists('t_parking');
     }
 };

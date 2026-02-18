@@ -227,6 +227,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
 
         // ------------------------- PARKING MANAGEMENT -------------------------
         Route::get('/parking', [ParkingController::class, 'index'])->name('parking.index');
+        Route::post('/parking/store', [ParkingController::class, 'store'])->name('parking.store');
         Route::post('/parking/filter', [ParkingController::class, 'filter'])->name('parking.filter');
         Route::put('/parking/update/{idrec}', [ParkingController::class, 'update'])->name('parking.update');
         Route::post('/parking/toggle-status', [ParkingController::class, 'toggleStatus'])->name('parking.toggle-status');

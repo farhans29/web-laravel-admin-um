@@ -5,6 +5,14 @@
             <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                 {{ __('ui.parking_management') }}
             </h1>
+            <button type="button" onclick="openAddParkingModal()"
+                class="mt-4 md:mt-0 inline-flex items-center px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New
+            </button>
         </div>
 
         <!-- Table -->
@@ -67,6 +75,151 @@
                 {{ $parkings->appends(request()->input())->links() }}
             </div>
             @endif
+        </div>
+    </div>
+
+    {{-- Add New Parking Modal --}}
+    <div id="addParkingModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeAddParkingModal()"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+                onclick="event.stopPropagation()">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-600 to-blue-600">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">Add New Parking</h3>
+                            <p class="text-white/80 text-sm">Register a new vehicle from checked-in booking</p>
+                        </div>
+                        <button onclick="closeAddParkingModal()" class="text-white hover:text-indigo-200 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <form id="addParkingForm">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Booking Order (Check-in) -->
+                            <div class="md:col-span-2">
+                                <label for="add_prk_order_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Booking Order (Checked-In) <span class="text-red-500">*</span>
+                                </label>
+                                <select name="order_id" id="add_prk_order_id" required
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                    <option value="">Loading checked-in orders...</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Select a booking that is currently checked-in</p>
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_prk_order_id_error"></p>
+                            </div>
+
+                            <!-- User Info Display -->
+                            <div class="md:col-span-2 bg-blue-50 dark:bg-gray-700 p-3 rounded-lg hidden" id="prk_order_info_section">
+                                <div class="flex items-start gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-1">Booking Information</h4>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                            <p><span class="font-medium">Customer:</span> <span id="prk_display_user_name">-</span></p>
+                                            <p><span class="font-medium">Phone:</span> <span id="prk_display_user_phone">-</span></p>
+                                            <p><span class="font-medium">Room:</span> <span id="prk_display_room_name">-</span></p>
+                                            <p><span class="font-medium">Property:</span> <span id="prk_display_property_name">-</span></p>
+                                            <p><span class="font-medium">Check-in - Check-out:</span> <span id="prk_display_checkin_checkout">-</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Parking Type -->
+                            <div class="md:col-span-2">
+                                <label for="add_prk_parking_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Parking Type <span class="text-red-500">*</span>
+                                </label>
+                                <select name="parking_type" id="add_prk_parking_type" required
+                                    onchange="checkPrkParkingQuota()"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                    <option value="">Select Type</option>
+                                    <option value="car">{{ __('ui.car') }}</option>
+                                    <option value="motorcycle">{{ __('ui.motorcycle') }}</option>
+                                </select>
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_prk_parking_type_error"></p>
+                            </div>
+
+                            <!-- Parking Quota Information -->
+                            <div class="md:col-span-2 hidden" id="prk_quota_info_section">
+                                <div class="rounded-lg border-2 p-4" id="prk_quota_info_container"></div>
+                            </div>
+
+                            <!-- Vehicle Plate and Parking Duration side by side -->
+                            <div>
+                                <label for="add_prk_vehicle_plate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Vehicle Plate <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="vehicle_plate" id="add_prk_vehicle_plate" required
+                                    placeholder="e.g., B 1234 XYZ" oninput="this.value = this.value.toUpperCase()"
+                                    style="text-transform: uppercase;"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_prk_vehicle_plate_error"></p>
+                            </div>
+
+                            <div>
+                                <label for="add_prk_parking_duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Parking Duration (months) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" name="parking_duration" id="add_prk_parking_duration" required
+                                    min="1" value="1" placeholder="e.g., 1"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-xs text-blue-600 mt-1 hidden" id="prk_parking_duration_max_hint"></p>
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_prk_parking_duration_error"></p>
+                            </div>
+
+                            <!-- Fee Amount (readonly, full width) -->
+                            <div class="md:col-span-2">
+                                <label for="add_prk_fee_amount_display" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Fee Amount (Rp)
+                                </label>
+                                <input type="text" id="add_prk_fee_amount_display" readonly
+                                    placeholder="Select parking type first"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm bg-gray-50 dark:bg-gray-600 cursor-not-allowed">
+                                <input type="hidden" name="fee_amount" id="add_prk_fee_amount">
+                                <p class="text-xs text-gray-500 mt-1" id="prk_fee_source_info">Fee will be loaded from parking fee configuration</p>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="md:col-span-2">
+                                <label for="add_prk_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Notes (Optional)
+                                </label>
+                                <textarea name="notes" id="add_prk_notes" rows="3" placeholder="Enter additional notes..."
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="mt-6 flex justify-end gap-3">
+                            <button type="button" onclick="closeAddParkingModal()"
+                                class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" id="addParkingSubmitBtn"
+                                class="px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                <span id="addParkingSubmitText">Add Parking</span>
+                                <svg id="addParkingSpinner" class="animate-spin h-4 w-4 text-white hidden"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -168,6 +321,411 @@
     </div>
 
     <script>
+        // ==================== Add New Parking ====================
+        let prkCheckedInOrdersData = [];
+
+        function openAddParkingModal() {
+            document.getElementById('addParkingModal').classList.remove('hidden');
+            document.getElementById('addParkingForm').reset();
+            clearAddParkingErrors();
+            document.getElementById('prk_order_info_section').classList.add('hidden');
+            document.getElementById('prk_quota_info_section').classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+            // Re-enable submit button
+            const submitBtn = document.getElementById('addParkingSubmitBtn');
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+            // Reset duration, fee, and notes
+            prkResetDurationAndFee();
+            document.getElementById('add_prk_notes').value = '';
+            loadPrkCheckedInOrders();
+        }
+
+        function closeAddParkingModal() {
+            document.getElementById('addParkingModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function loadPrkCheckedInOrders() {
+            const orderSelect = document.getElementById('add_prk_order_id');
+            orderSelect.innerHTML = '<option value="">Loading checked-in orders...</option>';
+
+            fetch('/payment/parking/checked-in-orders', { headers: { 'Accept': 'application/json' } })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.data.length > 0) {
+                        prkCheckedInOrdersData = data.data;
+                        orderSelect.innerHTML = '<option value="">Select a booking order</option>';
+                        data.data.forEach(order => {
+                            const option = document.createElement('option');
+                            option.value = order.order_id;
+                            option.textContent = order.display_text;
+                            option.dataset.propertyId = order.property_id;
+                            option.dataset.userName = order.user_name;
+                            option.dataset.userPhone = order.user_phone;
+                            option.dataset.roomName = order.room_name;
+                            option.dataset.propertyName = order.property_name;
+                            option.dataset.checkIn = order.check_in;
+                            option.dataset.checkOut = order.check_out;
+                            option.dataset.maxParkingMonths = order.max_parking_months || '';
+                            orderSelect.appendChild(option);
+                        });
+                    } else {
+                        orderSelect.innerHTML = '<option value="">No checked-in bookings available</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading orders:', error);
+                    orderSelect.innerHTML = '<option value="">Error loading orders</option>';
+                });
+        }
+
+        // Handle order selection for add parking
+        document.getElementById('add_prk_order_id')?.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const orderInfoSection = document.getElementById('prk_order_info_section');
+
+            if (this.value && selectedOption.dataset.userName) {
+                document.getElementById('prk_display_user_name').textContent = selectedOption.dataset.userName || '-';
+                document.getElementById('prk_display_user_phone').textContent = selectedOption.dataset.userPhone || '-';
+                document.getElementById('prk_display_room_name').textContent = selectedOption.dataset.roomName || '-';
+                document.getElementById('prk_display_property_name').textContent = selectedOption.dataset.propertyName || '-';
+                document.getElementById('prk_display_checkin_checkout').textContent =
+                    (selectedOption.dataset.checkIn || '-') + ' - ' + (selectedOption.dataset.checkOut || '-');
+                orderInfoSection.classList.remove('hidden');
+                // Auto-calculate parking duration
+                prkCalculateParkingDuration(selectedOption.dataset.checkIn, selectedOption.dataset.checkOut, selectedOption.dataset.maxParkingMonths);
+                checkPrkParkingQuota();
+            } else {
+                orderInfoSection.classList.add('hidden');
+                document.getElementById('prk_quota_info_section').classList.add('hidden');
+                // Reset duration and fee
+                prkResetDurationAndFee();
+            }
+        });
+
+        // Calculate parking duration from check-in/check-out
+        function prkCalculateParkingDuration(checkInStr, checkOutStr, maxParkingMonths) {
+            const durationInput = document.getElementById('add_prk_parking_duration');
+            const maxHint = document.getElementById('prk_parking_duration_max_hint');
+            const durationError = document.getElementById('add_prk_parking_duration_error');
+
+            if (!checkInStr || !checkOutStr || checkOutStr === '-') {
+                durationInput.value = 1;
+                durationInput.removeAttribute('max');
+                if (maxHint) maxHint.classList.add('hidden');
+                return;
+            }
+
+            const checkIn = new Date(checkInStr);
+            const checkOut = new Date(checkOutStr);
+
+            if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
+                durationInput.value = 1;
+                durationInput.removeAttribute('max');
+                if (maxHint) maxHint.classList.add('hidden');
+                return;
+            }
+
+            let months = (checkOut.getFullYear() - checkIn.getFullYear()) * 12 +
+                (checkOut.getMonth() - checkIn.getMonth());
+            if (checkOut.getDate() > checkIn.getDate()) months++;
+            months = Math.max(1, months);
+
+            const maxMonths = maxParkingMonths ? parseInt(maxParkingMonths) : months;
+            durationInput.value = Math.min(months, maxMonths);
+            durationInput.setAttribute('max', maxMonths);
+
+            if (maxHint) {
+                maxHint.textContent = `Max ${maxMonths} month(s) based on stay period (${checkInStr} - ${checkOutStr})`;
+                maxHint.classList.remove('hidden');
+            }
+            if (durationError) durationError.classList.add('hidden');
+        }
+
+        // Validate parking duration on input
+        document.getElementById('add_prk_parking_duration')?.addEventListener('input', function() {
+            const max = parseInt(this.getAttribute('max'));
+            const val = parseInt(this.value);
+            const errorEl = document.getElementById('add_prk_parking_duration_error');
+
+            if (max && val > max) {
+                if (errorEl) {
+                    errorEl.textContent = `Parking duration cannot exceed ${max} month(s) (stay duration)`;
+                    errorEl.classList.remove('hidden');
+                }
+                this.classList.add('border-red-500');
+            } else {
+                if (errorEl) errorEl.classList.add('hidden');
+                this.classList.remove('border-red-500');
+            }
+        });
+
+        function prkSetFeeAmount(fee) {
+            const displayInput = document.getElementById('add_prk_fee_amount_display');
+            const hiddenInput = document.getElementById('add_prk_fee_amount');
+            const feeSourceInfo = document.getElementById('prk_fee_source_info');
+
+            if (fee !== null && fee !== undefined) {
+                displayInput.value = parseInt(fee).toLocaleString('id-ID');
+                hiddenInput.value = fee;
+                if (feeSourceInfo) {
+                    feeSourceInfo.textContent = 'Fee loaded from parking fee configuration';
+                    feeSourceInfo.classList.remove('text-red-500');
+                    feeSourceInfo.classList.add('text-gray-500');
+                }
+            } else {
+                displayInput.value = '';
+                hiddenInput.value = '';
+                if (feeSourceInfo) {
+                    feeSourceInfo.textContent = 'Fee will be loaded from parking fee configuration';
+                    feeSourceInfo.classList.remove('text-red-500');
+                    feeSourceInfo.classList.add('text-gray-500');
+                }
+            }
+        }
+
+        function prkResetDurationAndFee() {
+            const durationInput = document.getElementById('add_prk_parking_duration');
+            durationInput.value = 1;
+            durationInput.removeAttribute('max');
+            const maxHint = document.getElementById('prk_parking_duration_max_hint');
+            if (maxHint) maxHint.classList.add('hidden');
+            prkSetFeeAmount(null);
+        }
+
+        // Check parking quota availability
+        function checkPrkParkingQuota() {
+            const orderSelect = document.getElementById('add_prk_order_id');
+            const parkingTypeSelect = document.getElementById('add_prk_parking_type');
+            const quotaInfoSection = document.getElementById('prk_quota_info_section');
+            const quotaInfoContainer = document.getElementById('prk_quota_info_container');
+            const submitBtn = document.getElementById('addParkingSubmitBtn');
+
+            if (!orderSelect.value || !parkingTypeSelect.value) {
+                quotaInfoSection.classList.add('hidden');
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+                return;
+            }
+
+            const selectedOption = orderSelect.options[orderSelect.selectedIndex];
+            const propertyId = selectedOption.dataset.propertyId;
+            if (!propertyId) { quotaInfoSection.classList.add('hidden'); return; }
+
+            quotaInfoContainer.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <svg class="animate-spin h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Checking parking quota...</span>
+                </div>`;
+            quotaInfoSection.classList.remove('hidden');
+
+            fetch(`/api/parking-fees/${propertyId}`)
+                .then(r => r.json())
+                .then(data => {
+                    const parkingType = parkingTypeSelect.value;
+                    const quotaData = data.find(pf => pf.parking_type === parkingType);
+
+                    if (quotaData) {
+                        displayPrkQuotaInfo(quotaData, parkingType);
+                    } else {
+                        displayPrkNoQuotaData(parkingType);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching quota:', error);
+                    quotaInfoContainer.innerHTML = `<div class="text-sm text-yellow-600 dark:text-yellow-400">Unable to fetch quota information</div>`;
+                });
+        }
+
+        function displayPrkQuotaInfo(quotaData, parkingType) {
+            const container = document.getElementById('prk_quota_info_container');
+            const submitBtn = document.getElementById('addParkingSubmitBtn');
+            const typeLabel = parkingType === 'car' ? '{{ __("ui.car") }}' : '{{ __("ui.motorcycle") }}';
+
+            if (quotaData.capacity === 0) {
+                container.className = 'rounded-lg border-2 border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-4';
+                container.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <svg class="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-semibold text-green-900 dark:text-green-100">Unlimited Parking (${typeLabel})</h4>
+                            <p class="text-xs text-green-700 dark:text-green-300 mt-1">This property has unlimited parking quota.</p>
+                        </div>
+                    </div>`;
+                prkSetFeeAmount(quotaData.fee);
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+            } else {
+                const available = quotaData.available_quota;
+                const percentage = quotaData.quota_percentage;
+
+                if (available > 0) {
+                    container.className = 'rounded-lg border-2 border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 p-4';
+                    container.innerHTML = `
+                        <div class="flex items-start gap-3">
+                            <svg class="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-100">Parking Quota Available (${typeLabel})</h4>
+                                <div class="mt-2 space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs text-blue-700 dark:text-blue-300">Available:</span>
+                                        <span class="text-sm font-bold text-blue-900 dark:text-blue-100">${available} / ${quotaData.capacity}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs text-blue-700 dark:text-blue-300">In Use:</span>
+                                        <span class="text-sm font-semibold text-blue-800 dark:text-blue-200">${quotaData.quota_used}</span>
+                                    </div>
+                                    <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+                                        <div class="h-2 rounded-full transition-all ${percentage >= 90 ? 'bg-red-600' : percentage >= 70 ? 'bg-yellow-500' : 'bg-green-500'}"
+                                             style="width: ${Math.min(percentage, 100)}%"></div>
+                                    </div>
+                                    <p class="text-xs text-blue-600 dark:text-blue-400">${Math.round(percentage)}% used</p>
+                                </div>
+                            </div>
+                        </div>`;
+                    prkSetFeeAmount(quotaData.fee);
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+                } else {
+                    container.className = 'rounded-lg border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4';
+                    container.innerHTML = `
+                        <div class="flex items-start gap-3">
+                            <svg class="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold text-red-900 dark:text-red-100">Parking Quota Full (${typeLabel})</h4>
+                                <p class="text-xs text-red-700 dark:text-red-300 mt-1"><strong>Capacity: ${quotaData.capacity}</strong> (All slots occupied)</p>
+                                <p class="text-xs text-red-600 dark:text-red-400 mt-2"><strong>Cannot register parking.</strong> Please wait for check-out or increase capacity in Parking Fee Management.</p>
+                            </div>
+                        </div>`;
+                    prkSetFeeAmount(null);
+                    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-50', 'cursor-not-allowed'); }
+                }
+            }
+        }
+
+        function displayPrkNoQuotaData(parkingType) {
+            const container = document.getElementById('prk_quota_info_container');
+            const submitBtn = document.getElementById('addParkingSubmitBtn');
+            const typeLabel = parkingType === 'car' ? '{{ __("ui.car") }}' : '{{ __("ui.motorcycle") }}';
+
+            container.className = 'rounded-lg border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4';
+            container.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <svg class="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold text-red-900 dark:text-red-100">Parking Fee Not Configured (${typeLabel})</h4>
+                        <p class="text-xs text-red-700 dark:text-red-300 mt-1">Parking fee for this property has not been configured yet.</p>
+                        <p class="text-xs text-red-600 dark:text-red-400 mt-2"><strong>Cannot register parking.</strong> Please configure parking fee in <strong>Parking Fee Management</strong> first.</p>
+                    </div>
+                </div>`;
+            prkSetFeeAmount(null);
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('opacity-50', 'cursor-not-allowed'); }
+        }
+
+        function clearAddParkingErrors() {
+            document.querySelectorAll('[id^="add_prk_"][id$="_error"]').forEach(el => {
+                el.textContent = '';
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('#addParkingForm input, #addParkingForm select').forEach(input => {
+                input.classList.remove('border-red-500');
+            });
+        }
+
+        function showAddParkingError(field, message) {
+            const errorEl = document.getElementById('add_prk_' + field + '_error');
+            const inputEl = document.getElementById('add_prk_' + field);
+            if (errorEl) { errorEl.textContent = message; errorEl.classList.remove('hidden'); }
+            if (inputEl) { inputEl.classList.add('border-red-500'); }
+        }
+
+        // Form submission
+        document.getElementById('addParkingForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearAddParkingErrors();
+
+            const submitBtn = document.getElementById('addParkingSubmitBtn');
+            const submitText = document.getElementById('addParkingSubmitText');
+            const spinner = document.getElementById('addParkingSpinner');
+
+            // Validate duration max before submit
+            const durationInput = document.getElementById('add_prk_parking_duration');
+            const maxDuration = parseInt(durationInput.getAttribute('max'));
+            const durationVal = parseInt(durationInput.value);
+            if (maxDuration && durationVal > maxDuration) {
+                showAddParkingError('parking_duration', `Parking duration cannot exceed ${maxDuration} month(s) (stay duration)`);
+                return;
+            }
+            if (!durationVal || durationVal < 1) {
+                showAddParkingError('parking_duration', 'Parking duration must be at least 1 month');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitText.textContent = 'Processing...';
+            spinner.classList.remove('hidden');
+
+            try {
+                const formData = new FormData(this);
+
+                const response = await fetch('/properties/parking/store', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        order_id: formData.get('order_id'),
+                        parking_type: formData.get('parking_type'),
+                        vehicle_plate: formData.get('vehicle_plate'),
+                        parking_duration: formData.get('parking_duration'),
+                        fee_amount: formData.get('fee_amount'),
+                        notes: formData.get('notes'),
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    closeAddParkingModal();
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: result.message, showConfirmButton: false, timer: 3000, timerProgressBar: true });
+                    applyFilters();
+                } else {
+                    if (result.errors) {
+                        Object.keys(result.errors).forEach(field => {
+                            const messages = Array.isArray(result.errors[field]) ? result.errors[field] : [result.errors[field]];
+                            showAddParkingError(field, messages[0]);
+                        });
+                    }
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: result.message || 'Failed to add parking.', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'An unexpected error occurred.', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+            } finally {
+                submitBtn.disabled = false;
+                submitText.textContent = 'Add Parking';
+                spinner.classList.add('hidden');
+            }
+        });
+
+        // ESC key for add parking modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !document.getElementById('addParkingModal').classList.contains('hidden')) {
+                closeAddParkingModal();
+            }
+        });
+
+        // ==================== Existing Functions ====================
         function toggleParkingStatus(checkbox) {
             const id = checkbox.dataset.id;
             const newStatus = checkbox.checked ? 1 : 0;
