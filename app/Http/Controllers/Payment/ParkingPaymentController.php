@@ -365,12 +365,19 @@ class ParkingPaymentController extends Controller
                 ]);
             }
 
-            // Check if this is a renewal based on user_id (same user already has active paid parking)
-            $isRenewal = ParkingFeeTransaction::where('user_id', $bookingTransaction->user_id)
-                ->where('property_id', $bookingTransaction->property_id)
-                ->where('parking_type', $request->parking_type)
-                ->where('transaction_status', 'paid')
-                ->exists();
+            // Determine if this is a renewal booking (user extending their stay, same vehicle/slot)
+            $isRenewalBooking = $bookingTransaction->is_renewal == 1;
+
+            // Skip quota check/increment only when:
+            // - Booking is a renewal (is_renewal=1) AND
+            // - User already has active paid parking at this property (vehicle still occupies the spot)
+            $isRenewal = $isRenewalBooking
+                ? ParkingFeeTransaction::where('user_id', $bookingTransaction->user_id)
+                    ->where('property_id', $bookingTransaction->property_id)
+                    ->where('parking_type', $request->parking_type)
+                    ->where('transaction_status', 'paid')
+                    ->exists()
+                : false;
 
             // Only check quota for new parking, not renewals (vehicle already occupies a spot)
             if (!$isRenewal) {
@@ -543,11 +550,25 @@ class ParkingPaymentController extends Controller
                         $maxParkingMonths = max(1, $maxParkingMonths);
                     }
 
-                    // Check existing parking transaction for this order
+                    // Check existing parking for this specific order_id
                     $existingParking = ParkingFeeTransaction::where('order_id', $booking->order_id)
                         ->where('transaction_status', 'paid')
                         ->orderBy('created_at', 'desc')
                         ->first();
+
+                    $isRenewalBooking = $booking->transaction && $booking->transaction->is_renewal == 1;
+                    $fromPreviousOrder = false;
+
+                    // For renewal bookings (is_renewal=1), parking may be registered under
+                    // a previous order_id — detect via user_id + property_id
+                    if (!$existingParking && $isRenewalBooking && ($booking->transaction->user_id ?? null)) {
+                        $existingParking = ParkingFeeTransaction::where('user_id', $booking->transaction->user_id)
+                            ->where('property_id', $booking->property_id)
+                            ->where('transaction_status', 'paid')
+                            ->orderBy('created_at', 'desc')
+                            ->first();
+                        $fromPreviousOrder = (bool) $existingParking;
+                    }
 
                     $parkingStatus = 'new';
                     $parkingInfo = null;
@@ -556,7 +577,11 @@ class ParkingPaymentController extends Controller
                         $expiryDate = \Carbon\Carbon::parse($existingParking->transaction_date)
                             ->addMonths($existingParking->parking_duration ?? 1);
 
-                        if ($expiryDate->isFuture()) {
+                        if ($fromPreviousOrder) {
+                            // Renewal booking: parking from previous order still active
+                            // user still occupies the same slot
+                            $parkingStatus = 'renewal';
+                        } elseif ($expiryDate->isFuture()) {
                             $parkingStatus = 'active';
                         } else {
                             $parkingStatus = 'renewal';
