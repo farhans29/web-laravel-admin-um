@@ -543,6 +543,34 @@ class ParkingPaymentController extends Controller
                         $maxParkingMonths = max(1, $maxParkingMonths);
                     }
 
+                    // Check existing parking transaction for this order
+                    $existingParking = ParkingFeeTransaction::where('order_id', $booking->order_id)
+                        ->where('transaction_status', 'paid')
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+
+                    $parkingStatus = 'new';
+                    $parkingInfo = null;
+
+                    if ($existingParking) {
+                        $expiryDate = \Carbon\Carbon::parse($existingParking->transaction_date)
+                            ->addMonths($existingParking->parking_duration ?? 1);
+
+                        if ($expiryDate->isFuture()) {
+                            $parkingStatus = 'active';
+                        } else {
+                            $parkingStatus = 'renewal';
+                        }
+
+                        $parkingInfo = [
+                            'parking_type'  => $existingParking->parking_type,
+                            'vehicle_plate' => $existingParking->vehicle_plate,
+                            'duration'      => $existingParking->parking_duration,
+                            'expiry_date'   => $expiryDate->format('d M Y'),
+                            'expired_ago'   => $expiryDate->diffForHumans(),
+                        ];
+                    }
+
                     return [
                         'order_id' => $booking->order_id,
                         'property_id' => $booking->property_id,
@@ -555,6 +583,8 @@ class ParkingPaymentController extends Controller
                             ? $booking->transaction->check_out->format('d M Y')
                             : '-',
                         'max_parking_months' => $maxParkingMonths,
+                        'parking_status' => $parkingStatus,
+                        'parking_info'   => $parkingInfo,
                         'display_text' => $booking->order_id . ' - ' . ($booking->transaction->user_name ?? $booking->user_name) . ' (' . ($booking->room->name ?? '-') . ')',
                     ];
                 })
