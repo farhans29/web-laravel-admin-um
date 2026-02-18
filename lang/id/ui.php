@@ -71,6 +71,8 @@ return [
     'sidebar_settings' => 'Pengaturan',
     'sidebar_users' => 'Pengguna',
     'sidebar_role_permission' => 'Peran & Izin',
+    'sidebar_master_role' => 'Master Role',
+    'sidebar_user_access' => 'Akses Pengguna',
 
     // Dashboard
     'dashboard' => 'Dasbor',

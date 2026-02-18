@@ -953,33 +953,88 @@
                             @endcan
 
                             <!-- Role & Permission -->
-                            @can('manage_roles')
-                                <li>
-                                    <a href="{{ route('master-role-management') }}"
-                                        class="flex items-center gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-colors group relative overflow-hidden @if (Route::is('master-role-management')) bg-indigo-900 @endif">
-                                        <!-- Icon Gembok -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                            @canany(['manage_roles', 'view_users'])
+                                <li x-init="if (window.location.href.includes('master-role-management') ||
+                                    window.location.href.includes('user-access')) { activeMenu = 'roles' }">
+
+                                    <!-- Main Menu Button -->
+                                    <a @click="activeMenu = activeMenu === 'roles' ? '' : 'roles'"
+                                        class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('master-role-management', 'user-access.edit')) bg-indigo-900 @endif">
+
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <!-- Lock Icon -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 11c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17 11V7a5 5 0 10-10 0v4" />
+                                                <rect x="6" y="11" width="12" height="10" rx="2" ry="2"
+                                                    stroke="currentColor" stroke-width="2" fill="none" />
+                                            </svg>
+
+                                            <!-- Menu Text -->
+                                            <span class="whitespace-nowrap transition-all duration-300"
+                                                style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                                :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                    'lg:opacity-0 lg:max-w-0'">
+                                                {{ __('ui.sidebar_role_permission') }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Chevron Icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 flex-shrink-0 transition-all duration-300"
+                                            style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="[
+                                                activeMenu === 'roles' ? 'rotate-180' : '',
+                                                sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' :
+                                                'lg:opacity-0 lg:max-w-0'
+                                            ]"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 11c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17 11V7a5 5 0 10-10 0v4" />
-                                            <rect x="6" y="11" width="12" height="10" rx="2" ry="2"
-                                                stroke="currentColor" stroke-width="2" fill="none" />
+                                                d="M19 9l-7 7-7-7" />
                                         </svg>
-                                        <span class="whitespace-nowrap transition-all duration-300"
-                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
-                                                'lg:opacity-0 lg:max-w-0'">{{ __('ui.sidebar_role_permission') }}</span>
-                                        <!-- Tooltip for collapsed state -->
-                                        <div class="absolute left-16 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+
+                                        <!-- Tooltip for Collapsed State -->
+                                        <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
                                             style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
                                             :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
                                             {{ __('ui.sidebar_role_permission') }}
                                         </div>
                                     </a>
+
+                                    <!-- Submenu Items -->
+                                    <div x-show="activeMenu === 'roles' && (sidebarExpanded || window.innerWidth < 1024)"
+                                        x-collapse x-transition:enter="transition-[height] ease-out duration-300"
+                                        x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
+
+                                        <ul class="pl-8 mt-1 space-y-1">
+                                            <!-- Master Role Management -->
+                                            @can('manage_roles')
+                                                <li>
+                                                    <a href="{{ route('master-role-management') }}"
+                                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('master-role-management')) bg-indigo-900 @endif">
+                                                        <span
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_master_role') }}</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+
+                                            <!-- User Access Management -->
+                                            @can('view_users')
+                                                <li>
+                                                    <a href="{{ route('user-access.edit') }}"
+                                                        class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('user-access.edit')) bg-indigo-900 @endif">
+                                                        <span
+                                                            class="text-xs transition-all duration-300 hover:translate-x-1">{{ __('ui.sidebar_user_access') }}</span>
+                                                    </a>
+                                                </li>
+                                            @endcan
+                                        </ul>
+                                    </div>
                                 </li>
-                            @endcan
+                            @endcanany
                             <!-- Account / Settings -->
                             @can('manage_settings')
                                 <li>

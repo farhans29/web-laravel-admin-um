@@ -71,6 +71,8 @@ return [
     'sidebar_settings' => 'Settings',
     'sidebar_users' => 'Users',
     'sidebar_role_permission' => 'Role & Permission',
+    'sidebar_master_role' => 'Master Role',
+    'sidebar_user_access' => 'User Access',
 
     // Dashboard
     'dashboard' => 'Dashboard',
