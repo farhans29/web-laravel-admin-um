@@ -27,6 +27,7 @@ class Parking extends Model
         'fee_amount',
         'notes',
         'status',
+        'management_only',
         'created_by',
         'updated_by',
     ];

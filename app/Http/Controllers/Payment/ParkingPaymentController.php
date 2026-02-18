@@ -348,8 +348,20 @@ class ParkingPaymentController extends Controller
                 ->where('vehicle_plate', strtoupper($request->vehicle_plate))
                 ->first();
 
+            // Cek apakah quota sudah dikonsumsi oleh Parking Management (management_only=1)
+            // Jika ya, PP tidak perlu increment quota lagi (slot sudah terpakai)
+            $quotaAlreadyConsumedByManagement = false;
+
             if ($parking && $parking->trashed()) {
                 $parking->restore();
+                // Restored = treat as new, quota perlu di-increment
+                $quotaAlreadyConsumedByManagement = false;
+            } elseif ($parking && $parking->management_only) {
+                // Kendaraan sebelumnya didaftarkan via Parking Management (tanpa invoice)
+                // Quota sudah dikonsumsi oleh PM → PP tidak increment lagi
+                // PP mengambil alih pengelolaan quota → reset flag management_only
+                $quotaAlreadyConsumedByManagement = true;
+                $parking->update(['management_only' => 0, 'updated_by' => Auth::id()]);
             }
 
             if (!$parking) {
@@ -361,6 +373,7 @@ class ParkingPaymentController extends Controller
                     'owner_phone' => $bookingTransaction->user_phone_number,
                     'user_id' => $bookingTransaction->user_id,
                     'status' => 1,
+                    'management_only' => 0,
                     'created_by' => Auth::id(),
                 ]);
             }
@@ -379,8 +392,8 @@ class ParkingPaymentController extends Controller
                     ->exists()
                 : false;
 
-            // Only check quota for new parking, not renewals (vehicle already occupies a spot)
-            if (!$isRenewal) {
+            // Only check quota for new parking (not renewals, not already consumed by PM)
+            if (!$isRenewal && !$quotaAlreadyConsumedByManagement) {
                 if ($parkingFee->capacity > 0 && !$parkingFee->hasAvailableQuota()) {
                     throw new \Exception(
                         'Parking quota is full for ' . ucfirst($request->parking_type) .
@@ -441,21 +454,27 @@ class ParkingPaymentController extends Controller
                 ]);
             }
 
-            // Increment quota only for new parking, not renewals
-            if (!$isRenewal && $parkingFee->capacity > 0) {
+            // Increment quota hanya untuk parkir baru:
+            // - Bukan renewal (is_renewal) dan
+            // - Quota belum dikonsumsi oleh Parking Management
+            if (!$isRenewal && !$quotaAlreadyConsumedByManagement && $parkingFee->capacity > 0) {
                 $parkingFee->incrementQuota();
             }
 
             DB::commit();
 
             // Build success message
-            $message = $isRenewal
-                ? 'Parking renewal payment added successfully (quota unchanged)'
-                : 'Parking payment added successfully';
+            if ($isRenewal) {
+                $message = 'Parking renewal payment added successfully (quota unchanged)';
+            } elseif ($quotaAlreadyConsumedByManagement) {
+                $message = 'Parking payment added successfully (quota already counted by Parking Management)';
+            } else {
+                $message = 'Parking payment added successfully';
+            }
             if ($parkingFee->capacity === 0) {
                 $message .= '. This property has unlimited parking (no quota limit).';
-            } elseif (!$isRenewal) {
-                $remaining = $parkingFee->available_quota;
+            } elseif (!$isRenewal && !$quotaAlreadyConsumedByManagement) {
+                $remaining = $parkingFee->fresh()->available_quota;
                 $message .= ". Parking quota: {$remaining}/{$parkingFee->capacity} available.";
             }
 

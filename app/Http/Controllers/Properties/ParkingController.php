@@ -148,12 +148,22 @@ class ParkingController extends Controller
             // Skip quota check only when:
             // - Booking is a renewal (is_renewal=1) AND
             // - User already has active paid parking at this property (vehicle still occupies the spot)
+            // Note: cek dari ParkingFeeTransaction (PP) ATAU dari t_parking management_only=1 milik user ini
             $isRenewal = $isRenewalBooking
-                ? ParkingFeeTransaction::where('user_id', $bookingTransaction->user_id)
-                    ->where('property_id', $bookingTransaction->property_id)
-                    ->where('parking_type', $request->parking_type)
-                    ->where('transaction_status', 'paid')
-                    ->exists()
+                ? (
+                    ParkingFeeTransaction::where('user_id', $bookingTransaction->user_id)
+                        ->where('property_id', $bookingTransaction->property_id)
+                        ->where('parking_type', $request->parking_type)
+                        ->where('transaction_status', 'paid')
+                        ->exists()
+                    ||
+                    Parking::where('user_id', $bookingTransaction->user_id)
+                        ->where('property_id', $bookingTransaction->property_id)
+                        ->where('parking_type', $request->parking_type)
+                        ->where('management_only', 1)
+                        ->where('status', 1)
+                        ->exists()
+                )
                 : false;
 
             // Only check quota for new parking, not renewals (vehicle already occupies a spot)
@@ -209,6 +219,7 @@ class ParkingController extends Controller
                     'fee_amount' => $request->fee_amount,
                     'notes' => $request->notes,
                     'status' => 1,
+                    'management_only' => 1,
                     'updated_by' => Auth::id(),
                 ]);
                 $parking = $existing;
@@ -224,15 +235,33 @@ class ParkingController extends Controller
                     'fee_amount' => $request->fee_amount,
                     'notes' => $request->notes,
                     'status' => 1,
+                    'management_only' => 1,
                     'created_by' => Auth::id(),
                 ]);
             }
 
+            // Increment quota untuk parkir baru (bukan renewal)
+            // Parking Management juga mengkonsumsi quota karena kendaraan fisik sudah menempati slot
+            if (!$isRenewal && $parkingFee->capacity > 0) {
+                $parkingFee->incrementQuota();
+            }
+
             DB::commit();
+
+            $message = $isRenewal
+                ? 'Parking registration added successfully (quota unchanged - renewal)'
+                : 'Parking registration added successfully';
+
+            if (!$isRenewal && $parkingFee->capacity > 0) {
+                $remaining = $parkingFee->fresh()->available_quota;
+                $message .= ". Parking quota: {$remaining}/{$parkingFee->capacity} available.";
+            } elseif ($parkingFee->capacity === 0) {
+                $message .= ' (unlimited quota).';
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Parking registration added successfully',
+                'message' => $message,
                 'data' => $parking,
             ]);
         } catch (\Exception $e) {
@@ -290,13 +319,17 @@ class ParkingController extends Controller
                     ], 422);
                 }
 
-                // Adjust quota if parking type changed and has active paid transaction
+                // Adjust quota if parking type changed
                 if ($typeChanged) {
-                    $hasActivePaidTransaction = ParkingFeeTransaction::where('parking_id', $parking->idrec)
-                        ->where('transaction_status', 'paid')
-                        ->exists();
+                    // Untuk parking management_only=1: quota selalu ada (dikonsumsi oleh PM)
+                    // Untuk parking management_only=0: quota ada jika ada active paid transaction (dikonsumsi PP)
+                    $shouldAdjustQuota = $parking->management_only
+                        ? true
+                        : ParkingFeeTransaction::where('parking_id', $parking->idrec)
+                            ->where('transaction_status', 'paid')
+                            ->exists();
 
-                    if ($hasActivePaidTransaction) {
+                    if ($shouldAdjustQuota) {
                         // Decrement old type quota
                         $oldParkingFee = ParkingFee::where('property_id', $parking->property_id)
                             ->where('parking_type', $oldParkingType)
@@ -321,14 +354,16 @@ class ParkingController extends Controller
                             $newParkingFee->incrementQuota();
                         }
 
-                        // Update parking_type on active paid transactions
-                        ParkingFeeTransaction::where('parking_id', $parking->idrec)
-                            ->where('transaction_status', 'paid')
-                            ->update([
-                                'parking_type' => $validated['parking_type'],
-                                'fee_amount' => $newParkingFee->fee,
-                                'updated_by' => Auth::id(),
-                            ]);
+                        // Update parking_type on active paid transactions (hanya untuk PP-managed)
+                        if (!$parking->management_only) {
+                            ParkingFeeTransaction::where('parking_id', $parking->idrec)
+                                ->where('transaction_status', 'paid')
+                                ->update([
+                                    'parking_type' => $validated['parking_type'],
+                                    'fee_amount' => $newParkingFee->fee,
+                                    'updated_by' => Auth::id(),
+                                ]);
+                        }
                     }
                 }
             }
@@ -362,15 +397,35 @@ class ParkingController extends Controller
     public function destroy($idrec)
     {
         try {
+            DB::beginTransaction();
+
             $parking = Parking::findOrFail($idrec);
+
+            // Jika quota dikonsumsi oleh Parking Management (management_only=1),
+            // maka kurangi quota saat record dihapus (slot parkir dikosongkan)
+            if ($parking->management_only) {
+                $parkingFee = ParkingFee::where('property_id', $parking->property_id)
+                    ->where('parking_type', $parking->parking_type)
+                    ->where('status', 1)
+                    ->first();
+
+                if ($parkingFee && $parkingFee->capacity > 0) {
+                    $parkingFee->decrementQuota();
+                }
+            }
+
             $parking->update(['updated_by' => Auth::id()]);
             $parking->delete();
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => __('ui.parking_deleted_success')
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus data parkir: ' . $e->getMessage()
@@ -381,15 +436,34 @@ class ParkingController extends Controller
     public function restore($idrec)
     {
         try {
+            DB::beginTransaction();
+
             $parking = Parking::withTrashed()->findOrFail($idrec);
             $parking->restore();
             $parking->update(['updated_by' => Auth::id()]);
+
+            // Jika quota sebelumnya dikonsumsi oleh Parking Management,
+            // maka tambah kembali quota saat record di-restore
+            if ($parking->management_only) {
+                $parkingFee = ParkingFee::where('property_id', $parking->property_id)
+                    ->where('parking_type', $parking->parking_type)
+                    ->where('status', 1)
+                    ->first();
+
+                if ($parkingFee && $parkingFee->capacity > 0) {
+                    $parkingFee->incrementQuota();
+                }
+            }
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
                 'message' => __('ui.parking_restored_success')
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memulihkan data parkir: ' . $e->getMessage()
