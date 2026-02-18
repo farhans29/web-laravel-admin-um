@@ -244,13 +244,11 @@
                         @can('view_properties')
                             <li x-init="if (window.location.href.includes('m-properties') ||
                                 window.location.href.includes('facilityProperty') ||
-                                window.location.href.includes('deposit-fees') ||
-                                window.location.href.includes('parking-fees') ||
-                                window.location.href.includes('/parking')) { activeMenu = 'properties' }">
+                                window.location.href.includes('deposit-fees')) { activeMenu = 'properties' }">
 
                                 <!-- Main Menu Button -->
                                 <a @click="activeMenu = activeMenu === 'properties' ? '' : 'properties'"
-                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index', 'deposit-fees.index', 'parking-fees.index', 'parking.index')) bg-indigo-900 @endif">
+                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('properties.index', 'facilityProperty.index', 'deposit-fees.index')) bg-indigo-900 @endif">
 
                                     <div class="flex items-center gap-3 min-w-0">
                                         <!-- Building Icon -->
@@ -330,7 +328,67 @@
                                             </li>
                                         @endcan
 
-                                        <!-- Parking Fee Management -->
+                                    </ul>
+                                </div>
+                            </li>
+                        @endcan
+
+                        <!-- Parking Menu Item -->
+                        @can('view_parking_fees')
+                            <li x-init="if (window.location.href.includes('parking-fees') ||
+                                window.location.href.includes('/parking')) { activeMenu = 'parking' }">
+
+                                <!-- Main Menu Button -->
+                                <a @click="activeMenu = activeMenu === 'parking' ? '' : 'parking'"
+                                    class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('parking-fees.index', 'parking.index')) bg-indigo-900 @endif">
+
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <!-- Parking Icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <rect x="3" y="3" width="18" height="18" rx="4"
+                                                stroke-width="2" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 16V8h4a3 3 0 010 6h-4" />
+                                        </svg>
+                                        <!-- Menu Text -->
+                                        <span class="whitespace-nowrap transition-all duration-300"
+                                            style="transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                            :class="sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[200px]' :
+                                                'lg:opacity-0 lg:max-w-0'">
+                                            {{ __('ui.sidebar_parking_menu') }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Chevron Icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="h-4 w-4 flex-shrink-0 transition-all duration-300"
+                                        style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="[
+                                            activeMenu === 'parking' ? 'rotate-180' : '',
+                                            sidebarExpanded || window.innerWidth < 1024 ? 'opacity-100 max-w-[1rem]' :
+                                            'lg:opacity-0 lg:max-w-0'
+                                        ]"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+
+                                    <!-- Tooltip for Collapsed State -->
+                                    <div class="absolute left-full ml-2 bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 whitespace-nowrap shadow-lg"
+                                        style="transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        :class="!sidebarExpanded && window.innerWidth >= 1024 ? 'block' : 'hidden'">
+                                        {{ __('ui.sidebar_parking_menu') }}
+                                    </div>
+                                </a>
+
+                                <!-- Submenu Items -->
+                                <div x-show="activeMenu === 'parking' && (sidebarExpanded || window.innerWidth < 1024)"
+                                    x-collapse x-transition:enter="transition-[height] ease-out duration-300"
+                                    x-transition:leave="transition-[height] ease-in duration-200" class="overflow-hidden">
+
+                                    <ul class="pl-8 mt-1 space-y-1">
+                                        <!-- Master Parking Fee -->
                                         @can('view_parking_fees')
                                             <li>
                                                 <a href="{{ route('parking-fees.index') }}"
@@ -341,7 +399,7 @@
                                             </li>
                                         @endcan
 
-                                        <!-- Parking Management -->
+                                        <!-- Master Parking -->
                                         @can('view_parking_fees')
                                             <li>
                                                 <a href="{{ route('parking.index') }}"
@@ -623,9 +681,7 @@
                             <li x-init="if (window.location.href.includes('admin/payments') ||
                                 window.location.href.includes('admin/parking-payments') ||
                                 window.location.href.includes('admin/deposit-payments')) { activeMenu = 'payments' }
-                                @if(Route::is('admin.payments.*', 'admin.parking-payments.*', 'admin.deposit-payments.*'))
-                                    activeMenu = 'payments'
-                                @endif">
+                            @if (Route::is('admin.payments.*', 'admin.parking-payments.*', 'admin.deposit-payments.*')) activeMenu = 'payments' @endif">
 
                                 <!-- Main Menu Button -->
                                 <a @click="activeMenu = activeMenu === 'payments' ? '' : 'payments'"
@@ -633,8 +689,8 @@
 
                                     <div class="flex items-center gap-3 min-w-0">
                                         <!-- Payment Icon -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
@@ -746,7 +802,12 @@
 
                                     <!-- Main Menu Button -->
                                     <a @click="activeMenu = activeMenu === 'reports' ? '' : 'reports'"
-                                        class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is('reports.booking.*', 'reports.payment.*', 'reports.parking.*', 'reports.deposit.*', 'reports.rented-rooms.*')) bg-indigo-900 @endif">
+                                        class="flex items-center justify-between gap-3 px-3 py-2 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer group relative @if (Route::is(
+                                                'reports.booking.*',
+                                                'reports.payment.*',
+                                                'reports.parking.*',
+                                                'reports.deposit.*',
+                                                'reports.rented-rooms.*')) bg-indigo-900 @endif">
 
                                         <div class="flex items-center gap-3 min-w-0">
                                             <!-- Chart/Report Icon -->

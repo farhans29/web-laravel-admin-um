@@ -148,6 +148,14 @@ class ParkingPaymentController extends Controller
             // Store previous status to check if we need to decrement quota
             $wasPaid = $transaction->transaction_status === 'paid';
 
+            // Check if user has other active paid parking (renewal) before rejecting
+            $hasOtherActivePaid = ParkingFeeTransaction::where('user_id', $transaction->user_id)
+                ->where('property_id', $transaction->property_id)
+                ->where('parking_type', $transaction->parking_type)
+                ->where('transaction_status', 'paid')
+                ->where('idrec', '!=', $transaction->idrec)
+                ->exists();
+
             $transaction->update([
                 'transaction_status' => 'rejected',
                 'notes' => $request->notes,
@@ -156,8 +164,8 @@ class ParkingPaymentController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
-            // If transaction was paid, decrement the quota
-            if ($wasPaid) {
+            // Only decrement quota if was paid AND user has no other active paid parking (not a renewal)
+            if ($wasPaid && !$hasOtherActivePaid) {
                 $parkingFee = $transaction->getParkingFeeViaParking();
                 if ($parkingFee && $parkingFee->capacity > 0) {
                     $parkingFee->decrementQuota();
@@ -231,6 +239,26 @@ class ParkingPaymentController extends Controller
             // Get transaction details from order_id
             $bookingTransaction = \App\Models\Transaction::where('order_id', $request->order_id)->firstOrFail();
 
+            // Check if this order already has an active parking transaction with duration not expired
+            $existingActiveParking = ParkingFeeTransaction::where('order_id', $request->order_id)
+                ->where('transaction_status', 'paid')
+                ->first();
+
+            if ($existingActiveParking) {
+                // Calculate expiry: transaction_date + parking_duration months
+                $expiryDate = \Carbon\Carbon::parse($existingActiveParking->transaction_date)
+                    ->addMonths($existingActiveParking->parking_duration);
+
+                if ($expiryDate->isFuture()) {
+                    $typeLabel = ucfirst($existingActiveParking->parking_type);
+                    throw new \Exception(
+                        "Order {$request->order_id} sudah memiliki parkir aktif ({$typeLabel}) " .
+                        "hingga {$expiryDate->format('d M Y')}. " .
+                        "Untuk mengubah tipe kendaraan, silakan edit di halaman Parking Management."
+                    );
+                }
+            }
+
             // Get property details
             $property = \App\Models\Property::findOrFail($bookingTransaction->property_id);
 
@@ -296,17 +324,6 @@ class ParkingPaymentController extends Controller
                 );
             }
 
-            // Check quota availability before creating transaction
-            // If capacity = 0, it means unlimited parking (no quota check needed)
-            // If capacity > 0, check if quota is available
-            if ($parkingFee->capacity > 0 && !$parkingFee->hasAvailableQuota()) {
-                throw new \Exception(
-                    'Parking quota is full for ' . ucfirst($request->parking_type) .
-                    '. Available: 0, Capacity: ' . $parkingFee->capacity .
-                    '. Please wait for check-out or increase capacity in Parking Fee Management.'
-                );
-            }
-
             // Find or create parking registration in m_parking
             $parking = Parking::withTrashed()
                 ->where('property_id', $bookingTransaction->property_id)
@@ -328,6 +345,24 @@ class ParkingPaymentController extends Controller
                     'status' => 1,
                     'created_by' => Auth::id(),
                 ]);
+            }
+
+            // Check if this is a renewal based on user_id (same user already has active paid parking)
+            $isRenewal = ParkingFeeTransaction::where('user_id', $bookingTransaction->user_id)
+                ->where('property_id', $bookingTransaction->property_id)
+                ->where('parking_type', $request->parking_type)
+                ->where('transaction_status', 'paid')
+                ->exists();
+
+            // Only check quota for new parking, not renewals (vehicle already occupies a spot)
+            if (!$isRenewal) {
+                if ($parkingFee->capacity > 0 && !$parkingFee->hasAvailableQuota()) {
+                    throw new \Exception(
+                        'Parking quota is full for ' . ucfirst($request->parking_type) .
+                        '. Available: 0, Capacity: ' . $parkingFee->capacity .
+                        '. Please wait for check-out or increase capacity in Parking Fee Management.'
+                    );
+                }
             }
 
             // Create parking fee transaction with status 'paid' and already verified
@@ -381,18 +416,20 @@ class ParkingPaymentController extends Controller
                 ]);
             }
 
-            // Increment quota used (only if capacity is set)
-            if ($parkingFee->capacity > 0) {
+            // Increment quota only for new parking, not renewals
+            if (!$isRenewal && $parkingFee->capacity > 0) {
                 $parkingFee->incrementQuota();
             }
 
             DB::commit();
 
             // Build success message
-            $message = 'Parking payment added successfully';
+            $message = $isRenewal
+                ? 'Parking renewal payment added successfully (quota unchanged)'
+                : 'Parking payment added successfully';
             if ($parkingFee->capacity === 0) {
                 $message .= '. This property has unlimited parking (no quota limit).';
-            } else {
+            } elseif (!$isRenewal) {
                 $remaining = $parkingFee->available_quota;
                 $message .= ". Parking quota: {$remaining}/{$parkingFee->capacity} available.";
             }
@@ -517,16 +554,27 @@ class ParkingPaymentController extends Controller
                 throw new \Exception('Only paid parking can be checked out');
             }
 
+            // Check if user has other active paid parking transactions (renewal)
+            // If yes, this is a renewal checkout - don't decrement quota
+            $hasOtherActivePaid = ParkingFeeTransaction::where('user_id', $transaction->user_id)
+                ->where('property_id', $transaction->property_id)
+                ->where('parking_type', $transaction->parking_type)
+                ->where('transaction_status', 'paid')
+                ->where('idrec', '!=', $transaction->idrec)
+                ->exists();
+
             // Update transaction to completed/checked-out
             $transaction->update([
                 'transaction_status' => 'completed',
                 'updated_by' => Auth::id(),
             ]);
 
-            // Decrement quota (free up the parking space)
-            $parkingFee = $transaction->getParkingFeeViaParking();
-            if ($parkingFee && $parkingFee->capacity > 0) {
-                $parkingFee->decrementQuota();
+            // Only decrement quota if user has no other active paid parking (not a renewal)
+            if (!$hasOtherActivePaid) {
+                $parkingFee = $transaction->getParkingFeeViaParking();
+                if ($parkingFee && $parkingFee->capacity > 0) {
+                    $parkingFee->decrementQuota();
+                }
             }
 
             DB::commit();

@@ -101,11 +101,30 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('ui.parking_type') }} <span class="text-red-500">*</span></label>
-                        <select x-model="parking.parking_type" required
+                        <select x-model="parking.parking_type" required @change="fetchFeeInfo()"
                             class="w-full text-sm rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500">
                             <option value="car">{{ __('ui.car') }}</option>
                             <option value="motorcycle">{{ __('ui.motorcycle') }}</option>
                         </select>
+                    </div>
+                    <!-- Fee Info Display -->
+                    <div x-show="feeInfo.show" x-transition class="rounded-lg border p-3" :class="feeInfo.changed ? 'border-amber-300 bg-amber-50 dark:border-amber-600 dark:bg-amber-900/20' : 'border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20'">
+                        <div class="flex items-start gap-2">
+                            <svg class="h-5 w-5 mt-0.5 flex-shrink-0" :class="feeInfo.changed ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="flex-1 text-sm">
+                                <p class="font-medium" :class="feeInfo.changed ? 'text-amber-900 dark:text-amber-100' : 'text-blue-900 dark:text-blue-100'" x-text="feeInfo.title"></p>
+                                <p class="mt-1" :class="feeInfo.changed ? 'text-amber-700 dark:text-amber-300' : 'text-blue-700 dark:text-blue-300'">
+                                    Fee: <strong x-text="feeInfo.feeFormatted"></strong>/bulan
+                                </p>
+                                <template x-if="feeInfo.changed">
+                                    <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                                        Sebelumnya (<span x-text="feeInfo.oldTypeLabel"></span>): <strong x-text="feeInfo.oldFeeFormatted"></strong>/bulan
+                                    </p>
+                                </template>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ __('ui.vehicle_plate') }} <span class="text-red-500">*</span></label>
@@ -278,7 +297,9 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('editParkingModal', () => ({
                 isOpen: false, isSubmitting: false,
-                parking: { id: null, parking_type: '', vehicle_plate: '', owner_name: '', owner_phone: '', notes: '', property_name: '' },
+                parking: { id: null, parking_type: '', vehicle_plate: '', owner_name: '', owner_phone: '', notes: '', property_name: '', property_id: null, original_parking_type: '' },
+                feeInfo: { show: false, changed: false, title: '', feeFormatted: '', oldFeeFormatted: '', oldTypeLabel: '' },
+                feesCache: {},
                 init() {
                     window.addEventListener('open-edit-parking-modal', (e) => {
                         const d = e.detail;
@@ -289,12 +310,59 @@
                             owner_name: d.owner_name || '',
                             owner_phone: d.owner_phone || '',
                             notes: d.notes || '',
-                            property_name: d.property?.name || '-'
+                            property_name: d.property?.name || '-',
+                            property_id: d.property_id,
+                            original_parking_type: d.parking_type
                         };
+                        this.feeInfo = { show: false, changed: false, title: '', feeFormatted: '', oldFeeFormatted: '', oldTypeLabel: '' };
+                        this.feesCache = {};
                         this.isOpen = true;
+                        this.fetchFeeInfo();
                     });
                 },
                 closeModal() { this.isOpen = false; },
+                async fetchFeeInfo() {
+                    if (!this.parking.property_id || !this.parking.parking_type) return;
+
+                    try {
+                        let fees = this.feesCache[this.parking.property_id];
+                        if (!fees) {
+                            const r = await fetch(`/api/parking-fees/${this.parking.property_id}`);
+                            fees = await r.json();
+                            this.feesCache[this.parking.property_id] = fees;
+                        }
+
+                        const currentFee = fees.find(f => f.parking_type === this.parking.parking_type);
+                        const oldFee = fees.find(f => f.parking_type === this.parking.original_parking_type);
+                        const typeChanged = this.parking.parking_type !== this.parking.original_parking_type;
+                        const typeLabel = (t) => t === 'car' ? '{{ __("ui.car") }}' : '{{ __("ui.motorcycle") }}';
+                        const formatRp = (v) => 'Rp ' + parseInt(v).toLocaleString('id-ID');
+
+                        if (currentFee) {
+                            this.feeInfo = {
+                                show: true,
+                                changed: typeChanged,
+                                title: typeChanged
+                                    ? 'Perubahan type ke ' + typeLabel(this.parking.parking_type)
+                                    : 'Fee ' + typeLabel(this.parking.parking_type),
+                                feeFormatted: formatRp(currentFee.fee),
+                                oldFeeFormatted: oldFee ? formatRp(oldFee.fee) : '-',
+                                oldTypeLabel: typeLabel(this.parking.original_parking_type)
+                            };
+                        } else {
+                            this.feeInfo = {
+                                show: true,
+                                changed: true,
+                                title: 'Fee ' + typeLabel(this.parking.parking_type) + ' belum dikonfigurasi',
+                                feeFormatted: '-',
+                                oldFeeFormatted: oldFee ? formatRp(oldFee.fee) : '-',
+                                oldTypeLabel: typeLabel(this.parking.original_parking_type)
+                            };
+                        }
+                    } catch (e) {
+                        console.error('Error fetching fee info:', e);
+                    }
+                },
                 async submitEditForm() {
                     this.isSubmitting = true;
                     try {

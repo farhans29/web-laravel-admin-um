@@ -267,6 +267,7 @@ class ManajementPropertiesController extends Controller
             'general_facilities' => 'nullable|array',
             'security_facilities' => 'nullable|array',
             'amenities_facilities' => 'nullable|array',
+            'nearby_locations' => 'nullable|string',
         ]);
 
         // Ambil hanya fasilitas yang valid
@@ -324,6 +325,7 @@ class ManajementPropertiesController extends Controller
         $property->general = $facilitiesData['general'];
         $property->security = $facilitiesData['security'];
         $property->amenities = $facilitiesData['amenities'];
+        $property->nearby_locations = $request->nearby_locations ? json_decode($request->nearby_locations, true) : [];
         $property->status = '1';
         $property->created_by = Auth::id();
         $property->save();
@@ -374,6 +376,7 @@ class ManajementPropertiesController extends Controller
                 'thumbnail_index' => 'required|integer|min:0',
                 'existing_images' => 'nullable|array',
                 'existing_images.*' => 'integer',
+                'nearby_locations' => 'nullable|string',
             ]);
 
             $property = Property::findOrFail($id);
@@ -457,6 +460,7 @@ class ManajementPropertiesController extends Controller
                 'general' => $request->input('general', []),
                 'security' => $request->input('security', []),
                 'amenities' => $request->input('amenities', []),
+                'nearby_locations' => $request->nearby_locations ? json_decode($request->nearby_locations, true) : [],
                 'updated_by' => Auth::id(),
                 'updated_at' => now(),
             ]);

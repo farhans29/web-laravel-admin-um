@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Parking;
 use App\Models\ParkingFee;
+use App\Models\ParkingFeeTransaction;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ParkingController extends Controller
 {
@@ -121,11 +123,15 @@ class ParkingController extends Controller
         ]);
 
         try {
+            DB::beginTransaction();
+
             $parking = Parking::findOrFail($idrec);
+            $oldParkingType = $parking->parking_type;
+            $typeChanged = $validated['parking_type'] !== $oldParkingType;
 
             // Check unique if plate changed
             $newPlate = strtoupper($validated['vehicle_plate']);
-            if ($newPlate !== $parking->vehicle_plate || $validated['parking_type'] !== $parking->parking_type) {
+            if ($newPlate !== $parking->vehicle_plate || $typeChanged) {
                 $existing = Parking::where('property_id', $parking->property_id)
                     ->where('vehicle_plate', $newPlate)
                     ->where('idrec', '!=', $idrec)
@@ -139,16 +145,58 @@ class ParkingController extends Controller
                 }
 
                 // Check fee exists for new type
-                $parkingFee = ParkingFee::where('property_id', $parking->property_id)
+                $newParkingFee = ParkingFee::where('property_id', $parking->property_id)
                     ->where('parking_type', $validated['parking_type'])
                     ->where('status', 1)
                     ->first();
 
-                if (!$parkingFee) {
+                if (!$newParkingFee) {
                     return response()->json([
                         'success' => false,
                         'message' => __('ui.parking_fee_not_configured')
                     ], 422);
+                }
+
+                // Adjust quota if parking type changed and has active paid transaction
+                if ($typeChanged) {
+                    $hasActivePaidTransaction = ParkingFeeTransaction::where('parking_id', $parking->idrec)
+                        ->where('transaction_status', 'paid')
+                        ->exists();
+
+                    if ($hasActivePaidTransaction) {
+                        // Decrement old type quota
+                        $oldParkingFee = ParkingFee::where('property_id', $parking->property_id)
+                            ->where('parking_type', $oldParkingType)
+                            ->where('status', 1)
+                            ->first();
+
+                        if ($oldParkingFee && $oldParkingFee->capacity > 0) {
+                            $oldParkingFee->decrementQuota();
+                        }
+
+                        // Check new type quota availability
+                        if ($newParkingFee->capacity > 0 && !$newParkingFee->hasAvailableQuota()) {
+                            DB::rollBack();
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Kuota parkir ' . ucfirst($validated['parking_type']) . ' sudah penuh. Tersedia: 0, Kapasitas: ' . $newParkingFee->capacity
+                            ], 422);
+                        }
+
+                        // Increment new type quota
+                        if ($newParkingFee->capacity > 0) {
+                            $newParkingFee->incrementQuota();
+                        }
+
+                        // Update parking_type on active paid transactions
+                        ParkingFeeTransaction::where('parking_id', $parking->idrec)
+                            ->where('transaction_status', 'paid')
+                            ->update([
+                                'parking_type' => $validated['parking_type'],
+                                'fee_amount' => $newParkingFee->fee,
+                                'updated_by' => Auth::id(),
+                            ]);
+                    }
                 }
             }
 
@@ -161,12 +209,16 @@ class ParkingController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => __('ui.parking_updated_success'),
                 'data' => $parking,
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui data parkir: ' . $e->getMessage()
