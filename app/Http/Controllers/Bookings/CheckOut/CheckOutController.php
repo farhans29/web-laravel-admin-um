@@ -159,21 +159,10 @@ class CheckOutController extends Controller
             $booking->status = 0; // Mark booking as inactive after checkout
             $booking->save();
 
-            // Reset rental_status on room if no other active bookings
+            // Checkout selalu membebaskan kamar (rental_status = 0)
             if ($booking->room_id) {
-                $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
-                    ->where('status', 1)
-                    ->where('idrec', '!=', $booking->idrec)
-                    ->whereHas('transaction', function ($q) {
-                        $q->where('transaction_status', 'paid')
-                          ->orWhere('transaction_status', 'waiting');
-                    })
-                    ->exists();
-
-                if (!$hasOtherActiveBooking) {
-                    Room::where('idrec', $booking->room_id)
-                        ->update(['rental_status' => 0]);
-                }
+                Room::where('idrec', $booking->room_id)
+                    ->update(['rental_status' => 0]);
             }
 
             // Simpan kondisi barang
