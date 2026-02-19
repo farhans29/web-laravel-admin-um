@@ -203,12 +203,28 @@ class ParkingController extends Controller
                 ->first();
 
             if ($existing && !$existing->trashed()) {
-                throw new \Exception(
-                    "Vehicle plate {$vehiclePlate} is already registered for this property."
-                );
-            }
-
-            if ($existing && $existing->trashed()) {
+                if ($isRenewalBooking) {
+                    // Renewal: update record lama dengan order_id baru dan data terbaru
+                    $existing->update([
+                        'parking_type' => $request->parking_type,
+                        'owner_name' => $bookingTransaction->user_name,
+                        'owner_phone' => $bookingTransaction->user_phone_number,
+                        'user_id' => $bookingTransaction->user_id,
+                        'order_id' => $request->order_id,
+                        'parking_duration' => $request->parking_duration,
+                        'fee_amount' => $request->fee_amount,
+                        'notes' => $request->notes,
+                        'status' => 1,
+                        'management_only' => 1,
+                        'updated_by' => Auth::id(),
+                    ]);
+                    $parking = $existing;
+                } else {
+                    throw new \Exception(
+                        "Vehicle plate {$vehiclePlate} is already registered for this property."
+                    );
+                }
+            } elseif ($existing && $existing->trashed()) {
                 $existing->restore();
                 $existing->update([
                     'parking_type' => $request->parking_type,

@@ -106,6 +106,22 @@
                             {{ $parking->owner_phone }}
                         </div>
                     @endif
+                    @if ($parking->order_id)
+                        @php
+                            $parkingTxn = \App\Models\Transaction::where('order_id', $parking->order_id)
+                                ->select('is_renewal')
+                                ->first();
+                            $isParkingRenewal = $parkingTxn && $parkingTxn->is_renewal == 1;
+                        @endphp
+                        <div class="flex items-center gap-1 mt-1">
+                            <span class="text-xs text-gray-400 dark:text-gray-500">{{ $parking->order_id }}</span>
+                            @if ($isParkingRenewal)
+                                <span class="px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+                                    Perpanjangan
+                                </span>
+                            @endif
+                        </div>
+                    @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     @php

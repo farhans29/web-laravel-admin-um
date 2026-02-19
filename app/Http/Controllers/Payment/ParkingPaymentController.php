@@ -433,6 +433,14 @@ class ParkingPaymentController extends Controller
             // Jika ya: bebaskan kuota tipe lama, ambil kuota tipe baru
             $isParkingTypeChanged = $isRenewal && ($existingParkingType !== $request->parking_type);
 
+            // Update order_id pada record t_parking agar selalu menunjuk ke order terbaru
+            if ($isRenewal && $parking && $parking->order_id !== $request->order_id) {
+                $parking->update([
+                    'order_id' => $request->order_id,
+                    'updated_by' => Auth::id(),
+                ]);
+            }
+
             // Cek ketersediaan kuota:
             // - Parkir baru atau renewal ganti tipe → cek kuota tipe baru
             // - Renewal tipe sama → skip (slot sudah occupied sebelumnya)
