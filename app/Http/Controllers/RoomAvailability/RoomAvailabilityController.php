@@ -152,15 +152,26 @@ class RoomAvailabilityController extends Controller
                 'payment_status' => $booking->payment->payment_status ?? 'pending',
                 'status' => $booking->status,
                 'status_badge' => $this->getStatusBadgeFromText($booking->status),
-                'created_at' => $booking->created_at->format('d M Y H:i')
+                'created_at' => $booking->created_at->format('d M Y H:i'),
+                // is_renewal=1 berarti perpanjangan dari booking sebelumnya (user sama)
+                'is_renewal' => $booking->transaction->is_renewal == 1,
             ];
         })->filter();
+
+        // Hitung penyewa unik: user_id sama = perpanjangan = 1 penyewa
+        $uniqueTenantCount = $bookings
+            ->groupBy(function ($booking) {
+                return $booking->transaction->user_id
+                    ?? $booking->user_id
+                    ?? $booking->order_id;
+            })
+            ->count();
 
         return response()->json([
             'success' => true,
             'room_name' => $room->name . ' - ' . ($room->property->property_name ?? ''),
             'bookings' => $formattedBookings,
-            'total_bookings' => $bookings->count()
+            'total_bookings' => $uniqueTenantCount,
         ]);
     }
 

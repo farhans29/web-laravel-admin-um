@@ -112,6 +112,16 @@
                                     $checkOut = $booking->transaction->check_out;
                                     return !($checkOut < $startDate || $checkIn > $endDate);
                                 });
+
+                                // Hitung penyewa unik: user_id sama = perpanjangan = 1 penyewa
+                                // Hanya booking dengan is_renewal=0 yang dihitung sebagai booking baru
+                                $uniqueTenantCount = $currentBookings
+                                    ->groupBy(function ($booking) {
+                                        return $booking->transaction->user_id
+                                            ?? $booking->user_id
+                                            ?? $booking->order_id;
+                                    })
+                                    ->count();
                             @endphp
 
                             @if ($currentBookings->count() > 0)
@@ -124,7 +134,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
-                                        <span>{{ $currentBookings->count() }} {{ __('ui.booking') }}</span>
+                                        <span>{{ $uniqueTenantCount }} {{ __('ui.booking') }}</span>
                                     </button>
 
                                     <!-- Modal Backdrop -->
@@ -236,6 +246,10 @@
                                                                         </div>
                                                                         <div class="flex flex-col items-end space-y-1.5 ml-3">
                                                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" :class="booking.status_badge" x-text="booking.status"></span>
+                                                                            <span x-show="booking.is_renewal" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-yellow-100 text-yellow-700 ring-1 ring-yellow-200">
+                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                                                                Perpanjangan
+                                                                            </span>
                                                                             <span class="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded" x-text="booking.booking_code"></span>
                                                                         </div>
                                                                     </div>
