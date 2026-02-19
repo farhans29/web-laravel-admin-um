@@ -25,21 +25,21 @@ class RoleDashboardWidgetsSeeder extends Seeder
 
             'Manager HO' => [
                 // Stats
-                'booking_upcoming', 'booking_today', 'booking_checkin', 'booking_checkout',
+                'booking_today', 'booking_checkin', 'booking_checkout',
                 'checkin_list', 'checkout_list',
                 // Finance
                 'finance_today_revenue', 'finance_monthly_revenue', 'finance_pending_payments',
-                'finance_payment_success_rate', 'finance_payment_methods', 'finance_cash_flow',
+                'finance_payment_success_rate', 'finance_payment_methods',
                 // Rooms
                 'rooms_availability', 'rooms_occupied_details', 'rooms_occupancy_history',
                 'rooms_type_breakdown', 'rooms_property_report',
                 // Reports
-                'report_sales_chart', 'report_rental_duration', 'report_revenue_per_room',
+                'report_sales_chart', 'report_rental_duration',
             ],
 
             'Manager site' => [
                 // Stats
-                'booking_upcoming', 'booking_today', 'booking_checkin', 'booking_checkout',
+                'booking_today', 'booking_checkin', 'booking_checkout',
                 'checkin_list', 'checkout_list',
                 // Finance (limited)
                 'finance_today_revenue', 'finance_monthly_revenue',
@@ -49,18 +49,17 @@ class RoleDashboardWidgetsSeeder extends Seeder
 
             'Finance HO' => [
                 // Stats (limited)
-                'booking_upcoming', 'booking_today',
-                // Finance (all)
+                'booking_today',
+                // Finance (all active)
                 'finance_today_revenue', 'finance_monthly_revenue', 'finance_pending_payments',
-                'finance_payment_success_rate', 'finance_payment_methods', 'finance_cash_flow',
-                'finance_recent_transactions',
+                'finance_payment_success_rate', 'finance_payment_methods',
                 // Reports
-                'report_sales_chart', 'report_revenue_per_room',
+                'report_sales_chart',
             ],
 
             'Finance site' => [
                 // Stats (limited)
-                'booking_upcoming', 'booking_today',
+                'booking_today',
                 // Finance (limited)
                 'finance_today_revenue', 'finance_monthly_revenue', 'finance_payment_methods',
                 // Reports
@@ -69,7 +68,7 @@ class RoleDashboardWidgetsSeeder extends Seeder
 
             'Finance' => [ // Finance role (general)
                 // Stats (limited)
-                'booking_upcoming', 'booking_today',
+                'booking_today',
                 // Finance (limited)
                 'finance_today_revenue', 'finance_monthly_revenue', 'finance_payment_methods',
                 // Reports
@@ -78,7 +77,7 @@ class RoleDashboardWidgetsSeeder extends Seeder
 
             'Front Office' => [
                 // Stats
-                'booking_upcoming', 'booking_today', 'booking_checkin', 'booking_checkout',
+                'booking_today', 'booking_checkin', 'booking_checkout',
                 'checkin_list', 'checkout_list',
                 // Rooms
                 'rooms_availability', 'rooms_occupied_details',
@@ -86,7 +85,7 @@ class RoleDashboardWidgetsSeeder extends Seeder
 
             'Creative' => [
                 // Stats (basic)
-                'booking_upcoming', 'booking_today',
+                'booking_today',
                 // Rooms (basic)
                 'rooms_availability',
             ],

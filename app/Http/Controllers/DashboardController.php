@@ -941,18 +941,15 @@ class DashboardController extends Controller
         $rentalDurationTrends = $this->getRentalDurationTrends($userPropertyId);
         $revenuePerRoom = $this->getRevenuePerOccupiedRoom($userPropertyId);
 
-        // Get finance data - check if user has any finance widget access
-        // Super Admin can see all, other users must check role permissions
+        // Get finance data - check if user has any finance widget access via role_dashboard_widgets
         $financeStats = [];
-        $hasFinanceAccess = $user->isSuperAdmin() ||
-                           ($user->role && (
-                               $user->role->hasWidgetAccess('finance_today_revenue') ||
-                               $user->role->hasWidgetAccess('finance_monthly_revenue') ||
-                               $user->role->hasWidgetAccess('finance_pending_payments') ||
-                               $user->role->hasWidgetAccess('finance_payment_success_rate') ||
-                               $user->role->hasWidgetAccess('finance_payment_methods') ||
-                               $user->role->hasWidgetAccess('finance_cash_flow')
-                           ));
+        $hasFinanceAccess = $user->role && (
+            $user->role->hasWidgetAccess('finance_today_revenue') ||
+            $user->role->hasWidgetAccess('finance_monthly_revenue') ||
+            $user->role->hasWidgetAccess('finance_pending_payments') ||
+            $user->role->hasWidgetAccess('finance_payment_success_rate') ||
+            $user->role->hasWidgetAccess('finance_payment_methods')
+        );
 
         if ($hasFinanceAccess) {
             $todayRevenue = $this->getTodayRevenue($userPropertyId);
@@ -1041,11 +1038,8 @@ class DashboardController extends Controller
     public function getPropertyRoomReport($propertyId = null)
     {
         $user = Auth::user();
-        $isHOSuperAdmin = $user->isHO() && $user->isSuperAdmin();
-
-        // Check if user has widget permission to view rooms availability
-        // Site users must check role, only HO Super Admin can bypass
-        if (!$isHOSuperAdmin && $user->role && !$user->role->hasWidgetAccess('rooms_availability')) {
+        // Check if user has widget permission to view rooms availability via role_dashboard_widgets
+        if (!$user->role || !$user->role->hasWidgetAccess('rooms_availability')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized - No access to room availability widget'
@@ -1069,11 +1063,9 @@ class DashboardController extends Controller
     public function getPropertyRevenue($propertyId = null)
     {
         $user = Auth::user();
-        $isHOSuperAdmin = $user->isHO() && $user->isSuperAdmin();
 
-        // Check if user has widget permission to view property revenue report
-        // Site users must check role, only HO Super Admin can bypass
-        if (!$isHOSuperAdmin && $user->role && !$user->role->hasWidgetAccess('rooms_property_report')) {
+        // Check if user has widget permission via role_dashboard_widgets
+        if (!$user->role || !$user->role->hasWidgetAccess('rooms_property_report')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized - No access to property revenue widget'
@@ -1150,11 +1142,9 @@ class DashboardController extends Controller
     public function getRevenueTrend(Request $request, $propertyId = null)
     {
         $user = Auth::user();
-        $isHOSuperAdmin = $user->isHO() && $user->isSuperAdmin();
 
-        // Check if user has widget permission to view revenue trend chart
-        // Site users must check role, only HO Super Admin can bypass
-        if (!$isHOSuperAdmin && $user->role && !$user->role->hasWidgetAccess('report_sales_chart')) {
+        // Check if user has widget permission via role_dashboard_widgets
+        if (!$user->role || !$user->role->hasWidgetAccess('report_sales_chart')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized - No access to revenue trend widget'

@@ -3,17 +3,12 @@
         // Helper function untuk check widget access
         $userRole = Auth::user()->role;
         $canViewWidget = function ($widgetSlug) use ($userRole) {
-            // Super Admin bisa lihat semua
-            if (Auth::user()->isSuperAdmin()) {
-                return true;
-            }
-
             // Jika user tidak punya role, tidak bisa lihat widget apapun
             if (!$userRole) {
                 return false;
             }
 
-            // Check apakah role punya akses ke widget ini
+            // Check akses widget selalu lewat role_dashboard_widgets, termasuk super admin
             return $userRole->hasWidgetAccess($widgetSlug);
         };
     @endphp
@@ -73,7 +68,6 @@
                 @php
                     // Check if user has access to any booking stats widgets
                     $hasBookingStats =
-                        $canViewWidget('booking_upcoming') ||
                         $canViewWidget('booking_today') ||
                         $canViewWidget('booking_checkin') ||
                         $canViewWidget('booking_checkout');
@@ -186,9 +180,7 @@
                 $canViewWidget('finance_monthly_revenue') ||
                 $canViewWidget('finance_pending_payments') ||
                 $canViewWidget('finance_payment_success_rate') ||
-                $canViewWidget('finance_payment_methods') ||
-                $canViewWidget('finance_cash_flow') ||
-                $canViewWidget('finance_recent_transactions');
+                $canViewWidget('finance_payment_methods');
         @endphp
 
         @if ($hasFinanceWidgets)
