@@ -22,6 +22,7 @@ use App\Http\Controllers\Payment\DepositPaymentController;
 use App\Http\Controllers\Payment\RefundController;
 use App\Http\Controllers\Properties\DepositFeeController;
 use App\Http\Controllers\Properties\ParkingFeeController;
+use App\Http\Controllers\Properties\ParkingController;
 use App\Http\Controllers\RoomAvailability\RoomAvailabilityController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Reports\BookingReportController;
@@ -223,6 +224,15 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::post('/parking-fees/store', [ParkingFeeController::class, 'store'])->name('parking-fees.store');
         Route::put('/parking-fees/update/{idrec}', [ParkingFeeController::class, 'update'])->name('parking-fees.update');
         Route::post('/parking-fees/toggle-status', [ParkingFeeController::class, 'toggleStatus'])->name('parking-fees.toggle-status');
+
+        // ------------------------- PARKING MANAGEMENT -------------------------
+        Route::get('/parking', [ParkingController::class, 'index'])->name('parking.index');
+        Route::post('/parking/store', [ParkingController::class, 'store'])->name('parking.store');
+        Route::post('/parking/filter', [ParkingController::class, 'filter'])->name('parking.filter');
+        Route::put('/parking/update/{idrec}', [ParkingController::class, 'update'])->name('parking.update');
+        Route::post('/parking/toggle-status', [ParkingController::class, 'toggleStatus'])->name('parking.toggle-status');
+        Route::delete('/parking/destroy/{idrec}', [ParkingController::class, 'destroy'])->name('parking.destroy');
+        Route::post('/parking/restore/{idrec}', [ParkingController::class, 'restore'])->name('parking.restore');
     });
 
     Route::prefix('payment')->group(function () {

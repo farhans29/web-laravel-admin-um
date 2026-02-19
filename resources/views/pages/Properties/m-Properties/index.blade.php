@@ -391,6 +391,122 @@
                                                         placeholder="{{ __('ui.enter_postal_code') }}">
                                                 </div>
                                             </div>
+
+                                            <!-- Nearby Locations Section -->
+                                            <div class="mt-6">
+                                                <div class="flex items-center justify-between mb-3">
+                                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                                        {{ __('ui.nearby_locations') }}
+                                                        <span class="text-xs font-normal text-gray-500 ml-2">({{ __('ui.nearby_locations_desc') }})</span>
+                                                    </label>
+                                                    <div class="flex items-center space-x-2">
+                                                        <button type="button"
+                                                            @click="if(document.getElementById('latitude').value && document.getElementById('longitude').value) { fetchNearbyLocations(parseFloat(document.getElementById('latitude').value), parseFloat(document.getElementById('longitude').value)); }"
+                                                            :disabled="isFetchingNearby"
+                                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-500 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50">
+                                                            <svg class="w-3.5 h-3.5 mr-1" :class="isFetchingNearby ? 'animate-spin' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                            </svg>
+                                                            <span x-text="isFetchingNearby ? '{{ __('ui.fetching_nearby') }}' : '{{ __('ui.refetch_nearby') }}'"></span>
+                                                        </button>
+                                                        <button type="button"
+                                                            @click="showAddCustomForm = !showAddCustomForm"
+                                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-green-500 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30 transition-colors">
+                                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                            </svg>
+                                                            {{ __('ui.add_custom_location') }}
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Loading Spinner -->
+                                                <div x-show="isFetchingNearby" class="flex items-center justify-center py-8">
+                                                    <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span class="ml-3 text-sm text-gray-500 dark:text-gray-400">{{ __('ui.fetching_nearby') }}</span>
+                                                </div>
+
+                                                <!-- Custom Location Form -->
+                                                <div x-show="showAddCustomForm" x-transition
+                                                    class="mb-4 p-4 border-2 border-dashed border-green-300 dark:border-green-700 rounded-lg bg-green-50/50 dark:bg-green-900/20">
+                                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('ui.location_name') }}</label>
+                                                            <input type="text" x-model="customLocationName"
+                                                                class="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                                                placeholder="{{ __('ui.enter_location_name') }}">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('ui.location_category') }}</label>
+                                                            <select x-model="customLocationCategory"
+                                                                class="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                                                <template x-for="(label, key) in nearbyCategories" :key="key">
+                                                                    <option :value="key" x-text="label"></option>
+                                                                </template>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('ui.location_distance') }}</label>
+                                                            <div class="flex items-center space-x-2">
+                                                                <input type="text" x-model="customLocationDistance"
+                                                                    class="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                                                    placeholder="{{ __('ui.enter_distance') }}">
+                                                                <button type="button" @click="addCustomLocation()"
+                                                                    class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap">
+                                                                    {{ __('ui.add') }}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Nearby Locations List -->
+                                                <div x-show="!isFetchingNearby && nearbyLocations.length > 0"
+                                                    class="space-y-3 max-h-80 overflow-y-auto">
+                                                    <template x-for="(locations, catKey) in nearbyGrouped" :key="catKey">
+                                                        <div class="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                                            <div class="bg-gray-50 dark:bg-gray-700 px-4 py-2 flex items-center">
+                                                                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="nearbyCategoryIcons[catKey] || nearbyCategoryIcons['custom']"></path>
+                                                                </svg>
+                                                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300" x-text="nearbyCategories[catKey] || catKey"></span>
+                                                                <span class="ml-2 text-xs text-gray-500" x-text="'(' + locations.length + ')'"></span>
+                                                            </div>
+                                                            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                                                                <template x-for="(loc, locIdx) in locations" :key="locIdx">
+                                                                    <div class="px-4 py-2 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                                                        <div class="flex items-center min-w-0 flex-1">
+                                                                            <span class="text-sm text-gray-800 dark:text-gray-200 truncate" x-text="loc.name"></span>
+                                                                        </div>
+                                                                        <div class="flex items-center space-x-3 ml-3 flex-shrink-0">
+                                                                            <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2 py-0.5 rounded-full" x-text="loc.distance_text"></span>
+                                                                            <button type="button" @click="removeNearbyLocation(nearbyLocations.indexOf(loc))"
+                                                                                class="text-red-400 hover:text-red-600 transition-colors">
+                                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+
+                                                <!-- Empty State -->
+                                                <div x-show="!isFetchingNearby && nearbyLocations.length === 0"
+                                                    class="text-center py-6 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-lg">
+                                                    <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    </svg>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('ui.no_nearby_found') }}</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1078,6 +1194,36 @@
                 addressSearchTimeout: null,
                 isAddressSearching: false,
 
+                // Nearby locations properties
+                nearbyLocations: [],
+                isFetchingNearby: false,
+                showAddCustomForm: false,
+                customLocationName: '',
+                customLocationCategory: 'custom',
+                customLocationDistance: '',
+                nearbyCategories: {
+                    'transport': '{!! __("ui.category_transport") !!}',
+                    'education': '{!! __("ui.category_education") !!}',
+                    'health': '{!! __("ui.category_health") !!}',
+                    'shopping': '{!! __("ui.category_shopping") !!}',
+                    'worship': '{!! __("ui.category_worship") !!}',
+                    'food_drink': '{!! __("ui.category_food_drink") !!}',
+                    'finance': '{!! __("ui.category_finance") !!}',
+                    'public_service': '{!! __("ui.category_public_service") !!}',
+                    'custom': '{!! __("ui.category_custom") !!}'
+                },
+                nearbyCategoryIcons: {
+                    'transport': 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+                    'education': 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
+                    'health': 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+                    'shopping': 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z',
+                    'worship': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+                    'food_drink': 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                    'finance': 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+                    'public_service': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+                    'custom': 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z'
+                },
+
                 openModal(property) {
                     this.selectedProperty = property;
                     this.modalOpenDetail = true;
@@ -1137,6 +1283,9 @@
                     this.searchQuery = '';
                     this.searchResults = [];
                     this.isSearching = false;
+                    this.nearbyLocations = [];
+                    this.isFetchingNearby = false;
+                    this.showAddCustomForm = false;
 
                     // Reset form element
                     const form = document.getElementById('propertyForm');
@@ -1280,6 +1429,9 @@
                     if (latInput) latInput.value = latlng.lat;
                     if (lngInput) lngInput.value = latlng.lng;
 
+                    // Auto-fetch nearby locations
+                    this.fetchNearbyLocations(latlng.lat, latlng.lng);
+
                     // Update marker position on drag
                     this.marker.on('dragend', (e) => {
                         const newLatLng = e.target.getLatLng();
@@ -1292,6 +1444,9 @@
                         }
                         if (latInput) latInput.value = newLatLng.lat;
                         if (lngInput) lngInput.value = newLatLng.lng;
+
+                        // Re-fetch nearby locations after drag
+                        this.fetchNearbyLocations(newLatLng.lat, newLatLng.lng);
                     });
                 },
 
@@ -1461,6 +1616,179 @@
                             this.map.invalidateSize();
                         }, 100);
                     }
+                },
+
+                // Nearby locations methods
+                calculateDistance(lat1, lon1, lat2, lon2) {
+                    const R = 6371000;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLon = (lon2 - lon1) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    return R * c;
+                },
+
+                formatDistance(meters) {
+                    if (meters < 1000) {
+                        return Math.round(meters) + ' m';
+                    }
+                    return (meters / 1000).toFixed(1) + ' km';
+                },
+
+                mapAmenityToCategory(tags) {
+                    if (['bus_station', 'bus_stop', 'taxi', 'ferry_terminal'].includes(tags.amenity) ||
+                        tags.railway === 'station' || tags.railway === 'halt' ||
+                        tags.aeroway === 'aerodrome' || tags.highway === 'bus_stop') {
+                        return 'transport';
+                    }
+                    if (['school', 'university', 'college', 'kindergarten', 'library'].includes(tags.amenity)) {
+                        return 'education';
+                    }
+                    if (['hospital', 'clinic', 'doctors', 'dentist', 'pharmacy'].includes(tags.amenity)) {
+                        return 'health';
+                    }
+                    if (['marketplace', 'supermarket'].includes(tags.amenity) ||
+                        ['mall', 'supermarket', 'convenience', 'department_store'].includes(tags.shop)) {
+                        return 'shopping';
+                    }
+                    if (tags.amenity === 'place_of_worship') {
+                        return 'worship';
+                    }
+                    if (['restaurant', 'cafe', 'fast_food', 'food_court'].includes(tags.amenity)) {
+                        return 'food_drink';
+                    }
+                    if (['bank', 'atm'].includes(tags.amenity)) {
+                        return 'finance';
+                    }
+                    if (['police', 'post_office', 'fire_station', 'townhall'].includes(tags.amenity)) {
+                        return 'public_service';
+                    }
+                    return 'custom';
+                },
+
+                async fetchNearbyLocations(lat, lng) {
+                    if (!lat || !lng) return;
+                    this.isFetchingNearby = true;
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                    try {
+                        const radius = 1500;
+                        const query = `[out:json][timeout:10];(node["amenity"~"hospital|clinic|pharmacy|school|university|marketplace|place_of_worship|bus_station|restaurant|cafe|bank|atm|supermarket"](around:${radius},${lat},${lng});node["shop"~"mall|supermarket|department_store"](around:${radius},${lat},${lng});node["railway"~"station|halt"](around:${radius},${lat},${lng}););out body;`;
+
+                        const response = await fetch('https://overpass-api.de/api/interpreter', {
+                            method: 'POST',
+                            body: 'data=' + encodeURIComponent(query),
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            signal: controller.signal
+                        });
+
+                        if (!response.ok) throw new Error('Overpass API request failed');
+                        const data = await response.json();
+
+                        const seen = new Set();
+                        const locations = [];
+
+                        data.elements.forEach(element => {
+                            const elLat = element.lat || (element.center && element.center.lat);
+                            const elLng = element.lon || (element.center && element.center.lon);
+                            if (!elLat || !elLng) return;
+
+                            const name = element.tags && element.tags.name;
+                            if (!name) return;
+
+                            const category = this.mapAmenityToCategory(element.tags);
+                            const key = name + '_' + category;
+                            if (seen.has(key)) return;
+                            seen.add(key);
+
+                            const distance = this.calculateDistance(lat, lng, elLat, elLng);
+                            locations.push({
+                                name: name,
+                                category: category,
+                                distance: Math.round(distance),
+                                distance_text: this.formatDistance(distance),
+                                lat: elLat,
+                                lng: elLng,
+                                auto: true
+                            });
+                        });
+
+                        locations.sort((a, b) => a.distance - b.distance);
+
+                        const grouped = {};
+                        const filtered = [];
+                        locations.forEach(loc => {
+                            if (!grouped[loc.category]) grouped[loc.category] = 0;
+                            if (grouped[loc.category] < 5) {
+                                filtered.push(loc);
+                                grouped[loc.category]++;
+                            }
+                        });
+
+                        const customEntries = this.nearbyLocations.filter(loc => !loc.auto);
+                        this.nearbyLocations = [...filtered, ...customEntries];
+
+                        if (filtered.length > 0) {
+                            Swal.fire({
+                                toast: true, position: 'top-end', icon: 'success',
+                                title: '{{ __("ui.nearby_auto_fetched") }}',
+                                showConfirmButton: false, timer: 3000, timerProgressBar: true
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Overpass API error:', error);
+                        Swal.fire({
+                            toast: true, position: 'top-end', icon: 'warning',
+                            title: '{{ __("ui.nearby_fetch_failed") }}',
+                            showConfirmButton: false, timer: 3000, timerProgressBar: true
+                        });
+                    } finally {
+                        clearTimeout(timeoutId);
+                        this.isFetchingNearby = false;
+                    }
+                },
+
+                removeNearbyLocation(index) {
+                    this.nearbyLocations.splice(index, 1);
+                },
+
+                addCustomLocation() {
+                    if (!this.customLocationName.trim() || !this.customLocationDistance.trim()) return;
+
+                    let distanceMeters = 0;
+                    const distText = this.customLocationDistance.trim().toLowerCase();
+                    if (distText.endsWith('km')) {
+                        distanceMeters = parseFloat(distText) * 1000;
+                    } else {
+                        distanceMeters = parseFloat(distText.replace('m', ''));
+                    }
+
+                    this.nearbyLocations.push({
+                        name: this.customLocationName.trim(),
+                        category: this.customLocationCategory,
+                        distance: Math.round(distanceMeters) || 0,
+                        distance_text: this.formatDistance(distanceMeters || 0),
+                        lat: null, lng: null, auto: false
+                    });
+
+                    this.customLocationName = '';
+                    this.customLocationCategory = 'custom';
+                    this.customLocationDistance = '';
+                    this.showAddCustomForm = false;
+                },
+
+                get nearbyGrouped() {
+                    const groups = {};
+                    this.nearbyLocations.forEach(loc => {
+                        const cat = loc.category || 'custom';
+                        if (!groups[cat]) groups[cat] = [];
+                        groups[cat].push(loc);
+                    });
+                    return groups;
                 },
 
                 // Enhanced photo upload methods
@@ -1717,6 +2045,9 @@
                     // Add image count for backend validation
                     formData.append('image_count', this.images.length);
 
+                    // Add nearby locations as JSON
+                    formData.append('nearby_locations', JSON.stringify(this.nearbyLocations));
+
                     // Submit the form
                     fetch(form.action, {
                             method: 'POST',
@@ -1824,6 +2155,37 @@
                 showAddressSuggestions: false,
                 addressSearchTimeout: null,
                 isAddressSearching: false,
+
+                // Nearby locations properties
+                nearbyLocations: Array.isArray(property.nearby_locations) ? property.nearby_locations : [],
+                isFetchingNearby: false,
+                showAddCustomForm: false,
+                customLocationName: '',
+                customLocationCategory: 'custom',
+                customLocationDistance: '',
+                nearbyCategories: {
+                    'transport': '{!! __("ui.category_transport") !!}',
+                    'education': '{!! __("ui.category_education") !!}',
+                    'health': '{!! __("ui.category_health") !!}',
+                    'shopping': '{!! __("ui.category_shopping") !!}',
+                    'worship': '{!! __("ui.category_worship") !!}',
+                    'food_drink': '{!! __("ui.category_food_drink") !!}',
+                    'finance': '{!! __("ui.category_finance") !!}',
+                    'public_service': '{!! __("ui.category_public_service") !!}',
+                    'custom': '{!! __("ui.category_custom") !!}'
+                },
+                nearbyCategoryIcons: {
+                    'transport': 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+                    'education': 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
+                    'health': 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+                    'shopping': 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z',
+                    'worship': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+                    'food_drink': 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                    'finance': 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+                    'public_service': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+                    'custom': 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z'
+                },
+
                 propertyData: {
                     name: property.name || '',
                     initial: property.initial || '',
@@ -2090,6 +2452,9 @@
                     this.propertyData.latitude = lat;
                     this.propertyData.longitude = lng;
 
+                    // Auto-fetch nearby locations
+                    this.fetchNearbyLocations(lat, lng);
+
                     // Update marker position on drag
                     this.marker.on('dragend', (e) => {
                         const newLatLng = e.target.getLatLng();
@@ -2104,6 +2469,9 @@
                         // Update property data
                         this.propertyData.latitude = newLatLng.lat;
                         this.propertyData.longitude = newLatLng.lng;
+
+                        // Re-fetch nearby locations after drag
+                        this.fetchNearbyLocations(newLatLng.lat, newLatLng.lng);
                     });
                 },
 
@@ -2288,6 +2656,179 @@
                             this.map.invalidateSize();
                         }, 100);
                     }
+                },
+
+                // Nearby locations methods
+                calculateDistance(lat1, lon1, lat2, lon2) {
+                    const R = 6371000;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLon = (lon2 - lon1) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    return R * c;
+                },
+
+                formatDistance(meters) {
+                    if (meters < 1000) {
+                        return Math.round(meters) + ' m';
+                    }
+                    return (meters / 1000).toFixed(1) + ' km';
+                },
+
+                mapAmenityToCategory(tags) {
+                    if (['bus_station', 'bus_stop', 'taxi', 'ferry_terminal'].includes(tags.amenity) ||
+                        tags.railway === 'station' || tags.railway === 'halt' ||
+                        tags.aeroway === 'aerodrome' || tags.highway === 'bus_stop') {
+                        return 'transport';
+                    }
+                    if (['school', 'university', 'college', 'kindergarten', 'library'].includes(tags.amenity)) {
+                        return 'education';
+                    }
+                    if (['hospital', 'clinic', 'doctors', 'dentist', 'pharmacy'].includes(tags.amenity)) {
+                        return 'health';
+                    }
+                    if (['marketplace', 'supermarket'].includes(tags.amenity) ||
+                        ['mall', 'supermarket', 'convenience', 'department_store'].includes(tags.shop)) {
+                        return 'shopping';
+                    }
+                    if (tags.amenity === 'place_of_worship') {
+                        return 'worship';
+                    }
+                    if (['restaurant', 'cafe', 'fast_food', 'food_court'].includes(tags.amenity)) {
+                        return 'food_drink';
+                    }
+                    if (['bank', 'atm'].includes(tags.amenity)) {
+                        return 'finance';
+                    }
+                    if (['police', 'post_office', 'fire_station', 'townhall'].includes(tags.amenity)) {
+                        return 'public_service';
+                    }
+                    return 'custom';
+                },
+
+                async fetchNearbyLocations(lat, lng) {
+                    if (!lat || !lng) return;
+                    this.isFetchingNearby = true;
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                    try {
+                        const radius = 1500;
+                        const query = `[out:json][timeout:10];(node["amenity"~"hospital|clinic|pharmacy|school|university|marketplace|place_of_worship|bus_station|restaurant|cafe|bank|atm|supermarket"](around:${radius},${lat},${lng});node["shop"~"mall|supermarket|department_store"](around:${radius},${lat},${lng});node["railway"~"station|halt"](around:${radius},${lat},${lng}););out body;`;
+
+                        const response = await fetch('https://overpass-api.de/api/interpreter', {
+                            method: 'POST',
+                            body: 'data=' + encodeURIComponent(query),
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            signal: controller.signal
+                        });
+
+                        if (!response.ok) throw new Error('Overpass API request failed');
+                        const data = await response.json();
+
+                        const seen = new Set();
+                        const locations = [];
+
+                        data.elements.forEach(element => {
+                            const elLat = element.lat || (element.center && element.center.lat);
+                            const elLng = element.lon || (element.center && element.center.lon);
+                            if (!elLat || !elLng) return;
+
+                            const name = element.tags && element.tags.name;
+                            if (!name) return;
+
+                            const category = this.mapAmenityToCategory(element.tags);
+                            const key = name + '_' + category;
+                            if (seen.has(key)) return;
+                            seen.add(key);
+
+                            const distance = this.calculateDistance(lat, lng, elLat, elLng);
+                            locations.push({
+                                name: name,
+                                category: category,
+                                distance: Math.round(distance),
+                                distance_text: this.formatDistance(distance),
+                                lat: elLat,
+                                lng: elLng,
+                                auto: true
+                            });
+                        });
+
+                        locations.sort((a, b) => a.distance - b.distance);
+
+                        const grouped = {};
+                        const filtered = [];
+                        locations.forEach(loc => {
+                            if (!grouped[loc.category]) grouped[loc.category] = 0;
+                            if (grouped[loc.category] < 5) {
+                                filtered.push(loc);
+                                grouped[loc.category]++;
+                            }
+                        });
+
+                        const customEntries = this.nearbyLocations.filter(loc => !loc.auto);
+                        this.nearbyLocations = [...filtered, ...customEntries];
+
+                        if (filtered.length > 0) {
+                            Swal.fire({
+                                toast: true, position: 'top-end', icon: 'success',
+                                title: '{{ __("ui.nearby_auto_fetched") }}',
+                                showConfirmButton: false, timer: 3000, timerProgressBar: true
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Overpass API error:', error);
+                        Swal.fire({
+                            toast: true, position: 'top-end', icon: 'warning',
+                            title: '{{ __("ui.nearby_fetch_failed") }}',
+                            showConfirmButton: false, timer: 3000, timerProgressBar: true
+                        });
+                    } finally {
+                        clearTimeout(timeoutId);
+                        this.isFetchingNearby = false;
+                    }
+                },
+
+                removeNearbyLocation(index) {
+                    this.nearbyLocations.splice(index, 1);
+                },
+
+                addCustomLocation() {
+                    if (!this.customLocationName.trim() || !this.customLocationDistance.trim()) return;
+
+                    let distanceMeters = 0;
+                    const distText = this.customLocationDistance.trim().toLowerCase();
+                    if (distText.endsWith('km')) {
+                        distanceMeters = parseFloat(distText) * 1000;
+                    } else {
+                        distanceMeters = parseFloat(distText.replace('m', ''));
+                    }
+
+                    this.nearbyLocations.push({
+                        name: this.customLocationName.trim(),
+                        category: this.customLocationCategory,
+                        distance: Math.round(distanceMeters) || 0,
+                        distance_text: this.formatDistance(distanceMeters || 0),
+                        lat: null, lng: null, auto: false
+                    });
+
+                    this.customLocationName = '';
+                    this.customLocationCategory = 'custom';
+                    this.customLocationDistance = '';
+                    this.showAddCustomForm = false;
+                },
+
+                get nearbyGrouped() {
+                    const groups = {};
+                    this.nearbyLocations.forEach(loc => {
+                        const cat = loc.category || 'custom';
+                        if (!groups[cat]) groups[cat] = [];
+                        groups[cat].push(loc);
+                    });
+                    return groups;
                 },
 
                 handleEditFileSelect(event) {
@@ -2668,6 +3209,9 @@
                         formData.append('village', this.propertyData.village);
                         formData.append('postal_code', this.propertyData.postal_code);
 
+                        // Add nearby locations as JSON
+                        formData.append('nearby_locations', JSON.stringify(this.nearbyLocations));
+
                         // Handle array fields - FIXED: Only append if array is not empty
                         const generalArray = Array.isArray(this.propertyData.general) ? this
                             .propertyData.general.map(v => parseInt(v, 10)).filter(v => !isNaN(v)) :
@@ -2804,7 +3348,30 @@
                     images: [],
                     general: [],
                     security: [],
-                    amenities: []
+                    amenities: [],
+                    nearby_locations: []
+                },
+                viewNearbyCategories: {
+                    'transport': '{!! __("ui.category_transport") !!}',
+                    'education': '{!! __("ui.category_education") !!}',
+                    'health': '{!! __("ui.category_health") !!}',
+                    'shopping': '{!! __("ui.category_shopping") !!}',
+                    'worship': '{!! __("ui.category_worship") !!}',
+                    'food_drink': '{!! __("ui.category_food_drink") !!}',
+                    'finance': '{!! __("ui.category_finance") !!}',
+                    'public_service': '{!! __("ui.category_public_service") !!}',
+                    'custom': '{!! __("ui.category_custom") !!}'
+                },
+                viewNearbyCategoryIcons: {
+                    'transport': 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+                    'education': 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
+                    'health': 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+                    'shopping': 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z',
+                    'worship': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+                    'food_drink': 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                    'finance': 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+                    'public_service': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+                    'custom': 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z'
                 },
                 facilities: {
                     general: [],
@@ -2842,7 +3409,9 @@
                                     .security) : []),
                             amenities: Array.isArray(property.amenities) ?
                                 property.amenities : (property.amenities ? JSON.parse(
-                                    property.amenities) : [])
+                                    property.amenities) : []),
+                            nearby_locations: Array.isArray(property.nearby_locations) ?
+                                property.nearby_locations : []
                         };
                         this.isLoading = false;
                         // Scan for Iconify icons in facility badges
@@ -2942,6 +3511,17 @@
 
                 get scrollbarWidth() {
                     return window.innerWidth - document.documentElement.clientWidth;
+                },
+
+                get viewNearbyGrouped() {
+                    const groups = {};
+                    const locations = this.selectedProperty.nearby_locations || [];
+                    locations.forEach(loc => {
+                        const cat = loc.category || 'custom';
+                        if (!groups[cat]) groups[cat] = [];
+                        groups[cat].push(loc);
+                    });
+                    return groups;
                 },
 
                 init() {

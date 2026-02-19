@@ -134,7 +134,8 @@
                                                 general: @json($property->general),
                                                 security: @json($property->security),
                                                 amenities: @json($property->amenities),
-                                                facilities: {!! json_encode($features) !!}                                                                                                                                                                                            
+                                                nearby_locations: @json($property->nearby_locations ?? []),
+                                                facilities: {!! json_encode($features) !!}
                                             })'
                                 aria-controls="property-detail-modal" title="View Details">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -431,6 +432,37 @@
                                                 </div>
 
                                             </div>
+
+                                            <!-- Nearby Locations -->
+                                            <div x-show="selectedProperty.nearby_locations && selectedProperty.nearby_locations.length > 0">
+                                                <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                                                    <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    </svg>
+                                                    {{ __('ui.nearby_locations') }}
+                                                </h4>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    <template x-for="(locations, catKey) in viewNearbyGrouped" :key="catKey">
+                                                        <div class="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                                            <div class="bg-gray-50 dark:bg-gray-700 px-3 py-2 flex items-center">
+                                                                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="viewNearbyCategoryIcons[catKey] || viewNearbyCategoryIcons['custom']"></path>
+                                                                </svg>
+                                                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300" x-text="viewNearbyCategories[catKey] || catKey"></span>
+                                                            </div>
+                                                            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                                                                <template x-for="(loc, locIdx) in locations" :key="locIdx">
+                                                                    <div class="px-3 py-2 flex items-center justify-between">
+                                                                        <span class="text-sm text-gray-800 dark:text-gray-200 truncate" x-text="loc.name"></span>
+                                                                        <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2 py-0.5 rounded-full ml-2 flex-shrink-0" x-text="loc.distance_text"></span>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -470,6 +502,7 @@
                                 'general' => is_array($property->general) ? $property->general : [],
                                 'security' => is_array($property->security) ? $property->security : [],
                                 'amenities' => is_array($property->amenities) ? $property->amenities : [],
+                                'nearby_locations' => is_array($property->nearby_locations) ? $property->nearby_locations : [],
                                 'existingImages' => $property->images
                                     ->map(function ($image) {
                                         return [
@@ -917,6 +950,122 @@
                                                                 name="postal_code" x-model="propertyData.postal_code"
                                                                 class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                                                 placeholder="Masukkan kode pos">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Nearby Locations Section -->
+                                                    <div class="mt-6">
+                                                        <div class="flex items-center justify-between mb-3">
+                                                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                                                {{ __('ui.nearby_locations') }}
+                                                                <span class="text-xs font-normal text-gray-500 ml-2">({{ __('ui.nearby_locations_desc') }})</span>
+                                                            </label>
+                                                            <div class="flex items-center space-x-2">
+                                                                <button type="button"
+                                                                    @click="if(propertyData.latitude && propertyData.longitude) { fetchNearbyLocations(parseFloat(propertyData.latitude), parseFloat(propertyData.longitude)); }"
+                                                                    :disabled="isFetchingNearby"
+                                                                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-500 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50">
+                                                                    <svg class="w-3.5 h-3.5 mr-1" :class="isFetchingNearby ? 'animate-spin' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                                    </svg>
+                                                                    <span x-text="isFetchingNearby ? '{{ __('ui.fetching_nearby') }}' : '{{ __('ui.refetch_nearby') }}'"></span>
+                                                                </button>
+                                                                <button type="button"
+                                                                    @click="showAddCustomForm = !showAddCustomForm"
+                                                                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-green-500 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30 transition-colors">
+                                                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                                    </svg>
+                                                                    {{ __('ui.add_custom_location') }}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Loading Spinner -->
+                                                        <div x-show="isFetchingNearby" class="flex items-center justify-center py-8">
+                                                            <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                            <span class="ml-3 text-sm text-gray-500 dark:text-gray-400">{{ __('ui.fetching_nearby') }}</span>
+                                                        </div>
+
+                                                        <!-- Custom Location Form -->
+                                                        <div x-show="showAddCustomForm" x-transition
+                                                            class="mb-4 p-4 border-2 border-dashed border-green-300 dark:border-green-700 rounded-lg bg-green-50/50 dark:bg-green-900/20">
+                                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                                <div>
+                                                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('ui.location_name') }}</label>
+                                                                    <input type="text" x-model="customLocationName"
+                                                                        class="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                                                        placeholder="{{ __('ui.enter_location_name') }}">
+                                                                </div>
+                                                                <div>
+                                                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('ui.location_category') }}</label>
+                                                                    <select x-model="customLocationCategory"
+                                                                        class="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                                                        <template x-for="(label, key) in nearbyCategories" :key="key">
+                                                                            <option :value="key" x-text="label"></option>
+                                                                        </template>
+                                                                    </select>
+                                                                </div>
+                                                                <div>
+                                                                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{{ __('ui.location_distance') }}</label>
+                                                                    <div class="flex items-center space-x-2">
+                                                                        <input type="text" x-model="customLocationDistance"
+                                                                            class="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                                                            placeholder="{{ __('ui.enter_distance') }}">
+                                                                        <button type="button" @click="addCustomLocation()"
+                                                                            class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap">
+                                                                            {{ __('ui.add') }}
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Nearby Locations List -->
+                                                        <div x-show="!isFetchingNearby && nearbyLocations.length > 0"
+                                                            class="space-y-3 max-h-80 overflow-y-auto">
+                                                            <template x-for="(locations, catKey) in nearbyGrouped" :key="catKey">
+                                                                <div class="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                                                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-2 flex items-center">
+                                                                        <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="nearbyCategoryIcons[catKey] || nearbyCategoryIcons['custom']"></path>
+                                                                        </svg>
+                                                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300" x-text="nearbyCategories[catKey] || catKey"></span>
+                                                                        <span class="ml-2 text-xs text-gray-500" x-text="'(' + locations.length + ')'"></span>
+                                                                    </div>
+                                                                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                                                                        <template x-for="(loc, locIdx) in locations" :key="locIdx">
+                                                                            <div class="px-4 py-2 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                                                                <div class="flex items-center min-w-0 flex-1">
+                                                                                    <span class="text-sm text-gray-800 dark:text-gray-200 truncate" x-text="loc.name"></span>
+                                                                                </div>
+                                                                                <div class="flex items-center space-x-3 ml-3 flex-shrink-0">
+                                                                                    <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2 py-0.5 rounded-full" x-text="loc.distance_text"></span>
+                                                                                    <button type="button" @click="removeNearbyLocation(nearbyLocations.indexOf(loc))"
+                                                                                        class="text-red-400 hover:text-red-600 transition-colors">
+                                                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                                                        </svg>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+
+                                                        <!-- Empty State -->
+                                                        <div x-show="!isFetchingNearby && nearbyLocations.length === 0"
+                                                            class="text-center py-6 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-lg">
+                                                            <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                            </svg>
+                                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('ui.no_nearby_found') }}</p>
                                                         </div>
                                                     </div>
                                                 </div>

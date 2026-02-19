@@ -29,7 +29,7 @@
                             (abs($page - $paginator->currentPage()) <= 2)
                         )
                             @if ($page == $paginator->currentPage())
-                                <span class="px-3 py-1 bg-green-600 text-white rounded-md text-sm">{{ $page }}</span>
+                                <span class="px-3 py-1 bg-blue-800 text-white rounded-md text-sm">{{ $page }}</span>
                             @else
                                 <a href="{{ $url }}" class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm">{{ $page }}</a>
                             @endif

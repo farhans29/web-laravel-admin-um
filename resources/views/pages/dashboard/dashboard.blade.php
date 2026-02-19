@@ -978,12 +978,12 @@
                                                 <div class="text-center">
                                                     <div class="text-2xl font-bold text-blue-600">
                                                         {{ $report['room_stats']['booked_rooms'] }}</div>
-                                                    <div class="text-xs text-gray-600">Total Terbooking</div>
+                                                    <div class="text-xs text-gray-600">{{ __('ui.total_booked') }}</div>
                                                 </div>
                                                 <div class="text-center">
                                                     <div class="text-2xl font-bold text-orange-600">
                                                         {{ $report['room_stats']['occupied_rooms'] }}</div>
-                                                    <div class="text-xs text-gray-600">Total Terisi</div>
+                                                    <div class="text-xs text-gray-600">{{ __('ui.total_occupied') }}</div>
                                                 </div>
                                                 <div class="text-center">
                                                     <div class="text-2xl font-bold text-green-600">

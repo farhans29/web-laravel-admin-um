@@ -44,6 +44,15 @@ class ParkingFee extends Model
         return $this->hasMany(ParkingFeeTransaction::class, 'parking_fee_id', 'idrec');
     }
 
+    /**
+     * Get parkings registered for this fee's property + type.
+     */
+    public function parkings()
+    {
+        return Parking::where('property_id', $this->property_id)
+            ->where('parking_type', $this->parking_type);
+    }
+
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');

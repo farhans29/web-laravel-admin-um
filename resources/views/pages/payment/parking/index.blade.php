@@ -229,6 +229,9 @@
                                 </div>
                             </div>
 
+                            <!-- Parking Status Info -->
+                            <div class="md:col-span-2 hidden" id="parking_status_section"></div>
+
                             <!-- Parking Type -->
                             <div class="md:col-span-2">
                                 <label for="add_parking_type"
@@ -252,7 +255,7 @@
                                 </div>
                             </div>
 
-                            <!-- Vehicle Plate and Fee Amount side by side -->
+                            <!-- Vehicle Plate and Parking Duration side by side -->
                             <div>
                                 <label for="add_vehicle_plate"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -266,14 +269,28 @@
                             </div>
 
                             <div>
+                                <label for="add_parking_duration"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Parking Duration (months) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" name="parking_duration" id="add_parking_duration" required
+                                    min="1" value="1" placeholder="e.g., 1"
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                <p class="text-xs text-blue-600 mt-1 hidden" id="parking_duration_max_hint"></p>
+                                <p class="text-red-500 text-xs mt-1 hidden" id="add_parking_duration_error"></p>
+                            </div>
+
+                            <!-- Fee Amount (readonly, full width) -->
+                            <div class="md:col-span-2">
                                 <label for="add_fee_amount_display"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Fee Amount (Rp) <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="fee_amount_display" id="add_fee_amount_display" required
-                                    placeholder="Enter fee amount" oninput="formatFeeAmount(this)"
-                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                    placeholder="Select parking type first" readonly
+                                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm bg-gray-50 dark:bg-gray-600 cursor-not-allowed">
                                 <input type="hidden" name="fee_amount" id="add_fee_amount">
+                                <p class="text-xs text-gray-500 mt-1" id="fee_source_info">Fee will be loaded from parking fee configuration</p>
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_fee_amount_error"></p>
                             </div>
 
@@ -729,6 +746,9 @@
                             option.dataset.propertyName = order.property_name;
                             option.dataset.checkIn = order.check_in;
                             option.dataset.checkOut = order.check_out;
+                            option.dataset.maxParkingMonths = order.max_parking_months || '';
+                            option.dataset.parkingStatus = order.parking_status || 'new';
+                            option.dataset.parkingInfo = order.parking_info ? JSON.stringify(order.parking_info) : '';
                             orderSelect.appendChild(option);
                         });
                     } else {
@@ -757,13 +777,167 @@
                     (selectedOption.dataset.checkIn || '-') + ' - ' + (selectedOption.dataset.checkOut || '-');
                 orderInfoSection.classList.remove('hidden');
 
+                // Show parking status badge
+                showParkingStatusBadge(
+                    selectedOption.dataset.parkingStatus || 'new',
+                    selectedOption.dataset.parkingInfo ? JSON.parse(selectedOption.dataset.parkingInfo) : null
+                );
+
+                // Auto-calculate parking duration in months from check-in to check-out
+                calculateParkingDuration(selectedOption.dataset.checkIn, selectedOption.dataset.checkOut, selectedOption.dataset.maxParkingMonths);
+
                 // Check parking quota when order is selected
                 checkParkingQuota();
             } else {
                 // Hide order info
                 orderInfoSection.classList.add('hidden');
+                // Hide parking status badge
+                document.getElementById('parking_status_section').classList.add('hidden');
                 // Hide quota info
                 document.getElementById('quota_info_section').classList.add('hidden');
+                // Clear fee amount
+                setFeeAmount(null);
+                // Reset parking duration max
+                const durationInput = document.getElementById('add_parking_duration');
+                durationInput.removeAttribute('max');
+                durationInput.value = 1;
+                const maxHint = document.getElementById('parking_duration_max_hint');
+                if (maxHint) maxHint.classList.add('hidden');
+            }
+        });
+
+        function showParkingStatusBadge(status, info) {
+            const section = document.getElementById('parking_status_section');
+            let html = '';
+
+            if (status === 'new') {
+                html = `
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                PARKIR BARU
+                            </span>
+                        </div>
+                        <p class="text-sm text-green-800 dark:text-green-200">Order ini belum memiliki riwayat parkir. Ini adalah pendaftaran parkir baru.</p>
+                    </div>`;
+            } else if (status === 'renewal') {
+                html = `
+                    <div class="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700">
+                        <div class="flex-shrink-0 mt-0.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                PERPANJANGAN
+                            </span>
+                        </div>
+                        <div class="text-sm text-yellow-800 dark:text-yellow-200">
+                            <p class="font-medium">Order ini merupakan perpanjangan parkir.</p>
+                            ${info ? `
+                            <div class="mt-1 space-y-0.5 text-xs text-yellow-700 dark:text-yellow-300">
+                                <p><span class="font-medium">Tipe:</span> ${info.parking_type === 'car' ? 'Mobil' : 'Motor'}</p>
+                                <p><span class="font-medium">Plat Kendaraan:</span> ${info.vehicle_plate || '-'}</p>
+                                <p><span class="font-medium">Durasi sebelumnya:</span> ${info.duration} bulan</p>
+                                <p><span class="font-medium">Berakhir pada:</span> ${info.expiry_date} (${info.expired_ago})</p>
+                            </div>` : ''}
+                        </div>
+                    </div>`;
+            } else if (status === 'active') {
+                html = `
+                    <div class="flex items-start gap-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700">
+                        <div class="flex-shrink-0 mt-0.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                                </svg>
+                                PARKIR MASIH AKTIF
+                            </span>
+                        </div>
+                        <div class="text-sm text-red-800 dark:text-red-200">
+                            <p class="font-medium">Order ini sudah memiliki parkir yang masih aktif.</p>
+                            ${info ? `
+                            <div class="mt-1 space-y-0.5 text-xs text-red-700 dark:text-red-300">
+                                <p><span class="font-medium">Tipe:</span> ${info.parking_type === 'car' ? 'Mobil' : 'Motor'}</p>
+                                <p><span class="font-medium">Plat Kendaraan:</span> ${info.vehicle_plate || '-'}</p>
+                                <p><span class="font-medium">Berlaku hingga:</span> ${info.expiry_date} (${info.expired_ago})</p>
+                            </div>` : ''}
+                            <p class="mt-1 text-xs font-medium">Tidak dapat menambah parkir baru hingga masa berlaku habis.</p>
+                        </div>
+                    </div>`;
+            }
+
+            section.innerHTML = html;
+            section.classList.remove('hidden');
+        }
+
+        // Calculate parking duration in months from check-in and check-out dates
+        function calculateParkingDuration(checkInStr, checkOutStr, maxParkingMonths) {
+            const durationInput = document.getElementById('add_parking_duration');
+            const durationError = document.getElementById('add_parking_duration_error');
+            const maxHint = document.getElementById('parking_duration_max_hint');
+
+            if (!checkInStr || !checkOutStr || checkOutStr === '-') {
+                durationInput.value = 1;
+                durationInput.removeAttribute('max');
+                if (maxHint) maxHint.classList.add('hidden');
+                return;
+            }
+
+            const checkIn = new Date(checkInStr);
+            const checkOut = new Date(checkOutStr);
+
+            if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
+                durationInput.value = 1;
+                durationInput.removeAttribute('max');
+                if (maxHint) maxHint.classList.add('hidden');
+                return;
+            }
+
+            // Calculate difference in months
+            let months = (checkOut.getFullYear() - checkIn.getFullYear()) * 12 +
+                (checkOut.getMonth() - checkIn.getMonth());
+
+            // If there are remaining days, round up to next month
+            if (checkOut.getDate() > checkIn.getDate()) {
+                months++;
+            }
+
+            // Minimum 1 month
+            months = Math.max(1, months);
+
+            // Set max parking months from server calculation
+            const maxMonths = maxParkingMonths ? parseInt(maxParkingMonths) : months;
+            durationInput.value = Math.min(months, maxMonths);
+            durationInput.setAttribute('max', maxMonths);
+
+            // Show max hint
+            if (maxHint) {
+                maxHint.textContent = `Max ${maxMonths} month(s) based on stay period (${checkInStr} - ${checkOutStr})`;
+                maxHint.classList.remove('hidden');
+            }
+
+            // Clear any previous error
+            if (durationError) durationError.classList.add('hidden');
+        }
+
+        // Validate parking duration on input change
+        document.getElementById('add_parking_duration')?.addEventListener('input', function() {
+            const max = parseInt(this.getAttribute('max'));
+            const val = parseInt(this.value);
+            const errorEl = document.getElementById('add_parking_duration_error');
+
+            if (max && val > max) {
+                if (errorEl) {
+                    errorEl.textContent = `Parking duration cannot exceed ${max} month(s) (stay duration)`;
+                    errorEl.classList.remove('hidden');
+                }
+                this.classList.add('border-red-500');
+            } else {
+                if (errorEl) errorEl.classList.add('hidden');
+                this.classList.remove('border-red-500');
             }
         });
 
@@ -777,6 +951,7 @@
             // Need both order and parking type selected
             if (!orderSelect.value || !parkingTypeSelect.value) {
                 quotaInfoSection.classList.add('hidden');
+                setFeeAmount(null);
                 return;
             }
 
@@ -824,10 +999,38 @@
                 });
         }
 
+        function setFeeAmount(fee) {
+            const displayInput = document.getElementById('add_fee_amount_display');
+            const hiddenInput = document.getElementById('add_fee_amount');
+            const feeSourceInfo = document.getElementById('fee_source_info');
+
+            if (fee !== null && fee !== undefined) {
+                const formatted = parseInt(fee).toLocaleString('id-ID');
+                displayInput.value = formatted;
+                hiddenInput.value = fee;
+                if (feeSourceInfo) {
+                    feeSourceInfo.textContent = 'Fee loaded from parking fee configuration';
+                    feeSourceInfo.classList.remove('text-red-500');
+                    feeSourceInfo.classList.add('text-gray-500');
+                }
+            } else {
+                displayInput.value = '';
+                hiddenInput.value = '';
+                if (feeSourceInfo) {
+                    feeSourceInfo.textContent = 'Fee will be loaded from parking fee configuration';
+                    feeSourceInfo.classList.remove('text-red-500');
+                    feeSourceInfo.classList.add('text-gray-500');
+                }
+            }
+        }
+
         function displayQuotaInfo(quotaData, parkingType) {
             const quotaInfoContainer = document.getElementById('quota_info_container');
             const typeLabel = parkingType === 'car' ? '{{ __('ui.car') }}' : '{{ __('ui.motorcycle') }}';
             const submitBtn = document.getElementById('addPaymentSubmitBtn');
+
+            // Auto-fill fee amount from parking fee config
+            setFeeAmount(quotaData.fee);
 
             if (quotaData.capacity === 0) {
                 // Unlimited parking
@@ -934,6 +1137,9 @@
         function displayNoQuotaData(parkingType) {
             const quotaInfoContainer = document.getElementById('quota_info_container');
             const typeLabel = parkingType === 'car' ? '{{ __('ui.car') }}' : '{{ __('ui.motorcycle') }}';
+
+            // Clear fee amount when no parking fee configured
+            setFeeAmount(null);
 
             quotaInfoContainer.className =
                 'rounded-lg border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4';
@@ -1069,6 +1275,16 @@
         document.getElementById('addPaymentForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             clearAddPaymentErrors();
+
+            // Validate parking duration does not exceed max stay duration
+            const durationInput = document.getElementById('add_parking_duration');
+            const maxDuration = parseInt(durationInput.getAttribute('max'));
+            const currentDuration = parseInt(durationInput.value);
+            if (maxDuration && currentDuration > maxDuration) {
+                showAddPaymentError('parking_duration', `Parking duration cannot exceed ${maxDuration} month(s) (stay duration)`);
+                return;
+            }
+
             setAddPaymentLoading(true);
 
             const formData = new FormData(this);

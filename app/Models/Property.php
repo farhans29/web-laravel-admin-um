@@ -40,6 +40,7 @@ class Property extends Model
         'general',
         'security',
         'amenities',
+        'nearby_locations',
 
         'room_facilities',
         'rules',
@@ -54,6 +55,7 @@ class Property extends Model
         'general' => 'array',
         'security' => 'array',
         'amenities' => 'array',
+        'nearby_locations' => 'array',
     ];
 
     public function creator()

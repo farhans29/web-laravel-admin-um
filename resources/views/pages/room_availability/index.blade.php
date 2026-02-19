@@ -292,12 +292,14 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                Swal.fire({
-                                    title: 'Berhasil!',
+                                Toastify({
                                     text: data.message,
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                });
+                                    duration: 3000,
+                                    gravity: 'top',
+                                    position: 'right',
+                                    style: { background: '#22c55e' },
+                                    stopOnFocus: true,
+                                }).showToast();
 
                                 // Pertahankan halaman saat ini dengan mengambil parameter page dari URL
                                 const currentPage = getCurrentPage();
@@ -310,22 +312,26 @@
                                     console.log('Data tabel dan statistik berhasil diperbarui');
                                 });
                             } else {
-                                Swal.fire({
-                                    title: 'Gagal!',
+                                Toastify({
                                     text: 'Gagal mengupdate status kamar',
-                                    icon: 'error',
-                                    confirmButtonText: 'OK'
-                                });
+                                    duration: 3000,
+                                    gravity: 'top',
+                                    position: 'right',
+                                    style: { background: '#ef4444' },
+                                    stopOnFocus: true,
+                                }).showToast();
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            Swal.fire({
-                                title: 'Error!',
+                            Toastify({
                                 text: 'Terjadi kesalahan saat mengupdate status kamar',
-                                icon: 'error',
-                                confirmButtonText: 'OK'
-                            });
+                                duration: 3000,
+                                gravity: 'top',
+                                position: 'right',
+                                style: { background: '#ef4444' },
+                                stopOnFocus: true,
+                            }).showToast();
                         });
                 }
             });

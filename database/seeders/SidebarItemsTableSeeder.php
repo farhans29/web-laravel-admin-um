@@ -21,7 +21,9 @@ class SidebarItemsTableSeeder extends Seeder
         // Get all permissions
         $permissions = Permission::all()->pluck('id', 'name')->toArray();
 
-        // Create parent sections
+        // =====================
+        // Management Section
+        // =====================
         $managementSection = SidebarItem::create([
             'name' => 'Management',
             'route' => null,
@@ -30,8 +32,8 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 1,
         ]);
 
-        // Management items
-        $dashboard = SidebarItem::create([
+        // Dashboard
+        SidebarItem::create([
             'name' => 'Dashboard',
             'route' => 'dashboard',
             'permission_id' => $permissions['view_dashboard'] ?? null,
@@ -39,6 +41,7 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 1
         ]);
 
+        // Bookings
         $bookings = SidebarItem::create([
             'name' => 'Bookings',
             'route' => null,
@@ -47,7 +50,6 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 2,
         ]);
 
-        // Bookings children
         SidebarItem::create([
             'name' => 'All Bookings',
             'route' => 'bookings.index',
@@ -104,15 +106,15 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 7
         ]);
 
+        // Properties
         $properties = SidebarItem::create([
             'name' => 'Properties',
             'route' => null,
-            'permission_id' => $permissions['properties'] ?? null,
+            'permission_id' => $permissions['view_properties'] ?? null,
             'parent_id' => $managementSection->id,
             'order' => 3,
         ]);
 
-        // Properties children
         SidebarItem::create([
             'name' => 'Master Properties',
             'route' => 'properties.index',
@@ -137,23 +139,40 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 3
         ]);
 
-        SidebarItem::create([
-            'name' => 'Parking Fee Management',
-            'route' => 'parking-fees.index',
+        // Parking
+        $parking = SidebarItem::create([
+            'name' => 'Parking',
+            'route' => null,
             'permission_id' => $permissions['view_parking_fees'] ?? null,
-            'parent_id' => $properties->id,
-            'order' => 4
+            'parent_id' => $managementSection->id,
+            'order' => 4,
         ]);
 
+        SidebarItem::create([
+            'name' => 'Parking Fees',
+            'route' => 'parking-fees.index',
+            'permission_id' => $permissions['view_parking_fees'] ?? null,
+            'parent_id' => $parking->id,
+            'order' => 1
+        ]);
+
+        SidebarItem::create([
+            'name' => 'Parking',
+            'route' => 'parking.index',
+            'permission_id' => $permissions['view_parking_fees'] ?? null,
+            'parent_id' => $parking->id,
+            'order' => 2
+        ]);
+
+        // Rooms/Units
         $rooms = SidebarItem::create([
             'name' => 'Rooms/Units',
             'route' => null,
             'permission_id' => $permissions['rooms'] ?? null,
             'parent_id' => $managementSection->id,
-            'order' => 4,
+            'order' => 5,
         ]);
 
-        // Rooms children
         SidebarItem::create([
             'name' => 'Master Rooms',
             'route' => 'rooms.index',
@@ -170,31 +189,35 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 2
         ]);
 
-        $customers = SidebarItem::create([
+        // Customers
+        SidebarItem::create([
             'name' => 'Customers',
             'route' => 'customers.index',
             'permission_id' => $permissions['view_customers'] ?? null,
             'parent_id' => $managementSection->id,
-            'order' => 5
+            'order' => 6
         ]);
 
-        $roomAvailability = SidebarItem::create([
+        // Room Availability
+        SidebarItem::create([
             'name' => 'Room Availability',
             'route' => 'room-availability.index',
             'permission_id' => $permissions['view_room_availability'] ?? null,
             'parent_id' => $managementSection->id,
-            'order' => 6
+            'order' => 7
         ]);
 
-        $vouchers = SidebarItem::create([
+        // Vouchers
+        SidebarItem::create([
             'name' => 'Vouchers',
             'route' => 'vouchers.index',
             'permission_id' => $permissions['view_vouchers'] ?? null,
             'parent_id' => $managementSection->id,
-            'order' => 7
+            'order' => 8
         ]);
 
-        $promoBanners = SidebarItem::create([
+        // Promo Banners
+        SidebarItem::create([
             'name' => 'Promo Banners',
             'route' => 'promo-banners.index',
             'permission_id' => $permissions['view_promo_banners'] ?? null,
@@ -202,15 +225,18 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 9
         ]);
 
-        $chat = SidebarItem::create([
+        // Chat
+        SidebarItem::create([
             'name' => 'Chat',
             'route' => 'chat.index',
             'permission_id' => $permissions['manage_chat'] ?? null,
             'parent_id' => $managementSection->id,
-            'order' => 8
+            'order' => 10
         ]);
 
-        // Financial items
+        // =====================
+        // Financial Section
+        // =====================
         $financialSection = SidebarItem::create([
             'name' => 'Financial',
             'route' => null,
@@ -218,7 +244,8 @@ class SidebarItemsTableSeeder extends Seeder
             'parent_id' => null,
             'order' => 2,
         ]);
-        
+
+        // Payments
         $payments = SidebarItem::create([
             'name' => 'Payments',
             'route' => null,
@@ -227,7 +254,6 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 1
         ]);
 
-        // Payments children
         SidebarItem::create([
             'name' => 'Transaction',
             'route' => 'admin.payments.index',
@@ -252,7 +278,8 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 3
         ]);
 
-        $refunds = SidebarItem::create([
+        // Refunds
+        SidebarItem::create([
             'name' => 'Refunds',
             'route' => 'admin.refunds.index',
             'permission_id' => $permissions['view_refunds'] ?? null,
@@ -260,6 +287,7 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 2
         ]);
 
+        // Reports
         $reports = SidebarItem::create([
             'name' => 'Reports',
             'route' => null,
@@ -268,7 +296,6 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 3
         ]);
 
-        // Reports children
         SidebarItem::create([
             'name' => 'Booking Report',
             'route' => 'reports.booking.index',
@@ -309,7 +336,9 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 5
         ]);
 
-        // Settings items
+        // =====================
+        // Settings Section
+        // =====================
         $settingsSection = SidebarItem::create([
             'name' => 'Settings',
             'route' => null,
@@ -317,24 +346,43 @@ class SidebarItemsTableSeeder extends Seeder
             'parent_id' => null,
             'order' => 3,
         ]);
-        
-        $users = SidebarItem::create([
+
+        // Users
+        SidebarItem::create([
             'name' => 'Users',
-            'route' => 'users-management',
+            'route' => 'users-newManagement',
             'permission_id' => $permissions['view_users'] ?? null,
             'parent_id' => $settingsSection->id,
             'order' => 1
         ]);
 
+        // Role & Permission (parent with sub-items)
         $rolePermission = SidebarItem::create([
             'name' => 'Role & Permission',
-            'route' => 'master-role-management',
+            'route' => null,
             'permission_id' => $permissions['manage_roles'] ?? null,
             'parent_id' => $settingsSection->id,
             'order' => 2
         ]);
 
-        $settings = SidebarItem::create([
+        SidebarItem::create([
+            'name' => 'Master Role',
+            'route' => 'master-role-management',
+            'permission_id' => $permissions['manage_roles'] ?? null,
+            'parent_id' => $rolePermission->id,
+            'order' => 1
+        ]);
+
+        SidebarItem::create([
+            'name' => 'User Access',
+            'route' => 'user-access.edit',
+            'permission_id' => $permissions['view_users'] ?? null,
+            'parent_id' => $rolePermission->id,
+            'order' => 2
+        ]);
+
+        // Account / Settings
+        SidebarItem::create([
             'name' => 'Settings',
             'route' => 'users.show',
             'permission_id' => $permissions['manage_settings'] ?? null,

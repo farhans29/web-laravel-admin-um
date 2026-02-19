@@ -159,21 +159,10 @@ class CheckOutController extends Controller
             $booking->status = 0; // Mark booking as inactive after checkout
             $booking->save();
 
-            // Reset rental_status on room if no other active bookings
+            // Checkout selalu membebaskan kamar (rental_status = 0)
             if ($booking->room_id) {
-                $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
-                    ->where('status', 1)
-                    ->where('idrec', '!=', $booking->idrec)
-                    ->whereHas('transaction', function ($q) {
-                        $q->where('transaction_status', 'paid')
-                          ->orWhere('transaction_status', 'waiting');
-                    })
-                    ->exists();
-
-                if (!$hasOtherActiveBooking) {
-                    Room::where('idrec', $booking->room_id)
-                        ->update(['rental_status' => 0]);
-                }
+                Room::where('idrec', $booking->room_id)
+                    ->update(['rental_status' => 0]);
             }
 
             // Simpan kondisi barang
@@ -236,36 +225,91 @@ class CheckOutController extends Controller
     }
 
     /**
-     * Release parking quota for the given order_id
+     * Release parking quota for the given order_id.
+     * Mencakup semua sumber parkir:
+     *   1. t_parking_fee_transaction (Parking Payment)
+     *   2. t_transactions (parkir bundled dengan booking kamar)
+     *   3. t_parking management_only=1 (Parking Management)
      */
     private function releaseParkingQuota($order_id)
     {
         try {
-            // Find all parking transactions for this order_id with 'paid' status
+            $txn        = Transaction::where('order_id', $order_id)->first();
+            $propertyId = $txn->property_id ?? null;
+            $userId     = $txn->user_id ?? null;
+
+            // Track tipe yang sudah dibebaskan agar tidak double decrement
+            $releasedTypes = [];
+
+            // === Sumber 1: t_parking_fee_transaction (Alur Parking Payment) ===
             $parkingTransactions = ParkingFeeTransaction::where('order_id', $order_id)
                 ->where('transaction_status', 'paid')
                 ->where('status', 1)
                 ->get();
 
-            foreach ($parkingTransactions as $transaction) {
-                // Update parking transaction status to 'completed'
-                $transaction->update([
-                    'transaction_status' => 'completed'
-                ]);
+            foreach ($parkingTransactions as $pt) {
+                $pt->update(['transaction_status' => 'completed']);
 
-                // Decrement quota if parking fee has capacity limit (capacity > 0)
-                if ($transaction->parking_fee_id) {
-                    $parkingFee = ParkingFee::find($transaction->parking_fee_id);
+                // Cari ParkingFee via parking_fee_id atau fallback ke property+type
+                $parkingFee = $pt->parking_fee_id
+                    ? ParkingFee::find($pt->parking_fee_id)
+                    : ParkingFee::where('property_id', $pt->property_id)
+                        ->where('parking_type', $pt->parking_type)
+                        ->where('status', 1)
+                        ->first();
+
+                if ($parkingFee && $parkingFee->capacity > 0) {
+                    $parkingFee->decrementQuota(1);
+                    $releasedTypes[] = $pt->parking_type;
+                    Log::info("Parking quota released (PP) order {$order_id}, type: {$pt->parking_type}");
+                }
+            }
+
+            // === Sumber 2: t_transactions — parkir bundled dengan booking kamar ===
+            if ($txn && $txn->parking_type && $txn->parking_fee > 0 && $propertyId) {
+                if (!in_array($txn->parking_type, $releasedTypes)) {
+                    $parkingFee = ParkingFee::where('property_id', $propertyId)
+                        ->where('parking_type', $txn->parking_type)
+                        ->where('status', 1)
+                        ->first();
 
                     if ($parkingFee && $parkingFee->capacity > 0) {
                         $parkingFee->decrementQuota(1);
-                        Log::info("Parking quota released for order {$order_id}, parking type: {$parkingFee->parking_type}");
+                        $releasedTypes[] = $txn->parking_type;
+                        Log::info("Parking quota released (txn) order {$order_id}, type: {$txn->parking_type}");
                     }
+                }
+            }
+
+            // === Sumber 3: t_parking management_only=1 (Alur Parking Management) ===
+            if ($userId && $propertyId) {
+                $parkingRecords = \App\Models\Parking::where('user_id', $userId)
+                    ->where('property_id', $propertyId)
+                    ->where('management_only', 1)
+                    ->where('status', 1)
+                    ->get();
+
+                foreach ($parkingRecords as $pr) {
+                    if (!in_array($pr->parking_type, $releasedTypes)) {
+                        $parkingFee = ParkingFee::where('property_id', $propertyId)
+                            ->where('parking_type', $pr->parking_type)
+                            ->where('status', 1)
+                            ->first();
+
+                        if ($parkingFee && $parkingFee->capacity > 0) {
+                            $parkingFee->decrementQuota(1);
+                            $releasedTypes[] = $pr->parking_type;
+                            Log::info("Parking quota released (PM) order {$order_id}, type: {$pr->parking_type}");
+                        }
+                    }
+
+                    // Non-aktifkan record parkir Parking Management
+                    $pr->update(['status' => 0]);
                 }
             }
         } catch (\Exception $e) {
             Log::error("Failed to release parking quota for order {$order_id}: " . $e->getMessage());
-            // Don't throw exception, just log it - parking quota release shouldn't block checkout
+            // Jangan throw — parking release tidak boleh menghalangi proses checkout
         }
     }
 }
