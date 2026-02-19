@@ -23,6 +23,7 @@ class Parking extends Model
         'owner_name',
         'owner_phone',
         'user_id',
+        'order_id',
         'parking_duration',
         'fee_amount',
         'notes',

@@ -372,6 +372,7 @@ class ParkingPaymentController extends Controller
                     'owner_name' => $bookingTransaction->user_name,
                     'owner_phone' => $bookingTransaction->user_phone_number,
                     'user_id' => $bookingTransaction->user_id,
+                    'order_id' => $request->order_id,
                     'status' => 1,
                     'management_only' => 0,
                     'created_by' => Auth::id(),
@@ -380,25 +381,76 @@ class ParkingPaymentController extends Controller
 
             // Determine if this is a renewal booking (user extending their stay, same vehicle/slot)
             $isRenewalBooking = $bookingTransaction->is_renewal == 1;
+            $existingParkingType = null; // Tipe parkir lama yang dimiliki user (jika ada)
 
-            // Skip quota check/increment only when:
-            // - Booking is a renewal (is_renewal=1) AND
-            // - User already has active paid parking at this property (vehicle still occupies the spot)
-            $isRenewal = $isRenewalBooking
-                ? ParkingFeeTransaction::where('user_id', $bookingTransaction->user_id)
+            if ($isRenewalBooking) {
+                // Cek 1: dari t_parking_fee_transaction (Alur PP - beli via Parking Payment)
+                $prevParkingTxn = ParkingFeeTransaction::where('user_id', $bookingTransaction->user_id)
                     ->where('property_id', $bookingTransaction->property_id)
-                    ->where('parking_type', $request->parking_type)
                     ->where('transaction_status', 'paid')
-                    ->exists()
-                : false;
+                    ->orderBy('created_at', 'desc')
+                    ->first();
 
-            // Only check quota for new parking (not renewals, not already consumed by PM)
+                if ($prevParkingTxn) {
+                    $existingParkingType = $prevParkingTxn->parking_type;
+                }
+
+                // Cek 2: dari t_transactions order sebelumnya (Alur booking kamar + parkir)
+                if (!$existingParkingType) {
+                    $prevTxn = \App\Models\Transaction::where('user_id', $bookingTransaction->user_id)
+                        ->where('property_id', $bookingTransaction->property_id)
+                        ->where('transaction_status', 'paid')
+                        ->whereNotNull('parking_type')
+                        ->where('parking_fee', '>', 0)
+                        ->whereNotNull('parking_duration')
+                        ->where('order_id', '!=', $request->order_id)
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+
+                    if ($prevTxn) {
+                        $existingParkingType = $prevTxn->parking_type;
+                    }
+                }
+
+                // Cek 3: dari t_parking langsung (Parking Management atau record aktif)
+                if (!$existingParkingType) {
+                    $existingParkingRecord = Parking::where('user_id', $bookingTransaction->user_id)
+                        ->where('property_id', $bookingTransaction->property_id)
+                        ->where('status', 1)
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+
+                    if ($existingParkingRecord) {
+                        $existingParkingType = $existingParkingRecord->parking_type;
+                    }
+                }
+            }
+
+            // User sudah punya parkir sebelumnya → ini renewal sesungguhnya
+            $isRenewal = $isRenewalBooking && !is_null($existingParkingType);
+
+            // Tipe parkir berubah saat renewal (misal motor → mobil)?
+            // Jika ya: bebaskan kuota tipe lama, ambil kuota tipe baru
+            $isParkingTypeChanged = $isRenewal && ($existingParkingType !== $request->parking_type);
+
+            // Cek ketersediaan kuota:
+            // - Parkir baru atau renewal ganti tipe → cek kuota tipe baru
+            // - Renewal tipe sama → skip (slot sudah occupied sebelumnya)
             if (!$isRenewal && !$quotaAlreadyConsumedByManagement) {
                 if ($parkingFee->capacity > 0 && !$parkingFee->hasAvailableQuota()) {
                     throw new \Exception(
                         'Parking quota is full for ' . ucfirst($request->parking_type) .
                         '. Available: 0, Capacity: ' . $parkingFee->capacity .
                         '. Please wait for check-out or increase capacity in Parking Fee Management.'
+                    );
+                }
+            } elseif ($isParkingTypeChanged) {
+                if ($parkingFee->capacity > 0 && !$parkingFee->hasAvailableQuota()) {
+                    throw new \Exception(
+                        'Parking quota is full for ' . ucfirst($request->parking_type) .
+                        '. Tidak dapat mengubah tipe parkir dari ' . ucfirst($existingParkingType) .
+                        ' ke ' . ucfirst($request->parking_type) .
+                        '. Available: 0, Capacity: ' . $parkingFee->capacity . '.'
                     );
                 }
             }
@@ -454,17 +506,37 @@ class ParkingPaymentController extends Controller
                 ]);
             }
 
-            // Increment quota hanya untuk parkir baru:
-            // - Bukan renewal (is_renewal) dan
-            // - Quota belum dikonsumsi oleh Parking Management
-            if (!$isRenewal && !$quotaAlreadyConsumedByManagement && $parkingFee->capacity > 0) {
+            // Kelola kuota parkir berdasarkan skenario:
+            // - Parkir baru            → increment tipe baru
+            // - Renewal tipe sama      → tidak ada perubahan (slot sudah occupied)
+            // - Renewal ganti tipe     → decrement tipe lama, increment tipe baru
+            // - Sudah dikonsumsi PM    → tidak increment (slot sudah tercatat)
+            if ($isRenewal && $isParkingTypeChanged) {
+                // Bebaskan kuota tipe lama
+                $oldParkingFee = ParkingFee::where('property_id', $bookingTransaction->property_id)
+                    ->where('parking_type', $existingParkingType)
+                    ->where('status', 1)
+                    ->first();
+
+                if ($oldParkingFee && $oldParkingFee->capacity > 0) {
+                    $oldParkingFee->decrementQuota();
+                }
+
+                // Ambil kuota tipe baru
+                if ($parkingFee->capacity > 0) {
+                    $parkingFee->incrementQuota();
+                }
+            } elseif (!$isRenewal && !$quotaAlreadyConsumedByManagement && $parkingFee->capacity > 0) {
                 $parkingFee->incrementQuota();
             }
 
             DB::commit();
 
             // Build success message
-            if ($isRenewal) {
+            if ($isRenewal && $isParkingTypeChanged) {
+                $message = 'Parking renewal payment added successfully (tipe parkir berubah: '
+                    . ucfirst($existingParkingType) . ' → ' . ucfirst($request->parking_type) . ')';
+            } elseif ($isRenewal) {
                 $message = 'Parking renewal payment added successfully (quota unchanged)';
             } elseif ($quotaAlreadyConsumedByManagement) {
                 $message = 'Parking payment added successfully (quota already counted by Parking Management)';
@@ -473,7 +545,7 @@ class ParkingPaymentController extends Controller
             }
             if ($parkingFee->capacity === 0) {
                 $message .= '. This property has unlimited parking (no quota limit).';
-            } elseif (!$isRenewal && !$quotaAlreadyConsumedByManagement) {
+            } elseif ($isParkingTypeChanged || (!$isRenewal && !$quotaAlreadyConsumedByManagement)) {
                 $remaining = $parkingFee->fresh()->available_quota;
                 $message .= ". Parking quota: {$remaining}/{$parkingFee->capacity} available.";
             }
