@@ -569,43 +569,21 @@ class ParkingPaymentController extends Controller
                         $maxParkingMonths = max(1, $maxParkingMonths);
                     }
 
-                    // Check existing parking for this specific order_id
+                    $isRenewalBooking = $booking->transaction && $booking->transaction->is_renewal == 1;
+                    $userId = $booking->transaction->user_id ?? null;
+                    $parkingStatus = 'new';
+                    $parkingInfo = null;
+
+                    // === Alur 2: Cek t_parking_fee_transaction by order_id saat ini ===
                     $existingParking = ParkingFeeTransaction::where('order_id', $booking->order_id)
                         ->where('transaction_status', 'paid')
                         ->orderBy('created_at', 'desc')
                         ->first();
 
-                    $isRenewalBooking = $booking->transaction && $booking->transaction->is_renewal == 1;
-                    $fromPreviousOrder = false;
-
-                    // For renewal bookings (is_renewal=1), parking may be registered under
-                    // a previous order_id — detect via user_id + property_id
-                    if (!$existingParking && $isRenewalBooking && ($booking->transaction->user_id ?? null)) {
-                        $existingParking = ParkingFeeTransaction::where('user_id', $booking->transaction->user_id)
-                            ->where('property_id', $booking->property_id)
-                            ->where('transaction_status', 'paid')
-                            ->orderBy('created_at', 'desc')
-                            ->first();
-                        $fromPreviousOrder = (bool) $existingParking;
-                    }
-
-                    $parkingStatus = 'new';
-                    $parkingInfo = null;
-
                     if ($existingParking) {
                         $expiryDate = \Carbon\Carbon::parse($existingParking->transaction_date)
                             ->addMonths($existingParking->parking_duration ?? 1);
-
-                        if ($fromPreviousOrder) {
-                            // Renewal booking: parking from previous order still active
-                            // user still occupies the same slot
-                            $parkingStatus = 'renewal';
-                        } elseif ($expiryDate->isFuture()) {
-                            $parkingStatus = 'active';
-                        } else {
-                            $parkingStatus = 'renewal';
-                        }
-
+                        $parkingStatus = $expiryDate->isFuture() ? 'active' : 'renewal';
                         $parkingInfo = [
                             'parking_type'  => $existingParking->parking_type,
                             'vehicle_plate' => $existingParking->vehicle_plate,
@@ -613,6 +591,71 @@ class ParkingPaymentController extends Controller
                             'expiry_date'   => $expiryDate->format('d M Y'),
                             'expired_ago'   => $expiryDate->diffForHumans(),
                         ];
+                    }
+
+                    // === Alur 1: Cek t_transactions — parkir dibeli bersamaan booking kamar ===
+                    if (!$parkingInfo) {
+                        $txn = $booking->transaction;
+                        if ($txn && $txn->parking_type && $txn->parking_fee > 0 && $txn->parking_duration) {
+                            $checkIn = \Carbon\Carbon::parse($txn->check_in);
+                            $expiryDate = $checkIn->copy()->addMonths((int) $txn->parking_duration);
+                            $parkingStatus = $expiryDate->isFuture() ? 'active' : 'renewal';
+                            $parkingInfo = [
+                                'parking_type'  => $txn->parking_type,
+                                'vehicle_plate' => null,
+                                'duration'      => $txn->parking_duration,
+                                'expiry_date'   => $expiryDate->format('d M Y'),
+                                'expired_ago'   => $expiryDate->diffForHumans(),
+                            ];
+                        }
+                    }
+
+                    // === Renewal: Cek t_parking_fee_transaction order sebelumnya (Alur 2 lama) ===
+                    if (!$parkingInfo && $isRenewalBooking && $userId) {
+                        $prevParkingTxn = ParkingFeeTransaction::where('user_id', $userId)
+                            ->where('property_id', $booking->property_id)
+                            ->where('transaction_status', 'paid')
+                            ->orderBy('created_at', 'desc')
+                            ->first();
+
+                        if ($prevParkingTxn) {
+                            $expiryDate = \Carbon\Carbon::parse($prevParkingTxn->transaction_date)
+                                ->addMonths($prevParkingTxn->parking_duration ?? 1);
+                            $parkingStatus = 'renewal';
+                            $parkingInfo = [
+                                'parking_type'  => $prevParkingTxn->parking_type,
+                                'vehicle_plate' => $prevParkingTxn->vehicle_plate,
+                                'duration'      => $prevParkingTxn->parking_duration,
+                                'expiry_date'   => $expiryDate->format('d M Y'),
+                                'expired_ago'   => $expiryDate->diffForHumans(),
+                            ];
+                        }
+                    }
+
+                    // === Renewal: Cek t_transactions order sebelumnya (Alur 1 lama) ===
+                    if (!$parkingInfo && $isRenewalBooking && $userId) {
+                        $prevTxn = \App\Models\Transaction::where('user_id', $userId)
+                            ->where('property_id', $booking->property_id)
+                            ->where('transaction_status', 'paid')
+                            ->whereNotNull('parking_type')
+                            ->where('parking_fee', '>', 0)
+                            ->whereNotNull('parking_duration')
+                            ->where('order_id', '!=', $booking->order_id)
+                            ->orderBy('created_at', 'desc')
+                            ->first();
+
+                        if ($prevTxn && $prevTxn->check_in && $prevTxn->parking_duration) {
+                            $checkIn = \Carbon\Carbon::parse($prevTxn->check_in);
+                            $expiryDate = $checkIn->copy()->addMonths((int) $prevTxn->parking_duration);
+                            $parkingStatus = 'renewal';
+                            $parkingInfo = [
+                                'parking_type'  => $prevTxn->parking_type,
+                                'vehicle_plate' => null,
+                                'duration'      => $prevTxn->parking_duration,
+                                'expiry_date'   => $expiryDate->format('d M Y'),
+                                'expired_ago'   => $expiryDate->diffForHumans(),
+                            ];
+                        }
                     }
 
                     return [
