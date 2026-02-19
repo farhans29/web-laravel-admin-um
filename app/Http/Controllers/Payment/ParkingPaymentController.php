@@ -792,8 +792,10 @@ class ParkingPaymentController extends Controller
                 throw new \Exception('Only paid parking can be checked out');
             }
 
-            // Check if user has other active paid parking transactions (renewal)
-            // If yes, this is a renewal checkout - don't decrement quota
+            // Cek apakah user masih punya parkir aktif lain (dari semua sumber)
+            // Jika ya → jangan kembalikan kuota (slot masih terpakai)
+
+            // Cek 1: t_parking_fee_transaction lain yang masih paid (Alur PP)
             $hasOtherActivePaid = ParkingFeeTransaction::where('user_id', $transaction->user_id)
                 ->where('property_id', $transaction->property_id)
                 ->where('parking_type', $transaction->parking_type)
@@ -801,13 +803,37 @@ class ParkingPaymentController extends Controller
                 ->where('idrec', '!=', $transaction->idrec)
                 ->exists();
 
+            // Cek 2: order lain di t_transactions yang punya parkir bundled (Alur booking kamar + parkir)
+            // Misal: user memperpanjang kamar dan parkir sudah termasuk di booking baru
+            if (!$hasOtherActivePaid) {
+                $hasOtherActivePaid = \App\Models\Transaction::where('user_id', $transaction->user_id)
+                    ->where('property_id', $transaction->property_id)
+                    ->where('transaction_status', 'paid')
+                    ->where('parking_type', $transaction->parking_type)
+                    ->where('parking_fee', '>', 0)
+                    ->whereNotNull('parking_duration')
+                    ->where('order_id', '!=', $transaction->order_id)
+                    ->exists();
+            }
+
+            // Cek 3: t_parking masih aktif via Parking Management (management_only=1)
+            // Berarti slot sudah dikonsumsi PM, PP tidak boleh kembalikan kuota PM
+            if (!$hasOtherActivePaid) {
+                $hasOtherActivePaid = \App\Models\Parking::where('user_id', $transaction->user_id)
+                    ->where('property_id', $transaction->property_id)
+                    ->where('parking_type', $transaction->parking_type)
+                    ->where('status', 1)
+                    ->where('management_only', 1)
+                    ->exists();
+            }
+
             // Update transaction to completed/checked-out
             $transaction->update([
                 'transaction_status' => 'completed',
                 'updated_by' => Auth::id(),
             ]);
 
-            // Only decrement quota if user has no other active paid parking (not a renewal)
+            // Kembalikan kuota hanya jika user tidak punya parkir aktif lain
             if (!$hasOtherActivePaid) {
                 $parkingFee = $transaction->getParkingFeeViaParking();
                 if ($parkingFee && $parkingFee->capacity > 0) {
