@@ -339,49 +339,39 @@ class ParkingController extends Controller
 
                 // Adjust quota if parking type changed
                 if ($typeChanged) {
-                    // Untuk parking management_only=1: quota selalu ada (dikonsumsi oleh PM)
-                    // Untuk parking management_only=0: quota ada jika ada active paid transaction (dikonsumsi PP)
-                    $shouldAdjustQuota = $parking->management_only
-                        ? true
-                        : ParkingFeeTransaction::where('parking_id', $parking->idrec)
+                    // Decrement old type quota (decrementQuota handles quota_used=0 safely)
+                    $oldParkingFee = ParkingFee::where('property_id', $parking->property_id)
+                        ->where('parking_type', $oldParkingType)
+                        ->where('status', 1)
+                        ->first();
+
+                    if ($oldParkingFee && $oldParkingFee->capacity > 0) {
+                        $oldParkingFee->decrementQuota();
+                    }
+
+                    // Check new type quota availability
+                    if ($newParkingFee->capacity > 0 && !$newParkingFee->hasAvailableQuota()) {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Kuota parkir ' . ucfirst($validated['parking_type']) . ' sudah penuh. Tersedia: 0, Kapasitas: ' . $newParkingFee->capacity
+                        ], 422);
+                    }
+
+                    // Increment new type quota
+                    if ($newParkingFee->capacity > 0) {
+                        $newParkingFee->incrementQuota();
+                    }
+
+                    // Update parking_type on active paid transactions if linked to PP
+                    if (!$parking->management_only) {
+                        ParkingFeeTransaction::where('parking_id', $parking->idrec)
                             ->where('transaction_status', 'paid')
-                            ->exists();
-
-                    if ($shouldAdjustQuota) {
-                        // Decrement old type quota
-                        $oldParkingFee = ParkingFee::where('property_id', $parking->property_id)
-                            ->where('parking_type', $oldParkingType)
-                            ->where('status', 1)
-                            ->first();
-
-                        if ($oldParkingFee && $oldParkingFee->capacity > 0) {
-                            $oldParkingFee->decrementQuota();
-                        }
-
-                        // Check new type quota availability
-                        if ($newParkingFee->capacity > 0 && !$newParkingFee->hasAvailableQuota()) {
-                            DB::rollBack();
-                            return response()->json([
-                                'success' => false,
-                                'message' => 'Kuota parkir ' . ucfirst($validated['parking_type']) . ' sudah penuh. Tersedia: 0, Kapasitas: ' . $newParkingFee->capacity
-                            ], 422);
-                        }
-
-                        // Increment new type quota
-                        if ($newParkingFee->capacity > 0) {
-                            $newParkingFee->incrementQuota();
-                        }
-
-                        // Update parking_type on active paid transactions (hanya untuk PP-managed)
-                        if (!$parking->management_only) {
-                            ParkingFeeTransaction::where('parking_id', $parking->idrec)
-                                ->where('transaction_status', 'paid')
-                                ->update([
-                                    'parking_type' => $validated['parking_type'],
-                                    'fee_amount' => $newParkingFee->fee,
-                                    'updated_by' => Auth::id(),
-                                ]);
-                        }
+                            ->update([
+                                'parking_type' => $validated['parking_type'],
+                                'fee_amount' => $newParkingFee->fee,
+                                'updated_by' => Auth::id(),
+                            ]);
                     }
                 }
             }
