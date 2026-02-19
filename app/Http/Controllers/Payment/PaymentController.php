@@ -284,7 +284,8 @@ class PaymentController extends Controller
                     'reason' => $cancelReason,
                 ]);
 
-                // Reset rental_status on room if no other active bookings
+                // Reset rental_status on room jika tidak ada booking aktif lain
+                // dan tamu dari booking ini tidak sedang check-in
                 if ($booking->room_id) {
                     $hasOtherActiveBooking = Booking::where('room_id', $booking->room_id)
                         ->where('status', 1)
@@ -295,7 +296,11 @@ class PaymentController extends Controller
                         })
                         ->exists();
 
-                    if (!$hasOtherActiveBooking) {
+                    // Jangan reset rental_status jika tamu booking ini sedang check-in
+                    // (check_in_at terisi, check_out_at masih null)
+                    $guestStillCheckedIn = !is_null($booking->check_in_at) && is_null($booking->check_out_at);
+
+                    if (!$hasOtherActiveBooking && !$guestStillCheckedIn) {
                         Room::where('idrec', $booking->room_id)
                             ->update(['rental_status' => 0]);
                     }
