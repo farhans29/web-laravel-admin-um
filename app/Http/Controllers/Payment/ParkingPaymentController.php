@@ -600,9 +600,17 @@ class ParkingPaymentController extends Controller
                             $checkIn = \Carbon\Carbon::parse($txn->check_in);
                             $expiryDate = $checkIn->copy()->addMonths((int) $txn->parking_duration);
                             $parkingStatus = $expiryDate->isFuture() ? 'active' : 'renewal';
+
+                            // Ambil plat kendaraan dari t_parking berdasarkan user + properti + tipe
+                            $parkingRecord = \App\Models\Parking::where('user_id', $userId)
+                                ->where('property_id', $booking->property_id)
+                                ->where('parking_type', $txn->parking_type)
+                                ->where('status', 1)
+                                ->first();
+
                             $parkingInfo = [
                                 'parking_type'  => $txn->parking_type,
-                                'vehicle_plate' => null,
+                                'vehicle_plate' => $parkingRecord->vehicle_plate ?? null,
                                 'duration'      => $txn->parking_duration,
                                 'expiry_date'   => $expiryDate->format('d M Y'),
                                 'expired_ago'   => $expiryDate->diffForHumans(),
@@ -648,9 +656,17 @@ class ParkingPaymentController extends Controller
                             $checkIn = \Carbon\Carbon::parse($prevTxn->check_in);
                             $expiryDate = $checkIn->copy()->addMonths((int) $prevTxn->parking_duration);
                             $parkingStatus = 'renewal';
+
+                            // Ambil plat kendaraan dari t_parking berdasarkan user + properti + tipe
+                            $parkingRecord = \App\Models\Parking::where('user_id', $userId)
+                                ->where('property_id', $booking->property_id)
+                                ->where('parking_type', $prevTxn->parking_type)
+                                ->where('status', 1)
+                                ->first();
+
                             $parkingInfo = [
                                 'parking_type'  => $prevTxn->parking_type,
-                                'vehicle_plate' => null,
+                                'vehicle_plate' => $parkingRecord->vehicle_plate ?? null,
                                 'duration'      => $prevTxn->parking_duration,
                                 'expiry_date'   => $expiryDate->format('d M Y'),
                                 'expired_ago'   => $expiryDate->diffForHumans(),

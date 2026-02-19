@@ -346,6 +346,12 @@
         function closeAddParkingModal() {
             document.getElementById('addParkingModal').classList.add('hidden');
             document.body.style.overflow = '';
+            // Reset parking status badge
+            const statusSection = document.getElementById('prk_parking_status_section');
+            if (statusSection) {
+                statusSection.classList.add('hidden');
+                statusSection.innerHTML = '';
+            }
         }
 
         function loadPrkCheckedInOrders() {
