@@ -264,20 +264,40 @@
                         </select>
                     </div>
                     <!-- Fee Info Display -->
-                    <div x-show="feeInfo.show" x-transition class="rounded-lg border p-3" :class="feeInfo.changed ? 'border-amber-300 bg-amber-50 dark:border-amber-600 dark:bg-amber-900/20' : 'border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20'">
+                    <div x-show="feeInfo.show" x-transition class="rounded-lg border p-3"
+                        :class="feeInfo.quotaFull ? 'border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-900/20' : (feeInfo.changed ? 'border-amber-300 bg-amber-50 dark:border-amber-600 dark:bg-amber-900/20' : 'border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20')">
                         <div class="flex items-start gap-2">
-                            <svg class="h-5 w-5 mt-0.5 flex-shrink-0" :class="feeInfo.changed ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="h-5 w-5 mt-0.5 flex-shrink-0"
+                                :class="feeInfo.quotaFull ? 'text-red-600 dark:text-red-400' : (feeInfo.changed ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400')"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div class="flex-1 text-sm">
-                                <p class="font-medium" :class="feeInfo.changed ? 'text-amber-900 dark:text-amber-100' : 'text-blue-900 dark:text-blue-100'" x-text="feeInfo.title"></p>
-                                <p class="mt-1" :class="feeInfo.changed ? 'text-amber-700 dark:text-amber-300' : 'text-blue-700 dark:text-blue-300'">
+                                <p class="font-medium"
+                                    :class="feeInfo.quotaFull ? 'text-red-900 dark:text-red-100' : (feeInfo.changed ? 'text-amber-900 dark:text-amber-100' : 'text-blue-900 dark:text-blue-100')"
+                                    x-text="feeInfo.quotaFull ? 'Kuota penuh - tidak dapat mengubah ke type ini' : feeInfo.title"></p>
+                                <p class="mt-1" :class="feeInfo.quotaFull ? 'text-red-700 dark:text-red-300' : (feeInfo.changed ? 'text-amber-700 dark:text-amber-300' : 'text-blue-700 dark:text-blue-300')">
                                     Fee: <strong x-text="feeInfo.feeFormatted"></strong>/bulan
                                 </p>
                                 <template x-if="feeInfo.changed">
-                                    <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">
-                                        Sebelumnya (<span x-text="feeInfo.oldTypeLabel"></span>): <strong x-text="feeInfo.oldFeeFormatted"></strong>/bulan
-                                    </p>
+                                    <div>
+                                        <p class="mt-1 text-xs" :class="feeInfo.quotaFull ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'">
+                                            Sebelumnya (<span x-text="feeInfo.oldTypeLabel"></span>): <strong x-text="feeInfo.oldFeeFormatted"></strong>/bulan
+                                        </p>
+                                        <template x-if="feeInfo.capacity > 0">
+                                            <div class="mt-2">
+                                                <p class="text-xs font-medium" :class="feeInfo.quotaFull ? 'text-red-700 dark:text-red-300' : 'text-amber-700 dark:text-amber-300'">
+                                                    Kuota: <strong x-text="feeInfo.availableQuota + ' slot tersedia'"></strong>
+                                                    <span class="font-normal" x-text="'dari ' + feeInfo.capacity + ' total'"></span>
+                                                </p>
+                                                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 mt-1">
+                                                    <div class="h-1.5 rounded-full transition-all duration-300"
+                                                        :class="feeInfo.quotaFull ? 'bg-red-500' : (feeInfo.quotaPercentage >= 80 ? 'bg-yellow-500' : 'bg-green-500')"
+                                                        :style="'width: ' + feeInfo.quotaPercentage + '%'"></div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </template>
                             </div>
                         </div>
@@ -312,8 +332,8 @@
                             class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 hover:bg-gray-50">
                             {{ __('ui.cancel') }}
                         </button>
-                        <button type="submit" :disabled="isSubmitting"
-                            class="px-4 py-1.5 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow disabled:opacity-50">
+                        <button type="submit" :disabled="isSubmitting || feeInfo.quotaFull"
+                            class="px-4 py-1.5 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow disabled:opacity-50 disabled:cursor-not-allowed">
                             <span x-show="!isSubmitting">{{ __('ui.save_changes') }}</span>
                             <span x-show="isSubmitting">{{ __('ui.processing') }}</span>
                         </button>
@@ -958,7 +978,7 @@
                             property_id: d.property_id,
                             original_parking_type: d.parking_type
                         };
-                        this.feeInfo = { show: false, changed: false, title: '', feeFormatted: '', oldFeeFormatted: '', oldTypeLabel: '' };
+                        this.feeInfo = { show: false, changed: false, title: '', feeFormatted: '', oldFeeFormatted: '', oldTypeLabel: '', availableQuota: 0, capacity: 0, quotaPercentage: 0, quotaFull: false };
                         this.feesCache = {};
                         this.isOpen = true;
                         this.fetchFeeInfo();
@@ -983,6 +1003,7 @@
                         const formatRp = (v) => 'Rp ' + parseInt(v).toLocaleString('id-ID');
 
                         if (currentFee) {
+                            const quotaFull = typeChanged && currentFee.capacity > 0 && currentFee.available_quota === 0;
                             this.feeInfo = {
                                 show: true,
                                 changed: typeChanged,
@@ -991,7 +1012,11 @@
                                     : 'Fee ' + typeLabel(this.parking.parking_type),
                                 feeFormatted: formatRp(currentFee.fee),
                                 oldFeeFormatted: oldFee ? formatRp(oldFee.fee) : '-',
-                                oldTypeLabel: typeLabel(this.parking.original_parking_type)
+                                oldTypeLabel: typeLabel(this.parking.original_parking_type),
+                                availableQuota: currentFee.available_quota ?? 0,
+                                capacity: currentFee.capacity ?? 0,
+                                quotaPercentage: currentFee.quota_percentage ?? 0,
+                                quotaFull: quotaFull
                             };
                         } else {
                             this.feeInfo = {
@@ -1000,7 +1025,11 @@
                                 title: 'Fee ' + typeLabel(this.parking.parking_type) + ' belum dikonfigurasi',
                                 feeFormatted: '-',
                                 oldFeeFormatted: oldFee ? formatRp(oldFee.fee) : '-',
-                                oldTypeLabel: typeLabel(this.parking.original_parking_type)
+                                oldTypeLabel: typeLabel(this.parking.original_parking_type),
+                                availableQuota: 0,
+                                capacity: 0,
+                                quotaPercentage: 0,
+                                quotaFull: false
                             };
                         }
                     } catch (e) {

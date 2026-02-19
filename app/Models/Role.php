@@ -28,6 +28,9 @@ class Role extends Model
 
     public function hasWidgetAccess($widgetSlug)
     {
-        return $this->dashboardWidgets()->where('slug', $widgetSlug)->where('is_active', 1)->exists();
+        return $this->dashboardWidgets()
+            ->where('dashboard_widgets.slug', $widgetSlug)
+            ->where('dashboard_widgets.is_active', 1)
+            ->exists();
     }
 }

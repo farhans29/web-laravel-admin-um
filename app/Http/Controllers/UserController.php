@@ -283,11 +283,12 @@ class UserController extends Controller
 
         // Validasi input - sesuaikan dengan field yang ada di form
         $validationRules = [
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'name'       => 'required|string|max:255|unique:users,username,' . $id,
-            'email'      => 'required|email|unique:users,email,' . $id,
-            'nik'        => 'nullable|string|max:20',
+            'first_name'   => 'required|string|max:255',
+            'last_name'    => 'required|string|max:255',
+            'username'     => 'required|string|max:255|unique:users,username,' . $id,
+            'email'        => 'required|email|unique:users,email,' . $id,
+            'phone_number' => 'nullable|string|max:20',
+            'nik'          => 'nullable|string|max:20',
         ];
 
         // Jika ada field role dan status (untuk admin management)
@@ -321,13 +322,14 @@ class UserController extends Controller
 
         // Prepare update data
         $updateData = [
-            'first_name' => $request->first_name,
-            'last_name'  => $request->last_name,
-            'username'   => $request->name,
-            'email'      => $request->email,
-            'nik'        => $request->nik,
-            'updated_by' => Auth::id(),
-            'updated_at' => now()
+            'first_name'   => $request->first_name,
+            'last_name'    => $request->last_name,
+            'username'     => $request->username,
+            'email'        => $request->email,
+            'phone_number' => $request->phone_number,
+            'nik'          => $request->nik,
+            'updated_by'   => Auth::id(),
+            'updated_at'   => now()
         ];
 
         // Update role jika ada (untuk admin management)
@@ -358,6 +360,12 @@ class UserController extends Controller
 
         // Update user
         $user->update($updateData);
+
+        // Jika update dari Account Settings (user sendiri), redirect kembali ke account settings
+        // Jika update dari User Management (admin), redirect ke user management
+        if ($user->id === Auth::id()) {
+            return redirect()->route('users.show')->with('success', 'Profile updated successfully!');
+        }
 
         return redirect()->route('users-newManagement')->with('success', 'User Updated Successfully!');
     }

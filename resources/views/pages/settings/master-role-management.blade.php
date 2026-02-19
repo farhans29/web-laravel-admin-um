@@ -343,6 +343,7 @@
                             <option value="finance">Finance (Keuangan)</option>
                             <option value="rooms">Rooms (Kamar)</option>
                             <option value="reports">Reports (Laporan)</option>
+                            <option value="communication">Communication</option>
                         </select>
                     </div>
                     <div class="flex items-center">
@@ -396,6 +397,11 @@
                                             'bg' => 'bg-orange-100',
                                             'text' => 'text-orange-800',
                                             'icon' => 'text-orange-500',
+                                        ],
+                                        'communication' => [
+                                            'bg' => 'bg-pink-100',
+                                            'text' => 'text-pink-800',
+                                            'icon' => 'text-pink-500',
                                         ],
                                     ];
 

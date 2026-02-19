@@ -114,7 +114,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'category' => 'finance',
                 'icon' => 'fas fa-exchange-alt',
                 'order' => 10,
-                'is_active' => 1
+                'is_active' => 0
             ],
             [
                 'name' => 'Transaksi Terbaru',
@@ -123,7 +123,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'category' => 'finance',
                 'icon' => 'fas fa-receipt',
                 'order' => 11,
-                'is_active' => 1
+                'is_active' => 0
             ],
 
             // Kategori: Rooms (Informasi Kamar)
@@ -199,7 +199,7 @@ class DashboardWidgetsSeeder extends Seeder
                 'category' => 'reports',
                 'icon' => 'fas fa-dollar-sign',
                 'order' => 18,
-                'is_active' => 1
+                'is_active' => 0
             ]
         ];
 

@@ -298,33 +298,6 @@
                             {{ __('ui.account_details') }}
                         </h2>
 
-                        @if (session('success'))
-                            <div class="mb-4 bg-green-50 border border-green-100 rounded-xl p-4">
-                                <div class="flex">
-                                    <svg class="h-5 w-5 text-green-600 flex-shrink-0" fill="currentColor"
-                                        viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <p class="ml-3 text-sm text-green-800">{{ session('success') }}</p>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="mb-4 bg-red-50 border border-red-100 rounded-xl p-4">
-                                <div class="flex">
-                                    <svg class="h-5 w-5 text-red-600 flex-shrink-0" fill="currentColor"
-                                        viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <p class="ml-3 text-sm text-red-800">{{ session('error') }}</p>
-                                </div>
-                            </div>
-                        @endif
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="group">
@@ -584,33 +557,6 @@
                                 {{ __('ui.change_password_btn') }}
                             </h2>
 
-                            @if (session('password_success'))
-                                <div class="mb-4 bg-green-50 border border-green-100 rounded-xl p-4">
-                                    <div class="flex">
-                                        <svg class="h-5 w-5 text-green-600 flex-shrink-0" fill="currentColor"
-                                            viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        <p class="ml-3 text-sm text-green-800">{{ session('password_success') }}</p>
-                                    </div>
-                                </div>
-                            @endif
-
-                            @if (session('password_error'))
-                                <div class="mb-4 bg-red-50 border border-red-100 rounded-xl p-4">
-                                    <div class="flex">
-                                        <svg class="h-5 w-5 text-red-600 flex-shrink-0" fill="currentColor"
-                                            viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        <p class="ml-3 text-sm text-red-800">{{ session('password_error') }}</p>
-                                    </div>
-                                </div>
-                            @endif
 
                             <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
                                 <div class="flex">
@@ -1113,6 +1059,51 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Flash notifications via Toastify
+            @if (session('success'))
+                Toastify({
+                    text: "{{ session('success') }}",
+                    duration: 3500,
+                    close: true,
+                    gravity: "bottom",
+                    position: "right",
+                    style: { background: "#10B981" }
+                }).showToast();
+            @endif
+
+            @if (session('error'))
+                Toastify({
+                    text: "{{ session('error') }}",
+                    duration: 4000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "right",
+                    style: { background: "#EF4444" }
+                }).showToast();
+            @endif
+
+            @if (session('password_success'))
+                Toastify({
+                    text: "{{ session('password_success') }}",
+                    duration: 3500,
+                    close: true,
+                    gravity: "bottom",
+                    position: "right",
+                    style: { background: "#10B981" }
+                }).showToast();
+            @endif
+
+            @if (session('password_error'))
+                Toastify({
+                    text: "{{ session('password_error') }}",
+                    duration: 4000,
+                    close: true,
+                    gravity: "bottom",
+                    position: "right",
+                    style: { background: "#EF4444" }
+                }).showToast();
+            @endif
+
             // Toggle password visibility
             document.querySelectorAll('.toggle-password').forEach(button => {
                 button.addEventListener('click', function() {
