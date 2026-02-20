@@ -13,9 +13,14 @@ class ParkingFeeController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 8);
+        $showDeleted = $request->input('show_deleted', '0');
 
         $query = ParkingFee::with(['property', 'createdBy', 'updatedBy'])
             ->orderBy('created_at', 'desc');
+
+        if ($showDeleted === '1') {
+            $query->withTrashed();
+        }
 
         $user = Auth::user();
         $accessiblePropertyId = $user->getAccessiblePropertyId();
@@ -61,9 +66,14 @@ class ParkingFeeController extends Controller
         $search = $request->input('search');
         $status = $request->input('status', '');
         $parkingType = $request->input('parking_type', '');
+        $showDeleted = $request->input('show_deleted', '0');
 
         $query = ParkingFee::with(['property', 'createdBy', 'updatedBy'])
             ->orderBy('created_at', 'desc');
+
+        if ($showDeleted === '1') {
+            $query->withTrashed();
+        }
 
         $user = Auth::user();
         $accessiblePropertyId = $user->getAccessiblePropertyId();
@@ -167,6 +177,45 @@ class ParkingFeeController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui parking fee: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($idrec)
+    {
+        try {
+            $parkingFee = ParkingFee::findOrFail($idrec);
+
+            $parkingFee->update(['updated_by' => Auth::id()]);
+            $parkingFee->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Parking fee berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus parking fee: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($idrec)
+    {
+        try {
+            $parkingFee = ParkingFee::withTrashed()->findOrFail($idrec);
+            $parkingFee->restore();
+            $parkingFee->update(['updated_by' => Auth::id()]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Parking fee berhasil dipulihkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memulihkan parking fee: ' . $e->getMessage()
             ], 500);
         }
     }
