@@ -62,6 +62,15 @@
                                 <option value="50" {{ request('per_page', 8) == 50 ? 'selected' : '' }}>50</option>
                             </select>
                         </div>
+
+                        <div class="flex items-center gap-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="showDeletedFilter" class="sr-only peer" {{ request('show_deleted') == '1' ? 'checked' : '' }}>
+                                <div class="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:bg-red-500 transition-all duration-300"></div>
+                                <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-300 peer-checked:translate-x-4"></div>
+                            </label>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.show_deleted') }}</span>
+                        </div>
                     </div>
                 </form>
             </div>
