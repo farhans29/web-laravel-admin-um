@@ -377,8 +377,8 @@ class CustomerController extends Controller
             $mainAppUrl = env('MAIN_APP_URL');
             $apiKey     = env('MAIN_APP_API_KEY');
 
-            if (empty($mainAppUrl) || empty($apiKey)) {
-                Log::error('Customer update: MAIN_APP_URL or MAIN_APP_API_KEY is not configured.');
+            if (empty($mainAppUrl)) {
+                Log::error('Customer update: MAIN_APP_URL is not configured.');
                 return response()->json([
                     'status'  => 'error',
                     'message' => 'Layanan update tidak tersedia. Hubungi administrator.'
@@ -394,12 +394,17 @@ class CustomerController extends Controller
                 }
             }
 
+            $headers = [
+                'Accept'       => 'application/json',
+                'Content-Type' => 'application/json',
+            ];
+
+            if (!empty($apiKey)) {
+                $headers['X-API-KEY'] = $apiKey;
+            }
+
             $response = Http::timeout(30)
-                ->withHeaders([
-                    'X-API-KEY'    => $apiKey,
-                    'Accept'       => 'application/json',
-                    'Content-Type' => 'application/json',
-                ])
+                ->withHeaders($headers)
                 ->put($apiUrl, $putData);
 
             $responseData = $response->json();
