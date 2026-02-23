@@ -362,6 +362,7 @@ class CustomerController extends Controller
             'email'        => 'nullable|email|max:255',
             'phone_number' => 'nullable|string|max:20',
             'nik'          => 'nullable|string|max:16',
+            'password'     => 'nullable|string|min:6',
         ]);
 
         if ($validator->fails()) {
@@ -375,10 +376,19 @@ class CustomerController extends Controller
         try {
             $mainAppUrl = env('MAIN_APP_URL');
             $apiKey     = env('MAIN_APP_API_KEY');
-            $apiUrl     = rtrim($mainAppUrl, '/') . '/api/v1/users/' . $id;
+
+            if (empty($mainAppUrl) || empty($apiKey)) {
+                Log::error('Customer update: MAIN_APP_URL or MAIN_APP_API_KEY is not configured.');
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Layanan update tidak tersedia. Hubungi administrator.'
+                ], 422);
+            }
+
+            $apiUrl = rtrim($mainAppUrl, '/') . '/api/v1/users/' . $id;
 
             $putData = [];
-            foreach (['first_name', 'last_name', 'username', 'email', 'phone_number', 'nik'] as $field) {
+            foreach (['first_name', 'last_name', 'username', 'email', 'phone_number', 'nik', 'password'] as $field) {
                 if ($request->filled($field)) {
                     $putData[$field] = $request->input($field);
                 }
@@ -407,11 +417,12 @@ class CustomerController extends Controller
                 'response' => $responseData,
             ]);
 
+            // Always return 422 to the browser so fetch() handles it as JSON, not a network error
             return response()->json([
                 'status'  => 'error',
                 'message' => $responseData['message'] ?? 'Failed to update customer.',
                 'errors'  => $responseData['errors'] ?? null
-            ], $response->status() ?: 400);
+            ], 422);
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             Log::error('Customer update API connection error: ' . $e->getMessage());

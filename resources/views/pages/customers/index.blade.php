@@ -613,6 +613,14 @@
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="edit_nik_error"></p>
                             </div>
+
+                            <!-- Password -->
+                            <div class="md:col-span-2">
+                                <label for="edit_password" class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-gray-400 font-normal">(kosongkan jika tidak ingin mengubah)</span></label>
+                                <input type="password" id="edit_password" name="password" placeholder="Masukkan password baru (min. 6 karakter)"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="edit_password_error"></p>
+                            </div>
                         </div>
 
                         <!-- Footer -->
@@ -849,6 +857,7 @@
             document.getElementById('edit_email').value        = customer.email        || '';
             document.getElementById('edit_phone_number').value = customer.phone_number || '';
             document.getElementById('edit_nik').value          = customer.nik          || '';
+            document.getElementById('edit_password').value     = '';
             clearEditCustomerErrors();
             document.getElementById('editCustomerModal').classList.remove('hidden');
         }
@@ -891,6 +900,7 @@
             clearEditCustomerErrors();
             setEditCustomerLoading(true);
 
+            const password = document.getElementById('edit_password').value;
             const data = {
                 first_name:   document.getElementById('edit_first_name').value,
                 last_name:    document.getElementById('edit_last_name').value,
@@ -899,6 +909,7 @@
                 phone_number: document.getElementById('edit_phone_number').value,
                 nik:          document.getElementById('edit_nik').value,
             };
+            if (password) data.password = password;
 
             try {
                 const response = await fetch(`/customers/${editCustomerId}/update`, {
