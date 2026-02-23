@@ -57,7 +57,7 @@ class PaymentReportController extends Controller
         $user = Auth::user();
 
         $query = Transaction::with([
-                'payment',
+                'payment.verifiedBy',
                 'property',
                 'room',
                 'booking.refund',
@@ -162,14 +162,23 @@ class PaymentReportController extends Controller
             // VATT 11% = (Subtotal - DPP Diskon + DPP Parkir + DPP Deposit Fee) * 11%
             $vatt = ($subtotal - $dppDiskon + $dppParkir + $dppDepositFee) * 0.11;
 
-            // Room type
+            // Room type (name from m_rooms)
             $roomType = '-';
             if ($transaction->room) {
-                $roomType = $transaction->room->type ?? '-';
+                $roomType = $transaction->room->name ?? '-';
             }
+
+            // Room number (no from m_rooms)
+            $roomNumber = $transaction->room ? ($transaction->room->no ?? '-') : '-';
 
             // Get NIK from user if registered, otherwise null
             $nik = $transaction->user ? ($transaction->user->nik ?? '-') : '-';
+
+            // Get verified_by username
+            $verifiedBy = '-';
+            if ($payment && $payment->verifiedBy) {
+                $verifiedBy = $payment->verifiedBy->username ?? '-';
+            }
 
             return [
                 'no' => $offset + $index + 1,
@@ -178,8 +187,8 @@ class PaymentReportController extends Controller
                 'transaction_code' => $transaction->transaction_code ?? '-',
                 'property_name' => $transaction->property_name ?? '-',
                 'room_type' => $roomType,
-                'room_number' => $transaction->room ? $transaction->room->name : '-',
-                'room_name' => $transaction->room ? $transaction->room->name : '-',
+                'room_number' => $roomNumber,
+                'room_name' => $roomNumber,
                 'tenant_name' => $transaction->user_name ?? '-',
                 'nik' => $nik,
                 'mobile_number' => $transaction->user_phone_number ?? '-',
@@ -201,7 +210,7 @@ class PaymentReportController extends Controller
                 'dpp_deposit_fee' => 'Rp ' . number_format(round($dppDepositFee, 0), 0, ',', '.'),
                 'service_fee' => 'Rp ' . number_format($transaction->service_fees ?? 0, 0, ',', '.'),
                 'payment_status' => 'Paid',
-                'verified_by' => $payment && $payment->verified_by ? $payment->verified_by : '-',
+                'verified_by' => $verifiedBy,
                 'verified_at' => $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-',
                 'notes' => $this->formatNotes($transaction, $isRefund, $refundInfo),
                 'is_refund' => $isRefund,

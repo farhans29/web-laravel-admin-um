@@ -140,6 +140,15 @@
                                 <option value="50" {{ request('per_page', 8) == 50 ? 'selected' : '' }}>50</option>
                             </select>
                         </div>
+
+                        <div class="flex items-center gap-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="showDeletedFilter" class="sr-only peer" {{ request('show_deleted') == '1' ? 'checked' : '' }}>
+                                <div class="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:bg-red-500 transition-all duration-300"></div>
+                                <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-300 peer-checked:translate-x-4"></div>
+                            </label>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('ui.show_deleted') }}</span>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -257,6 +266,7 @@
             const status = document.getElementById('statusFilter')?.value || '';
             const parkingType = document.getElementById('parkingTypeFilter')?.value || '';
             const perPage = document.getElementById('perPageSelect')?.value || '8';
+            const showDeleted = document.getElementById('showDeletedFilter')?.checked ? '1' : '0';
 
             fetch('/properties/parking-fees/filter', {
                 method: 'POST',
@@ -265,7 +275,7 @@
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ search, status, parking_type: parkingType, per_page: perPage })
+                body: JSON.stringify({ search, status, parking_type: parkingType, per_page: perPage, show_deleted: showDeleted })
             })
             .then(r => r.json())
             .then(data => {
@@ -278,7 +288,53 @@
                 if (status) urlParams.append('status', status);
                 if (parkingType) urlParams.append('parking_type', parkingType);
                 if (perPage) urlParams.append('per_page', perPage);
+                if (showDeleted === '1') urlParams.append('show_deleted', '1');
                 window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+            });
+        }
+
+        function deleteParkingFee(id) {
+            Swal.fire({
+                title: '{{ __("ui.confirm_delete") }}',
+                text: 'Parking fee ini akan dihapus dan dapat dipulihkan kembali.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '{{ __("ui.delete") }}',
+                cancelButtonText: '{{ __("ui.cancel") }}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/properties/parking-fees/destroy/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: data.message, showConfirmButton: false, timer: 2500 });
+                            applyFilters();
+                        } else {
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: data.message, showConfirmButton: false, timer: 3000 });
+                        }
+                    });
+                }
+            });
+        }
+
+        function restoreParkingFee(id) {
+            fetch(`/properties/parking-fees/restore/${id}`, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: data.message, showConfirmButton: false, timer: 2500 });
+                    applyFilters();
+                } else {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: data.message, showConfirmButton: false, timer: 3000 });
+                }
             });
         }
 
@@ -288,6 +344,7 @@
             document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
             document.getElementById('parkingTypeFilter')?.addEventListener('change', applyFilters);
             document.getElementById('perPageSelect')?.addEventListener('change', applyFilters);
+            document.getElementById('showDeletedFilter')?.addEventListener('change', applyFilters);
         });
 
         document.addEventListener('alpine:init', () => {
