@@ -277,7 +277,7 @@ class PaymentReportExport
     private function getPayments()
     {
         $query = Transaction::with([
-                'payment',
+                'payment.verifiedBy',
                 'property',
                 'room',
                 'booking.refund',
@@ -371,14 +371,23 @@ class PaymentReportExport
         // Service Fee
         $serviceFee = $transaction->service_fees ?? 1;
 
-        // Room type
+        // Room type (name from m_rooms)
         $roomType = '-';
         if ($transaction->room) {
-            $roomType = $transaction->room->type ?? '-';
+            $roomType = $transaction->room->name ?? '-';
+        }
+
+        // Room number (no from m_rooms)
+        $roomNumber = $transaction->room ? ($transaction->room->no ?? '-') : '-';
+
+        // Get verified_by username
+        $verifiedBy = '-';
+        if ($payment && $payment->verifiedBy) {
+            $verifiedBy = $payment->verifiedBy->username ?? '-';
         }
 
         // Format notes with refund info
-        $notes = $transaction->notes ?? '';
+        $notes = $payment ? ($payment->notes ?? '') : '';
         if ($isRefund && $transaction->booking->refund) {
             $refundInfo = $transaction->booking->refund;
             $refundDate = Carbon::parse($refundInfo->refund_date)->format('d M Y');
@@ -405,7 +414,7 @@ class PaymentReportExport
             $transaction->transaction_code ?? '-',                                                  // Transaction Code
             $transaction->property_name ?? '-',                                                     // Property Name
             $roomType,                                                                              // Room Type
-            $transaction->room ? $transaction->room->name : '-',                                    // Room Number
+            $roomNumber,                                                                            // Room Number
             $transaction->user_name ?? '-',                                                         // Tenant Name
             $nik,                                                                                   // NIK
             $transaction->user_phone_number ?? '-',                                                 // Mobile Number
@@ -427,7 +436,7 @@ class PaymentReportExport
             round($dppDepositFee, 0),                                                              // DPP Deposit Fee
             round($serviceFee, 0),                                                                 // Service Fee
             'Paid',                                                                                // Payment Status
-            $payment && $payment->verified_by ? $payment->verified_by : '-',                       // Verified By
+            $verifiedBy,                                                                           // Verified By
             $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-', // Verified Date
             $notes,                                                                                // Notes
         ];
