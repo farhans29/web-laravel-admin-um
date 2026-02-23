@@ -77,6 +77,7 @@
                     <td class="px-6 py-4">
                         <div class="text-sm text-gray-900">{{ $customer->email ?? '-' }}</div>
                         <div class="text-sm text-gray-500">{{ $customer->phone ?? '-' }}</div>
+                        <div class="text-sm text-gray-400">NIK: {{ $customer->nik ?? '-' }}</div>
                     </td>
 
                     <!-- Registration Status -->
