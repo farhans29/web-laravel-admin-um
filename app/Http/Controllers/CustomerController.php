@@ -367,75 +367,42 @@ class CustomerController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors()
             ], 422);
         }
 
         try {
-            $mainAppUrl = env('MAIN_APP_URL');
-            $apiKey     = env('MAIN_APP_API_KEY');
+            $user = User::findOrFail($id);
 
-            if (empty($mainAppUrl)) {
-                Log::error('Customer update: MAIN_APP_URL is not configured.');
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'Layanan update tidak tersedia. Hubungi administrator.'
-                ], 422);
-            }
-
-            $apiUrl = rtrim($mainAppUrl, '/') . '/api/v1/users/' . $id;
-
-            $putData = [];
-            foreach (['first_name', 'last_name', 'username', 'email', 'phone_number', 'nik', 'password'] as $field) {
+            foreach (['first_name', 'last_name', 'username', 'email', 'phone_number', 'nik'] as $field) {
                 if ($request->filled($field)) {
-                    $putData[$field] = $request->input($field);
+                    $user->$field = $request->input($field);
                 }
             }
 
-            $headers = [
-                'Accept'       => 'application/json',
-                'Content-Type' => 'application/json',
-            ];
-
-            if (!empty($apiKey)) {
-                $headers['X-API-KEY'] = $apiKey;
+            if ($request->filled('first_name') || $request->filled('last_name')) {
+                $user->name = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
             }
 
-            $response = Http::timeout(30)
-                ->withHeaders($headers)
-                ->put($apiUrl, $putData);
-
-            $responseData = $response->json();
-
-            if ($response->successful() && isset($responseData['status']) && $responseData['status'] === 'success') {
-                return response()->json([
-                    'status'  => 'success',
-                    'message' => $responseData['message'] ?? 'Customer updated successfully.',
-                    'data'    => $responseData['data'] ?? null
-                ]);
+            if ($request->filled('password')) {
+                $user->password = \Illuminate\Support\Facades\Hash::make($request->input('password'));
             }
 
-            Log::warning('Customer update API error', [
-                'status'   => $response->status(),
-                'response' => $responseData,
+            $user->save();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Customer updated successfully.',
+                'data'    => $user->only(['id', 'first_name', 'last_name', 'username', 'email', 'phone_number', 'nik'])
             ]);
 
-            // Always return 422 to the browser so fetch() handles it as JSON, not a network error
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'status'  => 'error',
-                'message' => $responseData['message'] ?? 'Failed to update customer.',
-                'errors'  => $responseData['errors'] ?? null
-            ], 422);
-
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('Customer update API connection error: ' . $e->getMessage());
-
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Unable to connect to update service. Please try again later.'
-            ], 503);
+                'message' => 'Customer not found.'
+            ], 404);
 
         } catch (\Exception $e) {
             Log::error('Customer update error: ' . $e->getMessage());
