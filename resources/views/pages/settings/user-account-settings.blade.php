@@ -119,7 +119,7 @@
 
                             <!-- Action Buttons -->
                             <div class="flex space-x-3 w-full">
-                                <div x-data="{ modalOpenDetail: {{ $errors->any() ? 'true' : 'false' }}, showPassword: false, showConfirmPassword: false }" class="w-full">
+                                <div x-data="{ modalOpenDetail: {{ ($errors->hasBag('profile') && $errors->getBag('profile')->any()) ? 'true' : 'false' }} }" class="w-full">
                                     <!-- Button -->
                                     <button
                                         class="w-full px-5 py-3 bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-600 rounded-xl text-sm font-medium hover:from-indigo-100 hover:to-blue-100 hover:shadow-md transition-all duration-300 flex items-center justify-center group/button"
@@ -186,12 +186,11 @@
                                                             </label>
                                                             <input type="text" name="first_name" id="first_name"
                                                                 required
-                                                                class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
+                                                                class="w-full px-4 py-3 border rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300 {{ $errors->profile->has('first_name') ? 'border-red-400' : 'border-gray-200' }}"
                                                                 placeholder="{{ __('ui.enter_first_name') }}"
                                                                 value="{{ old('first_name', $user->first_name) }}">
-                                                            @error('first_name')
-                                                                <p class="text-red-500 text-xs mt-2">{{ $message }}
-                                                                </p>
+                                                            @error('first_name', 'profile')
+                                                                <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                             @enderror
                                                         </div>
                                                         <div class="group/input">
@@ -201,12 +200,11 @@
                                                             </label>
                                                             <input type="text" name="last_name" id="last_name"
                                                                 required
-                                                                class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
+                                                                class="w-full px-4 py-3 border rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300 {{ $errors->profile->has('last_name') ? 'border-red-400' : 'border-gray-200' }}"
                                                                 placeholder="{{ __('ui.enter_last_name') }}"
                                                                 value="{{ old('last_name', $user->last_name) }}">
-                                                            @error('last_name')
-                                                                <p class="text-red-500 text-xs mt-2">{{ $message }}
-                                                                </p>
+                                                            @error('last_name', 'profile')
+                                                                <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                             @enderror
                                                         </div>
                                                     </div>
@@ -215,13 +213,13 @@
                                                     <div class="mb-5 group/input">
                                                         <label
                                                             class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                            {{ __('ui.username') }} <span class="text-red-500 ml-1">*</span>
+                                                            {{ __('ui.username') }}
                                                         </label>
-                                                        <input type="text" name="username" id="username" required
+                                                        <input type="text" name="username" id="username"
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
                                                             placeholder="{{ __('ui.enter_username') }}"
                                                             value="{{ old('username', $user->username) }}">
-                                                        @error('username')
+                                                        @error('username', 'profile')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
                                                     </div>
@@ -233,10 +231,10 @@
                                                             {{ __('ui.email') }} <span class="text-red-500 ml-1">*</span>
                                                         </label>
                                                         <input type="email" name="email" id="email" required
-                                                            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
+                                                            class="w-full px-4 py-3 border rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300 {{ $errors->profile->has('email') ? 'border-red-400' : 'border-gray-200' }}"
                                                             placeholder="{{ __('ui.email_address') }}"
                                                             value="{{ old('email', $user->email) }}">
-                                                        @error('email')
+                                                        @error('email', 'profile')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
                                                     </div>
@@ -245,14 +243,13 @@
                                                     <div class="mb-5 group/input">
                                                         <label
                                                             class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                            {{ __('ui.contact') }} <span class="text-red-500 ml-1">*</span>
+                                                            {{ __('ui.contact') }}
                                                         </label>
                                                         <input type="text" name="phone_number" id="phone_number"
-                                                            required
                                                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-100 transition-all duration-200 group-hover/input:border-gray-300"
                                                             placeholder="{{ __('ui.phone_number') }}"
-                                                            value="{{ old('phone_number', $user->phone_number ?? __('ui.no_phone_number')) }}">
-                                                        @error('phone_number')
+                                                            value="{{ old('phone_number', $user->phone_number) }}">
+                                                        @error('phone_number', 'profile')
                                                             <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                                         @enderror
                                                     </div>
@@ -601,7 +598,7 @@
                                     </label>
                                     <div class="relative">
                                         <input type="password" id="current-password" name="current_password" required
-                                            class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300 @error('current_password') border-red-300 @enderror"
+                                            class="block w-full border rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300 {{ $errors->security->has('current_password') ? 'border-red-400' : 'border-gray-200' }}"
                                             placeholder="{{ __('ui.enter_current_password') }}">
                                         <button type="button"
                                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
@@ -619,7 +616,7 @@
                                             </svg>
                                         </button>
                                     </div>
-                                    @error('current_password')
+                                    @error('current_password', 'security')
                                         <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                     @enderror
                                 </div>
@@ -638,7 +635,7 @@
                                     </label>
                                     <div class="relative">
                                         <input type="password" id="new-password" name="password" required
-                                            class="block w-full border border-gray-200 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300 @error('password') border-red-300 @enderror"
+                                            class="block w-full border rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors group-hover:border-gray-300 {{ $errors->security->has('password') ? 'border-red-400' : 'border-gray-200' }}"
                                             placeholder="{{ __('ui.enter_new_password') }}">
                                         <button type="button"
                                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 toggle-password transition-colors">
@@ -660,7 +657,7 @@
                                         <div class="h-full bg-red-500 rounded-lg password-strength" style="width: 0%">
                                         </div>
                                     </div>
-                                    @error('password')
+                                    @error('password', 'security')
                                         <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                     @enderror
                                 </div>
@@ -701,7 +698,7 @@
                                     </div>
                                     <p x-show="!passwordMatch && document.getElementById('confirm-password').value.length > 0"
                                         class="text-red-500 text-xs mt-2">{{ __('ui.passwords_do_not_match') }}</p>
-                                    @error('password_confirmation')
+                                    @error('password_confirmation', 'security')
                                         <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
                                     @enderror
                                 </div>

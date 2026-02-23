@@ -13,6 +13,9 @@
                         Deskripsi
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Cara Klaim
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Dibuat Oleh
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -53,6 +56,18 @@
                             <div class="text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
                                 {{ $banner->descriptions ?: '-' }}
                             </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            @php $steps = $banner->how_to_claim ?? []; @endphp
+                            @if(count($steps) > 0)
+                                <ol class="list-decimal list-inside space-y-1 min-w-[160px] max-w-xs">
+                                    @foreach($steps as $step)
+                                        <li class="text-xs text-gray-700 dark:text-gray-300 leading-snug">{{ $step }}</li>
+                                    @endforeach
+                                </ol>
+                            @else
+                                <span class="text-sm text-gray-400">-</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900 dark:text-white">
@@ -106,7 +121,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-8 text-center">
+                        <td colspan="8" class="px-6 py-8 text-center">
                             <div class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
                                 <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

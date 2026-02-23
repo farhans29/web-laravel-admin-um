@@ -13,13 +13,15 @@ class PromoBanner extends Model
         'title',
         'image_id',
         'descriptions',
+        'how_to_claim',
         'status',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
-        'status' => 'integer',
+        'status'       => 'integer',
+        'how_to_claim' => 'array',
     ];
 
     public function images()
