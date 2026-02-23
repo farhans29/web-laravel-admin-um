@@ -283,7 +283,7 @@ class CustomerController extends Controller
 
         try {
             $mainAppUrl = env('MAIN_APP_URL');
-            $apiUrl = rtrim($mainAppUrl, '/') . '/auth/register-without-verification';
+            $apiUrl = rtrim($mainAppUrl, '/') . '/api/v1/auth/register-without-verification';
 
             $postData = [
                 'first_name' => $request->first_name,
@@ -319,6 +319,10 @@ class CustomerController extends Controller
             }
 
             // Handle error response from external API
+            Log::warning('Pre-registration API error', [
+                'status' => $response->status(),
+                'response' => $responseData,
+            ]);
             return response()->json([
                 'status' => 'error',
                 'message' => $responseData['message'] ?? 'Registration failed. Please try again.',
