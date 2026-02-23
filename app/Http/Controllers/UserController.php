@@ -52,11 +52,6 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        // Pastikan user adalah admin
-        if (!$user || !$user->is_admin) {
-            abort(403, 'Access denied. User is not an admin.');
-        }
-
         $roles = Role::where('name', '!=', 'Admin')->get();
 
         return view('pages.settings.user-account-settings', compact('user', 'roles'));

@@ -119,7 +119,7 @@
 
                             <!-- Action Buttons -->
                             <div class="flex space-x-3 w-full">
-                                <div x-data="{ modalOpenDetail: false, showPassword: false, showConfirmPassword: false }" class="w-full">
+                                <div x-data="{ modalOpenDetail: {{ $errors->any() ? 'true' : 'false' }}, showPassword: false, showConfirmPassword: false }" class="w-full">
                                     <!-- Button -->
                                     <button
                                         class="w-full px-5 py-3 bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-600 rounded-xl text-sm font-medium hover:from-indigo-100 hover:to-blue-100 hover:shadow-md transition-all duration-300 flex items-center justify-center group/button"
@@ -172,8 +172,8 @@
                                             <!-- Body -->
                                             <div class="p-6">
                                                 <form id="userForm" method="POST"
-                                                    action="{{ route('users.update', $user->id) }}"
-                                                    enctype="multipart/form-data" autocomplete="off">
+                                                    action="{{ route('user.profile.update') }}"
+                                                    autocomplete="off">
                                                     @csrf
                                                     @method('PUT')
 
