@@ -41,23 +41,30 @@ class PromoBannerController extends Controller
     {
         try {
             $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'descriptions' => 'nullable|string',
-                'status' => 'required|in:0,1',
-                'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'title'          => 'required|string|max:255',
+                'descriptions'   => 'nullable|string',
+                'how_to_claim'   => 'nullable|array',
+                'how_to_claim.*' => 'nullable|string|max:500',
+                'banner_image'   => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             ], [
                 'banner_image.required' => 'Gambar banner wajib diupload.',
-                'banner_image.image' => 'File harus berupa gambar.',
-                'banner_image.mimes' => 'Format gambar harus jpeg, png, jpg, gif, atau webp.',
-                'banner_image.max' => 'Ukuran gambar maksimal 5MB.',
+                'banner_image.image'    => 'File harus berupa gambar.',
+                'banner_image.mimes'    => 'Format gambar harus jpeg, png, jpg, gif, atau webp.',
+                'banner_image.max'      => 'Ukuran gambar maksimal 5MB.',
             ]);
+
+            // Filter out empty how_to_claim items
+            $howToClaim = !empty($validated['how_to_claim'])
+                ? array_values(array_filter($validated['how_to_claim'], fn($v) => $v !== null && $v !== ''))
+                : null;
 
             // Create promo banner
             $banner = PromoBanner::create([
-                'title' => $validated['title'],
+                'title'        => $validated['title'],
                 'descriptions' => $validated['descriptions'],
-                'status' => $validated['status'],
-                'created_by' => Auth::id(),
+                'how_to_claim' => $howToClaim,
+                'status'       => 1,
+                'created_by'   => Auth::id(),
             ]);
 
             // Handle image upload
@@ -103,17 +110,23 @@ class PromoBannerController extends Controller
             $banner = PromoBanner::findOrFail($id);
 
             $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'descriptions' => 'nullable|string',
-                'status' => 'required|in:0,1',
-                'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'title'          => 'required|string|max:255',
+                'descriptions'   => 'nullable|string',
+                'how_to_claim'   => 'nullable|array',
+                'how_to_claim.*' => 'nullable|string|max:500',
+                'banner_image'   => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             ]);
 
+            // Filter out empty how_to_claim items
+            $howToClaim = !empty($validated['how_to_claim'])
+                ? array_values(array_filter($validated['how_to_claim'], fn($v) => $v !== null && $v !== ''))
+                : null;
+
             $banner->update([
-                'title' => $validated['title'],
+                'title'        => $validated['title'],
                 'descriptions' => $validated['descriptions'],
-                'status' => $validated['status'],
-                'updated_by' => Auth::id(),
+                'how_to_claim' => $howToClaim,
+                'updated_by'   => Auth::id(),
             ]);
 
             // Handle image upload

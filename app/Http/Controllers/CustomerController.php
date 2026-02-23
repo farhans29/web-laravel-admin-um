@@ -62,6 +62,9 @@ class CustomerController extends Controller
         // Get registered users with their booking statistics
         $registeredUsers = User::select([
             'users.id',
+            DB::raw('CONVERT(users.first_name USING utf8mb4) as first_name'),
+            DB::raw('CONVERT(users.last_name USING utf8mb4) as last_name'),
+            DB::raw('CONVERT(users.nik USING utf8mb4) as nik'),
             DB::raw('CONVERT(users.username USING utf8mb4) as username'),
             DB::raw('CONVERT(users.email USING utf8mb4) as email'),
             DB::raw('CONVERT(users.phone_number USING utf8mb4) as phone'),
@@ -86,11 +89,14 @@ class CustomerController extends Controller
                     ->orWhere('users.is_admin', 0)
                     ->orWhereNull('users.is_admin');
             })
-            ->groupBy('users.id', 'users.username', 'users.email', 'users.phone_number'); // TAMBAHKAN phone_number ke GROUP BY
+            ->groupBy('users.id', 'users.first_name', 'users.last_name', 'users.nik', 'users.username', 'users.email', 'users.phone_number');
 
         // Get guest customers (transactions without user_id)
         $guestCustomers = Transaction::select([
             DB::raw('NULL as id'),
+            DB::raw('NULL as first_name'),
+            DB::raw('NULL as last_name'),
+            DB::raw('NULL as nik'),
             DB::raw('CONVERT(user_name USING utf8mb4) as username'),
             DB::raw('CONVERT(user_email USING utf8mb4) as email'),
             DB::raw('CONVERT(user_phone_number USING utf8mb4) as phone'),
@@ -264,13 +270,13 @@ class CustomerController extends Controller
     public function preRegister(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'username' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone_number' => 'required|string|max:20',
-            'nik' => 'nullable|string|max:20',
-            'password' => 'required|string|min:6',
+            'first_name'   => 'required|string|max:255',
+            'last_name'    => 'required|string|max:255',
+            'username'     => 'required|string|max:255',
+            'email'        => 'required|email|max:255',
+            'phone_number' => 'nullable|string|max:20',
+            'nik'          => 'nullable|string|max:16',
+            'password'     => 'required|string|min:6',
         ]);
 
         if ($validator->fails()) {
@@ -283,7 +289,7 @@ class CustomerController extends Controller
 
         try {
             $mainAppUrl = env('MAIN_APP_URL');
-            $apiUrl = rtrim($mainAppUrl, '/') . '/api/v1/auth/register-without-verification';
+            $apiUrl = rtrim($mainAppUrl, '/') . '/api/v1/register-without-verification';
 
             $postData = [
                 'first_name' => $request->first_name,
@@ -342,6 +348,84 @@ class CustomerController extends Controller
 
             return response()->json([
                 'status' => 'error',
+                'message' => 'An unexpected error occurred. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function updateCustomer(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'first_name'   => 'nullable|string|max:255',
+            'last_name'    => 'nullable|string|max:255',
+            'username'     => 'nullable|string|max:255',
+            'email'        => 'nullable|email|max:255',
+            'phone_number' => 'nullable|string|max:20',
+            'nik'          => 'nullable|string|max:16',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $mainAppUrl = env('MAIN_APP_URL');
+            $apiKey     = env('MAIN_APP_API_KEY');
+            $apiUrl     = rtrim($mainAppUrl, '/') . '/api/v1/users/' . $id;
+
+            $putData = [];
+            foreach (['first_name', 'last_name', 'username', 'email', 'phone_number', 'nik'] as $field) {
+                if ($request->filled($field)) {
+                    $putData[$field] = $request->input($field);
+                }
+            }
+
+            $response = Http::timeout(30)
+                ->withHeaders([
+                    'X-API-KEY'    => $apiKey,
+                    'Accept'       => 'application/json',
+                    'Content-Type' => 'application/json',
+                ])
+                ->put($apiUrl, $putData);
+
+            $responseData = $response->json();
+
+            if ($response->successful() && isset($responseData['status']) && $responseData['status'] === 'success') {
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => $responseData['message'] ?? 'Customer updated successfully.',
+                    'data'    => $responseData['data'] ?? null
+                ]);
+            }
+
+            Log::warning('Customer update API error', [
+                'status'   => $response->status(),
+                'response' => $responseData,
+            ]);
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => $responseData['message'] ?? 'Failed to update customer.',
+                'errors'  => $responseData['errors'] ?? null
+            ], $response->status() ?: 400);
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('Customer update API connection error: ' . $e->getMessage());
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Unable to connect to update service. Please try again later.'
+            ], 503);
+
+        } catch (\Exception $e) {
+            Log::error('Customer update error: ' . $e->getMessage());
+
+            return response()->json([
+                'status'  => 'error',
                 'message' => 'An unexpected error occurred. Please try again.'
             ], 500);
         }

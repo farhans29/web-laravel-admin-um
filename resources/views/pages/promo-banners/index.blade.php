@@ -146,21 +146,20 @@
                             </div>
                         </div>
 
-                        <!-- Status -->
+                        <!-- How To Claim -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Status
+                                Cara Klaim
+                                <span class="text-xs text-gray-400 font-normal">(opsional, tambahkan langkah-langkah cara klaim)</span>
                             </label>
-                            <div class="flex items-center space-x-3">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="status_toggle" class="sr-only peer" checked>
-                                    <div
-                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
-                                    </div>
-                                </label>
-                                <span id="status_label" class="text-sm font-medium text-gray-900 dark:text-white">Active</span>
-                            </div>
-                            <input type="hidden" id="status" name="status" value="1">
+                            <div id="how_to_claim_list" class="space-y-2 mb-2"></div>
+                            <button type="button" onclick="addHowToClaimItem()"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 dark:text-blue-400 border border-blue-300 dark:border-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Tambah Langkah
+                            </button>
                         </div>
                     </div>
 
@@ -212,17 +211,53 @@
                 }).showToast();
             }
 
-            // Status toggle handler
-            $(document).ready(function() {
-                $('#status_toggle').on('change', function() {
-                    const isActive = $(this).is(':checked');
-                    const status = isActive ? '1' : '0';
-                    $('#status').val(status);
-                    $('#status_label').text(isActive ? 'Active' : 'Inactive');
-                    $('#status_label').toggleClass('text-blue-600', isActive);
-                    $('#status_label').toggleClass('text-red-600', !isActive);
-                });
+            // How To Claim dynamic list
+            let howToClaimCount = 0;
 
+            function addHowToClaimItem(value = '') {
+                howToClaimCount++;
+                const index = howToClaimCount;
+                const num = $('#how_to_claim_list > div').length + 1;
+                const html = `
+                    <div class="htc-item flex items-center gap-2" id="htc_row_${index}">
+                        <span class="htc-num flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-semibold flex items-center justify-center">${num}</span>
+                        <input type="text" name="how_to_claim[]"
+                            value="${escapeHtml(value)}"
+                            placeholder="Langkah ${num}..."
+                            class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <button type="button" onclick="removeHowToClaimItem('htc_row_${index}')"
+                            class="flex-shrink-0 text-red-400 hover:text-red-600 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>`;
+                $('#how_to_claim_list').append(html);
+                renumberHowToClaim();
+            }
+
+            function removeHowToClaimItem(rowId) {
+                $('#' + rowId).remove();
+                renumberHowToClaim();
+            }
+
+            function renumberHowToClaim() {
+                $('#how_to_claim_list > div').each(function(i) {
+                    $(this).find('.htc-num').first().text(i + 1);
+                    $(this).find('input').attr('placeholder', 'Langkah ' + (i + 1) + '...');
+                });
+            }
+
+            function clearHowToClaim() {
+                $('#how_to_claim_list').empty();
+                howToClaimCount = 0;
+            }
+
+            function escapeHtml(str) {
+                return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            }
+
+            $(document).ready(function() {
                 // Image preview with 5MB validation
                 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
@@ -353,12 +388,10 @@
                 $('#modalTitle').text('Tambah Banner');
                 $('#bannerForm')[0].reset();
                 $('#banner_id').val('');
-                $('#status').val('1');
-                $('#status_toggle').prop('checked', true);
-                $('#status_label').text('Active');
                 $('#image_preview_container').addClass('hidden');
                 $('#upload_icon').removeClass('hidden');
                 $('#image_required').show();
+                clearHowToClaim();
                 $('#bannerModal').removeClass('hidden').show();
             }
 
@@ -373,13 +406,13 @@
                         $('#title').val(banner.title);
                         $('#descriptions').val(banner.descriptions);
 
-                        // Set status
-                        const isActive = banner.status == 1;
-                        $('#status').val(banner.status);
-                        $('#status_toggle').prop('checked', isActive);
-                        $('#status_label').text(isActive ? 'Active' : 'Inactive');
-                        $('#status_label').removeClass('text-blue-600 text-red-600');
-                        $('#status_label').addClass(isActive ? 'text-blue-600' : 'text-red-600');
+                        // Populate how_to_claim
+                        clearHowToClaim();
+                        if (banner.how_to_claim && banner.how_to_claim.length > 0) {
+                            banner.how_to_claim.forEach(function(step) {
+                                addHowToClaimItem(step);
+                            });
+                        }
 
                         // Show existing image
                         if (banner.primary_image && banner.primary_image.image_url) {
@@ -402,6 +435,7 @@
 
             function closeModal() {
                 $('#bannerModal').addClass('hidden').hide();
+                clearHowToClaim();
             }
 
             // Form submission
@@ -413,8 +447,15 @@
                 const formData = new FormData();
                 formData.append('title', $('#title').val());
                 formData.append('descriptions', $('#descriptions').val());
-                formData.append('status', $('#status').val());
                 formData.append('_token', '{{ csrf_token() }}');
+
+                // Append how_to_claim items
+                $('#how_to_claim_list input[name="how_to_claim[]"]').each(function() {
+                    const val = $(this).val().trim();
+                    if (val !== '') {
+                        formData.append('how_to_claim[]', val);
+                    }
+                });
 
                 const imageFile = $('#banner_image')[0].files[0];
                 if (imageFile) {

@@ -22,30 +22,41 @@ class UserSettingsController extends Controller
     {
         $user = Auth::user();
 
-        $validated = $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'first_name'   => 'required|string|max:255',
             'last_name'    => 'required|string|max:255',
-            'username'     => 'required|string|max:255|unique:users,username,' . $user->id,
             'email'        => 'required|email|unique:users,email,' . $user->id,
             'phone_number' => 'nullable|string|max:20',
         ], [
             'first_name.required'  => 'First name is required.',
             'last_name.required'   => 'Last name is required.',
-            'username.required'    => 'Username is required.',
-            'username.unique'      => 'This username is already taken.',
             'email.required'       => 'Email is required.',
             'email.unique'         => 'This email is already registered.',
         ]);
 
-        $user->update([
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator, 'profile')
+                ->withInput()
+                ->with('active_tab', 'account');
+        }
+
+        $validated = $validator->validated();
+
+        $updateData = [
             'first_name'   => $validated['first_name'],
             'last_name'    => $validated['last_name'],
-            'username'     => $validated['username'],
             'email'        => $validated['email'],
             'phone_number' => $validated['phone_number'] ?? $user->phone_number,
             'updated_by'   => $user->id,
-            'updated_at'   => now(),
-        ]);
+        ];
+
+        $username = $request->input('username');
+        if (!empty($username)) {
+            $updateData['username'] = $username;
+        }
+
+        $user->update($updateData);
 
         return redirect()->route('users.show')
             ->with('success', 'Profile updated successfully.')
@@ -57,30 +68,30 @@ class UserSettingsController extends Controller
      */
     public function updatePassword(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'current_password' => ['required', 'current_password'],
-                'password' => ['required', Password::defaults(), 'confirmed'],
-            ], [
-                'current_password.required' => 'Current password is required.',
-                'current_password.current_password' => 'The current password is incorrect.',
-                'password.required' => 'New password is required.',
-                'password.confirmed' => 'Password confirmation does not match.',
-            ]);
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'current_password' => ['required', 'current_password'],
+            'password'         => ['required', Password::defaults(), 'confirmed'],
+        ], [
+            'current_password.required'         => 'Current password is required.',
+            'current_password.current_password' => 'The current password is incorrect.',
+            'password.required'                 => 'New password is required.',
+            'password.confirmed'                => 'Password confirmation does not match.',
+        ]);
 
-            $request->user()->update([
-                'password' => Hash::make($validated['password']),
-            ]);
-
+        if ($validator->fails()) {
             return redirect()->back()
-                ->with('password_success', 'Password updated successfully.')
-                ->with('active_tab', 'security');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()
-                ->withErrors($e->validator)
+                ->withErrors($validator, 'security')
                 ->withInput()
                 ->with('active_tab', 'security');
         }
+
+        $request->user()->update([
+            'password' => Hash::make($validator->validated()['password']),
+        ]);
+
+        return redirect()->back()
+            ->with('password_success', 'Password updated successfully.')
+            ->with('active_tab', 'security');
     }
 
     /**

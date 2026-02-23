@@ -450,9 +450,9 @@
                             <!-- Phone Number -->
                             <div>
                                 <label for="pre_phone_number" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Phone Number <span class="text-red-500">*</span>
+                                    Phone Number
                                 </label>
-                                <input type="tel" name="phone_number" id="pre_phone_number" required
+                                <input type="tel" name="phone_number" id="pre_phone_number"
                                     placeholder="e.g., 08123456789"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="pre_phone_number_error"></p>
@@ -538,6 +538,102 @@
                         class="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
                         Close
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Customer Modal -->
+    <div id="editCustomerModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" onclick="closeEditCustomerModal()"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden relative">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-amber-500 to-orange-500">
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Edit Customer</h3>
+                        <p class="text-white/80 text-sm">Update customer account information</p>
+                    </div>
+                    <button onclick="closeEditCustomerModal()" class="text-white hover:text-amber-200 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <form id="editCustomerForm">
+                        <input type="hidden" id="edit_customer_id">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- First Name -->
+                            <div>
+                                <label for="edit_first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                <input type="text" id="edit_first_name" name="first_name" placeholder="Enter first name"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="edit_first_name_error"></p>
+                            </div>
+
+                            <!-- Last Name -->
+                            <div>
+                                <label for="edit_last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                <input type="text" id="edit_last_name" name="last_name" placeholder="Enter last name"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="edit_last_name_error"></p>
+                            </div>
+
+                            <!-- Username -->
+                            <div>
+                                <label for="edit_username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                <input type="text" id="edit_username" name="username" placeholder="Enter username"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="edit_username_error"></p>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="edit_email" name="email" placeholder="Enter email address"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="edit_email_error"></p>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div>
+                                <label for="edit_phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                <input type="tel" id="edit_phone_number" name="phone_number" placeholder="e.g., 08123456789"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="edit_phone_number_error"></p>
+                            </div>
+
+                            <!-- NIK -->
+                            <div>
+                                <label for="edit_nik" class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
+                                <input type="text" id="edit_nik" name="nik" placeholder="e.g., 3201234567890001" maxlength="16"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
+                                <p class="text-red-500 text-xs mt-1 hidden" id="edit_nik_error"></p>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="mt-6 flex justify-end gap-3">
+                            <button type="button" onclick="closeEditCustomerModal()"
+                                class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" id="editCustomerSubmitBtn"
+                                class="px-4 py-2.5 bg-amber-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                <span id="editCustomerSubmitText">Save Changes</span>
+                                <svg id="editCustomerSpinner" class="animate-spin h-4 w-4 text-white hidden"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -738,6 +834,136 @@
                 }).showToast();
             } finally {
                 setPreRegisterLoading(false);
+            }
+        });
+    </script>
+    <!-- Edit Customer Scripts -->
+    <script>
+        let editCustomerId = null;
+
+        function openEditCustomerModal(customer) {
+            editCustomerId = customer.id;
+            document.getElementById('edit_first_name').value   = customer.first_name   || '';
+            document.getElementById('edit_last_name').value    = customer.last_name    || '';
+            document.getElementById('edit_username').value     = customer.username     || '';
+            document.getElementById('edit_email').value        = customer.email        || '';
+            document.getElementById('edit_phone_number').value = customer.phone_number || '';
+            document.getElementById('edit_nik').value          = customer.nik          || '';
+            clearEditCustomerErrors();
+            document.getElementById('editCustomerModal').classList.remove('hidden');
+        }
+
+        function closeEditCustomerModal() {
+            document.getElementById('editCustomerModal').classList.add('hidden');
+            editCustomerId = null;
+        }
+
+        function clearEditCustomerErrors() {
+            document.querySelectorAll('[id^="edit_"][id$="_error"]').forEach(el => {
+                el.textContent = '';
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('#editCustomerForm input').forEach(input => {
+                input.classList.remove('border-red-500');
+            });
+        }
+
+        function showEditCustomerError(field, message) {
+            const errorEl = document.getElementById('edit_' + field + '_error');
+            const inputEl = document.getElementById('edit_' + field);
+            if (errorEl) { errorEl.textContent = message; errorEl.classList.remove('hidden'); }
+            if (inputEl) { inputEl.classList.add('border-red-500'); }
+        }
+
+        function setEditCustomerLoading(loading) {
+            const btn     = document.getElementById('editCustomerSubmitBtn');
+            const text    = document.getElementById('editCustomerSubmitText');
+            const spinner = document.getElementById('editCustomerSpinner');
+            btn.disabled = loading;
+            text.textContent = loading ? 'Saving...' : 'Save Changes';
+            spinner.classList.toggle('hidden', !loading);
+        }
+
+        document.getElementById('editCustomerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!editCustomerId) return;
+
+            clearEditCustomerErrors();
+            setEditCustomerLoading(true);
+
+            const data = {
+                first_name:   document.getElementById('edit_first_name').value,
+                last_name:    document.getElementById('edit_last_name').value,
+                username:     document.getElementById('edit_username').value,
+                email:        document.getElementById('edit_email').value,
+                phone_number: document.getElementById('edit_phone_number').value,
+                nik:          document.getElementById('edit_nik').value,
+            };
+
+            try {
+                const response = await fetch(`/customers/${editCustomerId}/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    closeEditCustomerModal();
+
+                    Toastify({
+                        text: result.message || 'Customer updated successfully!',
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+                        stopOnFocus: true,
+                    }).showToast();
+
+                    // Refresh customer table
+                    const params = new URLSearchParams({
+                        search:              document.getElementById('search').value,
+                        registration_status: document.getElementById('registration_status').value,
+                        property_id:         document.getElementById('property_id').value,
+                        booking_status:      document.getElementById('booking_status').value,
+                        per_page:            document.getElementById('per_page').value,
+                    });
+                    fetch(`{{ route('customers.filter') }}?${params.toString()}`)
+                        .then(r => r.text())
+                        .then(html => { document.getElementById('customerTableContainer').innerHTML = html; });
+                } else {
+                    if (result.errors) {
+                        Object.keys(result.errors).forEach(field => {
+                            const msg = Array.isArray(result.errors[field]) ? result.errors[field][0] : result.errors[field];
+                            showEditCustomerError(field, msg);
+                        });
+                    }
+                    Toastify({
+                        text: result.message || 'Update failed. Please check the form.',
+                        duration: 4000,
+                        gravity: "top",
+                        position: "right",
+                        style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+                        stopOnFocus: true,
+                    }).showToast();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Toastify({
+                    text: 'An unexpected error occurred. Please try again.',
+                    duration: 4000,
+                    gravity: "top",
+                    position: "right",
+                    style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+                    stopOnFocus: true,
+                }).showToast();
+            } finally {
+                setEditCustomerLoading(false);
             }
         });
     </script>
