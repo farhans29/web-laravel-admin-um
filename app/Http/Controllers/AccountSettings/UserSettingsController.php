@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AccountSettings;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Password;
@@ -14,6 +15,43 @@ use Carbon\Carbon;
 
 class UserSettingsController extends Controller
 {
+    /**
+     * Update the authenticated user's own profile data.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'first_name'   => 'required|string|max:255',
+            'last_name'    => 'required|string|max:255',
+            'username'     => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email'        => 'required|email|unique:users,email,' . $user->id,
+            'phone_number' => 'nullable|string|max:20',
+        ], [
+            'first_name.required'  => 'First name is required.',
+            'last_name.required'   => 'Last name is required.',
+            'username.required'    => 'Username is required.',
+            'username.unique'      => 'This username is already taken.',
+            'email.required'       => 'Email is required.',
+            'email.unique'         => 'This email is already registered.',
+        ]);
+
+        $user->update([
+            'first_name'   => $validated['first_name'],
+            'last_name'    => $validated['last_name'],
+            'username'     => $validated['username'],
+            'email'        => $validated['email'],
+            'phone_number' => $validated['phone_number'] ?? $user->phone_number,
+            'updated_by'   => $user->id,
+            'updated_at'   => now(),
+        ]);
+
+        return redirect()->route('users.show')
+            ->with('success', 'Profile updated successfully.')
+            ->with('active_tab', 'account');
+    }
+
     /**
      * Update the user's password.
      */

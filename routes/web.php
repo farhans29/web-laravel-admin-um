@@ -126,6 +126,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
 
     // User Settings Routes
     Route::put('/user/password', [UserSettingsController::class, 'updatePassword'])->name('user.password.update');
+    Route::put('/user/profile', [UserSettingsController::class, 'updateProfile'])->name('user.profile.update');
     Route::get('/user/activity', [UserSettingsController::class, 'getUserActivity'])->name('user.activity');
     Route::post('/user/locale', [UserSettingsController::class, 'updateLocale'])->name('user.locale.update');
 
