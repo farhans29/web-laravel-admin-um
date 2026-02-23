@@ -303,6 +303,14 @@ class CustomerController extends Controller
             $responseData = $response->json();
 
             if ($response->successful() && isset($responseData['status']) && $responseData['status'] === 'success') {
+                // Update NIK in local users table if NIK was provided
+                if ($request->filled('nik')) {
+                    $localUser = User::where('email', $request->email)->first();
+                    if ($localUser) {
+                        $localUser->update(['nik' => $request->nik]);
+                    }
+                }
+
                 return response()->json([
                     'status' => 'success',
                     'message' => $responseData['message'] ?? 'Registration successful.',
