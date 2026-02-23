@@ -61,7 +61,7 @@ class CustomerController extends Controller
     {
         // Get registered users with their booking statistics
         $registeredUsers = User::select([
-            'users.id',
+            DB::raw('users.id as id'),
             DB::raw('CONVERT(users.first_name USING utf8mb4) as first_name'),
             DB::raw('CONVERT(users.last_name USING utf8mb4) as last_name'),
             DB::raw('CONVERT(users.nik USING utf8mb4) as nik'),
