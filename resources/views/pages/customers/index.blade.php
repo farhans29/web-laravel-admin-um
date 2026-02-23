@@ -675,20 +675,15 @@
             setPreRegisterLoading(true);
 
             const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-            // Remove CSRF token from data as it's not needed for external API
-            delete data._token;
-
-            const apiUrl = '{{ env('MAIN_APP_URL') }}/api/v1/auth/register-without-verification';
 
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetch('{{ route('customers.pre-register') }}', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify(data)
+                    body: formData
                 });
 
                 const result = await response.json();

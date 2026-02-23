@@ -274,6 +274,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
     Route::prefix('customers')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customers.index');
         Route::get('/filter', [CustomerController::class, 'filter'])->name('customers.filter');
+        Route::post('/pre-register', [CustomerController::class, 'preRegister'])->name('customers.pre-register');
         Route::get('/{identifier}/bookings', [CustomerController::class, 'getBookings'])->name('customers.bookings');
     });
 
