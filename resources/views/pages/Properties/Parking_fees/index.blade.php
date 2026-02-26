@@ -293,6 +293,26 @@
             });
         }
 
+        function adjustQuota(id, action) {
+            fetch(`/properties/parking-fees/adjust-quota/${id}`, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: data.message, showConfirmButton: false, timer: 1500 });
+                    applyFilters();
+                } else {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: data.message, showConfirmButton: false, timer: 3000 });
+                }
+            })
+            .catch(() => {
+                Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Terjadi kesalahan', showConfirmButton: false, timer: 3000 });
+            });
+        }
+
         function deleteParkingFee(id) {
             Swal.fire({
                 title: '{{ __("ui.confirm_delete") }}',
