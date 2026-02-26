@@ -153,12 +153,23 @@ class ChangeRoomController extends Controller
         $checkInDate = Carbon::parse($checkIn);
         $checkOutDate = Carbon::parse($checkOut);
 
+        // Get current room to filter by same room name (type)
+        $currentRoomName = null;
+        if ($roomId) {
+            $currentRoom = Room::find($roomId);
+            $currentRoomName = $currentRoom?->name;
+        }
+
         // Get rooms that are active and available
         // status = 1 means room is active (not disabled)
         // rental_status = 0 means available, rental_status = 1 means booked (monthly/long-term)
+        // Only show rooms with the same name (type) as the current room
         $rooms = Room::where('property_id', $propertyId)
             ->where('status', 1)
             ->where('rental_status', 0)
+            ->when($currentRoomName, function ($query) use ($currentRoomName) {
+                return $query->where('name', $currentRoomName);
+            })
             ->when($roomId, function ($query) use ($roomId) {
                 return $query->where('idrec', '!=', $roomId);
             })
@@ -268,6 +279,12 @@ class ChangeRoomController extends Controller
             if ($newRoom->property_id != $request->current_property_id) {
                 return redirect()->back()
                     ->with('error', 'Kamar baru harus dalam properti yang sama.');
+            }
+
+            // Validate new room has the same name/type as current room
+            if ($newRoom->name !== $currentRoom->name) {
+                return redirect()->back()
+                    ->with('error', 'Kamar baru harus bertipe sama dengan kamar saat ini (' . $currentRoom->name . ').');
             }
 
             // Validate new room is available
