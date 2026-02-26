@@ -9,8 +9,6 @@ use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Notifications\RoomTransferNotification;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 
 class ChangeRoomController extends Controller
@@ -289,9 +287,6 @@ class ChangeRoomController extends Controller
                     ->with('error', 'Kamar yang dipilih sudah dipesan untuk tanggal tersebut.');
             }
 
-            // Get user for notification
-            $guest = $currentBooking->user;
-
             // Create new booking record for the transfer
             $newBooking = Booking::create([
                 'property_id' => $request->current_property_id,
@@ -351,46 +346,8 @@ class ChangeRoomController extends Controller
             // New room: Inherit rental_status from old room
             $newRoom->update(['rental_status' => $oldRentalStatus]);
 
-            // Prepare transfer details for notification
-            $transferDetails = [
-                'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
-                'order_id' => $request->order_id,
-                'previous_room' => $currentRoom->name . ' No. ' . $currentRoom->no,
-                'new_room' => $newRoom->name . ' No. ' . $newRoom->no,
-                'reason' => $this->getReasonLabel($request->reason),
-                'transfer_date' => now()->format('Y-m-d H:i'),
-                'check_in' => $currentBooking->check_in_at ? $currentBooking->check_in_at->format('Y-m-d H:i') : 'Belum check-in',
-                'check_out' => $currentBooking->check_out_at ? $currentBooking->check_out_at->format('Y-m-d H:i') : 'Belum ditentukan',
-            ];
-
-            // Send notification
-            try {
-                $notificationSent = false;
-
-                // Try to send to registered user first
-                if ($guest && $guest->email) {
-                    Notification::send($guest, new RoomTransferNotification($transferDetails));
-                    $notificationSent = true;
-                }
-                // If no user account but has email in booking, send to anonymous notifiable
-                elseif ($currentBooking->user_email) {
-                    Notification::route('mail', $currentBooking->user_email)
-                        ->notify(new RoomTransferNotification($transferDetails));
-                    $notificationSent = true;
-                }
-
-                if ($notificationSent) {
-                    return redirect()->route('changerooom.index')
-                        ->with('success', 'Kamar berhasil dipindahkan dan notifikasi telah dikirim!');
-                } else {
-                    return redirect()->route('changerooom.index')
-                        ->with('success', 'Kamar berhasil dipindahkan! (Email customer tidak tersedia)');
-                }
-            } catch (\Exception $e) {
-                \Log::error('Failed to send room transfer notification: ' . $e->getMessage());
-                return redirect()->route('changerooom.index')
-                    ->with('success', 'Kamar berhasil dipindahkan! (Notifikasi email gagal dikirim)');
-            }
+            return redirect()->route('changerooom.index')
+                ->with('success', 'Kamar berhasil dipindahkan!');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->back()
                 ->with('error', 'Booking tidak ditemukan atau tidak dapat dipindahkan.');
@@ -464,9 +421,7 @@ class ChangeRoomController extends Controller
                     ->with('error', 'Kamar sebelumnya sudah dipesan untuk tanggal tersebut.');
             }
 
-            // Get current room for notification
             $currentRoom = $currentBooking->room;
-            $guest = $currentBooking->user;
 
             // Create new booking record for the rollback
             $rollbackBooking = Booking::create([
@@ -525,31 +480,6 @@ class ChangeRoomController extends Controller
 
             // Previous room (rollback target): Inherit rental_status from current room
             $previousRoom->update(['rental_status' => $currentRentalStatus]);
-
-            // Send notification
-            try {
-                $transferDetails = [
-                    'guest_name' => $guest->username ?? $currentBooking->user_name ?? 'Guest',
-                    'order_id' => $currentBooking->order_id,
-                    'previous_room' => $currentRoom->name . ' No. ' . $currentRoom->no,
-                    'new_room' => $previousRoom->name . ' No. ' . $previousRoom->no,
-                    'reason' => 'Rollback ke kamar sebelumnya',
-                    'transfer_date' => now()->format('Y-m-d H:i'),
-                    'check_in' => $currentBooking->check_in_at ? $currentBooking->check_in_at->format('Y-m-d H:i') : 'Belum check-in',
-                    'check_out' => $currentBooking->check_out_at ? $currentBooking->check_out_at->format('Y-m-d H:i') : 'Belum ditentukan',
-                ];
-
-                // Send to registered user or walk-in customer
-                if ($guest && $guest->email) {
-                    Notification::send($guest, new RoomTransferNotification($transferDetails));
-                } elseif ($currentBooking->user_email) {
-                    Notification::route('mail', $currentBooking->user_email)
-                        ->notify(new RoomTransferNotification($transferDetails));
-                }
-            } catch (\Exception $e) {
-                \Log::error('Failed to send rollback notification: ' . $e->getMessage());
-                // Notification failed but rollback succeeded
-            }
 
             return redirect()->route('changerooom.index')
                 ->with('success', 'Berhasil rollback ke kamar sebelumnya: ' . $previousRoom->name);
