@@ -16,7 +16,7 @@ class ParkingFeeController extends Controller
         $showDeleted = $request->input('show_deleted', '0');
 
         $query = ParkingFee::with(['property', 'createdBy', 'updatedBy'])
-            ->orderBy('created_at', 'desc');
+            ->orderBy('property_id', 'asc');
 
         if ($showDeleted === '1') {
             $query->withTrashed();
@@ -69,7 +69,7 @@ class ParkingFeeController extends Controller
         $showDeleted = $request->input('show_deleted', '0');
 
         $query = ParkingFee::with(['property', 'createdBy', 'updatedBy'])
-            ->orderBy('created_at', 'desc');
+            ->orderBy('property_id', 'asc');
 
         if ($showDeleted === '1') {
             $query->withTrashed();
@@ -216,6 +216,47 @@ class ParkingFeeController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memulihkan parking fee: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function adjustQuota(Request $request, $idrec)
+    {
+        $validated = $request->validate([
+            'action' => 'required|in:increment,decrement',
+            'amount' => 'integer|min:1',
+        ]);
+
+        try {
+            $parkingFee = ParkingFee::findOrFail($idrec);
+            $amount = $validated['amount'] ?? 1;
+
+            if ($validated['action'] === 'increment') {
+                if ($parkingFee->capacity > 0 && $parkingFee->quota_used >= $parkingFee->capacity) {
+                    return response()->json(['success' => false, 'message' => 'Kapasitas parkir sudah penuh'], 422);
+                }
+                $parkingFee->increment('quota_used', $amount);
+            } else {
+                if ($parkingFee->quota_used < $amount) {
+                    return response()->json(['success' => false, 'message' => 'Quota sudah mencapai 0'], 422);
+                }
+                $parkingFee->decrement('quota_used', $amount);
+            }
+
+            $parkingFee->update(['updated_by' => Auth::id()]);
+            $parkingFee->refresh();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Quota berhasil diperbarui',
+                'quota_used' => $parkingFee->quota_used,
+                'available_quota' => $parkingFee->available_quota,
+                'quota_usage_percentage' => $parkingFee->quota_usage_percentage,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah quota: ' . $e->getMessage()
             ], 500);
         }
     }

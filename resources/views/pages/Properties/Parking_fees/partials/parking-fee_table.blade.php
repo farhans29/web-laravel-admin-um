@@ -70,9 +70,25 @@
                         </div>
 
                         <!-- Used Quota -->
-                        <div class="text-xs text-gray-600 dark:text-gray-400">
+                        <div class="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
                             <span class="font-medium">{{ __('ui.in_use') }}:</span>
-                            <span class="font-semibold text-blue-600 dark:text-blue-400">{{ $parking->quota_used }}</span>
+                            @if(!$parking->trashed())
+                                <button type="button"
+                                    onclick="adjustQuota({{ $parking->idrec }}, 'decrement')"
+                                    {{ $parking->quota_used <= 0 ? 'disabled' : '' }}
+                                    class="w-5 h-5 flex items-center justify-center rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-800/50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"/></svg>
+                                </button>
+                            @endif
+                            <span class="font-semibold text-blue-600 dark:text-blue-400 min-w-[1.5rem] text-center">{{ $parking->quota_used }}</span>
+                            @if(!$parking->trashed())
+                                <button type="button"
+                                    onclick="adjustQuota({{ $parking->idrec }}, 'increment')"
+                                    {{ ($parking->capacity > 0 && $parking->quota_used >= $parking->capacity) ? 'disabled' : '' }}
+                                    class="w-5 h-5 flex items-center justify-center rounded bg-green-100 text-green-600 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-800/50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+                                </button>
+                            @endif
                         </div>
 
                         <!-- Quota Progress Bar -->

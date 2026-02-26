@@ -227,6 +227,7 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::post('/parking-fees/toggle-status', [ParkingFeeController::class, 'toggleStatus'])->name('parking-fees.toggle-status');
         Route::delete('/parking-fees/destroy/{idrec}', [ParkingFeeController::class, 'destroy'])->name('parking-fees.destroy');
         Route::post('/parking-fees/restore/{idrec}', [ParkingFeeController::class, 'restore'])->name('parking-fees.restore');
+        Route::post('/parking-fees/adjust-quota/{idrec}', [ParkingFeeController::class, 'adjustQuota'])->name('parking-fees.adjust-quota');
 
         // ------------------------- PARKING MANAGEMENT -------------------------
         Route::get('/parking', [ParkingController::class, 'index'])->name('parking.index');
