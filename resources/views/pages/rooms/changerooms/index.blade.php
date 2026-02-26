@@ -179,8 +179,6 @@
                                                         disabled required>
                                                         <option value="" disabled selected>{{ __('ui.select_reason') }}</option>
                                                         <option value="maintenance">{{ __('ui.maintenance') }}</option>
-                                                        <option value="upgrade">{{ __('ui.upgrade') }}</option>
-                                                        <option value="downgrade">{{ __('ui.downgrade') }}</option>
                                                         <option value="guest_request">{{ __('ui.guest_request') }}</option>
                                                         <option value="other">{{ __('ui.other') }}</option>
                                                     </select>
