@@ -206,18 +206,12 @@
                                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                                                     {{ __('ui.property_type') }} <span class="text-red-500">*</span>
                                                 </label>
-                                                <div class="grid grid-cols-2 gap-4" x-data="{
-                                                    types: [
-                                                        { label: 'Kos', value: 'Kos' },
-                                                        { label: 'Apartment', value: 'Apartment' },
-                                                        { label: 'Villa', value: 'Villa' },
-                                                        { label: 'Hotel', value: 'Hotel' }
-                                                    ]
-                                                }">
+                                                <div class="grid grid-cols-2 gap-4">
                                                     <template x-for="type in types" :key="type.value">
                                                         <div class="relative">
                                                             <input :id="'type-' + type.value" name="property_type"
                                                                 type="radio" :value="type.value"
+                                                                x-model="selectedPropertyType"
                                                                 class="sr-only peer" required>
                                                             <label :for="'type-' + type.value"
                                                                 class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/30 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 transition-all duration-200">
@@ -226,6 +220,55 @@
                                                         </div>
                                                     </template>
                                                 </div>
+                                            </div>
+
+                                            <!-- Gender Penghuni (khusus Kos) -->
+                                            <div x-show="selectedPropertyType === 'Kos'"
+                                                x-transition:enter="transition ease-out duration-200"
+                                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                                x-transition:enter-end="opacity-100 translate-y-0"
+                                                x-transition:leave="transition ease-in duration-150"
+                                                x-transition:leave-start="opacity-100 translate-y-0"
+                                                x-transition:leave-end="opacity-0 -translate-y-2">
+                                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                                    {{ __('ui.gender_tenant') }} <span class="text-xs font-normal text-gray-500 ml-1">{{ __('ui.gender_optional') }}</span>
+                                                </label>
+                                                <div class="flex gap-3 flex-wrap">
+                                                    <!-- Laki-laki -->
+                                                    <button type="button"
+                                                        @click="gender = (gender === 'male' ? null : 'male')"
+                                                        :class="gender === 'male'
+                                                            ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 shadow-sm'
+                                                            : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-green-300 hover:bg-green-50/50'"
+                                                        class="flex items-center gap-2 px-5 py-3 border-2 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none">
+                                                        <span class="text-xl font-bold leading-none" :class="gender === 'male' ? 'text-green-500' : 'text-gray-400'">♂</span>
+                                                        <span>{{ __('ui.gender_male') }}</span>
+                                                    </button>
+
+                                                    <!-- Perempuan -->
+                                                    <button type="button"
+                                                        @click="gender = (gender === 'female' ? null : 'female')"
+                                                        :class="gender === 'female'
+                                                            ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 shadow-sm'
+                                                            : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-pink-300 hover:bg-pink-50/50'"
+                                                        class="flex items-center gap-2 px-5 py-3 border-2 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none">
+                                                        <span class="text-xl font-bold leading-none" :class="gender === 'female' ? 'text-pink-500' : 'text-gray-400'">♀</span>
+                                                        <span>{{ __('ui.gender_female') }}</span>
+                                                    </button>
+
+                                                    <!-- Campur -->
+                                                    <button type="button"
+                                                        @click="gender = (gender === 'mixed' ? null : 'mixed')"
+                                                        :class="gender === 'mixed'
+                                                            ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 shadow-sm'
+                                                            : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-purple-300 hover:bg-purple-50/50'"
+                                                        class="flex items-center gap-2 px-5 py-3 border-2 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none">
+                                                        <span class="text-base font-bold leading-none" :class="gender === 'mixed' ? 'text-green-500' : 'text-gray-400'">♂</span><span class="text-base font-bold leading-none -ml-1" :class="gender === 'mixed' ? 'text-pink-500' : 'text-gray-400'">♀</span>
+                                                        <span>{{ __('ui.gender_mixed') }}</span>
+                                                    </button>
+                                                </div>
+                                                <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">{{ __('ui.gender_hint') }}</p>
+                                                <input type="hidden" name="gender" :value="gender ?? ''">
                                             </div>
 
                                             <!-- Deskripsi -->
@@ -1179,6 +1222,14 @@
                 selectedProperty: {},
                 modalOpenDetail: false,
                 step: 1,
+                selectedPropertyType: '',
+                gender: null,
+                types: [
+                    { label: 'Kos', value: 'Kos' },
+                    { label: 'Apartment', value: 'Apartment' },
+                    { label: 'Villa', value: 'Villa' },
+                    { label: 'Hotel', value: 'Hotel' }
+                ],
                 images: [],
                 maxImages: 10,
                 minImages: 3,
@@ -1258,6 +1309,13 @@
                         }
                     });
 
+                    // Reset gender when property type changes away from Kos
+                    this.$watch('selectedPropertyType', (value) => {
+                        if (value !== 'Kos') {
+                            this.gender = null;
+                        }
+                    });
+
                     this.$watch('step', (value) => {
                         if (value === 2 && typeof L === 'undefined') {
                             this.loadLeaflet().then(() => {
@@ -1278,6 +1336,8 @@
                 resetForm() {
                     // Reset all form data to initial state
                     this.step = 1;
+                    this.selectedPropertyType = '';
+                    this.gender = null;
                     this.images = [];
                     this.thumbnailIndex = null;
                     this.searchQuery = '';
@@ -2190,6 +2250,7 @@
                     name: property.name || '',
                     initial: property.initial || '',
                     tags: property.tags || 'Kos',
+                    gender: property.gender || null,
                     description: property.description || '',
                     address: property.address || '',
                     latitude: property.latitude || null,
@@ -2214,6 +2275,13 @@
                             this.$nextTick(() => {
                                 this.initMap();
                             });
+                        }
+                    });
+
+                    // Reset gender when property type changes away from Kos
+                    this.$watch('propertyData.tags', (value) => {
+                        if (value !== 'Kos') {
+                            this.propertyData.gender = null;
                         }
                     });
 
@@ -3199,6 +3267,7 @@
                         formData.append('name', this.propertyData.name);
                         formData.append('initial', this.propertyData.initial);
                         formData.append('tags', this.propertyData.tags);
+                        formData.append('gender', this.propertyData.gender || '');
                         formData.append('description', this.propertyData.description);
                         formData.append('address', this.propertyData.address);
                         formData.append('latitude', this.propertyData.latitude);

@@ -331,10 +331,8 @@ class ChangeRoomController extends Controller
             }
 
             // Update rental_status for rooms
-            // Check if this is a monthly booking
-            $isMonthlyBooking = $currentBooking->transaction &&
-                ($currentBooking->transaction->booking_type === 'monthly' ||
-                 ($currentBooking->transaction->booking_months && $currentBooking->transaction->booking_months > 0));
+            // Capture old room's current rental_status before updating
+            $oldRentalStatus = $currentRoom->rental_status;
 
             // Old room (currentRoom): Set to available if no other active bookings
             $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
@@ -350,10 +348,8 @@ class ChangeRoomController extends Controller
                 $currentRoom->update(['rental_status' => 0]);
             }
 
-            // New room: Set rental_status based on booking type
-            if ($isMonthlyBooking) {
-                $newRoom->update(['rental_status' => 1]);
-            }
+            // New room: Inherit rental_status from old room
+            $newRoom->update(['rental_status' => $oldRentalStatus]);
 
             // Prepare transfer details for notification
             $transferDetails = [
@@ -510,10 +506,8 @@ class ChangeRoomController extends Controller
             }
 
             // Update rental_status for rooms
-            // Check if this is a monthly booking
-            $isMonthlyBooking = $currentBooking->transaction &&
-                ($currentBooking->transaction->booking_type === 'monthly' ||
-                 ($currentBooking->transaction->booking_months && $currentBooking->transaction->booking_months > 0));
+            // Capture current room's rental_status before updating
+            $currentRentalStatus = $currentRoom->rental_status;
 
             // Current room: Set to available if no other active bookings
             $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
@@ -529,10 +523,8 @@ class ChangeRoomController extends Controller
                 $currentRoom->update(['rental_status' => 0]);
             }
 
-            // Previous room (rollback target): Set rental_status based on booking type
-            if ($isMonthlyBooking) {
-                $previousRoom->update(['rental_status' => 1]);
-            }
+            // Previous room (rollback target): Inherit rental_status from current room
+            $previousRoom->update(['rental_status' => $currentRentalStatus]);
 
             // Send notification
             try {
