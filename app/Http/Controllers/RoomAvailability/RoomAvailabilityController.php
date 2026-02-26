@@ -20,8 +20,10 @@ class RoomAvailabilityController extends Controller
 
         // Query untuk room availability
         $rooms = Room::with(['property', 'thumbnail', 'bookings' => function ($query) use ($startDate, $endDate) {
-            // Hanya ambil booking dengan status paid yang aktif
-            $query->whereHas('transaction', function ($q) {
+            // Hanya ambil booking aktif (status=1) dengan status paid
+            // status=0 berarti booking lama dari pindah kamar, tidak perlu ditampilkan
+            $query->where('status', 1)
+            ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })
             ->with(['user', 'transaction', 'payment']);
@@ -81,7 +83,9 @@ class RoomAvailabilityController extends Controller
         $endDate = $request->get('end_date');
 
         // Query untuk booking dengan status paid
+        // Hanya tampilkan booking aktif (status = 1) - booking lama dari room change diabaikan
         $bookingsQuery = Booking::where('room_id', $roomId)
+            ->where('status', 1)
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })
@@ -155,6 +159,8 @@ class RoomAvailabilityController extends Controller
                 'created_at' => $booking->created_at->format('d M Y H:i'),
                 // is_renewal=1 berarti perpanjangan dari booking sebelumnya (user sama)
                 'is_renewal' => $booking->transaction->is_renewal == 1,
+                // is_room_changed=true berarti booking ini hasil pindah kamar (previous_booking_id ada & room_changed_at ada)
+                'is_room_changed' => !is_null($booking->previous_booking_id) && !is_null($booking->room_changed_at),
             ];
         })->filter();
 

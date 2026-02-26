@@ -251,6 +251,7 @@ class ManajementPropertiesController extends Controller
             'property_name' => 'required',
             'initial' => 'required|string|max:3',
             'property_type' => 'required',
+            'gender' => 'nullable|string|in:male,female,mixed',
             'province' => 'required|string',
             'city' => 'required|string',
             'district' => 'required|string',
@@ -310,6 +311,7 @@ class ManajementPropertiesController extends Controller
         $property->idrec = $idrec;
         $property->slug = $slug;
         $property->tags = $request->property_type;
+        $property->gender = ($request->property_type === 'Kos' && $request->gender) ? $request->gender : null;
         $property->name = $request->property_name;
         $property->initial = $initials;
         $property->province = $request->province;
@@ -354,6 +356,7 @@ class ManajementPropertiesController extends Controller
                 'name' => 'required|string|max:255',
                 'initial' => 'required|string|max:3',
                 'tags' => 'required|string',
+                'gender' => 'nullable|string|in:male,female,mixed',
                 'description' => 'required|string',
                 'address' => 'required|string',
                 'latitude' => 'required|numeric',
@@ -447,6 +450,7 @@ class ManajementPropertiesController extends Controller
                 'name' => $request->input('name'),
                 'initial' => strtoupper($request->input('initial')),
                 'tags' => $request->input('tags'),
+                'gender' => ($request->input('tags') === 'Kos' && $request->input('gender')) ? $request->input('gender') : null,
                 'description' => $request->input('description'),
                 'address' => $request->input('address'),
                 'latitude' => $request->input('latitude'),

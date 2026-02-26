@@ -18,6 +18,7 @@ class Property extends Model
     protected $fillable = [
         'slug',
         'tags',
+        'gender',
         'name',
         'initial',
         'description',

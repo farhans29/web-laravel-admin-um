@@ -135,7 +135,9 @@
                                                 security: @json($property->security),
                                                 amenities: @json($property->amenities),
                                                 nearby_locations: @json($property->nearby_locations ?? []),
-                                                facilities: {!! json_encode($features) !!}
+                                                facilities: {!! json_encode($features) !!},
+                                                gender: @json($property->gender),
+                                                tags: @json($property->tags)
                                             })'
                                 aria-controls="property-detail-modal" title="View Details">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -301,6 +303,29 @@
                                                             </div>
                                                             <p class="text-gray-800 dark:text-white font-medium"
                                                                 x-text="selectedProperty.creator"></p>
+                                                        </div>
+
+                                                        <!-- Gender (only for Kos) -->
+                                                        <div x-show="selectedProperty.tags === 'Kos'" class="flex flex-col items-center space-y-1">
+                                                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                                {{ __('ui.gender_tenant') }}
+                                                            </p>
+                                                            <div x-show="selectedProperty.gender === 'male'" class="flex items-center gap-1.5">
+                                                                <span class="text-2xl font-bold text-green-500">♂</span>
+                                                                <span class="text-gray-800 dark:text-white font-medium">{{ __('ui.gender_male') }}</span>
+                                                            </div>
+                                                            <div x-show="selectedProperty.gender === 'female'" class="flex items-center gap-1.5">
+                                                                <span class="text-2xl font-bold text-pink-500">♀</span>
+                                                                <span class="text-gray-800 dark:text-white font-medium">{{ __('ui.gender_female') }}</span>
+                                                            </div>
+                                                            <div x-show="selectedProperty.gender === 'mixed'" class="flex items-center gap-0.5">
+                                                                <span class="text-xl font-bold text-green-500">♂</span>
+                                                                <span class="text-xl font-bold text-pink-500">♀</span>
+                                                                <span class="text-gray-800 dark:text-white font-medium ml-1">{{ __('ui.gender_mixed') }}</span>
+                                                            </div>
+                                                            <div x-show="!selectedProperty.gender" class="flex items-center gap-1.5">
+                                                                <span class="text-gray-400 dark:text-gray-500 text-sm italic">-</span>
+                                                            </div>
                                                         </div>
 
                                                         <div class="flex flex-col items-center space-y-1">
@@ -490,6 +515,7 @@
                                 'name' => $property->name ?? '',
                                 'initial' => $property->initial ?? '',
                                 'tags' => $property->tags ?? 'Kos',
+                                'gender' => $property->gender ?? null,
                                 'description' => $property->description ?? '',
                                 'address' => $property->address ?? '',
                                 'latitude' => $property->latitude,
@@ -556,8 +582,7 @@
                                     <div
                                         class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
                                         <div class="flex justify-between items-center mb-4">
-                                            <div class="font-bold text-xl text-gray-800 dark:text-white">Edit Properti
-                                            </div>
+                                            <div class="font-bold text-xl text-gray-800 dark:text-white">{{ __('ui.edit_property') }}</div>
                                             <button type="button"
                                                 class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
                                                 @click="editModalOpen = false">
@@ -588,7 +613,7 @@
                                                     <p class="font-medium transition-colors duration-300"
                                                         :class="editStep >= 1 ? 'text-blue-600 dark:text-blue-400' :
                                                             'text-gray-500 dark:text-gray-400'">
-                                                        Informasi Dasar
+                                                        {{ __('ui.basic_information') }}
                                                     </p>
                                                 </div>
                                             </div>
@@ -615,7 +640,7 @@
                                                     <p class="font-medium transition-colors duration-300"
                                                         :class="editStep >= 2 ? 'text-blue-600 dark:text-blue-400' :
                                                             'text-gray-500 dark:text-gray-400'">
-                                                        Detail Lokasi</p>
+                                                        {{ __('ui.location_details') }}</p>
                                                 </div>
                                             </div>
 
@@ -641,7 +666,7 @@
                                                     <p class="font-medium transition-colors duration-300"
                                                         :class="editStep >= 3 ? 'text-blue-600 dark:text-blue-400' :
                                                             'text-gray-500 dark:text-gray-400'">
-                                                        Fasilitas</p>
+                                                        {{ __('ui.facilities') }}</p>
                                                 </div>
                                             </div>
 
@@ -667,7 +692,7 @@
                                                     <p class="font-medium transition-colors duration-300"
                                                         :class="editStep >= 4 ? 'text-blue-600 dark:text-blue-400' :
                                                             'text-gray-500 dark:text-gray-400'">
-                                                        Foto</p>
+                                                        {{ __('ui.photos') }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -693,14 +718,14 @@
                                                         <div class="col-span-10">
                                                             <label for="property_name_edit_{{ $property->idrec }}"
                                                                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Nama Properti <span class="text-red-500">*</span>
+                                                                {{ __('ui.property_name') }} <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
                                                                 id="property_name_edit_{{ $property->idrec }}"
                                                                 name="property_name" required
                                                                 x-model="propertyData.name"
                                                                 class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                                placeholder="Masukkan nama properti">
+                                                                placeholder="{{ __('ui.enter_property_name') }}">
                                                         </div>
 
                                                         <!-- Initial -->
@@ -719,7 +744,7 @@
                                                                     oninput="this.value = this.value.toUpperCase()">
                                                             </div>
                                                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                                                Maks. 3 karakter</p>
+                                                                {{ __('ui.max_3_chars') }}</p>
                                                         </div>
                                                     </div>
 
@@ -727,7 +752,7 @@
                                                     <div>
                                                         <label
                                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                                                            Jenis Properti <span class="text-red-500">*</span>
+                                                            {{ __('ui.property_type') }} <span class="text-red-500">*</span>
                                                         </label>
                                                         <div class="grid grid-cols-2 gap-4">
                                                             @php
@@ -756,16 +781,64 @@
                                                         </div>
                                                     </div>
 
+                                                    <!-- Gender Penghuni (khusus Kos) -->
+                                                    <div x-show="propertyData.tags === 'Kos'"
+                                                        x-transition:enter="transition ease-out duration-200"
+                                                        x-transition:enter-start="opacity-0 -translate-y-2"
+                                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                                        x-transition:leave="transition ease-in duration-150"
+                                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                                        x-transition:leave-end="opacity-0 -translate-y-2">
+                                                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                                            {{ __('ui.gender_tenant') }} <span class="text-xs font-normal text-gray-500 ml-1">{{ __('ui.gender_optional') }}</span>
+                                                        </label>
+                                                        <div class="flex gap-3 flex-wrap">
+                                                            <!-- Laki-laki -->
+                                                            <button type="button"
+                                                                @click="propertyData.gender = (propertyData.gender === 'male' ? null : 'male')"
+                                                                :class="propertyData.gender === 'male'
+                                                                    ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 shadow-sm'
+                                                                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-green-300 hover:bg-green-50/50'"
+                                                                class="flex items-center gap-2 px-5 py-3 border-2 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none">
+                                                                <span class="text-xl font-bold leading-none" :class="propertyData.gender === 'male' ? 'text-green-500' : 'text-gray-400'">♂</span>
+                                                                <span>{{ __('ui.gender_male') }}</span>
+                                                            </button>
+
+                                                            <!-- Perempuan -->
+                                                            <button type="button"
+                                                                @click="propertyData.gender = (propertyData.gender === 'female' ? null : 'female')"
+                                                                :class="propertyData.gender === 'female'
+                                                                    ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 shadow-sm'
+                                                                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-pink-300 hover:bg-pink-50/50'"
+                                                                class="flex items-center gap-2 px-5 py-3 border-2 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none">
+                                                                <span class="text-xl font-bold leading-none" :class="propertyData.gender === 'female' ? 'text-pink-500' : 'text-gray-400'">♀</span>
+                                                                <span>{{ __('ui.gender_female') }}</span>
+                                                            </button>
+
+                                                            <!-- Campur -->
+                                                            <button type="button"
+                                                                @click="propertyData.gender = (propertyData.gender === 'mixed' ? null : 'mixed')"
+                                                                :class="propertyData.gender === 'mixed'
+                                                                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 shadow-sm'
+                                                                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-purple-300 hover:bg-purple-50/50'"
+                                                                class="flex items-center gap-2 px-5 py-3 border-2 rounded-lg font-medium text-sm transition-all duration-200 focus:outline-none">
+                                                                <span class="text-base font-bold leading-none" :class="propertyData.gender === 'mixed' ? 'text-green-500' : 'text-gray-400'">♂</span><span class="text-base font-bold leading-none -ml-1" :class="propertyData.gender === 'mixed' ? 'text-pink-500' : 'text-gray-400'">♀</span>
+                                                                <span>{{ __('ui.gender_mixed') }}</span>
+                                                            </button>
+                                                        </div>
+                                                        <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">{{ __('ui.gender_hint') }}</p>
+                                                    </div>
+
                                                     <!-- Deskripsi -->
                                                     <div>
                                                         <label for="description_edit_{{ $property->idrec }}"
                                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                            Deskripsi <span class="text-red-500">*</span>
+                                                            {{ __('ui.description') }} <span class="text-red-500">*</span>
                                                         </label>
                                                         <textarea id="description_edit_{{ $property->idrec }}" name="description" rows="4" required
                                                             x-model="propertyData.description"
                                                             class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                            placeholder="Deskripsikan properti Anda..."></textarea>
+                                                            placeholder="{{ __('ui.describe_your_property') }}..."></textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -779,16 +852,15 @@
                                                     <div class="relative">
                                                         <label for="full_address_edit_{{ $property->idrec }}"
                                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                            Alamat Lengkap <span class="text-red-500">*</span>
-                                                            <span class="text-xs font-normal text-gray-500 ml-2">(Ketik
-                                                                untuk mencari alamat)</span>
+                                                            {{ __('ui.full_address') }} <span class="text-red-500">*</span>
+                                                            <span class="text-xs font-normal text-gray-500 ml-2">({{ __('ui.type_to_search_address') }})</span>
                                                         </label>
                                                         <div class="relative">
                                                             <textarea id="full_address_edit_{{ $property->idrec }}" name="full_address" rows="3" required
                                                                 x-model="propertyData.address" @input="searchAddress($event.target.value)"
                                                                 @focus="showAddressSuggestions = addressSuggestions.length > 0" @click.outside="showAddressSuggestions = false"
                                                                 class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                                placeholder="Masukkan alamat lengkap properti"></textarea>
+                                                                placeholder="{{ __('ui.enter_full_address') }}"></textarea>
                                                             <!-- Loading indicator -->
                                                             <div x-show="isAddressSearching"
                                                                 class="absolute right-3 top-3">
@@ -844,11 +916,8 @@
                                                     <div>
                                                         <label
                                                             class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                            Pinpoint Lokasi <span class="text-red-500 ml-1">*</span>
-                                                            <span
-                                                                class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(Klik
-                                                                untuk menandai langsung pada
-                                                                peta)</span>
+                                                            {{ __('ui.pinpoint_location') }} <span class="text-red-500 ml-1">*</span>
+                                                            <span class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">({{ __('ui.click_to_mark_on_map') }})</span>
                                                         </label>
                                                         <div id="map_edit_{{ $property->idrec }}"
                                                             class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center">
@@ -865,14 +934,14 @@
                                                                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
                                                                     </path>
                                                                 </svg>
-                                                                <p>Klik untuk menentukan lokasi</p>
+                                                                <p>{{ __('ui.click_to_set_location') }}</p>
                                                             </div>
                                                         </div>
                                                         <div id="coordinates_edit_{{ $property->idrec }}"
                                                             class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                                                             <span
                                                                 x-show="propertyData.latitude && propertyData.longitude">
-                                                                Koordinat: <span
+                                                                {{ __('ui.coordinates') }}: <span
                                                                     x-text="propertyData.latitude"></span>,
                                                                 <span x-text="propertyData.longitude"></span>
                                                             </span>
@@ -889,25 +958,25 @@
                                                         <div>
                                                             <label for="province_edit_{{ $property->idrec }}"
                                                                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Provinsi <span class="text-red-500">*</span>
+                                                                {{ __('ui.province') }} <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
                                                                 id="province_edit_{{ $property->idrec }}"
                                                                 name="province" required
                                                                 x-model="propertyData.province"
-                                                                placeholder="Masukkan Provinsi"
+                                                                placeholder="{{ __('ui.enter_province') }}"
                                                                 class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                                                         </div>
 
                                                         <div>
                                                             <label for="city_edit_{{ $property->idrec }}"
                                                                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Kota/Kabupaten <span class="text-red-500">*</span>
+                                                                {{ __('ui.city_regency') }} <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
                                                                 id="city_edit_{{ $property->idrec }}" name="city"
                                                                 required x-model="propertyData.city"
-                                                                placeholder="Masukkan Kota atau Kabupaten"
+                                                                placeholder="{{ __('ui.enter_city_regency') }}"
                                                                 class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
                                                         </div>
                                                     </div>
@@ -916,26 +985,26 @@
                                                         <div>
                                                             <label for="district_edit_{{ $property->idrec }}"
                                                                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Kecamatan <span class="text-red-500">*</span>
+                                                                {{ __('ui.district') }} <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
                                                                 id="district_edit_{{ $property->idrec }}"
                                                                 name="district" required
                                                                 x-model="propertyData.subdistrict"
                                                                 class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                                placeholder="Masukkan kecamatan">
+                                                                placeholder="{{ __('ui.enter_district') }}">
                                                         </div>
 
                                                         <div>
                                                             <label for="village_edit_{{ $property->idrec }}"
                                                                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Kelurahan <span class="text-red-500">*</span>
+                                                                {{ __('ui.village') }} <span class="text-red-500">*</span>
                                                             </label>
                                                             <input type="text"
                                                                 id="village_edit_{{ $property->idrec }}"
                                                                 name="village" required x-model="propertyData.village"
                                                                 class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                                placeholder="Masukkan kelurahan">
+                                                                placeholder="{{ __('ui.enter_village') }}">
                                                         </div>
                                                     </div>
 
@@ -943,13 +1012,13 @@
                                                         <div>
                                                             <label for="postal_code_edit_{{ $property->idrec }}"
                                                                 class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Kode Pos
+                                                                {{ __('ui.postal_code') }}
                                                             </label>
                                                             <input type="text"
                                                                 id="postal_code_edit_{{ $property->idrec }}"
                                                                 name="postal_code" x-model="propertyData.postal_code"
                                                                 class="w-full border-2 border-gray-200 dark:border-gray-600 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                                placeholder="Masukkan kode pos">
+                                                                placeholder="{{ __('ui.enter_postal_code') }}">
                                                         </div>
                                                     </div>
 
@@ -1087,7 +1156,7 @@
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                             </svg>
-                                                            Fasilitas Umum
+                                                            {{ __('ui.general_facilities') }}
                                                         </h3>
                                                         <div
                                                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
@@ -1131,7 +1200,7 @@
                                                                 </svg>
                                                                 <p
                                                                     class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                                                    Tidak ada fasilitas umum tersedia</p>
+                                                                    {{ __('ui.no_general_facilities') }}</p>
                                                             </div>
                                                         @endif
                                                     </div>
@@ -1147,7 +1216,7 @@
                                                                     stroke-width="2"
                                                                     d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                                             </svg>
-                                                            Fasilitas Keamanan
+                                                            {{ __('ui.security_facilities') }}
                                                         </h3>
                                                         <div
                                                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
@@ -1191,7 +1260,7 @@
                                                                 </svg>
                                                                 <p
                                                                     class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                                                    Tidak ada fasilitas keamanan tersedia</p>
+                                                                    {{ __('ui.no_security_facilities') }}</p>
                                                             </div>
                                                         @endif
                                                     </div>
@@ -1207,7 +1276,7 @@
                                                                     stroke-width="2"
                                                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                                             </svg>
-                                                            Layanan Tambahan
+                                                            {{ __('ui.additional_services') }}
                                                         </h3>
                                                         <div
                                                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-80 overflow-y-auto p-2">
@@ -1251,7 +1320,7 @@
                                                                 </svg>
                                                                 <p
                                                                     class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                                                    Tidak ada layanan tambahan tersedia</p>
+                                                                    {{ __('ui.no_additional_services') }}</p>
                                                             </div>
                                                         @endif
                                                     </div>
@@ -1271,7 +1340,7 @@
 
                                                         <label
                                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                                                            Foto Properti <span class="text-red-500">*</span>
+                                                            {{ __('ui.property_photos') }} <span class="text-red-500">*</span>
                                                             <span
                                                                 class="text-sm font-normal text-gray-500 dark:text-gray-400">
                                                                 (Minimal <span x-text="editMinImages"></span> foto,
@@ -1283,10 +1352,8 @@
                                                         <div class="mb-6">
                                                             <h4
                                                                 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Thumbnail Saat Ini <span class="text-red-500">*</span>
-                                                                <span
-                                                                    class="text-xs font-normal text-gray-500 dark:text-gray-400">(Foto
-                                                                    utama properti)</span>
+                                                                {{ __('ui.current_thumbnail') }} <span class="text-red-500">*</span>
+                                                                <span class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ __('ui.main_photo_property') }})</span>
                                                             </h4>
 
                                                             <div class="flex items-center space-x-4">
@@ -1316,20 +1383,17 @@
                                                                         class="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                                         <span x-show="thumbnailIndex === null"
                                                                             class="font-medium text-red-500">
-                                                                            Belum ada thumbnail dipilih!
+                                                                            {{ __('ui.no_thumbnail_selected') }}!
                                                                         </span>
                                                                         <span x-show="thumbnailIndex !== null"
                                                                             class="font-medium text-green-600 dark:text-green-400">
-                                                                            Thumbnail sudah dipilih.
+                                                                            {{ __('ui.thumbnail_selected') }}.
                                                                         </span>
-                                                                        Klik salah satu foto di bawah untuk memilih
-                                                                        sebagai thumbnail.
+                                                                        {{ __('ui.click_photo_for_thumbnail') }}.
                                                                     </p>
                                                                     <p
                                                                         class="text-xs text-gray-500 dark:text-gray-400">
-                                                                        Pastikan memilih foto terbaik sebagai thumbnail
-                                                                        karena ini akan menjadi gambar utama properti
-                                                                        Anda.
+                                                                        {{ __('ui.choose_best_thumbnail_property') }}.
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1353,7 +1417,7 @@
                                                                     <label
                                                                         for="edit_property_images_{{ $property->idrec }}"
                                                                         class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                                                        <span>Upload foto</span>
+                                                                        <span>{{ __('ui.upload_photo') }}</span>
                                                                         <input
                                                                             id="edit_property_images_{{ $property->idrec }}"
                                                                             name="edit_property_images[]"
@@ -1361,10 +1425,10 @@
                                                                             @change="handleEditFileSelect($event)"
                                                                             class="sr-only">
                                                                     </label>
-                                                                    <p class="pl-1">atau drag and drop</p>
+                                                                    <p class="pl-1">{{ __('ui.or') }} {{ __('ui.drag_and_drop') }}</p>
                                                                 </div>
                                                                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                                    PNG, JPG, JPEG (maks. 5MB per file)</p>
+                                                                    {{ __('ui.photo_upload_hint') }}</p>
                                                                 <p class="text-xs text-blue-600 dark:text-blue-400"
                                                                     x-text="`Dapat upload ${editRemainingSlots} foto lagi`">
                                                                 </p>
@@ -1388,7 +1452,7 @@
                                                                     diupload!
                                                                 </p>
                                                                 <p class="text-xs text-green-500 dark:text-green-400">
-                                                                    Maksimal upload foto tercapai</p>
+                                                                    {{ __('ui.max_photos_reached') }}</p>
                                                             </div>
                                                         </div>
 
@@ -1396,7 +1460,7 @@
                                                         <div x-show="getAllImages().length > 0" class="mt-4">
                                                             <h4
                                                                 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                                Foto Terupload
+                                                                {{ __('ui.uploaded_photos') }}
                                                             </h4>
 
                                                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"
@@ -1524,27 +1588,23 @@
                                                             <div x-show="getAllImages().length < editMinImages"
                                                                 class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                                                                 <p class="text-sm text-red-600 dark:text-red-400">
-                                                                    <span class="font-medium">Perhatian:</span>
-                                                                    Anda harus mengupload minimal <span
-                                                                        x-text="editMinImages"></span> foto.
+                                                                    <span class="font-medium">{{ __('ui.warning') }}:</span>
+                                                                    {{ __('ui.validation_required_photos') }}
                                                                 </p>
                                                             </div>
 
                                                             <div x-show="thumbnailIndex === null && getAllImages().length > 0"
                                                                 class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                                                                <p
-                                                                    class="text-sm text-yellow-600 dark:text-yellow-400">
-                                                                    <span class="font-medium">Perhatian:</span>
-                                                                    Anda harus memilih thumbnail untuk melanjutkan.
+                                                                <p class="text-sm text-yellow-600 dark:text-yellow-400">
+                                                                    <span class="font-medium">{{ __('ui.warning') }}:</span>
+                                                                    {{ __('ui.validation_required_thumbnail') }}.
                                                                 </p>
                                                             </div>
 
                                                             <div x-show="getAllImages().length >= editMinImages && thumbnailIndex !== null"
                                                                 class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                                                                 <p class="text-sm text-green-600 dark:text-green-400">
-                                                                    <span class="font-medium">Sempurna!</span>
-                                                                    Foto sudah memenuhi syarat dan thumbnail telah
-                                                                    dipilih.
+                                                                    {{ __('ui.photos_valid_thumbnail_selected') }}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -1563,12 +1623,12 @@
                                                                 stroke-width="2" d="M15 19l-7-7 7-7">
                                                             </path>
                                                         </svg>
-                                                        Sebelumnya
+                                                        {{ __('ui.previous') }}
                                                     </button>
                                                     <button type="button" x-show="editStep < 4"
                                                         @click="validateEditStep(editStep) && editStep++"
                                                         class="px-6 py-2 border-2 border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                                                        Selanjutnya
+                                                        {{ __('ui.next') }}
                                                         <svg class="w-4 h-4 inline ml-2" fill="none"
                                                             stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -1584,7 +1644,7 @@
                                                                 stroke-width="2" d="M5 13l4 4L19 7">
                                                             </path>
                                                         </svg>
-                                                        Update
+                                                        {{ __('ui.update') }}
                                                     </button>
                                                 </div>
                                             </div>

@@ -55,9 +55,11 @@ class DashboardController extends Controller
 
                 // Kamar yang terbooking (semua kamar dengan booking paid yang aktif)
                 // Hitung distinct room_id yang memiliki booking aktif (belum check-out)
+                // status=1: hanya booking aktif, booking lama dari pindah kamar (status=0) tidak dihitung
                 $currentDate = now()->toDateString();
 
                 $bookedRooms = Booking::where('property_id', $property->idrec)
+                    ->where('status', 1)
                     ->whereHas('transaction', function ($q) {
                         $q->where('transaction_status', 'paid');
                     })
@@ -67,7 +69,9 @@ class DashboardController extends Controller
 
                 // Kamar yang sudah check in (terisi secara fisik)
                 // Hitung distinct room_id dimana check_in_at != NULL dan check_out_at = NULL
+                // status=1: hanya booking aktif, booking lama dari pindah kamar (status=0) tidak dihitung
                 $occupiedRooms = Booking::where('property_id', $property->idrec)
+                    ->where('status', 1)
                     ->whereHas('transaction', function ($q) {
                         $q->where('transaction_status', 'paid');
                     })
@@ -190,7 +194,9 @@ class DashboardController extends Controller
     private function getRoomTypesBreakdown($propertyId)
     {
         // Get booked room IDs (transaction paid, belum check-out)
+        // status=1: hanya booking aktif, booking lama dari pindah kamar (status=0) tidak dihitung
         $bookedRoomIds = Booking::where('property_id', $propertyId)
+            ->where('status', 1)
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })
@@ -199,7 +205,9 @@ class DashboardController extends Controller
             ->toArray();
 
         // Get occupied room IDs (sudah check-in fisik)
+        // status=1: hanya booking aktif, booking lama dari pindah kamar (status=0) tidak dihitung
         $occupiedRoomIds = Booking::where('property_id', $propertyId)
+            ->where('status', 1)
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })

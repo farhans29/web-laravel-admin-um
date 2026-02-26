@@ -1034,7 +1034,7 @@
                                                                         @endif
                                                                         @if ($roomType['status_counts']['unavailable'] > 0)
                                                                             <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded font-medium">
-                                                                                {{ $roomType['status_counts']['unavailable'] }} N/A
+                                                                                {{ $roomType['status_counts']['unavailable'] }} Tidak Tersedia
                                                                             </span>
                                                                         @endif
                                                                         <!-- Toggle Icon -->
