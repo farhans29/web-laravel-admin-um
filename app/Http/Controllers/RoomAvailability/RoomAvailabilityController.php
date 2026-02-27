@@ -23,6 +23,8 @@ class RoomAvailabilityController extends Controller
             // Hanya ambil booking aktif (status=1) dengan status paid
             // status=0 berarti booking lama dari pindah kamar, tidak perlu ditampilkan
             $query->where('status', 1)
+            ->whereNotNull('check_in_at')
+            ->whereNull('check_out_at')
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })
@@ -86,6 +88,8 @@ class RoomAvailabilityController extends Controller
         // Hanya tampilkan booking aktif (status = 1) - booking lama dari room change diabaikan
         $bookingsQuery = Booking::where('room_id', $roomId)
             ->where('status', 1)
+            ->whereNotNull('check_in_at')
+            ->whereNull('check_out_at')
             ->whereHas('transaction', function ($q) {
                 $q->where('transaction_status', 'paid');
             })
