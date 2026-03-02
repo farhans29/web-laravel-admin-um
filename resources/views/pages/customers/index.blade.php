@@ -26,15 +26,16 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible mb-6">
             <form method="GET" action="{{ route('customers.index') }}" id="filterForm"
                 class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     <!-- Search Input -->
-                    <div>
+                    <div class="lg:col-span-2">
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
                             {{ __('ui.search') }}
                         </label>
                         <div class="relative">
                             <input type="text" name="search" id="search" value="{{ request('search') }}"
-                                placeholder="{{ __('ui.search_placeholder_customer') }}"
+                                placeholder="Nama, email, no. HP, no. kamar, order ID..."
                                 class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                             <div class="absolute left-3 top-1/2 -translate-y-1/2">
@@ -45,21 +46,6 @@
                                 </svg>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Registration Status Filter -->
-                    <div>
-                        <label for="registration_status" class="block text-sm font-medium text-gray-700 mb-1">
-                            {{ __('ui.registration_status') }}
-                        </label>
-                        <select name="registration_status" id="registration_status"
-                            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
-                            focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                            <option value="all" {{ request('registration_status') == 'all' ? 'selected' : '' }}>{{ __('ui.all_customers') }}</option>
-                            <option value="registered"
-                                {{ request('registration_status') == 'registered' ? 'selected' : '' }}>{{ __('ui.registered_only') }}</option>
-                            <option value="guest" {{ request('registration_status') == 'guest' ? 'selected' : '' }}>{{ __('ui.guest_only') }}</option>
-                        </select>
                     </div>
 
                     <!-- Property Filter -->
@@ -83,31 +69,31 @@
                     <!-- Booking Status Filter -->
                     <div>
                         <label for="booking_status" class="block text-sm font-medium text-gray-700 mb-1">
-                            Status Booking
+                            {{ __('ui.booking_status') }}
                         </label>
                         <select name="booking_status" id="booking_status"
                             class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm
                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
-                            <option value="" {{ request('booking_status') == '' ? 'selected' : '' }}>Semua Status</option>
-                            <option value="checked-in" {{ request('booking_status') == 'checked-in' ? 'selected' : '' }}>Sedang Check-in</option>
-                            <option value="completed" {{ request('booking_status') == 'completed' ? 'selected' : '' }}>Selesai</option>
-                            <option value="pending" {{ request('booking_status') == 'pending' ? 'selected' : '' }}>Akan Datang</option>
-                            <option value="cancelled" {{ request('booking_status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                            <option value="" {{ request('booking_status') == '' ? 'selected' : '' }}>{{ __('ui.all_status') }}</option>
+                            <option value="checked-in" {{ request('booking_status') == 'checked-in' ? 'selected' : '' }}>{{ __('ui.checked_in') }}</option>
+                            <option value="completed" {{ request('booking_status') == 'completed' ? 'selected' : '' }}>{{ __('ui.completed') }}</option>
+                            <option value="pending" {{ request('booking_status') == 'pending' ? 'selected' : '' }}>{{ __('ui.upcoming') }}</option>
+                            <option value="cancelled" {{ request('booking_status') == 'cancelled' ? 'selected' : '' }}>{{ __('ui.cancelled') }}</option>
                         </select>
                     </div>
 
                     <!-- Per Page -->
-                    <div class="flex items-center gap-2 justify-end">
-                        <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
+                    <div class="flex items-center justify-end gap-2">
+                        <label for="per_page" class="text-sm font-medium text-gray-700 whitespace-nowrap">{{ __('ui.show') }}</label>
                         <select name="per_page" id="per_page"
-                            class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            class="w-20 px-2 py-2 border border-gray-300 rounded-lg text-sm
+                            focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                             <option value="8" {{ $perPage == 8 ? 'selected' : '' }}>8</option>
                             <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
                             <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
                         </select>
                     </div>
                 </div>
-
             </form>
         </div>
 
@@ -341,7 +327,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search');
-            const registrationStatus = document.getElementById('registration_status');
             const propertyFilter = document.getElementById('property_id');
             const bookingStatusFilter = document.getElementById('booking_status');
             const perPageSelect = document.getElementById('per_page');
@@ -350,14 +335,15 @@
             function submitFilter() {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    const formData = new FormData();
-                    formData.append('search', searchInput.value);
-                    formData.append('registration_status', registrationStatus.value);
-                    formData.append('property_id', propertyFilter.value);
-                    formData.append('booking_status', bookingStatusFilter.value);
-                    formData.append('per_page', perPageSelect.value);
+                    const params = new URLSearchParams({
+                        search: searchInput.value,
+                        property_id: propertyFilter.value,
+                        booking_status: bookingStatusFilter.value,
+                        per_page: perPageSelect.value,
+                    });
 
-                    const params = new URLSearchParams(formData);
+                    // Update browser URL so pagination links work correctly
+                    history.pushState(null, '', `{{ route('customers.index') }}?${params.toString()}`);
 
                     fetch(`{{ route('customers.filter') }}?${params.toString()}`)
                         .then(response => response.text())
@@ -369,7 +355,6 @@
             }
 
             searchInput.addEventListener('input', submitFilter);
-            registrationStatus.addEventListener('change', submitFilter);
             propertyFilter.addEventListener('change', submitFilter);
             bookingStatusFilter.addEventListener('change', submitFilter);
             perPageSelect.addEventListener('change', submitFilter);
@@ -662,18 +647,12 @@
         function closePreRegisterSuccessModal() {
             document.getElementById('preRegisterSuccessModal').classList.add('hidden');
             // Refresh the customer table
-            const searchInput = document.getElementById('search');
-            const registrationStatus = document.getElementById('registration_status');
-            const propertyFilter = document.getElementById('property_id');
-            const perPageSelect = document.getElementById('per_page');
-
-            const formData = new FormData();
-            formData.append('search', searchInput.value);
-            formData.append('registration_status', registrationStatus.value);
-            formData.append('property_id', propertyFilter.value);
-            formData.append('per_page', perPageSelect.value);
-
-            const params = new URLSearchParams(formData);
+            const params = new URLSearchParams({
+                search:         document.getElementById('search').value,
+                property_id:    document.getElementById('property_id').value,
+                booking_status: document.getElementById('booking_status').value,
+                per_page:       document.getElementById('per_page').value,
+            });
 
             fetch(`{{ route('customers.filter') }}?${params.toString()}`)
                 .then(response => response.text())
@@ -938,11 +917,10 @@
 
                     // Refresh customer table
                     const params = new URLSearchParams({
-                        search:              document.getElementById('search').value,
-                        registration_status: document.getElementById('registration_status').value,
-                        property_id:         document.getElementById('property_id').value,
-                        booking_status:      document.getElementById('booking_status').value,
-                        per_page:            document.getElementById('per_page').value,
+                        search:         document.getElementById('search').value,
+                        property_id:    document.getElementById('property_id').value,
+                        booking_status: document.getElementById('booking_status').value,
+                        per_page:       document.getElementById('per_page').value,
                     });
                     fetch(`{{ route('customers.filter') }}?${params.toString()}`)
                         .then(r => r.text())

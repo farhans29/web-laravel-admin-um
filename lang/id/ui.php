@@ -168,6 +168,9 @@ return [
     'completed_desc' => 'Daftar pemesanan yang sudah selesai atau dibatalkan',
     'order_id_or_guest' => 'ID Pesanan atau Nama Tamu',
     'all_status' => 'Semua Status',
+    'booking_status' => 'Status Booking',
+    'upcoming' => 'Akan Datang',
+    'cancelled' => 'Dibatalkan',
     'pending_payment' => 'Menunggu Pembayaran',
     'waiting_confirmation' => 'Menunggu Konfirmasi',
     'ready_for_checkin' => 'Siap Check-In',
@@ -940,6 +943,7 @@ return [
     'press_esc_to_close' => 'Tekan ESC atau klik di luar untuk menutup',
     'no_proof_available' => 'Tidak ada bukti pembayaran',
     'unsupported_file' => 'Jenis file tidak didukung',
+    'file_cannot_be_displayed' => 'Jenis file ini tidak dapat ditampilkan.',
     'confirm_reject_parking_msg' => 'Apakah Anda yakin ingin menolak pembayaran parkir untuk Order ID:',
     'confirm_reject_deposit_msg' => 'Apakah Anda yakin ingin menolak pembayaran deposit untuk Order ID:',
 

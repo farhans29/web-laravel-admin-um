@@ -326,6 +326,31 @@ class PaymentController extends Controller
     }
 
 
+    public function getBookingAttachment($id)
+    {
+        try {
+            $payment = Payment::with(['transaction'])->findOrFail($id);
+
+            if (!$payment->transaction || !$payment->transaction->attachment) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bukti pembayaran tidak tersedia'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'attachment' => $payment->transaction->attachment,
+                'order_id' => $payment->order_id,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil bukti pembayaran'
+            ], 500);
+        }
+    }
+
     public function viewProof($id)
     {
         $transaction = Transaction::findOrFail($id);

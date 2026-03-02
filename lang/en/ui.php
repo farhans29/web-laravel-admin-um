@@ -168,6 +168,9 @@ return [
     'completed_desc' => 'List of completed or cancelled bookings',
     'order_id_or_guest' => 'Order ID or Guest Name',
     'all_status' => 'All Status',
+    'booking_status' => 'Booking Status',
+    'upcoming' => 'Upcoming',
+    'cancelled' => 'Cancelled',
     'pending_payment' => 'Pending Payment',
     'waiting_confirmation' => 'Waiting Confirmation',
     'ready_for_checkin' => 'Ready for Check-In',
@@ -940,6 +943,7 @@ return [
     'press_esc_to_close' => 'Press ESC or click outside to close',
     'no_proof_available' => 'No payment proof available',
     'unsupported_file' => 'Unsupported file type',
+    'file_cannot_be_displayed' => 'This file type cannot be displayed.',
     'confirm_reject_parking_msg' => 'Are you sure you want to reject parking payment for Order ID:',
     'confirm_reject_deposit_msg' => 'Are you sure you want to reject deposit payment for Order ID:',
 
