@@ -458,7 +458,7 @@
                                     <div
                                         class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
                                         <h3 class="text-lg font-semibold text-gray-800">
-                                            Bukti Pembayaran untuk Pesanan #<span x-text="orderId"></span>
+                                            {{ __('ui.payment_proof') }} — #<span x-text="orderId"></span>
                                         </h3>
                                         <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -487,7 +487,7 @@
 
                                         <template x-if="!isLoading && attachmentType === 'image'">
                                             <img :src="'data:' + mimeType + ';base64,' + attachmentData"
-                                                alt="Bukti Pembayaran"
+                                                alt="{{ __('ui.payment_proof') }}"
                                                 class="mx-auto max-h-[70vh] max-w-full object-contain">
                                         </template>
 
@@ -508,10 +508,8 @@
                                                         stroke-width="2"
                                                         d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                <h3 class="mt-4 text-lg font-medium text-gray-900">
-                                                    Jenis File Tidak Didukung</h3>
-                                                <p class="mt-2 text-sm text-gray-500">Jenis file ini tidak dapat
-                                                    ditampilkan. Silakan unggah ulang.</p>
+                                                <h3 class="mt-4 text-lg font-medium text-gray-900">{{ __('ui.unsupported_file') }}</h3>
+                                                <p class="mt-2 text-sm text-gray-500">{{ __('ui.file_cannot_be_displayed') }}</p>
                                             </div>
                                         </template>
                                     </div>
@@ -653,7 +651,7 @@
                                 <button type="button"
                                     class="text-xs text-blue-600 underline hover:text-blue-800 cursor-pointer"
                                     @click="openModal({{ $payment->idrec }}, '{{ $payment->order_id }}')">
-                                    Lihat Bukti
+                                    {{ __('ui.view_proof') }}
                                 </button>
 
                                 <!-- Backdrop -->
@@ -681,7 +679,7 @@
                                         <!-- Header -->
                                         <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
                                             <h3 class="text-lg font-semibold text-gray-800">
-                                                Bukti Pembayaran — Pesanan #<span x-text="orderId"></span>
+                                                {{ __('ui.payment_proof') }} — #<span x-text="orderId"></span>
                                             </h3>
                                             <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -709,7 +707,7 @@
                                             </template>
                                             <template x-if="!isLoading && attachmentType === 'image'">
                                                 <img :src="'data:' + mimeType + ';base64,' + attachmentData"
-                                                    alt="Bukti Pembayaran"
+                                                    alt="{{ __('ui.payment_proof') }}"
                                                     class="mx-auto max-h-[70vh] max-w-full object-contain">
                                             </template>
                                             <template x-if="!isLoading && attachmentType === 'pdf'">
@@ -728,8 +726,8 @@
                                                             stroke-width="2"
                                                             d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    <h3 class="mt-4 text-lg font-medium text-gray-900">Jenis File Tidak Didukung</h3>
-                                                    <p class="mt-2 text-sm text-gray-500">Jenis file ini tidak dapat ditampilkan.</p>
+                                                    <h3 class="mt-4 text-lg font-medium text-gray-900">{{ __('ui.unsupported_file') }}</h3>
+                                                    <p class="mt-2 text-sm text-gray-500">{{ __('ui.file_cannot_be_displayed') }}</p>
                                                 </div>
                                             </template>
                                         </div>
@@ -997,7 +995,7 @@
                                 <button type="button"
                                     class="text-xs text-blue-600 underline hover:text-blue-800 cursor-pointer"
                                     @click="openModal({{ $payment->idrec }}, '{{ $payment->order_id }}')">
-                                    Lihat Bukti
+                                    {{ __('ui.view_proof') }}
                                 </button>
 
                                 <!-- Backdrop -->
@@ -1025,7 +1023,7 @@
                                         <!-- Header -->
                                         <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
                                             <h3 class="text-lg font-semibold text-gray-800">
-                                                Bukti Pembayaran — Pesanan #<span x-text="orderId"></span>
+                                                {{ __('ui.payment_proof') }} — #<span x-text="orderId"></span>
                                             </h3>
                                             <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -1053,7 +1051,7 @@
                                             </template>
                                             <template x-if="!isLoading && attachmentType === 'image'">
                                                 <img :src="'data:' + mimeType + ';base64,' + attachmentData"
-                                                    alt="Bukti Pembayaran"
+                                                    alt="{{ __('ui.payment_proof') }}"
                                                     class="mx-auto max-h-[70vh] max-w-full object-contain">
                                             </template>
                                             <template x-if="!isLoading && attachmentType === 'pdf'">
@@ -1072,8 +1070,8 @@
                                                             stroke-width="2"
                                                             d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
-                                                    <h3 class="mt-4 text-lg font-medium text-gray-900">Jenis File Tidak Didukung</h3>
-                                                    <p class="mt-2 text-sm text-gray-500">Jenis file ini tidak dapat ditampilkan.</p>
+                                                    <h3 class="mt-4 text-lg font-medium text-gray-900">{{ __('ui.unsupported_file') }}</h3>
+                                                    <p class="mt-2 text-sm text-gray-500">{{ __('ui.file_cannot_be_displayed') }}</p>
                                                 </div>
                                             </template>
                                         </div>

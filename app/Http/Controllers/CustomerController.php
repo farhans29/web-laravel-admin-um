@@ -50,6 +50,8 @@ class CustomerController extends Controller
         $perPage = $request->input('per_page', 8);
 
         $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId, $bookingStatus)->paginate($perPage);
+        $customers->setPath(route('customers.index'));
+        $customers->appends($request->except('page'));
 
         return view('pages.customers.partials.customer_table', [
             'customers' => $customers,
@@ -132,20 +134,49 @@ class CustomerController extends Controller
             $guestCustomers->where('property_id', $propertyId);
         }
 
-        // Apply search filter to registered users
+        // Apply search filter to registered users (name, email, phone, room number, order ID)
         if ($search) {
             $registeredUsers->where(function ($query) use ($search) {
                 $query->where('users.username', 'like', '%' . $search . '%')
-                    ->orWhere('users.email', 'like', '%' . $search . '%');
+                    ->orWhere('users.email', 'like', '%' . $search . '%')
+                    ->orWhere('users.phone_number', 'like', '%' . $search . '%')
+                    ->orWhereExists(function ($q) use ($search) {
+                        $q->select(DB::raw(1))
+                            ->from('t_transactions as t_oid')
+                            ->whereColumn('t_oid.user_id', 'users.id')
+                            ->where('t_oid.order_id', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereExists(function ($q) use ($search) {
+                        $q->select(DB::raw(1))
+                            ->from('t_transactions as t_rn')
+                            ->leftJoin('m_rooms as rm', 't_rn.room_id', '=', 'rm.idrec')
+                            ->whereColumn('t_rn.user_id', 'users.id')
+                            ->where('rm.no', 'like', '%' . $search . '%');
+                    });
             });
         }
 
-        // Apply search filter to guest customers
+        // Apply search filter to guest customers (name, email, phone, room number, order ID)
         if ($search) {
             $guestCustomers->where(function ($query) use ($search) {
                 $query->where('user_name', 'like', '%' . $search . '%')
                     ->orWhere('user_email', 'like', '%' . $search . '%')
-                    ->orWhere('user_phone_number', 'like', '%' . $search . '%');
+                    ->orWhere('user_phone_number', 'like', '%' . $search . '%')
+                    ->orWhereExists(function ($q) use ($search) {
+                        $q->select(DB::raw(1))
+                            ->from('t_transactions as t_oid')
+                            ->whereRaw('BINARY t_oid.user_email = BINARY t_transactions.user_email')
+                            ->whereNull('t_oid.user_id')
+                            ->where('t_oid.order_id', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereExists(function ($q) use ($search) {
+                        $q->select(DB::raw(1))
+                            ->from('t_transactions as t_rn')
+                            ->leftJoin('m_rooms as rm', 't_rn.room_id', '=', 'rm.idrec')
+                            ->whereRaw('BINARY t_rn.user_email = BINARY t_transactions.user_email')
+                            ->whereNull('t_rn.user_id')
+                            ->where('rm.no', 'like', '%' . $search . '%');
+                    });
             });
         }
 

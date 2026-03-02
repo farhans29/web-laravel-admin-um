@@ -940,6 +940,7 @@ return [
     'press_esc_to_close' => 'Tekan ESC atau klik di luar untuk menutup',
     'no_proof_available' => 'Tidak ada bukti pembayaran',
     'unsupported_file' => 'Jenis file tidak didukung',
+    'file_cannot_be_displayed' => 'Jenis file ini tidak dapat ditampilkan.',
     'confirm_reject_parking_msg' => 'Apakah Anda yakin ingin menolak pembayaran parkir untuk Order ID:',
     'confirm_reject_deposit_msg' => 'Apakah Anda yakin ingin menolak pembayaran deposit untuk Order ID:',
 
