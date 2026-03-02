@@ -373,22 +373,38 @@
                             attachmentData: '',
                             attachmentType: 'unknown',
                             orderId: '',
-                            openModal(base64Data, orderId) {
+                            openModal(paymentId, orderId) {
                                 this.isOpen = true;
                                 this.isLoading = true;
                                 this.orderId = orderId;
                                 document.body.style.overflow = 'hidden';
-                                this.$nextTick(() => {
-                                    this.attachmentData = base64Data;
-                                    const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
-                                    if (imageSignatures.some(sig => base64Data.startsWith(sig))) {
-                                        this.attachmentType = 'image';
-                                    } else if (base64Data.startsWith('JVBERi0')) {
-                                        this.attachmentType = 'pdf';
+                                fetch(`/api/v1/booking/${paymentId}`, {
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Accept': 'application/json'
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success && data.attachment) {
+                                        const base64Data = data.attachment;
+                                        this.attachmentData = base64Data;
+                                        const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
+                                        if (imageSignatures.some(sig => base64Data.startsWith(sig))) {
+                                            this.attachmentType = 'image';
+                                        } else if (base64Data.startsWith('JVBERi0')) {
+                                            this.attachmentType = 'pdf';
+                                        } else {
+                                            this.attachmentType = 'unknown';
+                                        }
                                     } else {
                                         this.attachmentType = 'unknown';
                                     }
-                                    setTimeout(() => { this.isLoading = false; }, 500);
+                                    this.isLoading = false;
+                                })
+                                .catch(() => {
+                                    this.attachmentType = 'unknown';
+                                    this.isLoading = false;
                                 });
                             },
                             closeModal() {
@@ -401,7 +417,7 @@
                         }" class="relative group">
                             <button type="button"
                                 class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 px-4 py-2 rounded-lg transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
-                                @click="openModal('{{ $payment->transaction->attachment }}', '{{ $payment->order_id }}')"
+                                @click="openModal({{ $payment->idrec }}, '{{ $payment->order_id }}')"
                                 title="Konfirmasi Pembayaran">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -558,6 +574,160 @@
                                 </svg>
                                 Batalkan Booking
                             </button>
+
+                            <!-- Tombol Lihat Bukti Pembayaran -->
+                            @if ($payment->transaction && $payment->transaction->attachment)
+                            <div x-data="{
+                                isOpen: false,
+                                isLoading: true,
+                                attachmentData: '',
+                                attachmentType: 'unknown',
+                                orderId: '',
+                                openModal(paymentId, orderId) {
+                                    this.isOpen = true;
+                                    this.isLoading = true;
+                                    this.orderId = orderId;
+                                    document.body.style.overflow = 'hidden';
+                                    fetch(`/api/v1/booking/${paymentId}`, {
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success && data.attachment) {
+                                            const base64Data = data.attachment;
+                                            this.attachmentData = base64Data;
+                                            const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
+                                            if (imageSignatures.some(sig => base64Data.startsWith(sig))) {
+                                                this.attachmentType = 'image';
+                                            } else if (base64Data.startsWith('JVBERi0')) {
+                                                this.attachmentType = 'pdf';
+                                            } else {
+                                                this.attachmentType = 'unknown';
+                                            }
+                                        } else {
+                                            this.attachmentType = 'unknown';
+                                        }
+                                        this.isLoading = false;
+                                    })
+                                    .catch(() => {
+                                        this.attachmentType = 'unknown';
+                                        this.isLoading = false;
+                                    });
+                                },
+                                closeModal() {
+                                    this.isOpen = false;
+                                    this.attachmentData = '';
+                                    this.attachmentType = 'unknown';
+                                    this.orderId = '';
+                                    document.body.style.overflow = '';
+                                }
+                            }" class="relative">
+                                <button type="button"
+                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                                    @click="openModal({{ $payment->idrec }}, '{{ $payment->order_id }}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Lihat Bukti
+                                </button>
+
+                                <!-- Backdrop -->
+                                <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity"
+                                    x-show="isOpen"
+                                    x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                    x-transition:leave="transition ease-out duration-200"
+                                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                    aria-hidden="true" x-cloak>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4"
+                                    role="dialog" aria-modal="true" x-show="isOpen"
+                                    x-transition:enter="transition ease-in-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in-out duration-200"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95" x-cloak>
+                                    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl max-h-[95vh] flex flex-col"
+                                        @click.outside="closeModal" @keydown.escape.window="closeModal">
+
+                                        <!-- Header -->
+                                        <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
+                                            <h3 class="text-lg font-semibold text-gray-800">
+                                                Bukti Pembayaran — Pesanan #<span x-text="orderId"></span>
+                                            </h3>
+                                            <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div class="overflow-y-auto flex-1 p-6">
+                                            <template x-if="isLoading">
+                                                <div class="flex justify-center items-center h-64">
+                                                    <svg class="animate-spin h-12 w-12 text-blue-500"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                        </path>
+                                                    </svg>
+                                                </div>
+                                            </template>
+                                            <template x-if="!isLoading && attachmentType === 'image'">
+                                                <img :src="'data:image/jpeg;base64,' + attachmentData"
+                                                    alt="Bukti Pembayaran"
+                                                    class="mx-auto max-h-[70vh] max-w-full object-contain">
+                                            </template>
+                                            <template x-if="!isLoading && attachmentType === 'pdf'">
+                                                <div class="h-[70vh] w-full">
+                                                    <iframe :src="'data:application/pdf;base64,' + attachmentData"
+                                                        class="w-full h-full border border-gray-200"
+                                                        frameborder="0"></iframe>
+                                                </div>
+                                            </template>
+                                            <template x-if="!isLoading && attachmentType === 'unknown'">
+                                                <div class="text-center py-10">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-16 w-16 mx-auto text-gray-400" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <h3 class="mt-4 text-lg font-medium text-gray-900">Jenis File Tidak Didukung</h3>
+                                                    <p class="mt-2 text-sm text-gray-500">Jenis file ini tidak dapat ditampilkan.</p>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <!-- Footer -->
+                                        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+                                            <span class="text-sm text-gray-500">Tekan ESC atau klik di luar untuk menutup</span>
+                                            <button type="button" @click="closeModal"
+                                                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors">
+                                                Tutup
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
 
                             <!-- Status Terverifikasi -->
                             <span
@@ -754,7 +924,161 @@
                             </div>
                         </div>
                     @else
-                        <div class="text-center">
+                        <div class="flex flex-col items-center text-center space-y-2">
+                            <!-- Tombol Lihat Bukti Pembayaran -->
+                            @if ($payment->transaction && $payment->transaction->attachment)
+                            <div x-data="{
+                                isOpen: false,
+                                isLoading: true,
+                                attachmentData: '',
+                                attachmentType: 'unknown',
+                                orderId: '',
+                                openModal(paymentId, orderId) {
+                                    this.isOpen = true;
+                                    this.isLoading = true;
+                                    this.orderId = orderId;
+                                    document.body.style.overflow = 'hidden';
+                                    fetch(`/api/v1/booking/${paymentId}`, {
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success && data.attachment) {
+                                            const base64Data = data.attachment;
+                                            this.attachmentData = base64Data;
+                                            const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
+                                            if (imageSignatures.some(sig => base64Data.startsWith(sig))) {
+                                                this.attachmentType = 'image';
+                                            } else if (base64Data.startsWith('JVBERi0')) {
+                                                this.attachmentType = 'pdf';
+                                            } else {
+                                                this.attachmentType = 'unknown';
+                                            }
+                                        } else {
+                                            this.attachmentType = 'unknown';
+                                        }
+                                        this.isLoading = false;
+                                    })
+                                    .catch(() => {
+                                        this.attachmentType = 'unknown';
+                                        this.isLoading = false;
+                                    });
+                                },
+                                closeModal() {
+                                    this.isOpen = false;
+                                    this.attachmentData = '';
+                                    this.attachmentType = 'unknown';
+                                    this.orderId = '';
+                                    document.body.style.overflow = '';
+                                }
+                            }" class="relative">
+                                <button type="button"
+                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                                    @click="openModal({{ $payment->idrec }}, '{{ $payment->order_id }}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Lihat Bukti
+                                </button>
+
+                                <!-- Backdrop -->
+                                <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity"
+                                    x-show="isOpen"
+                                    x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                    x-transition:leave="transition ease-out duration-200"
+                                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                    aria-hidden="true" x-cloak>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4"
+                                    role="dialog" aria-modal="true" x-show="isOpen"
+                                    x-transition:enter="transition ease-in-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in-out duration-200"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95" x-cloak>
+                                    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-4xl max-h-[95vh] flex flex-col"
+                                        @click.outside="closeModal" @keydown.escape.window="closeModal">
+
+                                        <!-- Header -->
+                                        <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50">
+                                            <h3 class="text-lg font-semibold text-gray-800">
+                                                Bukti Pembayaran — Pesanan #<span x-text="orderId"></span>
+                                            </h3>
+                                            <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div class="overflow-y-auto flex-1 p-6">
+                                            <template x-if="isLoading">
+                                                <div class="flex justify-center items-center h-64">
+                                                    <svg class="animate-spin h-12 w-12 text-blue-500"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                        </path>
+                                                    </svg>
+                                                </div>
+                                            </template>
+                                            <template x-if="!isLoading && attachmentType === 'image'">
+                                                <img :src="'data:image/jpeg;base64,' + attachmentData"
+                                                    alt="Bukti Pembayaran"
+                                                    class="mx-auto max-h-[70vh] max-w-full object-contain">
+                                            </template>
+                                            <template x-if="!isLoading && attachmentType === 'pdf'">
+                                                <div class="h-[70vh] w-full">
+                                                    <iframe :src="'data:application/pdf;base64,' + attachmentData"
+                                                        class="w-full h-full border border-gray-200"
+                                                        frameborder="0"></iframe>
+                                                </div>
+                                            </template>
+                                            <template x-if="!isLoading && attachmentType === 'unknown'">
+                                                <div class="text-center py-10">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-16 w-16 mx-auto text-gray-400" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <h3 class="mt-4 text-lg font-medium text-gray-900">Jenis File Tidak Didukung</h3>
+                                                    <p class="mt-2 text-sm text-gray-500">Jenis file ini tidak dapat ditampilkan.</p>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <!-- Footer -->
+                                        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+                                            <span class="text-sm text-gray-500">Tekan ESC atau klik di luar untuk menutup</span>
+                                            <button type="button" @click="closeModal"
+                                                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors">
+                                                Tutup
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
                             <span
                                 class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
@@ -764,7 +1088,7 @@
                                 </svg>
                                 Terverifikasi
                             </span>
-                            <div class="text-xs text-gray-500 mt-1">
+                            <div class="text-xs text-gray-500">
                                 Oleh:
                                 {{ $payment->verifiedBy->name ?? 'DOKU' }}
                             </div>

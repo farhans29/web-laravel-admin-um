@@ -45,3 +45,8 @@ Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
 
 // Parking Fees API
 Route::get('/parking-fees/{propertyId}', [\App\Http\Controllers\Payment\ParkingPaymentController::class, 'getParkingFees']);
+
+// Booking Attachment API
+Route::prefix('v1')->group(function () {
+    Route::get('/booking/{id}', [\App\Http\Controllers\Payment\PaymentController::class, 'getBookingAttachment'])->name('api.booking.attachment');
+});

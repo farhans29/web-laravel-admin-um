@@ -133,13 +133,21 @@ class VoucherController extends Controller
                 'valid_from' => 'required|date',
                 'valid_to' => 'required|date|after:valid_from',
                 'min_transaction_amount' => 'nullable|numeric|min:0',
-                'scope_type' => 'required|in:global,property,room',
+                'scope_type' => 'required|in:global,property',
+                'property_id' => 'nullable',
                 'scope_ids' => 'nullable|array',
                 'status' => 'nullable|in:active,inactive,expired',
             ]);
 
             $validated['updated_by'] = Auth::id();
             $validated['code'] = strtoupper($validated['code']);
+
+            // Handle property_id based on scope_type
+            if ($validated['scope_type'] === 'property') {
+                $validated['property_id'] = $request->property_id;
+            } else {
+                $validated['property_id'] = null;
+            }
 
             $voucher->update($validated);
 
