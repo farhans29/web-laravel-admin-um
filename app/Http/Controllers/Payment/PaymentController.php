@@ -340,7 +340,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'attachment' => base64_encode($payment->transaction->attachment),
+                'attachment' => $payment->transaction->attachment,
                 'order_id' => $payment->order_id,
             ]);
         } catch (\Exception $e) {

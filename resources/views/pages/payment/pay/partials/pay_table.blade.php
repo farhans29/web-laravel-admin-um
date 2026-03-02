@@ -575,13 +575,31 @@
                                 Batalkan Booking
                             </button>
 
-                            <!-- Tombol Lihat Bukti Pembayaran -->
+                            <!-- Status Terverifikasi -->
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Terverifikasi
+                            </span>
+
+                            <!-- Informasi Verifikasi -->
+                            <div class="text-xs text-gray-500">
+                                Oleh:
+                                {{ $payment->verifiedBy->username ?? 'DOKU' }}
+                            </div>
+
+                            <!-- Lihat Bukti Pembayaran -->
                             @if ($payment->transaction && $payment->transaction->attachment)
                             <div x-data="{
                                 isOpen: false,
                                 isLoading: true,
                                 attachmentData: '',
                                 attachmentType: 'unknown',
+                                mimeType: 'image/jpeg',
                                 orderId: '',
                                 openModal(paymentId, orderId) {
                                     this.isOpen = true;
@@ -597,15 +615,18 @@
                                     .then(response => response.json())
                                     .then(data => {
                                         if (data.success && data.attachment) {
-                                            const base64Data = data.attachment;
-                                            this.attachmentData = base64Data;
-                                            const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
-                                            if (imageSignatures.some(sig => base64Data.startsWith(sig))) {
-                                                this.attachmentType = 'image';
-                                            } else if (base64Data.startsWith('JVBERi0')) {
-                                                this.attachmentType = 'pdf';
+                                            const raw = data.attachment;
+                                            this.attachmentData = raw;
+                                            if (raw.startsWith('/9j/')) {
+                                                this.attachmentType = 'image'; this.mimeType = 'image/jpeg';
+                                            } else if (raw.startsWith('iVBORw0KGgo')) {
+                                                this.attachmentType = 'image'; this.mimeType = 'image/png';
+                                            } else if (raw.startsWith('R0lGOD')) {
+                                                this.attachmentType = 'image'; this.mimeType = 'image/gif';
+                                            } else if (raw.startsWith('JVBERi0')) {
+                                                this.attachmentType = 'pdf'; this.mimeType = 'application/pdf';
                                             } else {
-                                                this.attachmentType = 'unknown';
+                                                this.attachmentType = 'image'; this.mimeType = 'image/jpeg';
                                             }
                                         } else {
                                             this.attachmentType = 'unknown';
@@ -626,15 +647,8 @@
                                 }
                             }" class="relative">
                                 <button type="button"
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                                    class="text-xs text-blue-600 underline hover:text-blue-800 cursor-pointer"
                                     @click="openModal({{ $payment->idrec }}, '{{ $payment->order_id }}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
                                     Lihat Bukti
                                 </button>
 
@@ -690,7 +704,7 @@
                                                 </div>
                                             </template>
                                             <template x-if="!isLoading && attachmentType === 'image'">
-                                                <img :src="'data:image/jpeg;base64,' + attachmentData"
+                                                <img :src="'data:' + mimeType + ';base64,' + attachmentData"
                                                     alt="Bukti Pembayaran"
                                                     class="mx-auto max-h-[70vh] max-w-full object-contain">
                                             </template>
@@ -728,23 +742,6 @@
                                 </div>
                             </div>
                             @endif
-
-                            <!-- Status Terverifikasi -->
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Terverifikasi
-                            </span>
-
-                            <!-- Informasi Verifikasi -->
-                            <div class="text-xs text-gray-500">
-                                Oleh:
-                                {{ $payment->verifiedBy->username ?? 'DOKU' }}
-                            </div>
                         </div>
 
                         <!-- Modal Pembatalan Booking - Improved Design -->
@@ -925,13 +922,28 @@
                         </div>
                     @else
                         <div class="flex flex-col items-center text-center space-y-2">
-                            <!-- Tombol Lihat Bukti Pembayaran -->
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Terverifikasi
+                            </span>
+                            <div class="text-xs text-gray-500">
+                                Oleh:
+                                {{ $payment->verifiedBy->name ?? 'DOKU' }}
+                            </div>
+
+                            <!-- Lihat Bukti Pembayaran -->
                             @if ($payment->transaction && $payment->transaction->attachment)
                             <div x-data="{
                                 isOpen: false,
                                 isLoading: true,
                                 attachmentData: '',
                                 attachmentType: 'unknown',
+                                mimeType: 'image/jpeg',
                                 orderId: '',
                                 openModal(paymentId, orderId) {
                                     this.isOpen = true;
@@ -947,15 +959,18 @@
                                     .then(response => response.json())
                                     .then(data => {
                                         if (data.success && data.attachment) {
-                                            const base64Data = data.attachment;
-                                            this.attachmentData = base64Data;
-                                            const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
-                                            if (imageSignatures.some(sig => base64Data.startsWith(sig))) {
-                                                this.attachmentType = 'image';
-                                            } else if (base64Data.startsWith('JVBERi0')) {
-                                                this.attachmentType = 'pdf';
+                                            const raw = data.attachment;
+                                            this.attachmentData = raw;
+                                            if (raw.startsWith('/9j/')) {
+                                                this.attachmentType = 'image'; this.mimeType = 'image/jpeg';
+                                            } else if (raw.startsWith('iVBORw0KGgo')) {
+                                                this.attachmentType = 'image'; this.mimeType = 'image/png';
+                                            } else if (raw.startsWith('R0lGOD')) {
+                                                this.attachmentType = 'image'; this.mimeType = 'image/gif';
+                                            } else if (raw.startsWith('JVBERi0')) {
+                                                this.attachmentType = 'pdf'; this.mimeType = 'application/pdf';
                                             } else {
-                                                this.attachmentType = 'unknown';
+                                                this.attachmentType = 'image'; this.mimeType = 'image/jpeg';
                                             }
                                         } else {
                                             this.attachmentType = 'unknown';
@@ -976,15 +991,8 @@
                                 }
                             }" class="relative">
                                 <button type="button"
-                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                                    class="text-xs text-blue-600 underline hover:text-blue-800 cursor-pointer"
                                     @click="openModal({{ $payment->idrec }}, '{{ $payment->order_id }}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
                                     Lihat Bukti
                                 </button>
 
@@ -1040,7 +1048,7 @@
                                                 </div>
                                             </template>
                                             <template x-if="!isLoading && attachmentType === 'image'">
-                                                <img :src="'data:image/jpeg;base64,' + attachmentData"
+                                                <img :src="'data:' + mimeType + ';base64,' + attachmentData"
                                                     alt="Bukti Pembayaran"
                                                     class="mx-auto max-h-[70vh] max-w-full object-contain">
                                             </template>
@@ -1078,20 +1086,6 @@
                                 </div>
                             </div>
                             @endif
-
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Terverifikasi
-                            </span>
-                            <div class="text-xs text-gray-500">
-                                Oleh:
-                                {{ $payment->verifiedBy->name ?? 'DOKU' }}
-                            </div>
                         </div>
                     @endif
                 </td>
