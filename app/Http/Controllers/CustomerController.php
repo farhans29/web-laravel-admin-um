@@ -80,7 +80,7 @@ class CustomerController extends Controller
             DB::raw('(SELECT CONVERT(renewal_status USING utf8mb4) FROM t_transactions t5 WHERE t5.user_id = users.id ORDER BY t5.transaction_date DESC LIMIT 1) as renewal_status'),
             DB::raw('(SELECT is_renewal FROM t_transactions t6 WHERE t6.user_id = users.id ORDER BY t6.transaction_date DESC LIMIT 1) as is_renewal'),
             DB::raw('(SELECT CONVERT(GROUP_CONCAT(DISTINCT CONCAT(parking_type, " (", vehicle_plate, ")") SEPARATOR ", ") USING utf8mb4) FROM t_parking_fee_transaction pft WHERE pft.user_id = users.id AND pft.status = 1) as parking_info'),
-            DB::raw('(SELECT CONVERT(t_booking.status USING utf8mb4) FROM t_booking INNER JOIN t_transactions t7 ON BINARY t_booking.order_id = BINARY t7.order_id WHERE t7.user_id = users.id ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
+            DB::raw("(SELECT CASE WHEN tb.status = 'cancelled' THEN 'cancelled' WHEN tb.check_in_at IS NULL THEN 'pending' WHEN tb.check_out_at IS NULL THEN 'checked-in' ELSE 'completed' END FROM t_booking tb INNER JOIN t_transactions t7 ON BINARY tb.order_id = BINARY t7.order_id WHERE t7.user_id = users.id ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status"),
             DB::raw('(SELECT t7.check_in FROM t_transactions t7 WHERE t7.user_id = users.id ORDER BY t7.transaction_date DESC LIMIT 1) as last_check_in'),
             DB::raw('(SELECT t8.check_out FROM t_transactions t8 WHERE t8.user_id = users.id ORDER BY t8.transaction_date DESC LIMIT 1) as last_check_out')
         ])
@@ -112,7 +112,7 @@ class CustomerController extends Controller
             DB::raw('(SELECT CONVERT(renewal_status USING utf8mb4) FROM t_transactions t5 WHERE BINARY t5.user_email = BINARY t_transactions.user_email AND t5.user_id IS NULL ORDER BY t5.transaction_date DESC LIMIT 1) as renewal_status'),
             DB::raw('(SELECT is_renewal FROM t_transactions t6 WHERE BINARY t6.user_email = BINARY t_transactions.user_email AND t6.user_id IS NULL ORDER BY t6.transaction_date DESC LIMIT 1) as is_renewal'),
             DB::raw('(SELECT CONVERT(GROUP_CONCAT(DISTINCT CONCAT(parking_type, " (", vehicle_plate, ")") SEPARATOR ", ") USING utf8mb4) FROM t_parking_fee_transaction pft WHERE BINARY pft.user_phone = BINARY t_transactions.user_phone_number AND pft.status = 1) as parking_info'),
-            DB::raw('(SELECT CONVERT(t_booking.status USING utf8mb4) FROM t_booking INNER JOIN t_transactions t7 ON BINARY t_booking.order_id = BINARY t7.order_id WHERE BINARY t7.user_email = BINARY t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status'),
+            DB::raw("(SELECT CASE WHEN tb.status = 'cancelled' THEN 'cancelled' WHEN tb.check_in_at IS NULL THEN 'pending' WHEN tb.check_out_at IS NULL THEN 'checked-in' ELSE 'completed' END FROM t_booking tb INNER JOIN t_transactions t7 ON BINARY tb.order_id = BINARY t7.order_id WHERE BINARY t7.user_email = BINARY t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as current_booking_status"),
             DB::raw('(SELECT t7.check_in FROM t_transactions t7 WHERE BINARY t7.user_email = BINARY t_transactions.user_email AND t7.user_id IS NULL ORDER BY t7.transaction_date DESC LIMIT 1) as last_check_in'),
             DB::raw('(SELECT t8.check_out FROM t_transactions t8 WHERE BINARY t8.user_email = BINARY t_transactions.user_email AND t8.user_id IS NULL ORDER BY t8.transaction_date DESC LIMIT 1) as last_check_out')
         ])
@@ -193,13 +193,9 @@ class CustomerController extends Controller
                 ->mergeBindings($query->getQuery());
         }
 
-        // Apply booking status filter
+        // Apply booking status filter (derived from check_in_at / check_out_at)
         if ($bookingStatus) {
-            if ($bookingStatus === 'completed') {
-                $query->whereIn('current_booking_status', ['checked-out', 'completed']);
-            } else {
-                $query->where('current_booking_status', $bookingStatus);
-            }
+            $query->where('current_booking_status', $bookingStatus);
         }
 
         // Order by last booking date descending (newest first)
