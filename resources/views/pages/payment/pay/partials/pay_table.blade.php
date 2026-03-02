@@ -372,6 +372,7 @@
                             isLoading: true,
                             attachmentData: '',
                             attachmentType: 'unknown',
+                            mimeType: 'image/jpeg',
                             orderId: '',
                             openModal(paymentId, orderId) {
                                 this.isOpen = true;
@@ -387,15 +388,18 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success && data.attachment) {
-                                        const base64Data = data.attachment;
-                                        this.attachmentData = base64Data;
-                                        const imageSignatures = ['/9j/', 'iVBORw0KGgo', 'R0lGODdh', 'R0lGODlh', 'UklGR', 'Qk02'];
-                                        if (imageSignatures.some(sig => base64Data.startsWith(sig))) {
-                                            this.attachmentType = 'image';
-                                        } else if (base64Data.startsWith('JVBERi0')) {
-                                            this.attachmentType = 'pdf';
+                                        const raw = data.attachment;
+                                        this.attachmentData = raw;
+                                        if (raw.startsWith('/9j/')) {
+                                            this.attachmentType = 'image'; this.mimeType = 'image/jpeg';
+                                        } else if (raw.startsWith('iVBORw0KGgo')) {
+                                            this.attachmentType = 'image'; this.mimeType = 'image/png';
+                                        } else if (raw.startsWith('R0lGOD')) {
+                                            this.attachmentType = 'image'; this.mimeType = 'image/gif';
+                                        } else if (raw.startsWith('JVBERi0')) {
+                                            this.attachmentType = 'pdf'; this.mimeType = 'application/pdf';
                                         } else {
-                                            this.attachmentType = 'unknown';
+                                            this.attachmentType = 'image'; this.mimeType = 'image/jpeg';
                                         }
                                     } else {
                                         this.attachmentType = 'unknown';
@@ -482,7 +486,7 @@
                                         </template>
 
                                         <template x-if="!isLoading && attachmentType === 'image'">
-                                            <img :src="'data:image/jpeg;base64,' + attachmentData"
+                                            <img :src="'data:' + mimeType + ';base64,' + attachmentData"
                                                 alt="Bukti Pembayaran"
                                                 class="mx-auto max-h-[70vh] max-w-full object-contain">
                                         </template>
