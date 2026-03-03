@@ -114,6 +114,7 @@ class NewReservController extends Controller
                 'guest_name' => 'required|string|max:255',
                 'guest_email' => 'required|email|max:255',
                 'guest_phone' => 'required|string|max:50',
+                'guest_nik' => 'required|string|max:20',
             ];
 
             // Only require doc_image if booking doesn't have doc_path
@@ -144,6 +145,11 @@ class NewReservController extends Controller
                 'user_email' => $validated['guest_email'],
                 'user_phone_number' => $validated['guest_phone'],
             ]);
+
+            // Update NIK pada user
+            if ($booking->user) {
+                $booking->user->update(['nik' => $validated['guest_nik']]);
+            }
 
             if ($updated) {
                 // Tentukan apakah perlu redirect ke print agreement

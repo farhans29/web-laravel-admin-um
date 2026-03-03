@@ -90,7 +90,8 @@
                 guestContact: {
                     name: '',
                     email: '',
-                    phone: ''
+                    phone: '',
+                    nik: ''
                 },
                 currentDateTime: new Date().toLocaleString('en-US', {
                     weekday: 'long',
@@ -154,6 +155,7 @@
                     this.guestContact.name = this.bookingDetails.guest_name || '';
                     this.guestContact.email = this.bookingDetails.guest_email || '';
                     this.guestContact.phone = this.bookingDetails.guest_phone || '';
+                    this.guestContact.nik = this.bookingDetails.guest_nik || '';
                 },
 
                 // Method untuk webcam
@@ -385,6 +387,7 @@
                             guest_name: data.user?.first_name || 'N/A',
                             guest_email: data.user?.email || 'N/A',
                             guest_phone: data.transaction?.user_phone_number || 'N/A',
+                            guest_nik: data.user?.nik || '',
                             property_name: data.property?.name || 'N/A',
                             property_address: data.property?.address || 'N/A',
                             room_name: data.room?.name || 'N/A',
@@ -502,7 +505,7 @@
                 async submitCheckIn() {
                     // Validasi informasi kontak
                     if (!this.guestContact.name || !this.guestContact.email || !this.guestContact
-                        .phone) {
+                        .phone || !this.guestContact.nik) {
                         this.showErrorToast('{{ __('ui.complete_contact_info') }}');
                         return;
                     }
@@ -523,6 +526,7 @@
                         formData.append('guest_name', this.guestContact.name);
                         formData.append('guest_email', this.guestContact.email);
                         formData.append('guest_phone', this.guestContact.phone);
+                        formData.append('guest_nik', this.guestContact.nik);
 
                         // Upload dokumen jika ada
                         if (this.docFile) {
@@ -677,7 +681,8 @@
                     this.guestContact = {
                         name: '',
                         email: '',
-                        phone: ''
+                        phone: '',
+                        nik: ''
                     };
                     if (this.$refs.docInput) {
                         this.$refs.docInput.value = '';
