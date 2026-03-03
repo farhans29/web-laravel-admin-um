@@ -84,8 +84,8 @@ class InvoiceNumberService
     }
 
     /**
-     * Generate invoice numbers for a collection of transactions
-     * More efficient batch method - calculates sequence in one query
+     * Generate invoice numbers for a collection of transactions.
+     * Uses true global rank so the number is stable regardless of filters or per_page.
      *
      * @param \Illuminate\Support\Collection $transactions
      * @return array Map of transaction idrec => invoice number
@@ -94,33 +94,32 @@ class InvoiceNumberService
     {
         $invoiceNumbers = [];
 
-        // Group transactions by year
+        // Group by year (one query per year)
         $byYear = $transactions->groupBy(function ($transaction) {
             $paidAt = $transaction->paid_at ? Carbon::parse($transaction->paid_at) : now();
             return $paidAt->format('Y');
         });
 
         foreach ($byYear as $year => $yearTransactions) {
-            // Get the count of all paid transactions before the earliest one in our set
-            $earliestPaidAt = $yearTransactions->min(function ($t) {
-                return $t->paid_at ? Carbon::parse($t->paid_at)->timestamp : now()->timestamp;
-            });
-
-            $baseCount = Transaction::where('transaction_status', 'paid')
+            // Fetch ALL paid transaction idrecs for this year ordered chronologically.
+            // This gives us the definitive global rank for every transaction in the year,
+            // regardless of any active filter or page size.
+            $orderedIdrecs = Transaction::where('transaction_status', 'paid')
                 ->whereNotNull('paid_at')
                 ->whereYear('paid_at', $year)
-                ->where('paid_at', '<', Carbon::createFromTimestamp($earliestPaidAt))
-                ->count();
+                ->orderBy('paid_at', 'asc')
+                ->orderBy('idrec', 'asc')
+                ->pluck('idrec')
+                ->toArray();
 
-            // Sort transactions by paid_at and idrec
-            $sorted = $yearTransactions->sortBy([
-                ['paid_at', 'asc'],
-                ['idrec', 'asc'],
-            ])->values();
+            // Build rank map: idrec => 1-based global rank
+            $rankMap = array_flip($orderedIdrecs); // idrec => 0-based index
 
-            foreach ($sorted as $index => $transaction) {
-                $sequenceNumber = $baseCount + $index + 1;
-                $invoiceNumbers[$transaction->idrec] = self::generate($transaction, $sequenceNumber);
+            foreach ($yearTransactions as $transaction) {
+                $rank = isset($rankMap[$transaction->idrec])
+                    ? $rankMap[$transaction->idrec] + 1
+                    : 1;
+                $invoiceNumbers[$transaction->idrec] = self::generate($transaction, $rank);
             }
         }
 
