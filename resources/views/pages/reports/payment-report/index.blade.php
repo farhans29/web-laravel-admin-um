@@ -48,7 +48,7 @@
                     </div>
 
                     <!-- Date Range -->
-                    <div class="lg:col-span-2">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.payment_date_range') }}</label>
                         <div class="relative">
                             <input type="text" id="date_picker" placeholder="{{ __('ui.select_date_range') }}" data-input
@@ -74,18 +74,18 @@
                         </select>
                     </div>
                     @endif
-                </div>
 
-                <!-- Per Page -->
-                <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                    <div class="flex items-center gap-2">
-                        <label for="per_page" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
-                        <select name="per_page" id="per_page"
-                            class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
-                            <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
-                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                        </select>
+                    <!-- Show Per Page -->
+                    <div class="flex items-end justify-end">
+                        <div class="flex items-center gap-2">
+                            <label for="per_page" class="text-sm text-gray-600 whitespace-nowrap">{{ __('ui.show') }}:</label>
+                            <select name="per_page" id="per_page"
+                                class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
+                                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </form>

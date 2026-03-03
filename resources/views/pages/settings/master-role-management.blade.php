@@ -873,7 +873,14 @@
                         updateModalBadgeStatus(listCheckbox);
                     });
                 } else {
+                    // List item changed → update sub-menu parent, then main menu
                     const mainMenuId = row.getAttribute('data-main-menu');
+                    const subMenuId = row.getAttribute('data-sub-menu');
+
+                    if (subMenuId && subMenuId !== '0' && subMenuId !== '') {
+                        updateModalSubMenuStatus(subMenuId);
+                    }
+
                     updateModalMainMenuStatus(mainMenuId);
                 }
             });
@@ -895,14 +902,40 @@
         }
 
         function updateAllModalMenuStatuses() {
+            // Update sub-menu statuses first
+            const subMenuIds = new Set();
+            document.querySelectorAll('#modalPermissionsTableBody .menu-item[data-is-sub="true"]').forEach(row => {
+                subMenuIds.add(row.getAttribute('data-sub-menu'));
+            });
+            subMenuIds.forEach(subMenuId => {
+                updateModalSubMenuStatus(subMenuId);
+            });
+
+            // Then update main menu statuses
             const mainMenuIds = new Set();
             document.querySelectorAll('#modalPermissionsTableBody .menu-item[data-is-main="true"]').forEach(row => {
                 mainMenuIds.add(row.getAttribute('data-main-menu'));
             });
-
             mainMenuIds.forEach(mainMenuId => {
                 updateModalMainMenuStatus(mainMenuId);
             });
+        }
+
+        function updateModalSubMenuStatus(subMenuId) {
+            const subMenuCheckbox = document.querySelector(
+                `#modalPermissionsTableBody .menu-item[data-sub-menu="${subMenuId}"][data-is-sub="true"] .modal-checkbox-round`
+            );
+
+            if (subMenuCheckbox) {
+                const listCheckboxes = document.querySelectorAll(
+                    `#modalPermissionsTableBody .menu-item[data-sub-menu="${subMenuId}"][data-is-list="true"] .modal-checkbox-round`
+                );
+
+                const checkedCount = Array.from(listCheckboxes).filter(cb => cb.checked).length;
+                subMenuCheckbox.checked = checkedCount > 0;
+
+                updateModalBadgeStatus(subMenuCheckbox);
+            }
         }
 
         function updateModalMainMenuStatus(mainMenuId) {
