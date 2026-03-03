@@ -382,6 +382,7 @@ return [
     'master_vouchers' => 'Master Voucher',
     'add_voucher' => 'Tambah Voucher',
     'edit_voucher' => 'Ubah Voucher',
+    'voucher_already_used' => 'Tidak dapat diedit: voucher sudah pernah digunakan',
     'search_voucher' => 'Cari Voucher',
     'search_voucher_placeholder' => 'Cari kode atau nama voucher...',
     'voucher_code' => 'Kode Voucher',

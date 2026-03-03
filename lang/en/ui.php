@@ -382,6 +382,7 @@ return [
     'master_vouchers' => 'Master Vouchers',
     'add_voucher' => 'Add Voucher',
     'edit_voucher' => 'Edit Voucher',
+    'voucher_already_used' => 'Cannot edit: voucher has already been used',
     'search_voucher' => 'Search Voucher',
     'search_voucher_placeholder' => 'Search voucher code or name...',
     'voucher_code' => 'Voucher Code',
