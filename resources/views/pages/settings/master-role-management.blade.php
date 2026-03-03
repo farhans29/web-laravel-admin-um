@@ -159,7 +159,7 @@
     <!-- Access Rights Modal -->
     <div id="accessRightsModal"
         class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+        <div class="relative top-4 mx-auto p-6 border w-11/12 max-w-7xl shadow-xl rounded-xl bg-white my-4">
             <div class="flex justify-between items-center pb-3 border-b">
                 <h3 class="text-xl font-semibold text-gray-900">
                     Access Rights - <span id="modalUserName"></span>
@@ -196,7 +196,7 @@
                 </div>
 
                 <!-- Permissions Table -->
-                <div class="overflow-x-auto rounded-lg border border-gray-200 max-h-96">
+                <div class="overflow-x-auto rounded-lg border border-gray-200 max-h-[60vh]">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50 sticky top-0 z-10">
                             <tr>
@@ -294,9 +294,15 @@
                     </table>
                 </div>
 
-                <div class="mt-4 flex items-center text-sm text-gray-500">
-                    <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                    <span>Selecting a Main Menu will automatically select all Sub Menus and List Menus under it</span>
+                <div class="mt-3 flex flex-col gap-1 text-sm text-gray-500">
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-info-circle text-blue-400 mt-0.5 flex-shrink-0"></i>
+                        <span>Mencentang <strong>Main Menu</strong> akan otomatis mencentang semua Sub Menu dan List Menu di bawahnya.</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-exclamation-triangle text-amber-400 mt-0.5 flex-shrink-0"></i>
+                        <span>Untuk menonaktifkan akses item tertentu (mis. Parking, Master Properties), centang/hapus centang langsung pada item tersebut — bukan pada Main Menu.</span>
+                    </div>
                 </div>
             </div>
 
@@ -317,7 +323,7 @@
     <!-- Dashboard Widgets Modal -->
     <div id="dashboardWidgetsModal"
         class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+        <div class="relative top-4 mx-auto p-6 border w-11/12 max-w-7xl shadow-xl rounded-xl bg-white my-4">
             <div class="flex justify-between items-center pb-3 border-b">
                 <h3 class="text-xl font-semibold text-gray-900">
                     Dashboard Widgets - Role: <span id="modalRoleName"></span>
@@ -855,12 +861,17 @@
 
                 if (isMainMenu) {
                     const mainMenuId = row.getAttribute('data-main-menu');
-                    document.querySelectorAll(
-                        `#modalPermissionsTableBody .menu-item[data-main-menu="${mainMenuId}"]:not([data-is-main="true"]) .modal-checkbox-round`
-                    ).forEach(childCheckbox => {
-                        childCheckbox.checked = isChecked;
-                        updateModalBadgeStatus(childCheckbox);
-                    });
+                    if (isChecked) {
+                        // Checking main menu: cascade check to ALL children (select all)
+                        document.querySelectorAll(
+                            `#modalPermissionsTableBody .menu-item[data-main-menu="${mainMenuId}"]:not([data-is-main="true"]) .modal-checkbox-round`
+                        ).forEach(childCheckbox => {
+                            childCheckbox.checked = true;
+                            updateModalBadgeStatus(childCheckbox);
+                        });
+                    }
+                    // Unchecking main menu: do NOT cascade to children.
+                    // Children keep their current states. Main menu badge already updated above.
                 } else if (isSubMenu) {
                     const mainMenuId = row.getAttribute('data-main-menu');
                     updateModalMainMenuStatus(mainMenuId);

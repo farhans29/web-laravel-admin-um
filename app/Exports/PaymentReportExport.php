@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 class PaymentReportExport
 {
@@ -45,7 +46,7 @@ class PaymentReportExport
             'textColor' => 'FFFFFF',
             'fontSize' => 20,
             'height' => 40,
-            'endColumn' => 'AE', // 31 columns
+            'endColumn' => 'AC', // 29 columns
         ]);
 
         // Add subtitle with generation info
@@ -54,7 +55,7 @@ class PaymentReportExport
             'textColor' => '6B7280',
             'italic' => true,
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AE',
+            'endColumn' => 'AC',
         ]);
 
         $excel->addEmptyRow();
@@ -66,7 +67,7 @@ class PaymentReportExport
         // Add separator
         $excel->addInfoRow('', []);
 
-        // Headers with enhanced styling (31 columns)
+        // Headers with enhanced styling (29 columns)
         $headers = [
             'No',
             'Invoice Number',
@@ -92,8 +93,6 @@ class PaymentReportExport
             'VATT 11%',
             'Grand Total',
             'Deposit',
-            'Deposit Fee',
-            'DPP Deposit Fee',
             'Service Fee',
             'Payment Status',
             'Verified By',
@@ -105,7 +104,7 @@ class PaymentReportExport
 
         // Style header row with custom colors
         $actualHeaderRow = $excel->getCurrentRow() - 1;
-        $sheet->getStyle('A' . $actualHeaderRow . ':AE' . $actualHeaderRow)->applyFromArray([
+        $sheet->getStyle('A' . $actualHeaderRow . ':AC' . $actualHeaderRow)->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 10,
@@ -129,7 +128,7 @@ class PaymentReportExport
         ]);
         $sheet->getRowDimension($actualHeaderRow)->setRowHeight(35);
 
-        // Column widths (31 columns: A-AE)
+        // Column widths (29 columns: A-AC)
         $columnWidths = [
             'A' => 6,   // No
             'B' => 28,  // Invoice Number
@@ -155,13 +154,11 @@ class PaymentReportExport
             'V' => 15,  // VATT 11%
             'W' => 18,  // Grand Total
             'X' => 15,  // Deposit
-            'Y' => 15,  // Deposit Fee
-            'Z' => 15,  // DPP Deposit Fee
-            'AA' => 15, // Service Fee
-            'AB' => 14, // Payment Status
-            'AC' => 18, // Verified By
-            'AD' => 18, // Verified Date
-            'AE' => 35, // Notes
+            'Y' => 15,  // Service Fee
+            'Z' => 14,  // Payment Status
+            'AA' => 18, // Verified By
+            'AB' => 18, // Verified Date
+            'AC' => 35, // Notes
         ];
 
         foreach ($columnWidths as $col => $width) {
@@ -178,10 +175,14 @@ class PaymentReportExport
 
             $excel->addRow($row);
 
+            // Force NIK and Mobile Number as text to prevent scientific notation / formula parsing
+            $sheet->setCellValueExplicit('I' . $currentDataRow, (string)$row[8], DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J' . $currentDataRow, (string)$row[9], DataType::TYPE_STRING);
+
             // Highlight refunds with red background
             $isRefund = $transaction->booking && $transaction->booking->refund;
             if ($isRefund) {
-                $sheet->getStyle('A' . $currentDataRow . ':AE' . $currentDataRow)->applyFromArray([
+                $sheet->getStyle('A' . $currentDataRow . ':AC' . $currentDataRow)->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => ['rgb' => 'FEE2E2'] // Light red
@@ -190,7 +191,7 @@ class PaymentReportExport
             } else {
                 // Add zebra striping for non-refund rows
                 if ($index % 2 == 0) {
-                    $sheet->getStyle('A' . $currentDataRow . ':AE' . $currentDataRow)->applyFromArray([
+                    $sheet->getStyle('A' . $currentDataRow . ':AC' . $currentDataRow)->applyFromArray([
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => ['rgb' => 'F9FAFB']
@@ -199,8 +200,8 @@ class PaymentReportExport
                 }
             }
 
-            // Format as currency for price columns (O, P, Q, R, S, T, U, V, W, X, Y, Z, AA)
-            $currencyColumns = ['O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA'];
+            // Format as currency for price columns (O, P, Q, R, S, T, U, V, W, X, Y)
+            $currencyColumns = ['O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'];
             foreach ($currencyColumns as $col) {
                 $sheet->getStyle($col . $currentDataRow)->getNumberFormat()->setFormatCode('#,##0');
             }
@@ -210,7 +211,7 @@ class PaymentReportExport
 
         // Style data rows with borders
         if ($payments->count() > 0) {
-            $sheet->getStyle('A' . $dataStartRow . ':AE' . $dataEndRow)->applyFromArray([
+            $sheet->getStyle('A' . $dataStartRow . ':AC' . $dataEndRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -230,7 +231,7 @@ class PaymentReportExport
             'textColor' => '059669',
             'fontSize' => 12,
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AE',
+            'endColumn' => 'AC',
         ]);
 
         $excel->addEmptyRow();
@@ -254,7 +255,7 @@ class PaymentReportExport
             'fontSize' => 10,
             'textColor' => '6B7280',
             'align' => Alignment::HORIZONTAL_RIGHT,
-            'endColumn' => 'AE',
+            'endColumn' => 'AC',
         ]);
 
         // Add footer
@@ -264,7 +265,7 @@ class PaymentReportExport
             'italic' => true,
             'textColor' => '9CA3AF',
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AE',
+            'endColumn' => 'AC',
         ]);
 
         // Freeze panes at header row
@@ -431,9 +432,7 @@ class PaymentReportExport
             round($dppParkir, 0),                                                                  // DPP Parkir
             round($vatt, 0),                                                                       // VATT 11%
             round($grandTotal, 0),                                                                 // Grand Total
-            round($deposit, 0),                                                                    // Deposit
-            round($depositFee, 0),                                                                 // Deposit Fee
-            round($dppDepositFee, 0),                                                              // DPP Deposit Fee
+            round($deposit + $depositFee, 0),                                                      // Deposit (includes deposit fee)
             round($serviceFee, 0),                                                                 // Service Fee
             'Paid',                                                                                // Payment Status
             $verifiedBy,                                                                           // Verified By

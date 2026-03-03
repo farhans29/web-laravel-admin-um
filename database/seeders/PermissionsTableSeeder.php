@@ -33,7 +33,11 @@ class PermissionsTableSeeder extends Seeder
             'view_properties',
             'view_property_facilities',
             'view_deposit_fees',
-            'view_parking_fees', 
+
+            //Parking
+            'parking',
+            'view_parking_fees',
+            'view_parking',
 
             // Rooms
             'rooms',

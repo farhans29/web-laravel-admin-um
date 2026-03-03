@@ -241,7 +241,7 @@
                         @endcan
 
                         <!-- Properties Menu Item -->
-                        @can('view_properties')
+                        @canany(['view_properties', 'view_property_facilities', 'view_deposit_fees'])
                             <li x-init="if (window.location.href.includes('m-properties') ||
                                 window.location.href.includes('facilityProperty') ||
                                 window.location.href.includes('deposit-fees')) { activeMenu = 'properties' }">
@@ -331,10 +331,10 @@
                                     </ul>
                                 </div>
                             </li>
-                        @endcan
+                        @endcanany
 
                         <!-- Parking Menu Item -->
-                        @can('view_parking_fees')
+                        @canany(['view_parking_fees', 'view_parking'])
                             <li x-init="if (window.location.href.includes('parking-fees') ||
                                 window.location.href.includes('/parking')) { activeMenu = 'parking' }">
 
@@ -400,7 +400,7 @@
                                         @endcan
 
                                         <!-- Master Parking -->
-                                        @can('view_parking_fees')
+                                        @can('view_parking')
                                             <li>
                                                 <a href="{{ route('parking.index') }}"
                                                     class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('parking.index')) bg-indigo-900 @endif">
@@ -412,7 +412,7 @@
                                     </ul>
                                 </div>
                             </li>
-                        @endcan
+                        @endcanany
 
                         <!-- Rooms/Units Menu Item -->
                         @can('rooms')
