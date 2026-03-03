@@ -110,7 +110,7 @@ class SidebarItemsTableSeeder extends Seeder
         $properties = SidebarItem::create([
             'name' => 'Properties',
             'route' => null,
-            'permission_id' => $permissions['view_properties'] ?? null,
+            'permission_id' => $permissions['properties'] ?? null,
             'parent_id' => $managementSection->id,
             'order' => 3,
         ]);
@@ -143,7 +143,7 @@ class SidebarItemsTableSeeder extends Seeder
         $parking = SidebarItem::create([
             'name' => 'Parking',
             'route' => null,
-            'permission_id' => $permissions['view_parking_fees'] ?? null,
+            'permission_id' => $permissions['parking'] ?? null,
             'parent_id' => $managementSection->id,
             'order' => 4,
         ]);
@@ -159,7 +159,7 @@ class SidebarItemsTableSeeder extends Seeder
         SidebarItem::create([
             'name' => 'Parking',
             'route' => 'parking.index',
-            'permission_id' => $permissions['view_parking_fees'] ?? null,
+            'permission_id' => $permissions['view_parking'] ?? null,
             'parent_id' => $parking->id,
             'order' => 2
         ]);
