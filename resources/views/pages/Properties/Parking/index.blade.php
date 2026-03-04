@@ -449,6 +449,21 @@
             orderSelect.size = 1;
         }
 
+        function selectPrkActiveParkingVehicle(vehiclePlate, parkingType) {
+            const plateInput = document.getElementById('add_prk_vehicle_plate');
+            const typeSelect = document.getElementById('add_prk_parking_type');
+            if (plateInput) plateInput.value = vehiclePlate;
+            if (typeSelect) {
+                typeSelect.value = parkingType;
+                typeSelect.dispatchEvent(new Event('change'));
+            }
+            // Highlight selected chip
+            document.querySelectorAll('.prk-active-parking-chip').forEach(el => {
+                el.classList.remove('ring-2', 'ring-orange-500');
+            });
+            event.currentTarget.classList.add('ring-2', 'ring-orange-500');
+        }
+
         function showPrkParkingStatusBadge(status, parkingInfoStr, activeParkingsStr) {
             const section = document.getElementById('prk_parking_status_section');
             if (!section) return;
@@ -459,14 +474,28 @@
                 try { activeParkings = activeParkingsStr ? JSON.parse(activeParkingsStr) : []; } catch(e) {}
 
                 const vehicleRows = activeParkings.length > 0
-                    ? activeParkings.map(p => `<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 rounded text-xs font-medium">${p.vehicle_plate || '-'} <span class="font-normal opacity-75">(${p.parking_type || '-'})</span></span>`).join('')
+                    ? activeParkings.map(p => {
+                        const durationText = p.parking_duration ? `${p.parking_duration} bln` : '';
+                        const expiryText   = p.expiry_date ? `s/d ${p.expiry_date}` : '';
+                        const infoText     = [durationText, expiryText].filter(Boolean).join(' • ');
+                        const expiredBadge = p.is_expired === true
+                            ? `<span class="ml-1 text-red-500 font-bold">✗ Expired</span>`
+                            : (p.is_expired === false ? `<span class="ml-1 text-green-600 font-bold">✓ Aktif</span>` : '');
+                        return `<button type="button" onclick="selectPrkActiveParkingVehicle('${p.vehicle_plate}', '${p.parking_type}')"
+                            class="prk-active-parking-chip inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 rounded text-xs font-medium hover:bg-orange-200 dark:hover:bg-orange-700 transition-colors cursor-pointer border border-orange-300 dark:border-orange-600">
+                            <span class="font-semibold">${p.vehicle_plate || '-'}</span>
+                            <span class="font-normal opacity-75">(${p.parking_type || '-'})</span>
+                            ${infoText ? `<span class="opacity-60">• ${infoText}</span>` : ''}
+                            ${expiredBadge}
+                        </button>`;
+                    }).join('')
                     : '<span class="text-xs text-orange-600 dark:text-orange-300 opacity-75">(no records)</span>';
 
                 badgeHtml = `
                     <div class="flex flex-col gap-1.5 px-3 py-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg">
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100">PARKIR MASIH AKTIF</span>
-                            <span class="text-xs text-orange-700 dark:text-orange-300">Kendaraan aktif terdaftar:</span>
+                            <span class="text-xs text-orange-700 dark:text-orange-300">Klik kendaraan untuk mengisi form:</span>
                         </div>
                         <div class="flex flex-wrap gap-1.5">${vehicleRows}</div>
                     </div>`;

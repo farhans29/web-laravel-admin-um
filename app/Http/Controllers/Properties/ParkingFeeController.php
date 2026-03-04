@@ -118,11 +118,18 @@ class ParkingFeeController extends Controller
         ]);
 
         try {
-            $existing = ParkingFee::where('property_id', $validated['property_id'])
+            $existing = ParkingFee::withTrashed()
+                ->where('property_id', $validated['property_id'])
                 ->where('parking_type', $validated['parking_type'])
                 ->first();
 
             if ($existing) {
+                if ($existing->trashed()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Parking fee untuk tipe ini pernah ada dan sudah dihapus. Silakan pulihkan (restore) data yang sudah ada.'
+                    ], 422);
+                }
                 return response()->json([
                     'success' => false,
                     'message' => 'Parking fee untuk tipe ini di property ini sudah ada. Silakan edit yang sudah ada.'

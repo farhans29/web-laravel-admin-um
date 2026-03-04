@@ -257,10 +257,16 @@ class ParkingPaymentController extends Controller
                 }
             }
 
-            // Check if this order already has an active parking transaction with duration not expired
+            // Check if this order already has a parking transaction
             $existingActiveParking = ParkingFeeTransaction::where('order_id', $request->order_id)
                 ->where('transaction_status', 'paid')
+                ->orderBy('created_at', 'desc')
                 ->first();
+
+            // $isExtension = true when customer extends expired parking within the SAME order
+            // (slot is still occupied, quota must NOT be incremented again)
+            $isExtension = false;
+            $extensionOldParkingType = null;
 
             if ($existingActiveParking) {
                 // Calculate expiry: transaction_date + parking_duration months
@@ -275,6 +281,10 @@ class ParkingPaymentController extends Controller
                         "Untuk mengubah tipe kendaraan, silakan edit di halaman Parking Management."
                     );
                 }
+
+                // Parking expired but customer still checked in → same-order extension
+                $isExtension = true;
+                $extensionOldParkingType = $existingActiveParking->parking_type;
             }
 
             // Get property details
@@ -515,14 +525,19 @@ class ParkingPaymentController extends Controller
             }
 
             // Kelola kuota parkir berdasarkan skenario:
-            // - Parkir baru            → increment tipe baru
-            // - Renewal tipe sama      → tidak ada perubahan (slot sudah occupied)
-            // - Renewal ganti tipe     → decrement tipe lama, increment tipe baru
-            // - Sudah dikonsumsi PM    → tidak increment (slot sudah tercatat)
-            if ($isRenewal && $isParkingTypeChanged) {
+            // - Parkir baru                → increment tipe baru
+            // - Extension tipe sama        → tidak ada perubahan (slot sudah occupied)
+            // - Extension ganti tipe       → decrement tipe lama, increment tipe baru
+            // - Renewal tipe sama          → tidak ada perubahan (slot sudah occupied)
+            // - Renewal ganti tipe         → decrement tipe lama, increment tipe baru
+            // - Sudah dikonsumsi PM        → tidak increment (slot sudah tercatat)
+            $extensionTypeChanged = $isExtension && ($extensionOldParkingType !== $request->parking_type);
+
+            if (($isRenewal && $isParkingTypeChanged) || $extensionTypeChanged) {
                 // Bebaskan kuota tipe lama
+                $oldType = $isRenewal ? $existingParkingType : $extensionOldParkingType;
                 $oldParkingFee = ParkingFee::where('property_id', $bookingTransaction->property_id)
-                    ->where('parking_type', $existingParkingType)
+                    ->where('parking_type', $oldType)
                     ->where('status', 1)
                     ->first();
 
@@ -534,7 +549,7 @@ class ParkingPaymentController extends Controller
                 if ($parkingFee->capacity > 0) {
                     $parkingFee->incrementQuota();
                 }
-            } elseif (!$isRenewal && !$quotaAlreadyConsumedByManagement && $parkingFee->capacity > 0) {
+            } elseif (!$isRenewal && !$isExtension && !$quotaAlreadyConsumedByManagement && $parkingFee->capacity > 0) {
                 $parkingFee->incrementQuota();
             }
 
@@ -546,6 +561,11 @@ class ParkingPaymentController extends Controller
                     . ucfirst($existingParkingType) . ' → ' . ucfirst($request->parking_type) . ')';
             } elseif ($isRenewal) {
                 $message = 'Parking renewal payment added successfully (quota unchanged)';
+            } elseif ($extensionTypeChanged) {
+                $message = 'Parking extension payment added successfully (tipe parkir berubah: '
+                    . ucfirst($extensionOldParkingType) . ' → ' . ucfirst($request->parking_type) . ')';
+            } elseif ($isExtension) {
+                $message = 'Parking extension payment added successfully (quota unchanged)';
             } elseif ($quotaAlreadyConsumedByManagement) {
                 $message = 'Parking payment added successfully (quota already counted by Parking Management)';
             } else {
@@ -553,7 +573,7 @@ class ParkingPaymentController extends Controller
             }
             if ($parkingFee->capacity === 0) {
                 $message .= '. This property has unlimited parking (no quota limit).';
-            } elseif ($isParkingTypeChanged || (!$isRenewal && !$quotaAlreadyConsumedByManagement)) {
+            } elseif ($isParkingTypeChanged || $extensionTypeChanged || (!$isRenewal && !$isExtension && !$quotaAlreadyConsumedByManagement)) {
                 $remaining = $parkingFee->fresh()->available_quota;
                 $message .= ". Parking quota: {$remaining}/{$parkingFee->capacity} available.";
             }
@@ -761,12 +781,33 @@ class ParkingPaymentController extends Controller
                             ->where('property_id', $booking->property_id)
                             ->where('status', 1)
                             ->whereNull('deleted_at')
-                            ->get(['vehicle_plate', 'parking_type']);
+                            ->get(['idrec', 'vehicle_plate', 'parking_type']);
 
                         foreach ($activeParkingRecords as $ap) {
+                            // Get latest paid transaction for this parking record to determine duration/expiry
+                            $latestTxn = ParkingFeeTransaction::where('parking_id', $ap->idrec)
+                                ->where('transaction_status', 'paid')
+                                ->orderBy('created_at', 'desc')
+                                ->first();
+
+                            $apExpiryDate = null;
+                            $apIsExpired  = null;
+                            $apDuration   = null;
+
+                            if ($latestTxn) {
+                                $apExpiry    = \Carbon\Carbon::parse($latestTxn->transaction_date)
+                                    ->addMonths($latestTxn->parking_duration ?? 1);
+                                $apExpiryDate = $apExpiry->format('d M Y');
+                                $apIsExpired  = !$apExpiry->isFuture();
+                                $apDuration   = $latestTxn->parking_duration;
+                            }
+
                             $activeParkings[] = [
-                                'vehicle_plate' => $ap->vehicle_plate,
-                                'parking_type'  => $ap->parking_type,
+                                'vehicle_plate'    => $ap->vehicle_plate,
+                                'parking_type'     => $ap->parking_type,
+                                'parking_duration' => $apDuration,
+                                'expiry_date'      => $apExpiryDate,
+                                'is_expired'       => $apIsExpired,
                             ];
                         }
                     }
