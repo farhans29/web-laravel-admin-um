@@ -30,7 +30,7 @@ class InvoiceNumberService
      * Transactions on or after this date use the new per-year sequence.
      * Transactions before this date retain their legacy sequential numbering.
      */
-    const CUTOFF_DATE = '2026-03-01';
+    const CUTOFF_DATE = '2026-12-01';
 
     /**
      * Generate invoice number based on paid_at date.
