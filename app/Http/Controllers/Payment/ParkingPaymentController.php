@@ -754,6 +754,23 @@ class ParkingPaymentController extends Controller
                         }
                     }
 
+                    // Fetch all active parking records for this user at this property
+                    $activeParkings = [];
+                    if ($userId) {
+                        $activeParkingRecords = \App\Models\Parking::where('user_id', $userId)
+                            ->where('property_id', $booking->property_id)
+                            ->where('status', 1)
+                            ->whereNull('deleted_at')
+                            ->get(['vehicle_plate', 'parking_type']);
+
+                        foreach ($activeParkingRecords as $ap) {
+                            $activeParkings[] = [
+                                'vehicle_plate' => $ap->vehicle_plate,
+                                'parking_type'  => $ap->parking_type,
+                            ];
+                        }
+                    }
+
                     return [
                         'order_id' => $booking->order_id,
                         'property_id' => $booking->property_id,
@@ -768,6 +785,7 @@ class ParkingPaymentController extends Controller
                         'max_parking_months' => $maxParkingMonths,
                         'parking_status' => $parkingStatus,
                         'parking_info'   => $parkingInfo,
+                        'active_parkings' => $activeParkings,
                         'display_text' => $booking->order_id . ' - ' . ($booking->transaction->user_name ?? $booking->user_name) . ' (' . ($booking->room->name ?? '-') . ')',
                     ];
                 })
