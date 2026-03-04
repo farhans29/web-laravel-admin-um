@@ -192,11 +192,26 @@
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Booking Order (Checked-In) <span class="text-red-500">*</span>
                                 </label>
+                                <div class="relative mb-1.5">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    <input type="text" id="order_search_input" placeholder="Search order ID, name, or room..."
+                                        oninput="filterOrderOptions(this.value)"
+                                        class="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                    <button type="button" id="order_search_clear" onclick="clearOrderSearch()" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden text-gray-400 hover:text-gray-600">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
                                 <select name="order_id" id="add_order_id" required
                                     class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                     <option value="">Loading checked-in orders...</option>
                                 </select>
-                                <p class="text-xs text-gray-500 mt-1">Select a booking that is currently checked-in</p>
+                                <p class="text-xs text-gray-500 mt-1">Search then select a booking that is currently checked-in</p>
                                 <p class="text-red-500 text-xs mt-1 hidden" id="add_order_id_error"></p>
                             </div>
 
@@ -711,6 +726,12 @@
             document.getElementById('add_fee_amount').value = '';
             // Hide order info section
             document.getElementById('order_info_section').classList.add('hidden');
+            // Clear order search
+            const searchInput = document.getElementById('order_search_input');
+            if (searchInput) {
+                searchInput.value = '';
+                document.getElementById('order_search_clear').classList.add('hidden');
+            }
             // Set default transaction date to now
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -759,6 +780,62 @@
                     console.error('Error loading orders:', error);
                     orderSelect.innerHTML = '<option value="">Error loading orders</option>';
                 });
+        }
+
+        function filterOrderOptions(keyword) {
+            const orderSelect = document.getElementById('add_order_id');
+            const clearBtn = document.getElementById('order_search_clear');
+            const q = keyword.trim().toLowerCase();
+
+            // Toggle clear button
+            if (clearBtn) clearBtn.classList.toggle('hidden', q === '');
+
+            // Reset selection & info when filter changes
+            orderSelect.value = '';
+            document.getElementById('order_info_section').classList.add('hidden');
+            document.getElementById('parking_status_section').classList.add('hidden');
+            document.getElementById('quota_info_section').classList.add('hidden');
+
+            const filtered = q === ''
+                ? checkedInOrdersData
+                : checkedInOrdersData.filter(o =>
+                    o.order_id.toLowerCase().includes(q) ||
+                    (o.user_name && o.user_name.toLowerCase().includes(q)) ||
+                    (o.room_name && o.room_name.toLowerCase().includes(q)) ||
+                    (o.property_name && o.property_name.toLowerCase().includes(q))
+                );
+
+            orderSelect.innerHTML = '';
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = filtered.length > 0
+                ? 'Select a booking order'
+                : 'No matching orders found';
+            orderSelect.appendChild(placeholder);
+
+            filtered.forEach(order => {
+                const option = document.createElement('option');
+                option.value = order.order_id;
+                option.textContent = order.display_text;
+                option.dataset.propertyId = order.property_id;
+                option.dataset.userName = order.user_name;
+                option.dataset.userPhone = order.user_phone;
+                option.dataset.roomName = order.room_name;
+                option.dataset.propertyName = order.property_name;
+                option.dataset.checkIn = order.check_in;
+                option.dataset.checkOut = order.check_out;
+                option.dataset.maxParkingMonths = order.max_parking_months || '';
+                option.dataset.parkingStatus = order.parking_status || 'new';
+                option.dataset.parkingInfo = order.parking_info ? JSON.stringify(order.parking_info) : '';
+                orderSelect.appendChild(option);
+            });
+        }
+
+        function clearOrderSearch() {
+            const searchInput = document.getElementById('order_search_input');
+            searchInput.value = '';
+            filterOrderOptions('');
+            searchInput.focus();
         }
 
         // Handle order selection
