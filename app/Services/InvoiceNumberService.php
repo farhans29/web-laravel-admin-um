@@ -8,33 +8,15 @@ use Carbon\Carbon;
 class InvoiceNumberService
 {
     /**
-     * Roman numeral mapping for months
-     */
-    protected static $romanMonths = [
-        1 => 'I',
-        2 => 'II',
-        3 => 'III',
-        4 => 'IV',
-        5 => 'V',
-        6 => 'VI',
-        7 => 'VII',
-        8 => 'VIII',
-        9 => 'IX',
-        10 => 'X',
-        11 => 'XI',
-        12 => 'XII',
-    ];
-
-    /**
      * The cutoff date from which the new annual reset system applies.
      * Transactions on or after this date use the new per-year sequence.
      * Transactions before this date retain their legacy sequential numbering.
      */
-    const CUTOFF_DATE = '2026-12-01';
+    const CUTOFF_DATE = '2026-03-01';
 
     /**
      * Generate invoice number based on paid_at date.
-     * Format: 001/{property_initial}/KGA-INV/III/2026
+     * Format: 0001/{property_initial}/KGA-INV/2026
      *
      * @param Transaction $transaction
      * @param int|null $sequenceNumber Optional override for sequence number
@@ -44,7 +26,6 @@ class InvoiceNumberService
     {
         $paidAt = $transaction->paid_at ? Carbon::parse($transaction->paid_at) : now();
         $year = $paidAt->format('Y');
-        $month = (int) $paidAt->format('m');
 
         // Get sequence number if not provided
         if ($sequenceNumber === null) {
@@ -57,11 +38,10 @@ class InvoiceNumberService
             $propertyInitial = strtoupper($transaction->property->initial);
         }
 
-        // Format: 001/{property_initial}/KGA-INV/III/2026
-        $formattedSequence = str_pad($sequenceNumber, 3, '0', STR_PAD_LEFT);
-        $romanMonth = self::$romanMonths[$month];
+        // Format: 0001/{property_initial}/KGA-INV/2026
+        $formattedSequence = str_pad($sequenceNumber, 4, '0', STR_PAD_LEFT);
 
-        return "{$formattedSequence}/{$propertyInitial}/KGA-INV/{$romanMonth}/{$year}";
+        return "{$formattedSequence}/{$propertyInitial}/KGA-INV/{$year}";
     }
 
     /**
@@ -206,14 +186,4 @@ class InvoiceNumberService
         return $invoiceNumbers;
     }
 
-    /**
-     * Get Roman numeral for month
-     *
-     * @param int $month
-     * @return string
-     */
-    public static function getRomanMonth(int $month): string
-    {
-        return self::$romanMonths[$month] ?? 'I';
-    }
 }
