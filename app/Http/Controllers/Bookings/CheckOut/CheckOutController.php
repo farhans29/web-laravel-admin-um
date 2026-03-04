@@ -282,30 +282,28 @@ class CheckOutController extends Controller
             }
 
             // === Sumber 3: t_parking management_only=1 (Alur Parking Management) ===
-            if ($userId && $propertyId) {
-                $parkingRecords = \App\Models\Parking::where('user_id', $userId)
-                    ->where('property_id', $propertyId)
-                    ->where('management_only', 1)
-                    ->where('status', 1)
-                    ->get();
+            $parkingRecords = \App\Models\Parking::where('order_id', $order_id)
+                ->where('management_only', 1)
+                ->where('status', 1)
+                ->get();
 
-                foreach ($parkingRecords as $pr) {
-                    if (!in_array($pr->parking_type, $releasedTypes)) {
-                        $parkingFee = ParkingFee::where('property_id', $propertyId)
-                            ->where('parking_type', $pr->parking_type)
-                            ->where('status', 1)
-                            ->first();
+            foreach ($parkingRecords as $pr) {
+                if ($pr->property_id && !in_array($pr->parking_type, $releasedTypes)) {
+                    $parkingFee = ParkingFee::where('property_id', $pr->property_id)
+                        ->where('parking_type', $pr->parking_type)
+                        ->where('status', 1)
+                        ->first();
 
-                        if ($parkingFee && $parkingFee->capacity > 0) {
-                            $parkingFee->decrementQuota(1);
-                            $releasedTypes[] = $pr->parking_type;
-                            Log::info("Parking quota released (PM) order {$order_id}, type: {$pr->parking_type}");
-                        }
+                    if ($parkingFee && $parkingFee->capacity > 0) {
+                        $parkingFee->decrementQuota(1);
+                        $releasedTypes[] = $pr->parking_type;
+                        Log::info("Parking quota released (PM) order {$order_id}, type: {$pr->parking_type}");
                     }
-
-                    // Non-aktifkan record parkir Parking Management
-                    $pr->update(['status' => 0]);
                 }
+
+                // Soft-delete parking record dari Parking Management
+                $pr->update(['status' => 0, 'updated_by' => Auth::id()]);
+                $pr->delete();
             }
         } catch (\Exception $e) {
             Log::error("Failed to release parking quota for order {$order_id}: " . $e->getMessage());
