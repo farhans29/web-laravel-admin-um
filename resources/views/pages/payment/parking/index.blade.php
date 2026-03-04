@@ -246,9 +246,6 @@
                                 </div>
                             </div>
 
-                            <!-- Parking Status Info -->
-                            <div class="md:col-span-2 hidden" id="parking_status_section"></div>
-
                             <!-- Parking Type -->
                             <div class="md:col-span-2">
                                 <label for="add_parking_type"
@@ -807,7 +804,6 @@
             // Reset selection & info when filter changes
             orderSelect.value = '';
             document.getElementById('order_info_section').classList.add('hidden');
-            document.getElementById('parking_status_section').classList.add('hidden');
             document.getElementById('quota_info_section').classList.add('hidden');
 
             const filtered = q === ''
@@ -873,12 +869,6 @@
                     (selectedOption.dataset.checkIn || '-') + ' - ' + (selectedOption.dataset.checkOut || '-');
                 orderInfoSection.classList.remove('hidden');
 
-                // Show parking status badge
-                showParkingStatusBadge(
-                    selectedOption.dataset.parkingStatus || 'new',
-                    selectedOption.dataset.parkingInfo ? JSON.parse(selectedOption.dataset.parkingInfo) : null
-                );
-
                 // Auto-calculate parking duration in months from check-in to check-out
                 calculateParkingDuration(selectedOption.dataset.checkIn, selectedOption.dataset.checkOut, selectedOption.dataset.maxParkingMonths);
 
@@ -887,8 +877,6 @@
             } else {
                 // Hide order info
                 orderInfoSection.classList.add('hidden');
-                // Hide parking status badge
-                document.getElementById('parking_status_section').classList.add('hidden');
                 // Hide quota info
                 document.getElementById('quota_info_section').classList.add('hidden');
                 // Clear fee amount
@@ -901,73 +889,6 @@
                 if (maxHint) maxHint.classList.add('hidden');
             }
         });
-
-        function showParkingStatusBadge(status, info) {
-            const section = document.getElementById('parking_status_section');
-            let html = '';
-
-            if (status === 'new') {
-                html = `
-                    <div class="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700">
-                        <div class="flex-shrink-0">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                </svg>
-                                PARKIR BARU
-                            </span>
-                        </div>
-                        <p class="text-sm text-green-800 dark:text-green-200">Order ini belum memiliki riwayat parkir. Ini adalah pendaftaran parkir baru.</p>
-                    </div>`;
-            } else if (status === 'renewal') {
-                html = `
-                    <div class="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700">
-                        <div class="flex-shrink-0 mt-0.5">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                PERPANJANGAN
-                            </span>
-                        </div>
-                        <div class="text-sm text-yellow-800 dark:text-yellow-200">
-                            <p class="font-medium">Order ini merupakan perpanjangan parkir.</p>
-                            ${info ? `
-                            <div class="mt-1 space-y-0.5 text-xs text-yellow-700 dark:text-yellow-300">
-                                <p><span class="font-medium">Tipe:</span> ${info.parking_type === 'car' ? 'Mobil' : 'Motor'}</p>
-                                <p><span class="font-medium">Plat Kendaraan:</span> ${info.vehicle_plate || '-'}</p>
-                                <p><span class="font-medium">Durasi sebelumnya:</span> ${info.duration} bulan</p>
-                                <p><span class="font-medium">Berakhir pada:</span> ${info.expiry_date} (${info.expired_ago})</p>
-                            </div>` : ''}
-                        </div>
-                    </div>`;
-            } else if (status === 'active') {
-                html = `
-                    <div class="flex items-start gap-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700">
-                        <div class="flex-shrink-0 mt-0.5">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                                </svg>
-                                PARKIR MASIH AKTIF
-                            </span>
-                        </div>
-                        <div class="text-sm text-red-800 dark:text-red-200">
-                            <p class="font-medium">Order ini sudah memiliki parkir yang masih aktif.</p>
-                            ${info ? `
-                            <div class="mt-1 space-y-0.5 text-xs text-red-700 dark:text-red-300">
-                                <p><span class="font-medium">Tipe:</span> ${info.parking_type === 'car' ? 'Mobil' : 'Motor'}</p>
-                                <p><span class="font-medium">Plat Kendaraan:</span> ${info.vehicle_plate || '-'}</p>
-                                <p><span class="font-medium">Berlaku hingga:</span> ${info.expiry_date} (${info.expired_ago})</p>
-                            </div>` : ''}
-                            <p class="mt-1 text-xs font-medium">Tidak dapat menambah parkir baru hingga masa berlaku habis.</p>
-                        </div>
-                    </div>`;
-            }
-
-            section.innerHTML = html;
-            section.classList.remove('hidden');
-        }
 
         // Calculate parking duration in months from check-in and check-out dates
         function calculateParkingDuration(checkInStr, checkOutStr, maxParkingMonths) {
@@ -1151,11 +1072,6 @@
                     </div>
                 `;
 
-                // Enable submit button
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
             } else {
                 // Limited parking with quota
                 const available = quotaData.available_quota;
@@ -1192,40 +1108,25 @@
                             </div>
                         </div>
                     `;
-
-                    // Enable submit button
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    }
                 } else {
-                    // Quota full
+                    // Quota full (info only, not blocking)
                     quotaInfoContainer.className =
-                        'rounded-lg border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4';
+                        'rounded-lg border-2 border-orange-200 dark:border-orange-700 bg-orange-50 dark:bg-orange-900/20 p-4';
                     quotaInfoContainer.innerHTML = `
                         <div class="flex items-start gap-3">
                             <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="h-6 w-6 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <h4 class="text-sm font-semibold text-red-900 dark:text-red-100">⚠️ Parking Quota Full (${typeLabel})</h4>
-                                <p class="text-xs text-red-700 dark:text-red-300 mt-1">
+                                <h4 class="text-sm font-semibold text-orange-900 dark:text-orange-100">⚠️ Parking Quota Full (${typeLabel})</h4>
+                                <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">
                                     <strong>Capacity: ${quotaData.capacity}</strong> (All slots occupied)
-                                </p>
-                                <p class="text-xs text-red-600 dark:text-red-400 mt-2">
-                                    ❌ <strong>Cannot create parking payment.</strong> Please wait for check-out or increase capacity in Parking Fee Management.
                                 </p>
                             </div>
                         </div>
                     `;
-
-                    // Disable submit button when quota is full
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    }
                 }
             }
         }
@@ -1238,35 +1139,22 @@
             setFeeAmount(null);
 
             quotaInfoContainer.className =
-                'rounded-lg border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4';
+                'rounded-lg border-2 border-yellow-200 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 p-4';
             quotaInfoContainer.innerHTML = `
                 <div class="flex items-start gap-3">
                     <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <h4 class="text-sm font-semibold text-red-900 dark:text-red-100">⚠️ Parking Fee Not Configured (${typeLabel})</h4>
-                        <p class="text-xs text-red-700 dark:text-red-300 mt-1">
-                            Parking fee for this property has not been configured yet.
-                        </p>
-                        <p class="text-xs text-red-600 dark:text-red-400 mt-2">
-                            ❌ <strong>Cannot create parking payment.</strong> Please configure parking fee in <strong>Parking Fee Management</strong> menu first.
-                        </p>
-                        <p class="text-xs text-red-600 dark:text-red-400 mt-1">
-                            💡 Go to <strong>Parking Fee Management</strong> → Add Parking Fee → Set fee amount and capacity → Then create parking payment.
+                        <h4 class="text-sm font-semibold text-yellow-900 dark:text-yellow-100">⚠️ Parking Fee Not Configured (${typeLabel})</h4>
+                        <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                            Parking fee for this property has not been configured yet. Fee amount must be entered manually.
                         </p>
                     </div>
                 </div>
             `;
-
-            // Disable submit button when no parking fee is configured
-            const submitBtn = document.getElementById('addPaymentSubmitBtn');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
         }
 
         function closeAddPaymentModal() {
