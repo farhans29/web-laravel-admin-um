@@ -425,6 +425,7 @@
                             option.dataset.maxParkingMonths = order.max_parking_months || '';
                             option.dataset.parkingStatus = order.parking_status || 'new';
                             option.dataset.parkingInfo = order.parking_info ? JSON.stringify(order.parking_info) : '';
+                            option.dataset.activeParkings = order.active_parkings ? JSON.stringify(order.active_parkings) : '[]';
                             orderSelect.appendChild(option);
                         });
                     } else {
@@ -448,20 +449,26 @@
             orderSelect.size = 1;
         }
 
-        function showPrkParkingStatusBadge(status, parkingInfoStr) {
+        function showPrkParkingStatusBadge(status, parkingInfoStr, activeParkingsStr) {
             const section = document.getElementById('prk_parking_status_section');
             if (!section) return;
 
-            let parkingInfo = null;
-            try { parkingInfo = parkingInfoStr ? JSON.parse(parkingInfoStr) : null; } catch(e) {}
-
             let badgeHtml = '';
             if (status === 'active') {
-                const detail = parkingInfo ? ` &mdash; ${parkingInfo.vehicle_plate || ''} (${parkingInfo.parking_type || ''})` : '';
+                let activeParkings = [];
+                try { activeParkings = activeParkingsStr ? JSON.parse(activeParkingsStr) : []; } catch(e) {}
+
+                const vehicleRows = activeParkings.length > 0
+                    ? activeParkings.map(p => `<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 rounded text-xs font-medium">${p.vehicle_plate || '-'} <span class="font-normal opacity-75">(${p.parking_type || '-'})</span></span>`).join('')
+                    : '<span class="text-xs text-orange-600 dark:text-orange-300 opacity-75">(no records)</span>';
+
                 badgeHtml = `
-                    <div class="flex items-center gap-2 px-3 py-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100">PARKIR MASIH AKTIF</span>
-                        <span class="text-xs text-orange-700 dark:text-orange-300">Customer currently has active parking${detail}</span>
+                    <div class="flex flex-col gap-1.5 px-3 py-2 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100">PARKIR MASIH AKTIF</span>
+                            <span class="text-xs text-orange-700 dark:text-orange-300">Kendaraan aktif terdaftar:</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">${vehicleRows}</div>
                     </div>`;
             } else if (status === 'renewal') {
                 badgeHtml = `
@@ -525,6 +532,7 @@
                 option.dataset.maxParkingMonths = order.max_parking_months || '';
                 option.dataset.parkingStatus = order.parking_status || 'new';
                 option.dataset.parkingInfo = order.parking_info ? JSON.stringify(order.parking_info) : '';
+                option.dataset.activeParkings = order.active_parkings ? JSON.stringify(order.active_parkings) : '[]';
                 orderSelect.appendChild(option);
             });
 
@@ -559,7 +567,7 @@
                 prkCalculateParkingDuration(selectedOption.dataset.checkIn, selectedOption.dataset.checkOut, selectedOption.dataset.maxParkingMonths);
 
                 // Show parking status badge (informational only)
-                showPrkParkingStatusBadge(selectedOption.dataset.parkingStatus || 'new', selectedOption.dataset.parkingInfo || '');
+                showPrkParkingStatusBadge(selectedOption.dataset.parkingStatus || 'new', selectedOption.dataset.parkingInfo || '', selectedOption.dataset.activeParkings || '[]');
 
                 checkPrkParkingQuota();
             } else {
