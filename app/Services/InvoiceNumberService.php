@@ -14,9 +14,14 @@ class InvoiceNumberService
      */
     const CUTOFF_DATE = '2026-03-01';
 
+    protected static array $romanMonths = [
+        1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
+        7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
+    ];
+
     /**
      * Generate invoice number based on paid_at date.
-     * Format: 0001/{property_initial}/KGA-INV/2026
+     * Format: 0001/{property_initial}/KGA-INV/III/2026
      *
      * @param Transaction $transaction
      * @param int|null $sequenceNumber Optional override for sequence number
@@ -26,6 +31,8 @@ class InvoiceNumberService
     {
         $paidAt = $transaction->paid_at ? Carbon::parse($transaction->paid_at) : now();
         $year = $paidAt->format('Y');
+        $month = (int) $paidAt->format('n');
+        $romanMonth = self::$romanMonths[$month];
 
         // Get sequence number if not provided
         if ($sequenceNumber === null) {
@@ -38,10 +45,10 @@ class InvoiceNumberService
             $propertyInitial = strtoupper($transaction->property->initial);
         }
 
-        // Format: 0001/{property_initial}/KGA-INV/2026
+        // Format: 0001/{property_initial}/KGA-INV/III/2026
         $formattedSequence = str_pad($sequenceNumber, 4, '0', STR_PAD_LEFT);
 
-        return "{$formattedSequence}/{$propertyInitial}/KGA-INV/{$year}";
+        return "{$formattedSequence}/{$propertyInitial}/KGA-INV/{$romanMonth}/{$year}";
     }
 
     /**
