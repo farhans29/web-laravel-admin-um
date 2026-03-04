@@ -726,8 +726,15 @@
             // Clear fee amount fields
             document.getElementById('add_fee_amount_display').value = '';
             document.getElementById('add_fee_amount').value = '';
-            // Hide order info section
+            // Hide order info, quota, and status badge sections
             document.getElementById('order_info_section').classList.add('hidden');
+            document.getElementById('quota_info_section').classList.add('hidden');
+            document.getElementById('parking_status_section').classList.add('hidden');
+            // Reset parking duration max hint
+            const maxHint = document.getElementById('parking_duration_max_hint');
+            if (maxHint) maxHint.classList.add('hidden');
+            document.getElementById('add_parking_duration').removeAttribute('max');
+            document.getElementById('add_parking_duration').value = 1;
             // Clear order search
             const searchInput = document.getElementById('order_search_input');
             if (searchInput) {
