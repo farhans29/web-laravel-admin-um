@@ -781,12 +781,33 @@ class ParkingPaymentController extends Controller
                             ->where('property_id', $booking->property_id)
                             ->where('status', 1)
                             ->whereNull('deleted_at')
-                            ->get(['vehicle_plate', 'parking_type']);
+                            ->get(['idrec', 'vehicle_plate', 'parking_type']);
 
                         foreach ($activeParkingRecords as $ap) {
+                            // Get latest paid transaction for this parking record to determine duration/expiry
+                            $latestTxn = ParkingFeeTransaction::where('parking_id', $ap->idrec)
+                                ->where('transaction_status', 'paid')
+                                ->orderBy('created_at', 'desc')
+                                ->first();
+
+                            $apExpiryDate = null;
+                            $apIsExpired  = null;
+                            $apDuration   = null;
+
+                            if ($latestTxn) {
+                                $apExpiry    = \Carbon\Carbon::parse($latestTxn->transaction_date)
+                                    ->addMonths($latestTxn->parking_duration ?? 1);
+                                $apExpiryDate = $apExpiry->format('d M Y');
+                                $apIsExpired  = !$apExpiry->isFuture();
+                                $apDuration   = $latestTxn->parking_duration;
+                            }
+
                             $activeParkings[] = [
-                                'vehicle_plate' => $ap->vehicle_plate,
-                                'parking_type'  => $ap->parking_type,
+                                'vehicle_plate'    => $ap->vehicle_plate,
+                                'parking_type'     => $ap->parking_type,
+                                'parking_duration' => $apDuration,
+                                'expiry_date'      => $apExpiryDate,
+                                'is_expired'       => $apIsExpired,
                             ];
                         }
                     }
