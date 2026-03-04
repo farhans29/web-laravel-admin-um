@@ -200,6 +200,8 @@
                                     </div>
                                     <input type="text" id="order_search_input" placeholder="Search order ID, name, or room..."
                                         oninput="filterOrderOptions(this.value)"
+                                        onfocus="openOrderDropdown()"
+                                        onblur="setTimeout(() => closeOrderDropdown(), 200)"
                                         class="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                     <button type="button" id="order_search_clear" onclick="clearOrderSearch()" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden text-gray-400 hover:text-gray-600">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -732,6 +734,7 @@
                 searchInput.value = '';
                 document.getElementById('order_search_clear').classList.add('hidden');
             }
+            closeOrderDropdown();
             // Set default transaction date to now
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -782,6 +785,17 @@
                 });
         }
 
+        function openOrderDropdown() {
+            const orderSelect = document.getElementById('add_order_id');
+            const count = orderSelect.options.length;
+            orderSelect.size = Math.min(Math.max(count, 2), 7);
+        }
+
+        function closeOrderDropdown() {
+            const orderSelect = document.getElementById('add_order_id');
+            orderSelect.size = 1;
+        }
+
         function filterOrderOptions(keyword) {
             const orderSelect = document.getElementById('add_order_id');
             const clearBtn = document.getElementById('order_search_clear');
@@ -829,6 +843,10 @@
                 option.dataset.parkingInfo = order.parking_info ? JSON.stringify(order.parking_info) : '';
                 orderSelect.appendChild(option);
             });
+
+            // Keep dropdown open while search is active
+            const count = orderSelect.options.length;
+            orderSelect.size = Math.min(Math.max(count, 2), 7);
         }
 
         function clearOrderSearch() {
@@ -840,6 +858,7 @@
 
         // Handle order selection
         document.getElementById('add_order_id')?.addEventListener('change', function() {
+            closeOrderDropdown();
             const selectedOption = this.options[this.selectedIndex];
             const orderInfoSection = document.getElementById('order_info_section');
 

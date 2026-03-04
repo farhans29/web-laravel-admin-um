@@ -126,6 +126,8 @@
                                     </div>
                                     <input type="text" id="prk_order_search_input" placeholder="Search order ID, name, or room..."
                                         oninput="filterPrkOrderOptions(this.value)"
+                                        onfocus="openPrkOrderDropdown()"
+                                        onblur="setTimeout(() => closePrkOrderDropdown(), 200)"
                                         class="w-full pl-9 pr-9 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                     <button type="button" id="prk_order_search_clear" onclick="clearPrkOrderSearch()" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden text-gray-400 hover:text-gray-600">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -390,6 +392,7 @@
                 searchInput.value = '';
                 document.getElementById('prk_order_search_clear').classList.add('hidden');
             }
+            closePrkOrderDropdown();
             loadPrkCheckedInOrders();
         }
 
@@ -440,6 +443,17 @@
                 });
         }
 
+        function openPrkOrderDropdown() {
+            const orderSelect = document.getElementById('add_prk_order_id');
+            const count = orderSelect.options.length;
+            orderSelect.size = Math.min(Math.max(count, 2), 7);
+        }
+
+        function closePrkOrderDropdown() {
+            const orderSelect = document.getElementById('add_prk_order_id');
+            orderSelect.size = 1;
+        }
+
         function filterPrkOrderOptions(keyword) {
             const orderSelect = document.getElementById('add_prk_order_id');
             const clearBtn = document.getElementById('prk_order_search_clear');
@@ -487,6 +501,10 @@
                 option.dataset.parkingInfo = order.parking_info ? JSON.stringify(order.parking_info) : '';
                 orderSelect.appendChild(option);
             });
+
+            // Keep dropdown open while search is active
+            const count = orderSelect.options.length;
+            orderSelect.size = Math.min(Math.max(count, 2), 7);
         }
 
         function clearPrkOrderSearch() {
@@ -498,6 +516,7 @@
 
         // Handle order selection for add parking
         document.getElementById('add_prk_order_id')?.addEventListener('change', function() {
+            closePrkOrderDropdown();
             const selectedOption = this.options[this.selectedIndex];
             const orderInfoSection = document.getElementById('prk_order_info_section');
 
