@@ -819,7 +819,9 @@ class ParkingPaymentController extends Controller
                         'user_phone' => $booking->transaction->user_phone_number ?? $booking->user_phone_number,
                         'room_name' => $booking->room->name ?? '-',
                         'property_name' => $booking->property->name ?? '-',
-                        'check_in' => $booking->check_in_at ? $booking->check_in_at->format('d M Y') : '',
+                        'check_in' => $booking->transaction && $booking->transaction->check_in
+                            ? $booking->transaction->check_in->format('d M Y')
+                            : '',
                         'check_out' => $booking->transaction && $booking->transaction->check_out
                             ? $booking->transaction->check_out->format('d M Y')
                             : '-',
