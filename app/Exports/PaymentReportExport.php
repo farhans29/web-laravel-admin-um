@@ -46,7 +46,7 @@ class PaymentReportExport
             'textColor' => 'FFFFFF',
             'fontSize' => 20,
             'height' => 40,
-            'endColumn' => 'AC', // 29 columns
+            'endColumn' => 'AD', // 30 columns
         ]);
 
         // Add subtitle with generation info
@@ -55,7 +55,7 @@ class PaymentReportExport
             'textColor' => '6B7280',
             'italic' => true,
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AC',
+            'endColumn' => 'AD',
         ]);
 
         $excel->addEmptyRow();
@@ -97,14 +97,15 @@ class PaymentReportExport
             'Payment Status',
             'Verified By',
             'Verified Date',
-            'Notes'
+            'Notes',
+            'Status Sewa'
         ];
 
         $excel->addHeader($headers);
 
         // Style header row with custom colors
         $actualHeaderRow = $excel->getCurrentRow() - 1;
-        $sheet->getStyle('A' . $actualHeaderRow . ':AC' . $actualHeaderRow)->applyFromArray([
+        $sheet->getStyle('A' . $actualHeaderRow . ':AD' . $actualHeaderRow)->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 10,
@@ -159,6 +160,7 @@ class PaymentReportExport
             'AA' => 18, // Verified By
             'AB' => 18, // Verified Date
             'AC' => 35, // Notes
+            'AD' => 16, // Status Sewa
         ];
 
         foreach ($columnWidths as $col => $width) {
@@ -182,7 +184,7 @@ class PaymentReportExport
             // Highlight refunds with red background
             $isRefund = $transaction->booking && $transaction->booking->refund;
             if ($isRefund) {
-                $sheet->getStyle('A' . $currentDataRow . ':AC' . $currentDataRow)->applyFromArray([
+                $sheet->getStyle('A' . $currentDataRow . ':AD' . $currentDataRow)->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => ['rgb' => 'FEE2E2'] // Light red
@@ -191,7 +193,7 @@ class PaymentReportExport
             } else {
                 // Add zebra striping for non-refund rows
                 if ($index % 2 == 0) {
-                    $sheet->getStyle('A' . $currentDataRow . ':AC' . $currentDataRow)->applyFromArray([
+                    $sheet->getStyle('A' . $currentDataRow . ':AD' . $currentDataRow)->applyFromArray([
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => ['rgb' => 'F9FAFB']
@@ -211,7 +213,7 @@ class PaymentReportExport
 
         // Style data rows with borders
         if ($payments->count() > 0) {
-            $sheet->getStyle('A' . $dataStartRow . ':AC' . $dataEndRow)->applyFromArray([
+            $sheet->getStyle('A' . $dataStartRow . ':AD' . $dataEndRow)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -231,7 +233,7 @@ class PaymentReportExport
             'textColor' => '059669',
             'fontSize' => 12,
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AC',
+            'endColumn' => 'AD',
         ]);
 
         $excel->addEmptyRow();
@@ -255,7 +257,7 @@ class PaymentReportExport
             'fontSize' => 10,
             'textColor' => '6B7280',
             'align' => Alignment::HORIZONTAL_RIGHT,
-            'endColumn' => 'AC',
+            'endColumn' => 'AD',
         ]);
 
         // Add footer
@@ -265,7 +267,7 @@ class PaymentReportExport
             'italic' => true,
             'textColor' => '9CA3AF',
             'align' => Alignment::HORIZONTAL_CENTER,
-            'endColumn' => 'AC',
+            'endColumn' => 'AD',
         ]);
 
         // Freeze panes at header row
@@ -438,6 +440,7 @@ class PaymentReportExport
             $verifiedBy,                                                                           // Verified By
             $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-', // Verified Date
             $notes,                                                                                // Notes
+            ($transaction->is_renewal == 1) ? 'Perpanjangan' : '',                                // Status Sewa
         ];
     }
 
