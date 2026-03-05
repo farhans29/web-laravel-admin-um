@@ -67,7 +67,7 @@ class PaymentReportExport
         // Add separator
         $excel->addInfoRow('', []);
 
-        // Headers with enhanced styling (29 columns)
+        // Headers with enhanced styling (30 columns)
         $headers = [
             'No',
             'Invoice Number',
@@ -95,10 +95,10 @@ class PaymentReportExport
             'Deposit',
             'Service Fee',
             'Payment Status',
+            'Status Sewa',
             'Verified By',
             'Verified Date',
             'Notes',
-            'Status Sewa'
         ];
 
         $excel->addHeader($headers);
@@ -437,10 +437,10 @@ class PaymentReportExport
             round($deposit + $depositFee, 0),                                                      // Deposit (includes deposit fee)
             round($serviceFee, 0),                                                                 // Service Fee
             'Paid',                                                                                // Payment Status
+            ($transaction->is_renewal == 1) ? 'Perpanjangan' : '',                                // Status Sewa
             $verifiedBy,                                                                           // Verified By
             $payment && $payment->verified_at ? Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-', // Verified Date
             $notes,                                                                                // Notes
-            ($transaction->is_renewal == 1) ? 'Perpanjangan' : '',                                // Status Sewa
         ];
     }
 
