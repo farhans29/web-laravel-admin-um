@@ -54,6 +54,11 @@ class Parking extends Model
         return $this->hasMany(ParkingFeeTransaction::class, 'parking_id', 'idrec');
     }
 
+    public function bookingTransaction()
+    {
+        return $this->belongsTo(Transaction::class, 'order_id', 'order_id');
+    }
+
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');

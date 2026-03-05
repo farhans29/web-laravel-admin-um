@@ -16,7 +16,7 @@ class ParkingController extends Controller
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = Parking::with(['property', 'createdBy', 'updatedBy'])
+        $query = Parking::with(['property', 'createdBy', 'updatedBy', 'bookingTransaction'])
             ->orderBy('property_id', 'asc');
 
         $user = Auth::user();
@@ -68,7 +68,7 @@ class ParkingController extends Controller
         $parkingType = $request->input('parking_type', '');
         $showDeleted = $request->input('show_deleted', '0');
 
-        $query = Parking::with(['property', 'createdBy', 'updatedBy'])
+        $query = Parking::with(['property', 'createdBy', 'updatedBy', 'bookingTransaction'])
             ->orderBy('property_id', 'asc');
 
         $user = Auth::user();

@@ -7,6 +7,10 @@
             </th>
             <th scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Check-in
+            </th>
+            <th scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 {{ __('ui.vehicle_plate') }}
             </th>
             <th scope="col"
@@ -41,6 +45,20 @@
                     <div class="text-xs text-gray-500 dark:text-gray-400">
                         {{ $parking->property->city ?? '' }}
                     </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    @if($parking->bookingTransaction && $parking->bookingTransaction->check_in)
+                        <div class="text-gray-900 dark:text-gray-100">
+                            {{ \Carbon\Carbon::parse($parking->bookingTransaction->check_in)->format('Y-m-d') }}
+                        </div>
+                        @if($parking->bookingTransaction->check_out)
+                            <div class="text-xs text-gray-400 dark:text-gray-500">
+                                s/d {{ \Carbon\Carbon::parse($parking->bookingTransaction->check_out)->format('Y-m-d') }}
+                            </div>
+                        @endif
+                    @else
+                        <span class="text-gray-400">-</span>
+                    @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center gap-2">
@@ -200,7 +218,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                     {{ __('ui.no_parking_data') }}
                 </td>
             </tr>
