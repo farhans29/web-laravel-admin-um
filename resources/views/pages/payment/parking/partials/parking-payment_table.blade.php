@@ -37,6 +37,11 @@
                     <div class="text-sm text-gray-500">
                         {{ $trx->transaction_date->format('Y-m-d') }}
                     </div>
+                    @if($trx->transaction && $trx->transaction->check_in)
+                        <div class="text-xs text-blue-500 dark:text-blue-400 mt-0.5">
+                            CI: {{ \Carbon\Carbon::parse($trx->transaction->check_in)->format('Y-m-d') }}
+                        </div>
+                    @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-indigo-600 dark:text-indigo-400">{{ $trx->order_id }}</div>

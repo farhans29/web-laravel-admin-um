@@ -18,7 +18,7 @@ class ParkingPaymentController extends Controller
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = ParkingFeeTransaction::with(['property', 'parking', 'images', 'verifiedBy', 'createdBy'])
+        $query = ParkingFeeTransaction::with(['property', 'parking', 'images', 'verifiedBy', 'createdBy', 'transaction'])
             ->orderBy('created_at', 'desc');
 
         $user = Auth::user();
@@ -65,7 +65,7 @@ class ParkingPaymentController extends Controller
     {
         $perPage = $request->input('per_page', 8);
 
-        $query = ParkingFeeTransaction::with(['property', 'parking', 'images', 'verifiedBy', 'createdBy'])
+        $query = ParkingFeeTransaction::with(['property', 'parking', 'images', 'verifiedBy', 'createdBy', 'transaction'])
             ->orderBy('created_at', 'desc');
 
         $user = Auth::user();
