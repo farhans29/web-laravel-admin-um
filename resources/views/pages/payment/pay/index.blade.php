@@ -737,9 +737,9 @@
 
                 // Set max to current check-in date (backdate from current date)
                 // Check-out can be freely selected without restriction
-                if (checkIn) {
-                    checkInInput.max = checkIn;
-                }
+                // if (checkIn) {
+                //     checkInInput.max = checkIn;
+                // }
 
                 // Show modal
                 modal.classList.remove('hidden');

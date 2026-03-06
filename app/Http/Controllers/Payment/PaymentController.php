@@ -446,14 +446,14 @@ class PaymentController extends Controller
                 'check_in' => [
                     'required',
                     'date',
-                    'before_or_equal:' . $currentCheckIn->format('Y-m-d H:i:s'),
+                    // 'before_or_equal:' . $currentCheckIn->format('Y-m-d H:i:s'),
                 ],
             ];
 
             $validationMessages = [
                 'check_in.required' => 'Tanggal check-in wajib diisi',
                 'check_in.date' => 'Format tanggal check-in tidak valid',
-                'check_in.before_or_equal' => 'Tanggal check-in harus sebelum atau sama dengan tanggal check-in saat ini (' . $currentCheckIn->format('d M Y H:i') . ')',
+                // 'check_in.before_or_equal' => 'Tanggal check-in harus sebelum atau sama dengan tanggal check-in saat ini (' . $currentCheckIn->format('d M Y H:i') . ')',
                 'check_out.date' => 'Format tanggal check-out tidak valid',
                 'check_out.after' => 'Tanggal check-out harus setelah tanggal check-in',
             ];
