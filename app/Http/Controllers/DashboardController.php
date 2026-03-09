@@ -597,19 +597,25 @@ class DashboardController extends Controller
         return $successRate;
     }
 
-    private function getPaymentMethodBreakdown($propertyId = null)
+    private function getPaymentMethodBreakdown($propertyId = null, $period = 'monthly')
     {
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
-
         // Get payment data grouped by payment method
-        $paymentData = Payment::join('t_transactions', 't_payment.order_id', '=', 't_transactions.order_id')
+        $query = Payment::join('t_transactions', 't_payment.order_id', '=', 't_transactions.order_id')
             ->where('t_transactions.transaction_status', 'paid')
-            ->whereYear('t_transactions.paid_at', $currentYear)
-            ->whereMonth('t_transactions.paid_at', $currentMonth)
             ->when($propertyId, function ($q) use ($propertyId) {
                 $q->where('t_transactions.property_id', $propertyId);
-            })
+            });
+
+        if ($period === 'daily') {
+            $query->whereDate('t_transactions.paid_at', now()->toDateString());
+        } elseif ($period === 'yearly') {
+            $query->whereYear('t_transactions.paid_at', now()->year);
+        } else {
+            $query->whereYear('t_transactions.paid_at', now()->year)
+                  ->whereMonth('t_transactions.paid_at', now()->month);
+        }
+
+        $paymentData = $query
             ->select(
                 't_payment.payment_status as method',
                 DB::raw('COUNT(*) as count'),
@@ -1068,7 +1074,22 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function getPropertyRevenue($propertyId = null)
+    public function getPaymentMethods(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user->role || !$user->role->hasWidgetAccess('finance_payment_methods')) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $propertyId = ($user->isSite() && $user->property_id) ? $user->property_id : null;
+        $period = $request->input('period', 'monthly');
+        $breakdown = $this->getPaymentMethodBreakdown($propertyId, $period);
+
+        return response()->json(['success' => true, 'data' => $breakdown]);
+    }
+
+    public function getPropertyRevenue(Request $request, $propertyId = null)
     {
         $user = Auth::user();
 
@@ -1085,18 +1106,20 @@ class DashboardController extends Controller
             $propertyId = $user->property_id;
         }
 
+        $period = $request->input('period', 'monthly');
+
         try {
             if ($propertyId) {
                 // Get single property revenue
                 $property = Property::findOrFail($propertyId);
-                $data = $this->getPropertyRevenueData($propertyId, $property);
+                $data = $this->getPropertyRevenueData($propertyId, $property, $period);
             } else {
                 // Get all properties revenue (HO users only)
                 $properties = Property::where('status', 1)->get();
                 $data = [];
 
                 foreach ($properties as $property) {
-                    $data[] = $this->getPropertyRevenueData($property->idrec, $property);
+                    $data[] = $this->getPropertyRevenueData($property->idrec, $property, $period);
                 }
             }
 
@@ -1112,38 +1135,27 @@ class DashboardController extends Controller
         }
     }
 
-    private function getPropertyRevenueData($propertyId, $property)
+    private function getPropertyRevenueData($propertyId, $property, $period = 'monthly')
     {
-        $today = now()->toDateString();
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
+        $now = now();
+        $base = Transaction::where('property_id', $propertyId)->where('transaction_status', 'paid');
 
-        // Today's revenue
-        $todayRevenue = Transaction::where('property_id', $propertyId)
-            ->where('transaction_status', 'paid')
-            ->whereDate('paid_at', $today)
-            ->sum('grandtotal_price') ?? 0;
-
-        // Monthly revenue
-        $monthlyRevenue = Transaction::where('property_id', $propertyId)
-            ->where('transaction_status', 'paid')
-            ->whereYear('paid_at', $currentYear)
-            ->whereMonth('paid_at', $currentMonth)
-            ->sum('grandtotal_price') ?? 0;
-
-        // Total bookings this month (menggunakan paid_at agar konsisten dengan revenue)
-        $totalBookings = Transaction::where('property_id', $propertyId)
-            ->where('transaction_status', 'paid')
-            ->whereYear('paid_at', $currentYear)
-            ->whereMonth('paid_at', $currentMonth)
-            ->count();
+        if ($period === 'daily') {
+            $revenue  = (clone $base)->whereDate('paid_at', $now->toDateString())->sum('grandtotal_price') ?? 0;
+            $bookings = (clone $base)->whereDate('paid_at', $now->toDateString())->count();
+        } elseif ($period === 'yearly') {
+            $revenue  = (clone $base)->whereYear('paid_at', $now->year)->sum('grandtotal_price') ?? 0;
+            $bookings = (clone $base)->whereYear('paid_at', $now->year)->count();
+        } else {
+            $revenue  = (clone $base)->whereYear('paid_at', $now->year)->whereMonth('paid_at', $now->month)->sum('grandtotal_price') ?? 0;
+            $bookings = (clone $base)->whereYear('paid_at', $now->year)->whereMonth('paid_at', $now->month)->count();
+        }
 
         return [
-            'property_id' => $propertyId,
+            'property_id'   => $propertyId,
             'property_name' => $property->name ?? 'N/A',
-            'today_revenue' => $todayRevenue,
-            'monthly_revenue' => $monthlyRevenue,
-            'total_bookings' => $totalBookings,
+            'revenue'       => $revenue,
+            'total_bookings' => $bookings,
         ];
     }
 

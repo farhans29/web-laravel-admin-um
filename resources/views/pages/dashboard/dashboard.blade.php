@@ -361,6 +361,13 @@
                 </div>
 
                 <!-- Payment Details Section -->
+                <div class="flex justify-end mb-3">
+                    <div class="flex items-center gap-1 bg-white rounded-lg p-1 shadow-sm border border-gray-200">
+                        <button data-period="daily" class="shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-gray-500 hover:text-gray-700">Harian</button>
+                        <button data-period="monthly" class="shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-indigo-600 text-white shadow-sm">Bulanan</button>
+                        <button data-period="yearly" class="shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-gray-500 hover:text-gray-700">Tahunan</button>
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-start">
                     @if ($canViewWidget('finance_payment_methods'))
                         <!-- Payment Method Breakdown -->
@@ -376,90 +383,19 @@
                                         <h3 class="font-semibold text-gray-800 text-lg">
                                             {{ __('ui.payment_methods_title') }}</h3>
                                     </div>
-                                    <span class="text-xs text-gray-500">{{ __('ui.this_month') }}</span>
+                                    <span class="text-xs text-gray-500" id="pmPeriodLabel">Bulanan</span>
                                 </div>
                             </div>
                             <div class="p-6">
-                                <!-- Payment Method Items -->
-                                @php
-                                    $methodColors = [
-                                        'Tunai' => [
-                                            'bg' => 'green',
-                                            'icon' =>
-                                                'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
-                                        ],
-                                        'Transfer Bank' => [
-                                            'bg' => 'blue',
-                                            'icon' => 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
-                                        ],
-                                        'Kartu Kredit' => [
-                                            'bg' => 'purple',
-                                            'icon' =>
-                                                'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
-                                        ],
-                                        'E-Wallet' => [
-                                            'bg' => 'orange',
-                                            'icon' =>
-                                                'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
-                                        ],
-                                        'Kartu Debit' => [
-                                            'bg' => 'indigo',
-                                            'icon' =>
-                                                'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
-                                        ],
-                                    ];
-                                @endphp
-
-                                <div class="space-y-4">
-                                    @forelse(($financeStats['payment_methods'] ?? []) as $method)
-                                        @php
-                                            $color = $methodColors[$method['method']]['bg'] ?? 'gray';
-                                            $icon =
-                                                $methodColors[$method['method']]['icon'] ??
-                                                'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
-                                        @endphp
-                                        <div
-                                            class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                            <div class="flex items-center space-x-3">
-                                                <div class="bg-{{ $color }}-100 p-2 rounded-lg">
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="h-6 w-6 text-{{ $color }}-600" fill="none"
-                                                        viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="{{ $icon }}" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p class="font-semibold text-gray-800">{{ $method['method'] }}</p>
-                                                    <p class="text-sm text-gray-500">{{ $method['count'] }}
-                                                        {{ __('ui.transactions') }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="font-bold text-gray-800">Rp
-                                                    {{ number_format($method['amount'], 0, ',', '.') }}</p>
-                                                <p class="text-sm text-gray-500">{{ $method['percentage'] }}%</p>
-                                            </div>
-                                        </div>
-                                    @empty
-                                        <div class="text-center py-8 text-gray-500">
-                                            <p>{{ __('ui.no_payment_data_this_month') }}</p>
-                                        </div>
-                                    @endforelse
-                                </div>
-
-                                <!-- Total -->
-                                @if (!empty($financeStats['payment_methods']))
-                                    <div class="mt-6 pt-4 border-t-2 border-gray-200">
-                                        <div class="flex items-center justify-between">
-                                            <p class="text-lg font-bold text-gray-800">{{ __('ui.total_income') }}</p>
-                                            <p class="text-2xl font-bold text-blue-600">Rp
-                                                {{ number_format($financeStats['payment_methods_total'] ?? 0, 0, ',', '.') }}
-                                            </p>
+                                <div id="paymentMethodsContent">
+                                    <div class="text-center py-8">
+                                        <div class="animate-pulse flex flex-col items-center">
+                                            <div class="h-4 bg-gray-200 rounded w-full mb-3"></div>
+                                            <div class="h-4 bg-gray-200 rounded w-full mb-3"></div>
+                                            <div class="h-4 bg-gray-200 rounded w-full"></div>
                                         </div>
                                     </div>
-                                @endif
+                                </div>
                             </div>
                         </div>
                     @endif
@@ -1734,42 +1670,135 @@
                     });
                 }
 
+                // ── Shared period filter ──────────────────────────────────────
+                let sharedPeriod = 'monthly';
+                const periodLabels = { daily: 'Harian', monthly: 'Bulanan', yearly: 'Tahunan' };
+
+                document.querySelectorAll('.shared-period-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        sharedPeriod = this.dataset.period;
+                        document.querySelectorAll('.shared-period-btn').forEach(b => {
+                            b.className = 'shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-gray-500 hover:text-gray-700';
+                        });
+                        this.className = 'shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-indigo-600 text-white shadow-sm';
+                        const pmLabel = document.getElementById('pmPeriodLabel');
+                        if (pmLabel) pmLabel.textContent = periodLabels[sharedPeriod];
+                        loadPaymentMethods(sharedPeriod);
+                        const sel = document.getElementById('propertySelect');
+                        loadPropertyRevenue(sel ? sel.value : '');
+                    });
+                });
+
+                // ── Payment Methods ──────────────────────────────────────────
+                function loadPaymentMethods(period) {
+                    const contentDiv = document.getElementById('paymentMethodsContent');
+                    if (!contentDiv) return;
+
+                    contentDiv.innerHTML = `
+                        <div class="animate-pulse space-y-3">
+                            <div class="h-12 bg-gray-100 rounded-lg"></div>
+                            <div class="h-12 bg-gray-100 rounded-lg"></div>
+                            <div class="h-12 bg-gray-100 rounded-lg"></div>
+                        </div>`;
+
+                    fetch(`/dashboard/payment-methods?period=${period}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) renderPaymentMethods(data.data);
+                            else contentDiv.innerHTML = `<div class="text-center py-8 text-gray-500"><p>{{ __('ui.failed_to_load_data') }}</p></div>`;
+                        })
+                        .catch(() => {
+                            contentDiv.innerHTML = `<div class="text-center py-8 text-gray-500"><p>{{ __('ui.error_loading_data') }}</p></div>`;
+                        });
+                }
+
+                function renderPaymentMethods(data) {
+                    const contentDiv = document.getElementById('paymentMethodsContent');
+                    if (!contentDiv) return;
+
+                    const methodConfig = {
+                        'Tunai':        { color: 'green',  icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z' },
+                        'Transfer Bank':{ color: 'blue',   icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4' },
+                        'Kartu Kredit': { color: 'purple', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+                        'E-Wallet':     { color: 'orange', icon: 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z' },
+                        'Kartu Debit':  { color: 'indigo', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+                    };
+                    const defaultIcon = 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+
+                    const breakdown = data.breakdown ?? [];
+                    const total     = data.total ?? 0;
+
+                    if (breakdown.length === 0) {
+                        contentDiv.innerHTML = `<div class="text-center py-8 text-gray-500"><p>{{ __('ui.no_payment_data_this_month') }}</p></div>`;
+                        return;
+                    }
+
+                    let html = '<div class="space-y-4">';
+                    breakdown.forEach(method => {
+                        const cfg   = methodConfig[method.method] ?? { color: 'gray', icon: defaultIcon };
+                        const c     = cfg.color;
+                        html += `
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="bg-${c}-100 p-2 rounded-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-${c}-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${cfg.icon}" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">${method.method}</p>
+                                        <p class="text-sm text-gray-500">${method.count} {{ __('ui.transactions') }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-800">Rp ${new Intl.NumberFormat('id-ID').format(method.amount)}</p>
+                                    <p class="text-sm text-gray-500">${method.percentage}%</p>
+                                </div>
+                            </div>`;
+                    });
+                    html += '</div>';
+                    html += `
+                        <div class="mt-6 pt-4 border-t-2 border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <p class="text-lg font-bold text-gray-800">{{ __('ui.total_income') }}</p>
+                                <p class="text-2xl font-bold text-blue-600">Rp ${new Intl.NumberFormat('id-ID').format(total)}</p>
+                            </div>
+                        </div>`;
+                    contentDiv.innerHTML = html;
+                }
+
+                // Load initial
+                loadPaymentMethods(sharedPeriod);
+
+                // ── Revenue Per Property ──────────────────────────────────────
                 // Property Revenue Selector
                 const propertySelect = document.getElementById('propertySelect');
                 if (propertySelect) {
-                    // Load initial data
                     loadPropertyRevenue(propertySelect.value);
-
-                    // Handle property change
                     propertySelect.addEventListener('change', function() {
                         loadPropertyRevenue(this.value);
                     });
                 } else {
-                    // For site users, load their property
                     const userPropertyId = '{{ Auth::user()->property_id ?? '' }}';
-                    if (userPropertyId) {
-                        loadPropertyRevenue(userPropertyId);
-                    }
+                    if (userPropertyId) loadPropertyRevenue(userPropertyId);
                 }
 
                 function loadPropertyRevenue(propertyId) {
                     const contentDiv = document.getElementById('propertyRevenueContent');
                     if (!contentDiv) return;
 
-                    // Show loading
                     contentDiv.innerHTML = `
-                                <div class="text-center py-8">
-                                    <div class="animate-pulse flex flex-col items-center">
-                                        <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                                        <div class="h-3 bg-gray-200 rounded w-1/3"></div>
-                                    </div>
-                                </div>
-                            `;
+                        <div class="text-center py-8">
+                            <div class="animate-pulse flex flex-col items-center">
+                                <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                                <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+                            </div>
+                        </div>`;
 
-                    // Fetch data
-                    const url = propertyId ?
-                        `/dashboard/property-revenue/${propertyId}` :
-                        '/dashboard/property-revenue';
+                    const base = propertyId
+                        ? `/dashboard/property-revenue/${propertyId}`
+                        : '/dashboard/property-revenue';
+                    const url = `${base}?period=${sharedPeriod}`;
 
                     fetch(url)
                         .then(response => response.json())
@@ -1777,20 +1806,12 @@
                             if (data.success) {
                                 renderPropertyRevenue(data.data);
                             } else {
-                                contentDiv.innerHTML = `
-                                            <div class="text-center py-8 text-gray-500">
-                                                <p>{{ __('ui.failed_to_load_data') }}</p>
-                                            </div>
-                                        `;
+                                contentDiv.innerHTML = `<div class="text-center py-8 text-gray-500"><p>{{ __('ui.failed_to_load_data') }}</p></div>`;
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            contentDiv.innerHTML = `
-                                        <div class="text-center py-8 text-gray-500">
-                                            <p>{{ __('ui.error_loading_data') }}</p>
-                                        </div>
-                                    `;
+                            contentDiv.innerHTML = `<div class="text-center py-8 text-gray-500"><p>{{ __('ui.error_loading_data') }}</p></div>`;
                         });
                 }
 
@@ -1867,23 +1888,19 @@
                 }
 
                 function renderPropertyCard(property) {
-                    const propertyName = property.property_name || property.name || 'N/A';
-                    const todayRevenue = property.today_revenue || 0;
-                    const monthlyRevenue = property.monthly_revenue || 0;
+                    const propertyName  = property.property_name || property.name || 'N/A';
+                    const revenue       = property.revenue || 0;
                     const totalBookings = property.total_bookings || 0;
+
+                    const periodLabel = periodLabels[sharedPeriod] || 'Bulanan';
 
                     return `
                                 <div class="mb-6 pb-6 border-b border-gray-200 last:border-0">
                                     <h4 class="font-semibold text-gray-800 mb-4">${propertyName}</h4>
-
-                                    <div class="grid grid-cols-3 gap-4 mb-4">
-                                        <div class="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                                            <p class="text-xs text-emerald-600 font-medium mb-1">{{ __('ui.today') }}</p>
-                                            <p class="text-lg font-bold text-emerald-700">Rp ${formatNumber(todayRevenue)}</p>
-                                        </div>
-                                        <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                            <p class="text-xs text-blue-600 font-medium mb-1">{{ __('ui.this_month') }}</p>
-                                            <p class="text-lg font-bold text-blue-700">Rp ${formatNumber(monthlyRevenue)}</p>
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div class="text-center p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+                                            <p class="text-xs text-indigo-600 font-medium mb-1">Pendapatan ${periodLabel}</p>
+                                            <p class="text-lg font-bold text-indigo-700">Rp ${formatNumber(revenue)}</p>
                                         </div>
                                         <div class="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
                                             <p class="text-xs text-purple-600 font-medium mb-1">{{ __('ui.total_bookings') }}</p>
