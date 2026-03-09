@@ -1008,7 +1008,7 @@
             });
         }
 
-        function applyFilters() {
+        function applyFilters(page = 1) {
             const search = document.getElementById('searchInput')?.value || '';
             const status = document.getElementById('statusFilter')?.value || '';
             const parkingType = document.getElementById('parkingTypeFilter')?.value || '';
@@ -1022,31 +1022,56 @@
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ search, status, parking_type: parkingType, per_page: perPage })
+                body: JSON.stringify({ search, status, parking_type: parkingType, per_page: perPage, show_deleted: showDeleted, page })
             })
             .then(r => r.json())
             .then(data => {
                 document.getElementById('tableContainer').innerHTML = data.html;
                 const pag = document.getElementById('paginationContainer');
-                if (pag) pag.innerHTML = data.pagination || '';
+                if (pag) {
+                    pag.innerHTML = data.pagination || '';
+                    // Intercept pagination link clicks to keep filters
+                    pag.querySelectorAll('a[href]').forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const url = new URL(this.href);
+                            const p = url.searchParams.get('page') || 1;
+                            applyFilters(parseInt(p));
+                        });
+                    });
+                }
 
                 const urlParams = new URLSearchParams();
                 if (search) urlParams.append('search', search);
                 if (status) urlParams.append('status', status);
                 if (parkingType) urlParams.append('parking_type', parkingType);
                 if (perPage) urlParams.append('per_page', perPage);
-                
+                if (page > 1) urlParams.append('page', page);
+
                 window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
             });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             let t;
-            document.getElementById('searchInput')?.addEventListener('input', () => { clearTimeout(t); t = setTimeout(applyFilters, 500); });
-            document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
-            document.getElementById('parkingTypeFilter')?.addEventListener('change', applyFilters);
-            document.getElementById('perPageSelect')?.addEventListener('change', applyFilters);
-            document.getElementById('showDeletedFilter')?.addEventListener('change', applyFilters);
+            document.getElementById('searchInput')?.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => applyFilters(1), 500); });
+            document.getElementById('statusFilter')?.addEventListener('change', () => applyFilters(1));
+            document.getElementById('parkingTypeFilter')?.addEventListener('change', () => applyFilters(1));
+            document.getElementById('perPageSelect')?.addEventListener('change', () => applyFilters(1));
+            document.getElementById('showDeletedFilter')?.addEventListener('change', () => applyFilters(1));
+
+            // Intercept pagination links on initial page load
+            const pag = document.getElementById('paginationContainer');
+            if (pag) {
+                pag.querySelectorAll('a[href]').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const url = new URL(this.href);
+                        const p = url.searchParams.get('page') || 1;
+                        applyFilters(parseInt(p));
+                    });
+                });
+            }
         });
 
         document.addEventListener('alpine:init', () => {
