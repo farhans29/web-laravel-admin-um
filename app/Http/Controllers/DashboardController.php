@@ -1131,11 +1131,11 @@ class DashboardController extends Controller
             ->whereMonth('paid_at', $currentMonth)
             ->sum('grandtotal_price') ?? 0;
 
-        // Total bookings this month
+        // Total bookings this month (menggunakan paid_at agar konsisten dengan revenue)
         $totalBookings = Transaction::where('property_id', $propertyId)
             ->where('transaction_status', 'paid')
-            ->whereYear('transaction_date', $currentYear)
-            ->whereMonth('transaction_date', $currentMonth)
+            ->whereYear('paid_at', $currentYear)
+            ->whereMonth('paid_at', $currentMonth)
             ->count();
 
         return [

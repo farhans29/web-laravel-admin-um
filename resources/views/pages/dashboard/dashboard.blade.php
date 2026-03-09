@@ -361,7 +361,7 @@
                 </div>
 
                 <!-- Payment Details Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-start">
                     @if ($canViewWidget('finance_payment_methods'))
                         <!-- Payment Method Breakdown -->
                         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -1807,18 +1807,22 @@
                         if (data.length > 1) {
                             // Add "Lihat Selengkapnya" dropdown button
                             html += `
-                                        <div class="mt-4">
-                                            <button
-                                                onclick="togglePropertyDropdown()"
-                                                id="propertyDropdownBtn"
-                                                class="w-full flex items-center justify-between px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition-colors duration-200 border border-indigo-200">
-                                                <span class="text-sm font-medium">${'{{ __('ui.show_more_properties') }}'.replace(':count', data.length - 1)}</span>
-                                                <svg id="dropdownIcon" class="w-5 h-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                                </svg>
-                                            </button>
-                                            <div id="propertyDropdownContent" class="hidden mt-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg bg-white shadow-sm">
-                                                <div class="p-4">
+                                        <div class="mt-6">
+                                            <div class="relative flex items-center gap-3 mb-1">
+                                                <div class="flex-1 h-px bg-gradient-to-r from-transparent via-indigo-200 to-indigo-200"></div>
+                                                <button
+                                                    onclick="togglePropertyDropdown()"
+                                                    id="propertyDropdownBtn"
+                                                    class="group flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold text-indigo-600 bg-white border border-indigo-200 shadow-sm hover:shadow-md hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-200 whitespace-nowrap">
+                                                    <span id="dropdownBtnText">${'{{ __('ui.show_more_properties') }}'.replace(':count', data.length - 1)}</span>
+                                                    <svg id="dropdownIcon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </button>
+                                                <div class="flex-1 h-px bg-gradient-to-l from-transparent via-indigo-200 to-indigo-200"></div>
+                                            </div>
+                                            <div id="propertyDropdownContent" style="max-height: 0; opacity: 0; overflow-y: auto; transition: max-height 0.35s ease, opacity 0.3s ease;">
+                                                <div class="pt-4">
                                     `;
 
                             // Add remaining properties to dropdown
@@ -1849,12 +1853,15 @@
                 window.togglePropertyDropdown = function() {
                     const dropdown = document.getElementById('propertyDropdownContent');
                     const icon = document.getElementById('dropdownIcon');
+                    const isCollapsed = !dropdown.style.maxHeight || dropdown.style.maxHeight === '0px';
 
-                    if (dropdown.classList.contains('hidden')) {
-                        dropdown.classList.remove('hidden');
+                    if (isCollapsed) {
+                        dropdown.style.maxHeight = '420px';
+                        dropdown.style.opacity = '1';
                         icon.style.transform = 'rotate(180deg)';
                     } else {
-                        dropdown.classList.add('hidden');
+                        dropdown.style.maxHeight = '0';
+                        dropdown.style.opacity = '0';
                         icon.style.transform = 'rotate(0deg)';
                     }
                 }
