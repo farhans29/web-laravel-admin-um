@@ -257,8 +257,9 @@ class ParkingPaymentController extends Controller
                 }
             }
 
-            // Check if this order already has a parking transaction
+            // Check if this order already has a parking transaction for the same vehicle plate
             $existingActiveParking = ParkingFeeTransaction::where('order_id', $request->order_id)
+                ->where('vehicle_plate', strtoupper($request->vehicle_plate))
                 ->where('transaction_status', 'paid')
                 ->orderBy('created_at', 'desc')
                 ->first();
@@ -276,9 +277,8 @@ class ParkingPaymentController extends Controller
                 if ($expiryDate->isFuture()) {
                     $typeLabel = ucfirst($existingActiveParking->parking_type);
                     throw new \Exception(
-                        "Order {$request->order_id} sudah memiliki parkir aktif ({$typeLabel}) " .
-                        "hingga {$expiryDate->format('d M Y')}. " .
-                        "Untuk mengubah tipe kendaraan, silakan edit di halaman Parking Management."
+                        "Kendaraan {$existingActiveParking->vehicle_plate} pada order {$request->order_id} sudah memiliki parkir aktif ({$typeLabel}) " .
+                        "hingga {$expiryDate->format('d M Y')}."
                     );
                 }
 
