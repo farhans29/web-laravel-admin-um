@@ -221,10 +221,13 @@ class DepositPaymentController extends Controller
             $romanMonths = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
             $romanMonth = $romanMonths[$month - 1];
 
-            // Get sequential number for this month/year
-            $lastTransaction = DepositFeeTransaction::whereYear('transaction_date', $year)
+            // Get sequential number for this month/year/property
+            $lastTransaction = DepositFeeTransaction::whereHas('transaction', function ($q) use ($bookingTransaction) {
+                    $q->where('property_id', $bookingTransaction->property_id);
+                })
+                ->whereYear('transaction_date', $year)
                 ->whereMonth('transaction_date', $month)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('idrec', 'desc')
                 ->first();
 
             $sequentialNumber = 1;

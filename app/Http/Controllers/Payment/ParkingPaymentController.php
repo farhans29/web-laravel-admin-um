@@ -311,10 +311,11 @@ class ParkingPaymentController extends Controller
             $romanMonths = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
             $romanMonth = $romanMonths[$month - 1];
 
-            // Get sequential number for this month/year
-            $lastTransaction = ParkingFeeTransaction::whereYear('transaction_date', $year)
+            // Get sequential number for this month/year/property
+            $lastTransaction = ParkingFeeTransaction::where('property_id', $bookingTransaction->property_id)
+                ->whereYear('transaction_date', $year)
                 ->whereMonth('transaction_date', $month)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('idrec', 'desc')
                 ->first();
 
             $sequentialNumber = 1;

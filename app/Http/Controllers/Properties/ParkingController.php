@@ -100,9 +100,10 @@ class ParkingController extends Controller
             $query->where('parking_type', $parkingType);
         }
 
+        $page = (int) $request->input('page', 1);
         $parkings = $perPage === 'all'
             ? $query->get()
-            : $query->paginate((int) $perPage)->appends($request->all());
+            : $query->paginate((int) $perPage, ['*'], 'page', $page)->appends($request->except('page'));
 
         return response()->json([
             'html' => view('pages.Properties.Parking.partials.parking_table', compact('parkings'))->render(),
