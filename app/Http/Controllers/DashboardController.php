@@ -610,6 +610,8 @@ class DashboardController extends Controller
             $query->whereDate('t_transactions.paid_at', now()->toDateString());
         } elseif ($period === 'yearly') {
             $query->whereYear('t_transactions.paid_at', now()->year);
+        } elseif ($period === 'all') {
+            // no date filter
         } else {
             $query->whereYear('t_transactions.paid_at', now()->year)
                   ->whereMonth('t_transactions.paid_at', now()->month);
@@ -1083,7 +1085,7 @@ class DashboardController extends Controller
         }
 
         $propertyId = ($user->isSite() && $user->property_id) ? $user->property_id : null;
-        $period = $request->input('period', 'monthly');
+        $period = $request->input('period', 'all');
         $breakdown = $this->getPaymentMethodBreakdown($propertyId, $period);
 
         return response()->json(['success' => true, 'data' => $breakdown]);
@@ -1106,7 +1108,7 @@ class DashboardController extends Controller
             $propertyId = $user->property_id;
         }
 
-        $period = $request->input('period', 'monthly');
+        $period = $request->input('period', 'all');
 
         try {
             if ($propertyId) {
@@ -1146,6 +1148,9 @@ class DashboardController extends Controller
         } elseif ($period === 'yearly') {
             $revenue  = (clone $base)->whereYear('paid_at', $now->year)->sum('grandtotal_price') ?? 0;
             $bookings = (clone $base)->whereYear('paid_at', $now->year)->count();
+        } elseif ($period === 'all') {
+            $revenue  = (clone $base)->sum('grandtotal_price') ?? 0;
+            $bookings = (clone $base)->count();
         } else {
             $revenue  = (clone $base)->whereYear('paid_at', $now->year)->whereMonth('paid_at', $now->month)->sum('grandtotal_price') ?? 0;
             $bookings = (clone $base)->whereYear('paid_at', $now->year)->whereMonth('paid_at', $now->month)->count();

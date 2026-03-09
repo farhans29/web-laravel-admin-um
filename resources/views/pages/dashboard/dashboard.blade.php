@@ -364,8 +364,9 @@
                 <div class="flex justify-end mb-3">
                     <div class="flex items-center gap-1 bg-white rounded-lg p-1 shadow-sm border border-gray-200">
                         <button data-period="daily" class="shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-gray-500 hover:text-gray-700">Harian</button>
-                        <button data-period="monthly" class="shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-indigo-600 text-white shadow-sm">Bulanan</button>
+                        <button data-period="monthly" class="shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-gray-500 hover:text-gray-700">Bulanan</button>
                         <button data-period="yearly" class="shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 text-gray-500 hover:text-gray-700">Tahunan</button>
+                        <button data-period="all" class="shared-period-btn px-4 py-1.5 text-xs font-medium rounded-md transition-all duration-200 bg-indigo-600 text-white shadow-sm">Semua</button>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-start">
@@ -1671,8 +1672,8 @@
                 }
 
                 // ── Shared period filter ──────────────────────────────────────
-                let sharedPeriod = 'monthly';
-                const periodLabels = { daily: 'Harian', monthly: 'Bulanan', yearly: 'Tahunan' };
+                let sharedPeriod = 'all';
+                const periodLabels = { daily: 'Harian', monthly: 'Bulanan', yearly: 'Tahunan', all: 'Semua' };
 
                 document.querySelectorAll('.shared-period-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
