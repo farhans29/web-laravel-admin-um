@@ -39,7 +39,7 @@
                     </div>
                     @if($trx->transaction && $trx->transaction->check_in)
                         <div class="text-xs text-blue-500 dark:text-blue-400 mt-0.5">
-                            CI: {{ \Carbon\Carbon::parse($trx->transaction->check_in)->format('Y-m-d') }}
+                            Checkin date: {{ \Carbon\Carbon::parse($trx->transaction->check_in)->format('Y-m-d') }}
                         </div>
                     @endif
                 </td>
