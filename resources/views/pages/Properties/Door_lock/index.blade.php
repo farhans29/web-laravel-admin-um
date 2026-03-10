@@ -3,7 +3,7 @@
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-                Manajemen Door Lock
+                {{ __('ui.door_lock_management') }}
             </h1>
             <div class="mt-4 md:mt-0">
                 <button type="button" id="btnTambahDoorLock"
@@ -13,7 +13,7 @@
                             d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                             clip-rule="evenodd" />
                     </svg>
-                    Tambah Door Lock
+                    {{ __('ui.add_door_lock') }}
                 </button>
             </div>
         </div>
@@ -35,11 +35,11 @@
                                 </div>
                                 <input type="text" name="search" id="searchInput" value="{{ request('search') }}"
                                     class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    placeholder="Cari lock alias, lock ID, kamar...">
+                                    placeholder="{{ __('ui.search_door_lock_placeholder') }}">
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <label for="perPageSelect" class="text-sm text-gray-600">Tampilkan:</label>
+                            <label for="perPageSelect" class="text-sm text-gray-600">{{ __('ui.show') }}:</label>
                             <select name="per_page" id="perPageSelect"
                                 class="border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="8" {{ request('per_page', 8) == 8 ? 'selected' : '' }}>8</option>
@@ -72,7 +72,7 @@
             <div class="bg-white w-full max-w-lg rounded-xl shadow-lg border border-gray-100 relative z-10">
                 <!-- Header -->
                 <div class="px-5 py-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-b flex items-center justify-between rounded-t-xl">
-                    <h3 class="text-sm font-semibold text-gray-800">Tambah Door Lock</h3>
+                    <h3 class="text-sm font-semibold text-gray-800">{{ __('ui.add_door_lock') }}</h3>
                     <button type="button" id="closeModalAddDoorLock" class="text-gray-400 hover:text-gray-600 transition">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -86,10 +86,10 @@
                 <div class="px-5 py-4 space-y-4">
                     <!-- Step 1: Pilih Kamar & Input Lock ID -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Kamar <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.select_room') }} <span class="text-red-500">*</span></label>
                         <select id="addDoorLockRoom"
                             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">-- Pilih Kamar --</option>
+                            <option value="">{{ __('ui.select_room_placeholder') }}</option>
                             @foreach($rooms as $room)
                                 <option value="{{ $room->idrec }}">
                                     [{{ $room->no }}] {{ $room->name }} - {{ $room->property_name }}
@@ -99,13 +99,13 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Lock ID <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.lock_id') }} <span class="text-red-500">*</span></label>
                         <div class="flex gap-2">
-                            <input type="number" id="addDoorLockId" placeholder="Contoh: 19572139"
+                            <input type="number" id="addDoorLockId" placeholder="{{ __('ui.lock_id_placeholder') }}"
                                 class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono" />
                             <button type="button" id="btnGetLockData"
                                 class="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-800 text-white rounded-md shadow transition whitespace-nowrap">
-                                <span id="btnGetLockDataText">Get Data</span>
+                                <span id="btnGetLockDataText">{{ __('ui.get_data') }}</span>
                                 <span id="btnGetLockDataLoading" class="hidden">
                                     <svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -119,41 +119,41 @@
 
                     <!-- Step 2: Hasil dari API (hidden until fetched) -->
                     <div id="lockDetailsSection" class="hidden space-y-3 border border-blue-100 bg-blue-50 rounded-lg p-4">
-                        <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide">Detail Lock dari API</p>
+                        <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide">{{ __('ui.lock_detail_from_api') }}</p>
 
                         <div class="grid grid-cols-2 gap-3 text-sm">
                             <div>
-                                <span class="text-xs text-gray-500">Lock Alias</span>
+                                <span class="text-xs text-gray-500">{{ __('ui.lock_alias') }}</span>
                                 <p id="detailLockAlias" class="font-medium text-gray-800">-</p>
                             </div>
                             <div>
-                                <span class="text-xs text-gray-500">Model</span>
+                                <span class="text-xs text-gray-500">{{ __('ui.model') }}</span>
                                 <p id="detailModelNum" class="font-medium text-gray-800">-</p>
                             </div>
                             <div>
-                                <span class="text-xs text-gray-500">MAC Address</span>
+                                <span class="text-xs text-gray-500">{{ __('ui.mac_address') }}</span>
                                 <p id="detailLockMac" class="font-mono text-xs text-gray-800">-</p>
                             </div>
                             <div>
-                                <span class="text-xs text-gray-500">Firmware</span>
+                                <span class="text-xs text-gray-500">{{ __('ui.firmware') }}</span>
                                 <p id="detailFirmware" class="font-medium text-gray-800">-</p>
                             </div>
                             <div>
-                                <span class="text-xs text-gray-500">Baterai</span>
+                                <span class="text-xs text-gray-500">{{ __('ui.battery') }}</span>
                                 <p id="detailBattery" class="font-medium text-gray-800">-</p>
                             </div>
                             <div>
-                                <span class="text-xs text-gray-500">Gateway</span>
+                                <span class="text-xs text-gray-500">{{ __('ui.gateway') }}</span>
                                 <p id="detailGateway" class="font-medium text-gray-800">-</p>
                             </div>
                         </div>
 
                         <!-- Lock Alias (editable) -->
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Nama / Alias (opsional, bisa diedit)</label>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('ui.lock_alias_label') }}</label>
                             <input type="text" id="addLockAlias"
                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Nama mudah dikenali" />
+                                placeholder="{{ __('ui.lock_alias_placeholder') }}" />
                         </div>
                     </div>
 
@@ -175,11 +175,11 @@
                 <div class="px-5 py-4 border-t flex justify-end gap-2">
                     <button type="button" id="cancelAddDoorLock"
                         class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md bg-white hover:bg-gray-50">
-                        Batal
+                        {{ __('ui.cancel') }}
                     </button>
                     <button type="button" id="btnSaveDoorLock" disabled
                         class="px-4 py-1.5 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow disabled:opacity-40 disabled:cursor-not-allowed transition">
-                        Simpan Door Lock
+                        {{ __('ui.save_door_lock') }}
                     </button>
                 </div>
             </div>
@@ -194,7 +194,7 @@
                 <!-- Header -->
                 <div class="px-5 py-4 bg-gradient-to-r from-indigo-100 to-purple-100 border-b flex items-center justify-between rounded-t-xl">
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-800">Tambah Passcode</h3>
+                        <h3 class="text-sm font-semibold text-gray-800">{{ __('ui.add_passcode') }}</h3>
                         <p id="passcodeModalSubtitle" class="text-xs text-gray-500 mt-0.5"></p>
                     </div>
                     <button type="button" id="closeModalAddPasscode" class="text-gray-400 hover:text-gray-600 transition">
@@ -210,19 +210,19 @@
                     <input type="hidden" id="passcodeLockIdrec" />
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Passcode <span class="text-red-500">*</span></label>
-                        <input type="text" id="passcodeName" placeholder="Contoh: Tamu 101"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.passcode_name') }} <span class="text-red-500">*</span></label>
+                        <input type="text" id="passcodeName" placeholder="{{ __('ui.passcode_name_placeholder') }}"
                             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Berlaku Mulai <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.valid_from') }} <span class="text-red-500">*</span></label>
                             <input type="datetime-local" id="passcodeStartDate"
                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Berlaku Hingga <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.valid_until') }} <span class="text-red-500">*</span></label>
                             <input type="datetime-local" id="passcodeEndDate"
                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
                         </div>
@@ -230,7 +230,7 @@
 
                     <!-- Result display -->
                     <div id="passcodeResultSection" class="hidden border border-green-100 bg-green-50 rounded-lg p-4 text-center">
-                        <p class="text-xs text-green-700 font-semibold uppercase tracking-wide mb-1">Passcode Berhasil Dibuat</p>
+                        <p class="text-xs text-green-700 font-semibold uppercase tracking-wide mb-1">{{ __('ui.passcode_created_success') }}</p>
                         <p id="passcodeResultValue" class="text-3xl font-bold font-mono text-green-700 tracking-widest"></p>
                     </div>
                 </div>
@@ -238,14 +238,14 @@
                 <div class="px-5 py-4 border-t flex justify-end gap-2">
                     <button type="button" id="cancelAddPasscode"
                         class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md bg-white hover:bg-gray-50">
-                        Tutup
+                        {{ __('ui.close') }}
                     </button>
                     <button type="button" id="btnGeneratePasscode"
                         class="inline-flex items-center gap-2 px-4 py-1.5 text-sm text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow transition">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
                         </svg>
-                        <span id="btnGeneratePasscodeText">Generate Passcode</span>
+                        <span id="btnGeneratePasscodeText">{{ __('ui.generate_passcode') }}</span>
                     </button>
                 </div>
             </div>
@@ -322,7 +322,7 @@
             // Get Data from API
             document.getElementById('btnGetLockData').addEventListener('click', async function () {
                 const lockId = document.getElementById('addDoorLockId').value.trim();
-                if (!lockId) { showToast('warning', 'Masukkan Lock ID terlebih dahulu'); return; }
+                if (!lockId) { showToast('warning', '{{ __('ui.enter_lock_id_first') }}'); return; }
 
                 document.getElementById('btnGetLockDataText').classList.add('hidden');
                 document.getElementById('btnGetLockDataLoading').classList.remove('hidden');
@@ -342,7 +342,7 @@
                     const json = await res.json();
 
                     if (!res.ok || !json.success) {
-                        showToast('error', json.message || 'Gagal mengambil data lock');
+                        showToast('error', json.message || '{{ __('ui.failed_fetch_lock') }}');
                         return;
                     }
 
@@ -354,7 +354,7 @@
                     document.getElementById('detailLockMac').textContent = fetchedLockData.lock_mac || '-';
                     document.getElementById('detailFirmware').textContent = fetchedLockData.firmware_revision || '-';
                     document.getElementById('detailBattery').textContent = fetchedLockData.battery_level != null ? fetchedLockData.battery_level + '%' : '-';
-                    document.getElementById('detailGateway').textContent = fetchedLockData.has_gateway ? 'Ya' : 'Tidak';
+                    document.getElementById('detailGateway').textContent = fetchedLockData.has_gateway ? '{{ __('ui.gateway_yes') }}' : '{{ __('ui.gateway_no') }}';
                     document.getElementById('addLockAlias').value = fetchedLockData.lock_alias || '';
 
                     // Set hidden fields
@@ -372,11 +372,11 @@
 
                     lockDetailsSection.classList.remove('hidden');
                     btnSave.disabled = false;
-                    showToast('success', 'Data lock berhasil diambil');
+                    showToast('success', '{{ __('ui.lock_data_fetched_success') }}');
 
                 } catch (err) {
                     console.error(err);
-                    showToast('error', 'Terjadi kesalahan saat mengambil data');
+                    showToast('error', '{{ __('ui.door_lock_fetch_error') }}');
                 } finally {
                     document.getElementById('btnGetLockDataText').classList.remove('hidden');
                     document.getElementById('btnGetLockDataLoading').classList.add('hidden');
@@ -387,11 +387,11 @@
             // Save Door Lock
             document.getElementById('btnSaveDoorLock').addEventListener('click', async function () {
                 const roomIdrec = document.getElementById('addDoorLockRoom').value;
-                if (!roomIdrec) { showToast('warning', 'Pilih kamar terlebih dahulu'); return; }
-                if (!fetchedLockData) { showToast('warning', 'Ambil data lock terlebih dahulu'); return; }
+                if (!roomIdrec) { showToast('warning', '{{ __('ui.select_room_first') }}'); return; }
+                if (!fetchedLockData) { showToast('warning', '{{ __('ui.fetch_lock_data_first') }}'); return; }
 
                 this.disabled = true;
-                this.textContent = 'Menyimpan...';
+                this.textContent = '{{ __('ui.saving') }}';
 
                 try {
                     const payload = {
@@ -423,22 +423,22 @@
                     const json = await res.json();
 
                     if (!res.ok || !json.success) {
-                        let msg = json.message || 'Gagal menyimpan door lock';
+                        let msg = json.message || '{{ __('ui.door_lock_save_failed') }}';
                         if (json.errors) msg = Object.values(json.errors).flat().join('\n');
                         showToast('error', msg);
                         return;
                     }
 
                     closeAddModal();
-                    showToast('success', 'Door lock berhasil ditambahkan');
+                    showToast('success', '{{ __('ui.door_lock_added') }}');
                     setTimeout(() => window.location.reload(), 1200);
 
                 } catch (err) {
                     console.error(err);
-                    showToast('error', 'Terjadi kesalahan saat menyimpan data');
+                    showToast('error', '{{ __('ui.door_lock_save_error') }}');
                 } finally {
                     this.disabled = false;
-                    this.textContent = 'Simpan Door Lock';
+                    this.textContent = '{{ __('ui.save_door_lock') }}';
                 }
             });
 
@@ -452,7 +452,7 @@
                 document.getElementById('passcodeEndDate').value = '';
                 document.getElementById('passcodeResultSection').classList.add('hidden');
                 document.getElementById('passcodeResultValue').textContent = '';
-                document.getElementById('btnGeneratePasscodeText').textContent = 'Generate Passcode';
+                document.getElementById('btnGeneratePasscodeText').textContent = '{{ __('ui.generate_passcode') }}';
                 document.getElementById('btnGeneratePasscode').disabled = false;
             }
 
@@ -466,16 +466,16 @@
                 const startRaw = document.getElementById('passcodeStartDate').value;
                 const endRaw = document.getElementById('passcodeEndDate').value;
 
-                if (!name) { showToast('warning', 'Masukkan nama passcode'); return; }
-                if (!startRaw || !endRaw) { showToast('warning', 'Masukkan periode berlaku passcode'); return; }
+                if (!name) { showToast('warning', '{{ __('ui.passcode_name_required') }}'); return; }
+                if (!startRaw || !endRaw) { showToast('warning', '{{ __('ui.passcode_period_required') }}'); return; }
 
                 const startMs = new Date(startRaw).getTime();
                 const endMs = new Date(endRaw).getTime();
 
-                if (endMs <= startMs) { showToast('warning', 'Tanggal akhir harus setelah tanggal mulai'); return; }
+                if (endMs <= startMs) { showToast('warning', '{{ __('ui.passcode_end_after_start') }}'); return; }
 
                 this.disabled = true;
-                document.getElementById('btnGeneratePasscodeText').textContent = 'Generating...';
+                document.getElementById('btnGeneratePasscodeText').textContent = '{{ __('ui.generating') }}';
 
                 try {
                     const res = await fetch(`/properties/rooms/door-locks/${idrec}/passcode`, {
@@ -491,23 +491,23 @@
                     const json = await res.json();
 
                     if (!res.ok || !json.success) {
-                        showToast('error', json.message || 'Gagal membuat passcode');
+                        showToast('error', json.message || '{{ __('ui.passcode_failed') }}');
                         return;
                     }
 
                     document.getElementById('passcodeResultValue').textContent = json.passcode;
                     document.getElementById('passcodeResultSection').classList.remove('hidden');
-                    document.getElementById('btnGeneratePasscodeText').textContent = 'Generate Ulang';
-                    showToast('success', 'Passcode berhasil dibuat');
+                    document.getElementById('btnGeneratePasscodeText').textContent = '{{ __('ui.regenerate') }}';
+                    showToast('success', '{{ __('ui.passcode_created_success') }}');
                     setTimeout(() => window.location.reload(), 2000);
 
                 } catch (err) {
                     console.error(err);
-                    showToast('error', 'Terjadi kesalahan saat membuat passcode');
+                    showToast('error', '{{ __('ui.passcode_error') }}');
                 } finally {
                     this.disabled = false;
                     if (!document.getElementById('passcodeResultSection').classList.contains('hidden') === false) {
-                        document.getElementById('btnGeneratePasscodeText').textContent = 'Generate Passcode';
+                        document.getElementById('btnGeneratePasscodeText').textContent = '{{ __('ui.generate_passcode') }}';
                     }
                 }
             });
@@ -517,26 +517,26 @@
         function openAddPasscodeModal(lock) {
             document.getElementById('passcodeLockIdrec').value = lock.id;
             document.getElementById('passcodeModalSubtitle').textContent =
-                `Lock ID: ${lock.lock_id}${lock.lock_alias ? ' — ' + lock.lock_alias : ''}`;
+                `{{ __('ui.lock_id') }}: ${lock.lock_id}${lock.lock_alias ? ' — ' + lock.lock_alias : ''}`;
             document.getElementById('passcodeResultSection').classList.add('hidden');
             document.getElementById('passcodeName').value = '';
             document.getElementById('passcodeStartDate').value = '';
             document.getElementById('passcodeEndDate').value = '';
-            document.getElementById('btnGeneratePasscodeText').textContent = 'Generate Passcode';
+            document.getElementById('btnGeneratePasscodeText').textContent = '{{ __('ui.generate_passcode') }}';
             document.getElementById('btnGeneratePasscode').disabled = false;
             document.getElementById('modalAddPasscode').classList.remove('hidden');
         }
 
         function deleteDoorLock(id) {
             Swal.fire({
-                title: 'Hapus Door Lock?',
-                text: 'Data door lock akan dihapus permanen.',
+                title: '{{ __('ui.delete_door_lock') }}',
+                text: '{{ __('ui.delete_door_lock_confirm') }}',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Hapus',
-                cancelButtonText: 'Batal'
+                confirmButtonText: '{{ __('ui.yes') }}, {{ __('ui.delete') }}',
+                cancelButtonText: '{{ __('ui.cancel') }}'
             }).then(result => {
                 if (!result.isConfirmed) return;
 
@@ -550,10 +550,10 @@
                 .then(r => r.json())
                 .then(json => {
                     if (json.success) {
-                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Door lock dihapus', showConfirmButton: false, timer: 2000 });
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '{{ __('ui.door_lock_deleted') }}', showConfirmButton: false, timer: 2000 });
                         setTimeout(() => window.location.reload(), 1200);
                     } else {
-                        Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: json.message || 'Gagal menghapus', showConfirmButton: false, timer: 3000 });
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: json.message || '{{ __('ui.door_lock_delete_failed') }}', showConfirmButton: false, timer: 3000 });
                     }
                 });
             });

@@ -27,7 +27,7 @@
             <form method="GET" action="{{ route('customers.index') }}" id="filterForm"
                 class="flex flex-col gap-4 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
                     <!-- Search Input -->
                     <div class="lg:col-span-2">
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
@@ -35,7 +35,7 @@
                         </label>
                         <div class="relative">
                             <input type="text" name="search" id="search" value="{{ request('search') }}"
-                                placeholder="Nama, email, no. HP, no. kamar, order ID..."
+                                placeholder="{{ __('ui.search_placeholder_name_email_phone') }}"
                                 class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                             <div class="absolute left-3 top-1/2 -translate-y-1/2">
@@ -43,6 +43,24 @@
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Room Number Filter -->
+                    <div>
+                        <label for="room_number" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ __('ui.room_number') }}
+                        </label>
+                        <div class="relative">
+                            <input type="text" name="room_number" id="room_number" value="{{ request('room_number') }}"
+                                placeholder="{{ __('ui.room_number_placeholder') }}"
+                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm
+                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                            <div class="absolute left-3 top-1/2 -translate-y-1/2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
                             </div>
                         </div>
@@ -154,7 +172,12 @@
                                 <div class="flex justify-between items-start mb-3">
                                     <div>
                                         <h3 class="font-semibold text-gray-900" x-text="booking.property_name"></h3>
-                                        <p class="text-sm text-gray-600" x-text="booking.room_name"></p>
+                                        <p class="text-sm text-gray-600">
+                                            <span x-text="booking.room_name"></span>
+                                            <template x-if="booking.room_number">
+                                                <span class="ml-1 px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 text-xs font-mono" x-text="`#${booking.room_number}`"></span>
+                                            </template>
+                                        </p>
                                     </div>
                                     <div class="flex flex-col gap-1 items-end">
                                         <!-- Transaction Status -->
@@ -176,10 +199,10 @@
                                                 'bg-yellow-100 text-yellow-700': booking.booking_status === 'confirmed' || booking.booking_status === 'pending',
                                                 'bg-red-100 text-red-700': booking.booking_status === 'cancelled'
                                             }">
-                                            <span x-show="booking.booking_status === 'checked-in'">🏠 Sedang Check-in</span>
-                                            <span x-show="booking.booking_status === 'checked-out' || booking.booking_status === 'completed'">✓ Selesai</span>
-                                            <span x-show="booking.booking_status === 'confirmed' || booking.booking_status === 'pending'">⏳ Akan Datang</span>
-                                            <span x-show="booking.booking_status === 'cancelled'">✗ Dibatalkan</span>
+                                            <span x-show="booking.booking_status === 'checked-in'">🏠 {{ __('ui.currently_checking_in') }}</span>
+                                            <span x-show="booking.booking_status === 'checked-out' || booking.booking_status === 'completed'">✓ {{ __('ui.completed') }}</span>
+                                            <span x-show="booking.booking_status === 'confirmed' || booking.booking_status === 'pending'">⏳ {{ __('ui.upcoming') }}</span>
+                                            <span x-show="booking.booking_status === 'cancelled'">✗ {{ __('ui.cancelled') }}</span>
                                         </span>
 
                                         <!-- Renewal Status Badge -->
@@ -189,8 +212,8 @@
                                                     'bg-green-100 text-green-700': booking.renewal_status == 1,
                                                     'bg-yellow-100 text-yellow-700': booking.renewal_status == 0
                                                 }">
-                                                <span x-show="booking.renewal_status == 1">✓ Sudah Perpanjang</span>
-                                                <span x-show="booking.renewal_status == 0">⏳ Belum Perpanjang</span>
+                                                <span x-show="booking.renewal_status == 1">✓ {{ __('ui.already_renewed') }}</span>
+                                                <span x-show="booking.renewal_status == 0">⏳ {{ __('ui.not_yet_renewed') }}</span>
                                             </span>
                                         </template>
                                     </div>
@@ -202,19 +225,19 @@
                                         <p class="font-medium" x-text="booking.order_id"></p>
                                     </div>
                                     <div>
-                                        <p class="text-gray-500">Transaction Date</p>
+                                        <p class="text-gray-500">{{ __('ui.transaction_date') }}</p>
                                         <p class="font-medium" x-text="booking.transaction_date"></p>
                                     </div>
                                     <div>
-                                        <p class="text-gray-500">Check-in</p>
+                                        <p class="text-gray-500">{{ __('ui.check_in') }}</p>
                                         <p class="font-medium" x-text="booking.check_in"></p>
                                     </div>
                                     <div>
-                                        <p class="text-gray-500">Check-out</p>
+                                        <p class="text-gray-500">{{ __('ui.check_out') }}</p>
                                         <p class="font-medium" x-text="booking.check_out"></p>
                                     </div>
                                     <div>
-                                        <p class="text-gray-500">Duration</p>
+                                        <p class="text-gray-500">{{ __('ui.duration') }}</p>
                                         <p class="font-medium">
                                             <span x-show="booking.booking_days > 0"
                                                 x-text="`${booking.booking_days} day(s)`"></span>
@@ -223,7 +246,7 @@
                                         </p>
                                     </div>
                                     <div>
-                                        <p class="text-gray-500">Total Price</p>
+                                        <p class="text-gray-500">{{ __('ui.total_price') }}</p>
                                         <p class="font-medium text-green-600">Rp <span
                                                 x-text="booking.grandtotal_price"></span></p>
                                     </div>
@@ -232,7 +255,7 @@
                                 <!-- Parking Info -->
                                 <template x-if="booking.parking && booking.parking.length > 0">
                                     <div class="mt-3 pt-3 border-t border-gray-200">
-                                        <p class="text-gray-500 text-xs mb-2">Informasi Parkir:</p>
+                                        <p class="text-gray-500 text-xs mb-2">{{ __('ui.parking_information') }}</p>
                                         <div class="flex flex-wrap gap-2">
                                             <template x-for="(park, index) in booking.parking" :key="index">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
@@ -327,6 +350,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search');
+            const roomNumberInput = document.getElementById('room_number');
             const propertyFilter = document.getElementById('property_id');
             const bookingStatusFilter = document.getElementById('booking_status');
             const perPageSelect = document.getElementById('per_page');
@@ -337,6 +361,7 @@
                 searchTimeout = setTimeout(() => {
                     const params = new URLSearchParams({
                         search: searchInput.value,
+                        room_number: roomNumberInput.value,
                         property_id: propertyFilter.value,
                         booking_status: bookingStatusFilter.value,
                         per_page: perPageSelect.value,
@@ -355,6 +380,7 @@
             }
 
             searchInput.addEventListener('input', submitFilter);
+            roomNumberInput.addEventListener('input', submitFilter);
             propertyFilter.addEventListener('change', submitFilter);
             bookingStatusFilter.addEventListener('change', submitFilter);
             perPageSelect.addEventListener('change', submitFilter);
@@ -370,8 +396,8 @@
                 <div
                     class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-indigo-600 to-blue-600">
                     <div>
-                        <h3 class="text-lg font-semibold text-white">Pre-Register Account</h3>
-                        <p class="text-white/80 text-sm">Create a new customer account without email verification</p>
+                        <h3 class="text-lg font-semibold text-white">{{ __('ui.pre_register_account') }}</h3>
+                        <p class="text-white/80 text-sm">{{ __('ui.create_account_desc') }}</p>
                     </div>
                     <button onclick="closePreRegisterModal()"
                         class="text-white hover:text-indigo-200 transition-colors">
@@ -391,10 +417,10 @@
                             <!-- First Name -->
                             <div>
                                 <label for="pre_first_name" class="block text-sm font-medium text-gray-700 mb-1">
-                                    First Name <span class="text-red-500">*</span>
+                                    {{ __('ui.first_name') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="first_name" id="pre_first_name" required
-                                    placeholder="Enter first name"
+                                    placeholder="{{ __('ui.enter_first_name_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="pre_first_name_error"></p>
                             </div>
@@ -402,10 +428,10 @@
                             <!-- Last Name -->
                             <div>
                                 <label for="pre_last_name" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Last Name <span class="text-red-500">*</span>
+                                    {{ __('ui.last_name') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="last_name" id="pre_last_name" required
-                                    placeholder="Enter last name"
+                                    placeholder="{{ __('ui.enter_last_name_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="pre_last_name_error"></p>
                             </div>
@@ -413,10 +439,10 @@
                             <!-- Username -->
                             <div>
                                 <label for="pre_username" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Username <span class="text-red-500">*</span>
+                                    {{ __('ui.username') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="username" id="pre_username" required
-                                    placeholder="Enter username"
+                                    placeholder="{{ __('ui.enter_username_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="pre_username_error"></p>
                             </div>
@@ -424,10 +450,10 @@
                             <!-- Email -->
                             <div>
                                 <label for="pre_email" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Email <span class="text-red-500">*</span>
+                                    {{ __('ui.email') }} <span class="text-red-500">*</span>
                                 </label>
                                 <input type="email" name="email" id="pre_email" required
-                                    placeholder="Enter email address"
+                                    placeholder="{{ __('ui.enter_email_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="pre_email_error"></p>
                             </div>
@@ -435,10 +461,10 @@
                             <!-- Phone Number -->
                             <div>
                                 <label for="pre_phone_number" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Phone Number
+                                    {{ __('ui.phone_number') }}
                                 </label>
                                 <input type="tel" name="phone_number" id="pre_phone_number"
-                                    placeholder="e.g., 08123456789"
+                                    placeholder="{{ __('ui.phone_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="pre_phone_number_error"></p>
                             </div>
@@ -446,10 +472,10 @@
                             <!-- NIK -->
                             <div>
                                 <label for="pre_nik" class="block text-sm font-medium text-gray-700 mb-1">
-                                    NIK
+                                    {{ __('ui.nik') }}
                                 </label>
                                 <input type="text" name="nik" id="pre_nik"
-                                    placeholder="e.g., 3201234567890001" maxlength="16"
+                                    placeholder="{{ __('ui.nik_placeholder') }}" maxlength="16"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="pre_nik_error"></p>
                             </div>
@@ -457,11 +483,11 @@
                             <!-- Password -->
                             <div>
                                 <label for="pre_password" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Password <span class="text-red-500">*</span>
+                                    {{ __('ui.password') }} <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <input type="password" name="password" id="pre_password" required
-                                        placeholder="Min 6 characters"
+                                        placeholder="{{ __('ui.min_6_chars') }}"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 pr-10">
                                     <button type="button" onclick="togglePreRegisterPassword()"
                                         class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
@@ -483,11 +509,11 @@
                         <div class="mt-6 flex justify-end gap-3">
                             <button type="button" onclick="closePreRegisterModal()"
                                 class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                Cancel
+                                {{ __('ui.cancel') }}
                             </button>
                             <button type="submit" id="preRegisterSubmitBtn"
                                 class="px-4 py-2.5 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                <span id="preRegisterSubmitText">Register Account</span>
+                                <span id="preRegisterSubmitText">{{ __('ui.register_account') }}</span>
                                 <svg id="preRegisterSpinner" class="animate-spin h-4 w-4 text-white hidden"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -517,11 +543,11 @@
                             </path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Registration Successful!</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('ui.registration_successful') }}</h3>
                     <div id="preRegisterSuccessDetails" class="text-sm text-gray-600 mb-4"></div>
                     <button onclick="closePreRegisterSuccessModal()"
                         class="w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-                        Close
+                        {{ __('ui.close') }}
                     </button>
                 </div>
             </div>
@@ -536,8 +562,8 @@
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-amber-500 to-orange-500">
                     <div>
-                        <h3 class="text-lg font-semibold text-white">Edit Customer</h3>
-                        <p class="text-white/80 text-sm">Update customer account information</p>
+                        <h3 class="text-lg font-semibold text-white">{{ __('ui.edit_customer') }}</h3>
+                        <p class="text-white/80 text-sm">{{ __('ui.update_customer_desc') }}</p>
                     </div>
                     <button onclick="closeEditCustomerModal()" class="text-white hover:text-amber-200 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -553,56 +579,56 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- First Name -->
                             <div>
-                                <label for="edit_first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                                <input type="text" id="edit_first_name" name="first_name" placeholder="Enter first name"
+                                <label for="edit_first_name" class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.first_name') }}</label>
+                                <input type="text" id="edit_first_name" name="first_name" placeholder="{{ __('ui.enter_first_name_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="edit_first_name_error"></p>
                             </div>
 
                             <!-- Last Name -->
                             <div>
-                                <label for="edit_last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                                <input type="text" id="edit_last_name" name="last_name" placeholder="Enter last name"
+                                <label for="edit_last_name" class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.last_name') }}</label>
+                                <input type="text" id="edit_last_name" name="last_name" placeholder="{{ __('ui.enter_last_name_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="edit_last_name_error"></p>
                             </div>
 
                             <!-- Username -->
                             <div>
-                                <label for="edit_username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                <input type="text" id="edit_username" name="username" placeholder="Enter username"
+                                <label for="edit_username" class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.username') }}</label>
+                                <input type="text" id="edit_username" name="username" placeholder="{{ __('ui.enter_username_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="edit_username_error"></p>
                             </div>
 
                             <!-- Email -->
                             <div>
-                                <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" id="edit_email" name="email" placeholder="Enter email address"
+                                <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.email') }}</label>
+                                <input type="email" id="edit_email" name="email" placeholder="{{ __('ui.enter_email_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="edit_email_error"></p>
                             </div>
 
                             <!-- Phone Number -->
                             <div>
-                                <label for="edit_phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                                <input type="tel" id="edit_phone_number" name="phone_number" placeholder="e.g., 08123456789"
+                                <label for="edit_phone_number" class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.phone_number') }}</label>
+                                <input type="tel" id="edit_phone_number" name="phone_number" placeholder="{{ __('ui.phone_placeholder') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="edit_phone_number_error"></p>
                             </div>
 
                             <!-- NIK -->
                             <div>
-                                <label for="edit_nik" class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
-                                <input type="text" id="edit_nik" name="nik" placeholder="e.g., 3201234567890001" maxlength="16"
+                                <label for="edit_nik" class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.nik') }}</label>
+                                <input type="text" id="edit_nik" name="nik" placeholder="{{ __('ui.nik_placeholder') }}" maxlength="16"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="edit_nik_error"></p>
                             </div>
 
                             <!-- Password -->
                             <div class="md:col-span-2">
-                                <label for="edit_password" class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-gray-400 font-normal">(kosongkan jika tidak ingin mengubah)</span></label>
-                                <input type="password" id="edit_password" name="password" placeholder="Masukkan password baru (min. 6 karakter)"
+                                <label for="edit_password" class="block text-sm font-medium text-gray-700 mb-1">{{ __('ui.password') }} <span class="text-gray-400 font-normal">({{ __('ui.password_optional') }})</span></label>
+                                <input type="password" id="edit_password" name="password" placeholder="{{ __('ui.enter_new_password_6_chars') }}"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all duration-200">
                                 <p class="text-red-500 text-xs mt-1 hidden" id="edit_password_error"></p>
                             </div>
@@ -612,11 +638,11 @@
                         <div class="mt-6 flex justify-end gap-3">
                             <button type="button" onclick="closeEditCustomerModal()"
                                 class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors">
-                                Cancel
+                                {{ __('ui.cancel') }}
                             </button>
                             <button type="submit" id="editCustomerSubmitBtn"
                                 class="px-4 py-2.5 bg-amber-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                <span id="editCustomerSubmitText">Save Changes</span>
+                                <span id="editCustomerSubmitText">{{ __('ui.save_changes') }}</span>
                                 <svg id="editCustomerSpinner" class="animate-spin h-4 w-4 text-white hidden"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -715,10 +741,10 @@
 
             submitBtn.disabled = loading;
             if (loading) {
-                submitText.textContent = 'Registering...';
+                submitText.textContent = '{{ __('ui.registering') }}';
                 spinner.classList.remove('hidden');
             } else {
-                submitText.textContent = 'Register Account';
+                submitText.textContent = '{{ __('ui.register_account') }}';
                 spinner.classList.add('hidden');
             }
         }
@@ -733,18 +759,18 @@
                     <div class="bg-gray-50 rounded-lg p-4 text-left mb-4">
                         <p class="mb-2"><span class="font-medium">Username:</span> ${data.user.username}</p>
                         <p class="mb-2"><span class="font-medium">Email:</span> ${data.user.email}</p>
-                        <p class="mb-2"><span class="font-medium">Name:</span> ${data.user.first_name} ${data.user.last_name}</p>
+                        <p class="mb-2"><span class="font-medium">{{ __('ui.name') }}:</span> ${data.user.first_name} ${data.user.last_name}</p>
                         ${nikHtml}
-                        <p><span class="font-medium">Status:</span>
+                        <p><span class="font-medium">{{ __('ui.status') }}:</span>
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                Active & Verified
+                                {{ __('ui.active_verified') }}
                             </span>
                         </p>
                     </div>
-                    <p class="text-green-600 font-medium">Account has been created and verified successfully!</p>
+                    <p class="text-green-600 font-medium">{{ __('ui.account_created_verified') }}</p>
                 `;
             } else {
-                details.innerHTML = '<p class="text-green-600 font-medium">Account has been created successfully!</p>';
+                details.innerHTML = '<p class="text-green-600 font-medium">{{ __('ui.account_created') }}</p>';
             }
 
             closePreRegisterModal();
@@ -796,7 +822,7 @@
                     }
 
                     Toastify({
-                        text: result.message || 'Registration failed. Please check the form.',
+                        text: result.message || '{{ __('ui.registration_failed') }}',
                         duration: 4000,
                         gravity: "top",
                         position: "right",
@@ -810,7 +836,7 @@
                 console.error('Error:', error);
 
                 Toastify({
-                    text: 'An unexpected error occurred. Please try again.',
+                    text: '{{ __('ui.unexpected_error') }}',
                     duration: 4000,
                     gravity: "top",
                     position: "right",
@@ -868,7 +894,7 @@
             const text    = document.getElementById('editCustomerSubmitText');
             const spinner = document.getElementById('editCustomerSpinner');
             btn.disabled = loading;
-            text.textContent = loading ? 'Saving...' : 'Save Changes';
+            text.textContent = loading ? '{{ __('ui.saving') }}' : '{{ __('ui.save_changes') }}';
             spinner.classList.toggle('hidden', !loading);
         }
 
@@ -907,7 +933,7 @@
                     closeEditCustomerModal();
 
                     Toastify({
-                        text: result.message || 'Customer updated successfully!',
+                        text: result.message || '{{ __('ui.customer_updated') }}',
                         duration: 3000,
                         gravity: "top",
                         position: "right",
@@ -933,7 +959,7 @@
                         });
                     }
                     Toastify({
-                        text: result.message || 'Update failed. Please check the form.',
+                        text: result.message || '{{ __('ui.update_failed') }}',
                         duration: 4000,
                         gravity: "top",
                         position: "right",
@@ -944,7 +970,7 @@
             } catch (error) {
                 console.error('Error:', error);
                 Toastify({
-                    text: 'An unexpected error occurred. Please try again.',
+                    text: '{{ __('ui.unexpected_error') }}',
                     duration: 4000,
                     gravity: "top",
                     position: "right",
