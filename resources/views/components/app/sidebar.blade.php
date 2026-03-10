@@ -489,6 +489,18 @@
                                                 </a>
                                             </li>
                                         @endcan
+
+                                        <!-- Door Lock -->
+                                        @can('view_door_locks')
+                                            <li>
+                                                <a href="{{ route('door-locks.index') }}"
+                                                    class="flex items-center gap-3 px-3 py-2 text-indigo-200 rounded-lg hover:bg-indigo-700/50 transition-all duration-300 @if (Route::is('door-locks.*')) bg-indigo-900 @endif">
+                                                    <span
+                                                        class="text-xs transition-all duration-300 hover:translate-x-1">Door Lock</span>
+                                                </a>
+                                            </li>
+                                        @endcan
+
                                     </ul>
                                 </div>
                             </li>

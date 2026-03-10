@@ -189,6 +189,14 @@ class SidebarItemsTableSeeder extends Seeder
             'order' => 2
         ]);
 
+        SidebarItem::create([
+            'name' => 'Door Lock',
+            'route' => 'door-locks.index',
+            'permission_id' => $permissions['view_door_locks'] ?? null,
+            'parent_id' => $rooms->id,
+            'order' => 3
+        ]);
+
         // Customers
         SidebarItem::create([
             'name' => 'Customers',

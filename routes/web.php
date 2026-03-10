@@ -23,6 +23,7 @@ use App\Http\Controllers\Payment\RefundController;
 use App\Http\Controllers\Properties\DepositFeeController;
 use App\Http\Controllers\Properties\ParkingFeeController;
 use App\Http\Controllers\Properties\ParkingController;
+use App\Http\Controllers\Properties\DoorLockController;
 use App\Http\Controllers\RoomAvailability\RoomAvailabilityController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Reports\BookingReportController;
@@ -212,6 +213,13 @@ Route::middleware(['auth', 'permission'])->group(function () {
         Route::post('/rooms/facilityRooms/store', [ManajementRoomsController::class, 'storeFacility'])->name('facilityRooms.store');
         Route::put('/rooms/facilityRooms/update/{id}', [ManajementRoomsController::class, 'updateFacility'])->name('facilityRooms.update');
         Route::post('/rooms/facilityRooms/toggle-status', [ManajementRoomsController::class, 'toggleFacilityStatus'])->name('facilityRooms.toggle-status');
+
+        // ------------------------- DOOR LOCK MANAGEMENT -------------------------
+        Route::get('/rooms/door-locks', [DoorLockController::class, 'index'])->name('door-locks.index');
+        Route::post('/rooms/door-locks/get-details', [DoorLockController::class, 'getLockDetails'])->name('door-locks.get-details');
+        Route::post('/rooms/door-locks/store', [DoorLockController::class, 'store'])->name('door-locks.store');
+        Route::post('/rooms/door-locks/{id}/passcode', [DoorLockController::class, 'addPasscode'])->name('door-locks.passcode');
+        Route::delete('/rooms/door-locks/{id}', [DoorLockController::class, 'destroy'])->name('door-locks.destroy');
 
         // ------------------------- DEPOSIT FEE MANAGEMENT -------------------------
         Route::get('/deposit-fees', [DepositFeeController::class, 'index'])->name('deposit-fees.index');
