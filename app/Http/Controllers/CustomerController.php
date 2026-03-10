@@ -17,6 +17,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $roomNumber = $request->input('room_number');
         $registrationStatus = $request->input('registration_status');
         $propertyId = $request->input('property_id');
         $bookingStatus = $request->input('booking_status');
@@ -26,8 +27,9 @@ class CustomerController extends Controller
         $properties = Property::select('idrec', 'name')->orderBy('name')->get();
 
         // Build the customer query by combining registered users and guest transactions
-        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId, $bookingStatus)->paginate($perPage)->appends([
+        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId, $bookingStatus, $roomNumber)->paginate($perPage)->appends([
             'search' => $search,
+            'room_number' => $roomNumber,
             'registration_status' => $registrationStatus,
             'property_id' => $propertyId,
             'booking_status' => $bookingStatus,
@@ -44,12 +46,13 @@ class CustomerController extends Controller
     public function filter(Request $request)
     {
         $search = $request->input('search');
+        $roomNumber = $request->input('room_number');
         $registrationStatus = $request->input('registration_status');
         $propertyId = $request->input('property_id');
         $bookingStatus = $request->input('booking_status');
         $perPage = $request->input('per_page', 8);
 
-        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId, $bookingStatus)->paginate($perPage);
+        $customers = $this->getCustomersQuery($search, $registrationStatus, $propertyId, $bookingStatus, $roomNumber)->paginate($perPage);
         $customers->setPath(route('customers.index'));
         $customers->appends($request->except('page'));
 
@@ -59,7 +62,7 @@ class CustomerController extends Controller
         ])->render();
     }
 
-    private function getCustomersQuery($search = null, $registrationStatus = null, $propertyId = null, $bookingStatus = null)
+    private function getCustomersQuery($search = null, $registrationStatus = null, $propertyId = null, $bookingStatus = null, $roomNumber = null)
     {
         // Get registered users with their booking statistics
         $registeredUsers = User::select([
@@ -134,7 +137,7 @@ class CustomerController extends Controller
             $guestCustomers->where('property_id', $propertyId);
         }
 
-        // Apply search filter to registered users (name, email, phone, room number, order ID)
+        // Apply search filter to registered users (name, email, phone, order ID)
         if ($search) {
             $registeredUsers->where(function ($query) use ($search) {
                 $query->where('users.username', 'like', '%' . $search . '%')
@@ -145,18 +148,22 @@ class CustomerController extends Controller
                             ->from('t_transactions as t_oid')
                             ->whereColumn('t_oid.user_id', 'users.id')
                             ->where('t_oid.order_id', 'like', '%' . $search . '%');
-                    })
-                    ->orWhereExists(function ($q) use ($search) {
-                        $q->select(DB::raw(1))
-                            ->from('t_transactions as t_rn')
-                            ->leftJoin('m_rooms as rm', 't_rn.room_id', '=', 'rm.idrec')
-                            ->whereColumn('t_rn.user_id', 'users.id')
-                            ->where('rm.no', 'like', '%' . $search . '%');
                     });
             });
         }
 
-        // Apply search filter to guest customers (name, email, phone, room number, order ID)
+        // Apply room number filter to registered users
+        if ($roomNumber) {
+            $registeredUsers->whereExists(function ($q) use ($roomNumber) {
+                $q->select(DB::raw(1))
+                    ->from('t_transactions as t_rn')
+                    ->leftJoin('m_rooms as rm', 't_rn.room_id', '=', 'rm.idrec')
+                    ->whereColumn('t_rn.user_id', 'users.id')
+                    ->where('rm.no', 'like', '%' . $roomNumber . '%');
+            });
+        }
+
+        // Apply search filter to guest customers (name, email, phone, order ID)
         if ($search) {
             $guestCustomers->where(function ($query) use ($search) {
                 $query->where('user_name', 'like', '%' . $search . '%')
@@ -168,15 +175,19 @@ class CustomerController extends Controller
                             ->whereRaw('BINARY t_oid.user_email = BINARY t_transactions.user_email')
                             ->whereNull('t_oid.user_id')
                             ->where('t_oid.order_id', 'like', '%' . $search . '%');
-                    })
-                    ->orWhereExists(function ($q) use ($search) {
-                        $q->select(DB::raw(1))
-                            ->from('t_transactions as t_rn')
-                            ->leftJoin('m_rooms as rm', 't_rn.room_id', '=', 'rm.idrec')
-                            ->whereRaw('BINARY t_rn.user_email = BINARY t_transactions.user_email')
-                            ->whereNull('t_rn.user_id')
-                            ->where('rm.no', 'like', '%' . $search . '%');
                     });
+            });
+        }
+
+        // Apply room number filter to guest customers
+        if ($roomNumber) {
+            $guestCustomers->whereExists(function ($q) use ($roomNumber) {
+                $q->select(DB::raw(1))
+                    ->from('t_transactions as t_rn')
+                    ->leftJoin('m_rooms as rm', 't_rn.room_id', '=', 'rm.idrec')
+                    ->whereRaw('BINARY t_rn.user_email = BINARY t_transactions.user_email')
+                    ->whereNull('t_rn.user_id')
+                    ->where('rm.no', 'like', '%' . $roomNumber . '%');
             });
         }
 
@@ -281,6 +292,7 @@ class CustomerController extends Controller
                     'order_id' => $transaction->order_id,
                     'property_name' => $transaction->property_name,
                     'room_name' => $transaction->room_name,
+                    'room_number' => $transaction->room ? $transaction->room->no : null,
                     'transaction_date' => $transaction->transaction_date ? $transaction->transaction_date->format('M d, Y') : '-',
                     'check_in' => $transaction->check_in ? $transaction->check_in->format('M d, Y') : '-',
                     'check_out' => $transaction->check_out ? $transaction->check_out->format('M d, Y') : '-',

@@ -95,6 +95,8 @@ class CheckPermission
             '/\.upload-image$/',      // e.g., chat.upload-image
             '/\.messages\.edit$/',    // e.g., chat.messages.edit
             '/\.find-by-order$/',     // e.g., chat.find-by-order
+            '/\.get-details$/',       // e.g., door-locks.get-details
+            '/\.passcode$/',          // e.g., door-locks.passcode
         ];
 
         // Check if current route matches any API pattern
@@ -197,6 +199,7 @@ class CheckPermission
             'rooms.' => 'rooms.index',
             'facilityProperty.' => 'facilityProperty.index',
             'facilityRooms.' => 'facilityRooms.index',
+            'door-locks.' => 'door-locks.index',
             'admin.payments.' => 'admin.payments.index',
             'admin.refunds.' => 'admin.refunds.index',
             'admin.bookings.' => 'bookings.index',

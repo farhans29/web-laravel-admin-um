@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'seyven' => [
+        'api_key'  => env('SEYVEN_API_KEY', 'deff4be0b430945d4c544b0ba588ecad'),
+        'base_url' => env('SEYVEN_BASE_URL', 'https://hms.seyven.cloud/api/seyven-lock'),
+    ],
+
 ];

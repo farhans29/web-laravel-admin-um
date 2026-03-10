@@ -43,6 +43,7 @@ class PermissionsTableSeeder extends Seeder
             'rooms',
             'view_rooms',
             'view_room_facilities',
+            'view_door_locks',
 
             // Customers
             'view_customers',
