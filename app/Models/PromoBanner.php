@@ -13,6 +13,7 @@ class PromoBanner extends Model
         'title',
         'image_id',
         'descriptions',
+        'promo_code',
         'how_to_claim',
         'status',
         'created_by',

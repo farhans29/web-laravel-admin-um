@@ -128,11 +128,12 @@
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.verified_by') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.verified_date') }}</th>
                             <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.notes') }}</th>
+                            <th class="px-3 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('ui.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200">
                         <tr>
-                            <td colspan="31" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="32" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
                                     <svg class="animate-spin h-8 w-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -157,6 +158,7 @@
         let currentPage = 1;
         let searchTimeout;
         let reportData = []; // Store report data for printing
+        const invoiceBaseUrl = '{{ url('/bookings/newReserv-in') }}';
 
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Flatpickr without localStorage persistence (show all data by default)
@@ -235,7 +237,7 @@
             const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="31" class="px-4 py-8 text-center text-gray-500">
+                    <td colspan="32" class="px-4 py-8 text-center text-gray-500">
                         <div class="flex justify-center items-center gap-2">
                             <svg class="animate-spin h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -260,7 +262,7 @@
                     console.error('Error:', error);
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="31" class="px-4 py-8 text-center text-red-500">
+                            <td colspan="32" class="px-4 py-8 text-center text-red-500">
                                 {{ __('ui.error_loading') }}
                             </td>
                         </tr>
@@ -274,7 +276,7 @@
             if (data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="31" class="px-4 py-8 text-center text-gray-500">
+                        <td colspan="32" class="px-4 py-8 text-center text-gray-500">
                             <div class="flex flex-col items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -325,6 +327,9 @@
                     <td class="px-3 py-3 text-xs text-gray-700">${row.verified_by}</td>
                     <td class="px-3 py-3 text-xs text-gray-700">${row.verified_at}</td>
                     <td class="px-3 py-3 text-xs text-gray-600">${row.notes || '-'}</td>
+                    <td class="px-3 py-3 text-xs text-center">
+                        ${row.order_id ? `<a href="${invoiceBaseUrl}/${row.order_id}/invoice" target="_blank" class="inline-flex items-center px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none">{{ __('ui.view_invoice') }}</a>` : '-'}
+                    </td>
                 </tr>
             `}).join('');
         }

@@ -120,6 +120,18 @@
                                 placeholder="Masukkan deskripsi banner"></textarea>
                         </div>
 
+                        <!-- Promo Code -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Kode Promo
+                                <span class="text-xs text-gray-400 font-normal">(opsional)</span>
+                            </label>
+                            <input type="text" id="promo_code" name="promo_code" maxlength="50"
+                                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white uppercase"
+                                placeholder="Contoh: PROMO50"
+                                oninput="this.value = this.value.toUpperCase()">
+                        </div>
+
                         <!-- Image Upload -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -388,6 +400,7 @@
                 $('#modalTitle').text('Tambah Banner');
                 $('#bannerForm')[0].reset();
                 $('#banner_id').val('');
+                $('#promo_code').val('');
                 $('#image_preview_container').addClass('hidden');
                 $('#upload_icon').removeClass('hidden');
                 $('#image_required').show();
@@ -405,6 +418,7 @@
                         $('#banner_id').val(banner.idrec);
                         $('#title').val(banner.title);
                         $('#descriptions').val(banner.descriptions);
+                        $('#promo_code').val(banner.promo_code || '');
 
                         // Populate how_to_claim
                         clearHowToClaim();
@@ -447,6 +461,7 @@
                 const formData = new FormData();
                 formData.append('title', $('#title').val());
                 formData.append('descriptions', $('#descriptions').val());
+                formData.append('promo_code', $('#promo_code').val());
                 formData.append('_token', '{{ csrf_token() }}');
 
                 // Append how_to_claim items
