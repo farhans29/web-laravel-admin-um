@@ -508,6 +508,9 @@
                 $('#scope_type').val('global'); // Reset scope type to global
                 $('#property_selector_container').hide(); // Hide property selector on create
                 $('#property_id').val('');
+                // Enable fields that are disabled in edit mode
+                $('#code').prop('disabled', false).removeClass('bg-gray-100 cursor-not-allowed opacity-60');
+                $('#scope_type').prop('disabled', false).removeClass('bg-gray-100 cursor-not-allowed opacity-60');
                 $('#voucherModal').removeClass('hidden').show();
             }
 
@@ -556,6 +559,10 @@
                         $('#status_label').removeClass('text-blue-600 text-red-600');
                         $('#status_label').addClass(isActive ? 'text-blue-600' : 'text-red-600');
                         $('#status_toggle_container').show(); // Show status toggle on edit
+
+                        // Disable voucher code & scope type on edit
+                        $('#code').prop('disabled', true).addClass('bg-gray-100 cursor-not-allowed opacity-60');
+                        $('#scope_type').prop('disabled', true).addClass('bg-gray-100 cursor-not-allowed opacity-60');
 
                         $('#voucherModal').removeClass('hidden').show();
                     },

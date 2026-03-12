@@ -43,6 +43,7 @@ class PromoBannerController extends Controller
             $validated = $request->validate([
                 'title'          => 'required|string|max:255',
                 'descriptions'   => 'nullable|string',
+                'promo_code'     => 'nullable|string|max:50',
                 'how_to_claim'   => 'nullable|array',
                 'how_to_claim.*' => 'nullable|string|max:500',
                 'banner_image'   => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
@@ -62,6 +63,7 @@ class PromoBannerController extends Controller
             $banner = PromoBanner::create([
                 'title'        => $validated['title'],
                 'descriptions' => $validated['descriptions'],
+                'promo_code'   => $validated['promo_code'] ?? null,
                 'how_to_claim' => $howToClaim,
                 'status'       => 1,
                 'created_by'   => Auth::id(),
@@ -112,6 +114,7 @@ class PromoBannerController extends Controller
             $validated = $request->validate([
                 'title'          => 'required|string|max:255',
                 'descriptions'   => 'nullable|string',
+                'promo_code'     => 'nullable|string|max:50',
                 'how_to_claim'   => 'nullable|array',
                 'how_to_claim.*' => 'nullable|string|max:500',
                 'banner_image'   => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
@@ -125,6 +128,7 @@ class PromoBannerController extends Controller
             $banner->update([
                 'title'        => $validated['title'],
                 'descriptions' => $validated['descriptions'],
+                'promo_code'   => $validated['promo_code'] ?? null,
                 'how_to_claim' => $howToClaim,
                 'updated_by'   => Auth::id(),
             ]);
