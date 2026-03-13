@@ -19,7 +19,7 @@ class RoomAvailabilityController extends Controller
         $endDate = $request->get('end_date');
 
         // Query untuk room availability
-        $rooms = Room::with(['property', 'thumbnail', 'bookings' => function ($query) use ($startDate, $endDate) {
+        $rooms = Room::where('status', 1)->with(['property', 'thumbnail', 'bookings' => function ($query) use ($startDate, $endDate) {
             // Hanya ambil booking aktif (status=1) dengan status paid
             // status=0 berarti booking lama dari pindah kamar, tidak perlu ditampilkan
             $query->where('status', 1)
@@ -239,7 +239,7 @@ class RoomAvailabilityController extends Controller
         $status = $request->get('status', 'all');
 
         // Query yang sama dengan index untuk konsistensi data
-        $roomsQuery = Room::query();
+        $roomsQuery = Room::where('status', 1);
 
         // Filter by property_id for site users
         $user = Auth::user();
