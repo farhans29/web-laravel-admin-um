@@ -141,6 +141,14 @@ class CheckOutController extends Controller
 
             // Check if already checked out
             if ($booking->check_out_at !== null) {
+                // Auto-fix anomali: check_out_at ada tapi status masih 1
+                if ($booking->getRawOriginal('status') == 1) {
+                    $booking->status = 0;
+                    $booking->save();
+                    if ($booking->room_id) {
+                        Room::where('idrec', $booking->room_id)->update(['rental_status' => 0]);
+                    }
+                }
                 return response()->json([
                     'success' => false,
                     'message' => 'Tamu sudah melakukan check-out sebelumnya.'
