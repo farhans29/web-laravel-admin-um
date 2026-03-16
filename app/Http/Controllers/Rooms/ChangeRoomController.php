@@ -521,6 +521,7 @@ class ChangeRoomController extends Controller
     {
         return Booking::where('room_id', $roomId)
             ->where('status', 1)
+            ->whereNull('check_out_at') // Booking yang sudah checkout tidak dihitung conflict
             ->when($excludeOrderId, function ($query, $excludeOrderId) {
                 return $query->where('order_id', '!=', $excludeOrderId);
             })
