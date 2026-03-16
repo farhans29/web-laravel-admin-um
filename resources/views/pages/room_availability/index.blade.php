@@ -178,9 +178,8 @@
                     document.getElementById('start_date').value = formatDate(selectedDates[0]);
                     document.getElementById('end_date').value = formatDate(selectedDates[1] || selectedDates[0]);
 
-                    const currentPage = getCurrentPage();
                     Promise.all([
-                        fetchFilteredBookings(currentPage),
+                        fetchFilteredBookings(1),
                         loadStatistics()
                     ]);
                 }
@@ -189,9 +188,8 @@
                 if (selectedDates.length === 0) {
                     document.getElementById('start_date').value = '';
                     document.getElementById('end_date').value = '';
-                    const currentPage = getCurrentPage();
                     Promise.all([
-                        fetchFilteredBookings(currentPage),
+                        fetchFilteredBookings(1),
                         loadStatistics()
                     ]);
                 }
@@ -455,17 +453,15 @@
 
         // Event listeners untuk real-time filtering
         document.getElementById('search').addEventListener('input', debounce(function() {
-            const currentPage = getCurrentPage();
             Promise.all([
-                fetchFilteredBookings(currentPage),
+                fetchFilteredBookings(1),
                 loadStatistics()
             ]);
         }, 500));
 
         document.getElementById('status').addEventListener('change', function() {
-            const currentPage = getCurrentPage();
             Promise.all([
-                fetchFilteredBookings(currentPage),
+                fetchFilteredBookings(1),
                 loadStatistics()
             ]);
         });
