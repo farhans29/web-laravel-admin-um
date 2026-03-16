@@ -168,20 +168,13 @@ class Booking extends Model
 
     /**
      * Get the number of times this booking has been transferred.
-     * Counts the chain of previous bookings.
+     * Counts all transfer records (previous_booking_id not null) for the same order_id.
      */
     public function getTransferCountAttribute()
     {
-        $count = 0;
-        $booking = $this;
-
-        while ($booking->previous_booking_id) {
-            $count++;
-            $booking = $booking->previousBooking;
-            if (!$booking) break;
-        }
-
-        return $count;
+        return static::where('order_id', $this->order_id)
+            ->whereNotNull('previous_booking_id')
+            ->count();
     }
 
     /**

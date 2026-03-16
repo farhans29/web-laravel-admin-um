@@ -125,8 +125,10 @@ class ChangeRoomController extends Controller
             ]);
         }
 
-        // Sort by last transfer date descending
-        return $history->sortByDesc('last_transfer_at')->values();
+        // Sort by last transfer date descending, exclude entries with no actual transfers
+        return $history->filter(fn($h) => $h['transfer_count'] > 0)
+            ->sortByDesc('last_transfer_at')
+            ->values();
     }
 
     /**
@@ -138,6 +140,7 @@ class ChangeRoomController extends Controller
         $roomId = $request->input('room_id');
         $checkIn = $request->input('check_in');
         $checkOut = $request->input('check_out');
+        $reason = $request->input('reason');
 
         // Set property_id based on user_type
         if ($user->user_type == 1) {
@@ -160,14 +163,16 @@ class ChangeRoomController extends Controller
             $currentRoomName = $currentRoom?->name;
         }
 
+        // upgrade/downgrade allows different room type
+        $allowDifferentType = in_array($reason, ['upgrade', 'downgrade']);
+
         // Get rooms that are active and available
         // status = 1 means room is active (not disabled)
         // rental_status = 0 means available, rental_status = 1 means booked (monthly/long-term)
-        // Only show rooms with the same name (type) as the current room
         $rooms = Room::where('property_id', $propertyId)
             ->where('status', 1)
             ->where('rental_status', 0)
-            ->when($currentRoomName, function ($query) use ($currentRoomName) {
+            ->when(!$allowDifferentType && $currentRoomName, function ($query) use ($currentRoomName) {
                 return $query->where('name', $currentRoomName);
             })
             ->when($roomId, function ($query) use ($roomId) {
@@ -254,8 +259,9 @@ class ChangeRoomController extends Controller
                     ->with('error', 'Kamar baru harus dalam properti yang sama.');
             }
 
-            // Validate new room has the same name/type as current room
-            if ($newRoom->name !== $currentRoom->name) {
+            // Validate room type: upgrade/downgrade allows different type, others must match
+            $allowDifferentType = in_array($request->reason, ['upgrade', 'downgrade']);
+            if (!$allowDifferentType && $newRoom->name !== $currentRoom->name) {
                 return redirect()->back()
                     ->with('error', 'Kamar baru harus bertipe sama dengan kamar saat ini (' . $currentRoom->name . ').');
             }
@@ -266,9 +272,9 @@ class ChangeRoomController extends Controller
                     ->with('error', 'Kamar yang dipilih tidak tersedia.');
             }
 
-            // Check for booking conflicts
-            $checkInDate = Carbon::parse($request->check_in);
-            $checkOutDate = $request->check_out ? Carbon::parse($request->check_out) : ($currentBooking->check_out_at ?? Carbon::parse($currentBooking->transaction->check_out));
+            // Use dates from booking record (not from request) to prevent tampering
+            $checkInDate = $currentBooking->check_in_at ?? Carbon::parse($currentBooking->transaction?->check_in);
+            $checkOutDate = $currentBooking->check_out_at ?? Carbon::parse($currentBooking->transaction?->check_out);
 
             $hasConflict = $this->checkRoomConflict($request->new_room, $checkInDate, $checkOutDate, $request->order_id);
 
