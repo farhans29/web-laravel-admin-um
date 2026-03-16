@@ -559,48 +559,23 @@ class ChangeRoomController extends Controller
      */
     private function checkRoomConflict($roomId, Carbon $checkInDate, Carbon $checkOutDate, $excludeOrderId = null)
     {
-        return Booking::with('transaction')
-            ->where('room_id', $roomId)
+        return Booking::where('room_id', $roomId)
             ->where('status', 1)
             ->when($excludeOrderId, function ($query, $excludeOrderId) {
                 return $query->where('order_id', '!=', $excludeOrderId);
             })
             ->where(function ($query) use ($checkInDate, $checkOutDate) {
-                $query->where(function ($q) use ($checkInDate, $checkOutDate) {
-                    $q->whereNotNull('check_in_at')
-                      ->where(function ($subQ) use ($checkInDate, $checkOutDate) {
-                          $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
-                              $q1->where('check_in_at', '>=', $checkInDate)
-                                 ->where('check_in_at', '<', $checkOutDate);
-                          })
-                          ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
-                              $q2->where('check_out_at', '>', $checkInDate)
-                                 ->where('check_out_at', '<=', $checkOutDate);
-                          })
-                          ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
-                              $q3->where('check_in_at', '<=', $checkInDate)
-                                 ->where('check_out_at', '>=', $checkOutDate);
-                          });
-                      });
+                $query->where(function ($q1) use ($checkInDate, $checkOutDate) {
+                    $q1->where('check_in_at', '>=', $checkInDate)
+                       ->where('check_in_at', '<', $checkOutDate);
                 })
-                ->orWhere(function ($q) use ($checkInDate, $checkOutDate) {
-                    $q->whereNull('check_in_at')
-                      ->whereHas('transaction', function ($tq) use ($checkInDate, $checkOutDate) {
-                          $tq->where(function ($subQ) use ($checkInDate, $checkOutDate) {
-                              $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
-                                  $q1->where('check_in', '>=', $checkInDate)
-                                     ->where('check_in', '<', $checkOutDate);
-                              })
-                              ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
-                                  $q2->where('check_out', '>', $checkInDate)
-                                     ->where('check_out', '<=', $checkOutDate);
-                              })
-                              ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
-                                  $q3->where('check_in', '<=', $checkInDate)
-                                     ->where('check_out', '>=', $checkOutDate);
-                              });
-                          });
-                      });
+                ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
+                    $q2->where('check_out_at', '>', $checkInDate)
+                       ->where('check_out_at', '<=', $checkOutDate);
+                })
+                ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
+                    $q3->where('check_in_at', '<=', $checkInDate)
+                       ->where('check_out_at', '>=', $checkOutDate);
                 });
             })
             ->exists();
