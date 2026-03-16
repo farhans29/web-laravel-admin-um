@@ -178,6 +178,8 @@
                                                         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                                         disabled required>
                                                         <option value="" disabled selected>{{ __('ui.select_reason') }}</option>
+                                                        <option value="upgrade">Upgrade Kamar</option>
+                                                        <option value="downgrade">Downgrade Kamar</option>
                                                         <option value="maintenance">{{ __('ui.maintenance') }}</option>
                                                         <option value="guest_request">{{ __('ui.guest_request') }}</option>
                                                         <option value="other">{{ __('ui.other') }}</option>
@@ -629,6 +631,15 @@
                 this.classList.remove('border-red-500');
                 document.getElementById('reasonError').classList.add('hidden');
             }
+
+            // Re-fetch available rooms when reason changes (upgrade/downgrade shows all types)
+            const roomId = document.getElementById('roomId').value;
+            if (roomId) {
+                const propertyId = document.getElementById('formCurrentPropertyId').value;
+                const checkIn = document.getElementById('formCheckIn').value;
+                const checkOut = document.getElementById('formCheckOut').value;
+                fetchAvailableRooms(propertyId, roomId, checkIn, checkOut, this.value);
+            }
         });
 
         function formatDateTime(dateStr) {
@@ -723,22 +734,23 @@
             document.getElementById('transferNotes').disabled = false;
             document.getElementById('submitButton').disabled = false;
 
-            // Fetch available rooms
+            // Fetch available rooms based on current reason selection
             fetchAvailableRooms(
-                bookingData.propertyName,
                 bookingData.property_id,
                 bookingData.room_id,
                 bookingData.check_in,
-                bookingData.check_out
+                bookingData.check_out,
+                document.getElementById('transferReasonSelect').value
             );
         }
 
-        function fetchAvailableRooms(propertyName, property_id, room_id, checkInDate, checkOutDate) {
+        function fetchAvailableRooms(property_id, room_id, checkInDate, checkOutDate, reason = '') {
             const url = new URL('/rooms/change-room/available-rooms', window.location.origin);
             url.searchParams.append('property_id', property_id);
             url.searchParams.append('room_id', room_id);
             url.searchParams.append('check_in', checkInDate);
             url.searchParams.append('check_out', checkOutDate);
+            if (reason) url.searchParams.append('reason', reason);
 
             fetch(url)
                 .then(response => response.json())
