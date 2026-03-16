@@ -118,7 +118,7 @@ class ChangeRoomController extends Controller
                 'order_id' => $orderId,
                 'guest_name' => $firstBooking->user->username ?? 'N/A',
                 'property' => $firstBooking->property,
-                'chain' => $bookings->whereNotNull('previous_booking_id')->values(), // Only transfer records
+                'chain' => $bookings->values(), // All bookings including original as starting point
                 'active_booking' => $activeBooking,
                 'transfer_count' => $bookings->count() - 1, // Exclude original booking
                 'last_transfer_at' => $activeBooking?->room_changed_at ?? $activeBooking?->created_at,
@@ -309,18 +309,10 @@ class ChangeRoomController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
-            // Update rental_status for rooms
-            // Old room: free it unless another active booking still uses it
-            $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
-                ->where('status', 1)
-                ->where('idrec', '!=', $currentBooking->idrec)
-                ->exists();
+            // Old room: free (guest has moved out)
+            $currentRoom->update(['rental_status' => 0]);
 
-            if (!$hasOtherActiveBooking) {
-                $currentRoom->update(['rental_status' => 0]);
-            }
-
-            // New room: always mark as occupied (guest is now in this room)
+            // New room: mark as occupied
             $newRoom->update(['rental_status' => 1]);
 
             return redirect()->route('changerooom.index')
@@ -429,18 +421,10 @@ class ChangeRoomController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
-            // Update rental_status for rooms
-            // Current room: free it unless another active booking still uses it
-            $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
-                ->where('status', 1)
-                ->where('idrec', '!=', $currentBooking->idrec)
-                ->exists();
+            // Current room: free (guest has moved out)
+            $currentRoom->update(['rental_status' => 0]);
 
-            if (!$hasOtherActiveBooking) {
-                $currentRoom->update(['rental_status' => 0]);
-            }
-
-            // Previous room (rollback target): always mark as occupied
+            // Previous room (rollback target): mark as occupied
             $previousRoom->update(['rental_status' => 1]);
 
             return redirect()->route('changerooom.index')
