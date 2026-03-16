@@ -177,26 +177,14 @@ class ChangeRoomController extends Controller
             })
             ->get();
 
-        // Filter rooms that don't have booking conflicts
-        $availableRooms = $rooms->filter(function ($room) use ($checkInDate, $checkOutDate) {
-            $hasConflict = Booking::where('room_id', $room->idrec)
-                ->where('status', 1) // Only check active bookings
-                ->where(function ($query) use ($checkInDate, $checkOutDate) {
-                    $query->where(function ($q1) use ($checkInDate, $checkOutDate) {
-                        $q1->where('check_in_at', '>=', $checkInDate)
-                           ->where('check_in_at', '<', $checkOutDate);
-                    })
-                    ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
-                        $q2->where('check_out_at', '>', $checkInDate)
-                           ->where('check_out_at', '<=', $checkOutDate);
-                    })
-                    ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
-                        $q3->where('check_in_at', '<=', $checkInDate)
-                           ->where('check_out_at', '>=', $checkOutDate);
-                    });
-                })
-                ->exists();
+        // Get order_id of active booking for current room to exclude from conflict check
+        $currentOrderId = $roomId
+            ? Booking::where('room_id', $roomId)->where('status', 1)->value('order_id')
+            : null;
 
+        // Filter rooms that don't have booking conflicts
+        $availableRooms = $rooms->filter(function ($room) use ($checkInDate, $checkOutDate, $currentOrderId) {
+            $hasConflict = $this->checkRoomConflict($room->idrec, $checkInDate, $checkOutDate, $currentOrderId);
             return !$hasConflict;
         });
 
@@ -272,7 +260,7 @@ class ChangeRoomController extends Controller
             $checkInDate = $currentBooking->check_in_at ?? Carbon::parse($currentBooking->transaction?->check_in);
             $checkOutDate = $currentBooking->check_out_at ?? Carbon::parse($currentBooking->transaction?->check_out);
 
-            $hasConflict = $this->checkRoomConflict($request->new_room, $checkInDate, $checkOutDate, $request->order_id);
+            $hasConflict = $this->checkRoomConflict($request->new_room, $checkInDate, $checkOutDate, $currentBooking->order_id);
 
             if ($hasConflict) {
                 return redirect()->back()
