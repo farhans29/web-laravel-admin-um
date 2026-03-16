@@ -528,6 +528,11 @@
 
             document.getElementById('initiateTransferContent').classList.remove('hidden');
             document.getElementById('historyContent').classList.add('hidden');
+
+            const url = new URL(window.location);
+            url.searchParams.delete('tab');
+            url.searchParams.delete('history_search');
+            window.history.replaceState({}, '', url);
         }
 
         function showHistoryTab() {
