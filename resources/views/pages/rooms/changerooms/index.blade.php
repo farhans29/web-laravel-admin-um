@@ -282,31 +282,39 @@
                                         <div class="p-4 overflow-x-auto">
                                             <div class="flex items-center space-x-2 min-w-max">
                                                 @foreach ($history['chain'] as $index => $booking)
+                                                    @php $isOrigin = is_null($booking->previous_booking_id); @endphp
                                                     <!-- Room Node -->
                                                     <div class="flex flex-col items-center">
                                                         <div class="w-24 p-3 rounded-lg border-2 text-center
-                                                            {{ $booking->is_active ? 'border-green-500 bg-green-50' : 'border-gray-300 bg-gray-50' }}">
-                                                            <div class="font-bold text-sm {{ $booking->is_active ? 'text-green-700' : 'text-gray-600' }}">
+                                                            {{ $booking->status == 1 ? 'border-green-500 bg-green-50' : ($isOrigin ? 'border-purple-400 bg-purple-50' : 'border-gray-300 bg-gray-50') }}">
+                                                            <div class="font-bold text-sm {{ $booking->status == 1 ? 'text-green-700' : ($isOrigin ? 'text-purple-700' : 'text-gray-600') }}">
                                                                 {{ $booking->room->name ?? 'N/A' }}
                                                             </div>
                                                             <div class="text-xs text-gray-500">{{ __('ui.no') }} {{ $booking->room->no ?? '' }}</div>
-                                                            @if($booking->is_active)
+                                                            @if($booking->status == 1)
                                                                 <span class="inline-block mt-1 px-2 py-0.5 bg-green-500 text-white text-xs rounded">{{ __('ui.active') }}</span>
+                                                            @elseif($isOrigin)
+                                                                <span class="inline-block mt-1 px-2 py-0.5 bg-purple-500 text-white text-xs rounded">Awal</span>
                                                             @endif
                                                         </div>
                                                         <!-- Info below node -->
                                                         <div class="mt-2 text-center">
-                                                            <span class="text-xs font-medium
-                                                                @if($booking->reason === 'upgrade') text-green-600
-                                                                @elseif($booking->reason === 'downgrade') text-red-600
-                                                                @elseif($booking->reason === 'rollback') text-orange-600
-                                                                @else text-blue-600
-                                                                @endif">
-                                                                {{ ucfirst($booking->reason ?? 'Transfer') }}
-                                                            </span>
-                                                            <div class="text-xs text-gray-400">
-                                                                {{ $booking->room_changed_at ? $booking->room_changed_at->format('d M H:i') : $booking->created_at->format('d M H:i') }}
-                                                            </div>
+                                                            @if($isOrigin)
+                                                                <span class="text-xs font-medium text-purple-600">Kamar Asal</span>
+                                                                <div class="text-xs text-gray-400">
+                                                                    {{ $booking->created_at->format('d M H:i') }}
+                                                                </div>
+                                                            @else
+                                                                <span class="text-xs font-medium
+                                                                    @if($booking->reason === 'rollback') text-orange-600
+                                                                    @else text-blue-600
+                                                                    @endif">
+                                                                    {{ ucfirst($booking->reason ?? 'Transfer') }}
+                                                                </span>
+                                                                <div class="text-xs text-gray-400">
+                                                                    {{ $booking->room_changed_at ? $booking->room_changed_at->format('d M H:i') : $booking->created_at->format('d M H:i') }}
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     </div>
 
