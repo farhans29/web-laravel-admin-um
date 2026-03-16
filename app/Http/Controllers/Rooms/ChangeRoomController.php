@@ -163,16 +163,13 @@ class ChangeRoomController extends Controller
             $currentRoomName = $currentRoom?->name;
         }
 
-        // upgrade/downgrade allows different room type
-        $allowDifferentType = in_array($reason, ['upgrade', 'downgrade']);
-
         // Get rooms that are active and available
         // status = 1 means room is active (not disabled)
         // rental_status = 0 means available, rental_status = 1 means booked (monthly/long-term)
         $rooms = Room::where('property_id', $propertyId)
             ->where('status', 1)
             ->where('rental_status', 0)
-            ->when(!$allowDifferentType && $currentRoomName, function ($query) use ($currentRoomName) {
+            ->when($currentRoomName, function ($query) use ($currentRoomName) {
                 return $query->where('name', $currentRoomName);
             })
             ->when($roomId, function ($query) use ($roomId) {
@@ -259,9 +256,8 @@ class ChangeRoomController extends Controller
                     ->with('error', 'Kamar baru harus dalam properti yang sama.');
             }
 
-            // Validate room type: upgrade/downgrade allows different type, others must match
-            $allowDifferentType = in_array($request->reason, ['upgrade', 'downgrade']);
-            if (!$allowDifferentType && $newRoom->name !== $currentRoom->name) {
+            // Validate new room has the same name/type as current room
+            if ($newRoom->name !== $currentRoom->name) {
                 return redirect()->back()
                     ->with('error', 'Kamar baru harus bertipe sama dengan kamar saat ini (' . $currentRoom->name . ').');
             }
@@ -314,25 +310,18 @@ class ChangeRoomController extends Controller
             ]);
 
             // Update rental_status for rooms
-            // Capture old room's current rental_status before updating
-            $oldRentalStatus = $currentRoom->rental_status;
-
-            // Old room (currentRoom): Set to available if no other active bookings
+            // Old room: free it unless another active booking still uses it
             $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
                 ->where('status', 1)
-                ->where('order_id', '!=', $currentBooking->order_id)
-                ->whereHas('transaction', function ($q) {
-                    $q->where('transaction_status', 'paid')
-                      ->orWhere('transaction_status', 'waiting');
-                })
+                ->where('idrec', '!=', $currentBooking->idrec)
                 ->exists();
 
             if (!$hasOtherActiveBooking) {
                 $currentRoom->update(['rental_status' => 0]);
             }
 
-            // New room: Inherit rental_status from old room
-            $newRoom->update(['rental_status' => $oldRentalStatus]);
+            // New room: always mark as occupied (guest is now in this room)
+            $newRoom->update(['rental_status' => 1]);
 
             return redirect()->route('changerooom.index')
                 ->with('success', 'Kamar berhasil dipindahkan!');
@@ -441,25 +430,18 @@ class ChangeRoomController extends Controller
             ]);
 
             // Update rental_status for rooms
-            // Capture current room's rental_status before updating
-            $currentRentalStatus = $currentRoom->rental_status;
-
-            // Current room: Set to available if no other active bookings
+            // Current room: free it unless another active booking still uses it
             $hasOtherActiveBooking = Booking::where('room_id', $currentRoom->idrec)
                 ->where('status', 1)
-                ->where('order_id', '!=', $currentBooking->order_id)
-                ->whereHas('transaction', function ($q) {
-                    $q->where('transaction_status', 'paid')
-                      ->orWhere('transaction_status', 'waiting');
-                })
+                ->where('idrec', '!=', $currentBooking->idrec)
                 ->exists();
 
             if (!$hasOtherActiveBooking) {
                 $currentRoom->update(['rental_status' => 0]);
             }
 
-            // Previous room (rollback target): Inherit rental_status from current room
-            $previousRoom->update(['rental_status' => $currentRentalStatus]);
+            // Previous room (rollback target): always mark as occupied
+            $previousRoom->update(['rental_status' => 1]);
 
             return redirect()->route('changerooom.index')
                 ->with('success', 'Berhasil rollback ke kamar sebelumnya: ' . $previousRoom->name);

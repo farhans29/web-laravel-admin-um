@@ -178,8 +178,6 @@
                                                         class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                                         disabled required>
                                                         <option value="" disabled selected>{{ __('ui.select_reason') }}</option>
-                                                        <option value="upgrade">Upgrade Kamar</option>
-                                                        <option value="downgrade">Downgrade Kamar</option>
                                                         <option value="maintenance">{{ __('ui.maintenance') }}</option>
                                                         <option value="guest_request">{{ __('ui.guest_request') }}</option>
                                                         <option value="other">{{ __('ui.other') }}</option>
