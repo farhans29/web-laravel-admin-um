@@ -334,14 +334,6 @@ class ChangeRoomController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
-            // UPDATE the transaction with new room data (instead of creating new)
-            if ($currentBooking->transaction) {
-                $currentBooking->transaction->update([
-                    'room_id' => $newRoom->idrec,
-                    'room_name' => $newRoom->name,
-                ]);
-            }
-
             // Update rental_status for rooms
             // Capture old room's current rental_status before updating
             $oldRentalStatus = $currentRoom->rental_status;
@@ -468,14 +460,6 @@ class ChangeRoomController extends Controller
                 'status' => 0,
                 'updated_by' => Auth::id(),
             ]);
-
-            // UPDATE the transaction with previous room data (rollback)
-            if ($currentBooking->transaction) {
-                $currentBooking->transaction->update([
-                    'room_id' => $previousRoom->idrec,
-                    'room_name' => $previousRoom->name,
-                ]);
-            }
 
             // Update rental_status for rooms
             // Capture current room's rental_status before updating
