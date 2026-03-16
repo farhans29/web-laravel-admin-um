@@ -118,7 +118,7 @@ class ChangeRoomController extends Controller
                 'order_id' => $orderId,
                 'guest_name' => $firstBooking->user->username ?? 'N/A',
                 'property' => $firstBooking->property,
-                'chain' => $bookings, // Full chain of bookings
+                'chain' => $bookings->whereNotNull('previous_booking_id')->values(), // Only transfer records
                 'active_booking' => $activeBooking,
                 'transfer_count' => $bookings->count() - 1, // Exclude original booking
                 'last_transfer_at' => $activeBooking?->room_changed_at ?? $activeBooking?->created_at,
@@ -177,47 +177,20 @@ class ChangeRoomController extends Controller
 
         // Filter rooms that don't have booking conflicts
         $availableRooms = $rooms->filter(function ($room) use ($checkInDate, $checkOutDate) {
-            $hasConflict = Booking::with('transaction')
-                ->where('room_id', $room->idrec)
+            $hasConflict = Booking::where('room_id', $room->idrec)
                 ->where('status', 1) // Only check active bookings
                 ->where(function ($query) use ($checkInDate, $checkOutDate) {
-                    // For bookings with check_in_at/check_out_at
-                    $query->where(function ($q) use ($checkInDate, $checkOutDate) {
-                        $q->whereNotNull('check_in_at')
-                          ->where(function ($subQ) use ($checkInDate, $checkOutDate) {
-                              $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
-                                  $q1->where('check_in_at', '>=', $checkInDate)
-                                     ->where('check_in_at', '<', $checkOutDate);
-                              })
-                              ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
-                                  $q2->where('check_out_at', '>', $checkInDate)
-                                     ->where('check_out_at', '<=', $checkOutDate);
-                              })
-                              ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
-                                  $q3->where('check_in_at', '<=', $checkInDate)
-                                     ->where('check_out_at', '>=', $checkOutDate);
-                              });
-                          });
+                    $query->where(function ($q1) use ($checkInDate, $checkOutDate) {
+                        $q1->where('check_in_at', '>=', $checkInDate)
+                           ->where('check_in_at', '<', $checkOutDate);
                     })
-                    // For pending bookings without check_in_at
-                    ->orWhere(function ($q) use ($checkInDate, $checkOutDate) {
-                        $q->whereNull('check_in_at')
-                          ->whereHas('transaction', function ($tq) use ($checkInDate, $checkOutDate) {
-                              $tq->where(function ($subQ) use ($checkInDate, $checkOutDate) {
-                                  $subQ->where(function ($q1) use ($checkInDate, $checkOutDate) {
-                                      $q1->where('check_in', '>=', $checkInDate)
-                                         ->where('check_in', '<', $checkOutDate);
-                                  })
-                                  ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
-                                      $q2->where('check_out', '>', $checkInDate)
-                                         ->where('check_out', '<=', $checkOutDate);
-                                  })
-                                  ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
-                                      $q3->where('check_in', '<=', $checkInDate)
-                                         ->where('check_out', '>=', $checkOutDate);
-                                  });
-                              });
-                          });
+                    ->orWhere(function ($q2) use ($checkInDate, $checkOutDate) {
+                        $q2->where('check_out_at', '>', $checkInDate)
+                           ->where('check_out_at', '<=', $checkOutDate);
+                    })
+                    ->orWhere(function ($q3) use ($checkInDate, $checkOutDate) {
+                        $q3->where('check_in_at', '<=', $checkInDate)
+                           ->where('check_out_at', '>=', $checkOutDate);
                     });
                 })
                 ->exists();

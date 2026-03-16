@@ -296,18 +296,14 @@
                                                         </div>
                                                         <!-- Info below node -->
                                                         <div class="mt-2 text-center">
-                                                            @if($index === 0)
-                                                                <span class="text-xs text-gray-400">{{ __('ui.initial_room') }}</span>
-                                                            @else
-                                                                <span class="text-xs font-medium
-                                                                    @if($booking->reason === 'upgrade') text-green-600
-                                                                    @elseif($booking->reason === 'downgrade') text-red-600
-                                                                    @elseif($booking->reason === 'rollback') text-orange-600
-                                                                    @else text-blue-600
-                                                                    @endif">
-                                                                    {{ ucfirst($booking->reason ?? 'Transfer') }}
-                                                                </span>
-                                                            @endif
+                                                            <span class="text-xs font-medium
+                                                                @if($booking->reason === 'upgrade') text-green-600
+                                                                @elseif($booking->reason === 'downgrade') text-red-600
+                                                                @elseif($booking->reason === 'rollback') text-orange-600
+                                                                @else text-blue-600
+                                                                @endif">
+                                                                {{ ucfirst($booking->reason ?? 'Transfer') }}
+                                                            </span>
                                                             <div class="text-xs text-gray-400">
                                                                 {{ $booking->room_changed_at ? $booking->room_changed_at->format('d M H:i') : $booking->created_at->format('d M H:i') }}
                                                             </div>
