@@ -629,15 +629,6 @@
                 this.classList.remove('border-red-500');
                 document.getElementById('reasonError').classList.add('hidden');
             }
-
-            // Re-fetch available rooms when reason changes (upgrade/downgrade shows all types)
-            const roomId = document.getElementById('roomId').value;
-            if (roomId) {
-                const propertyId = document.getElementById('formCurrentPropertyId').value;
-                const checkIn = document.getElementById('formCheckIn').value;
-                const checkOut = document.getElementById('formCheckOut').value;
-                fetchAvailableRooms(propertyId, roomId, checkIn, checkOut, this.value);
-            }
         });
 
         function formatDateTime(dateStr) {
